@@ -281,3 +281,13 @@ wandb login
 - [NVIDIA AI Stack](../nvidia-stack.md)
 - [CLI Framework](../cli.md)
 - [Data Preparation Module](../data-prep.md)
+
+```{toctree}
+:hidden:
+
+pretrain.md
+sft.md
+rl.md
+evaluate.md
+import.md
+```
