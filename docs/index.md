@@ -154,6 +154,16 @@ nemotron/artifacts.md
 
 <!--
 ```{toctree}
+:caption: Synthetic Data Generation
+:hidden:
+
+About <sdg/index>
+Getting Started <sdg/getting-started>
+Tasks <sdg/how-to/index>
+Reference <sdg/reference/index>
+```
+
+```{toctree}
 :caption: Customization
 :hidden:
 
