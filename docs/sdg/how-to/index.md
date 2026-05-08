@@ -32,7 +32,7 @@ Preview, generate, and customize output path and projection.
 :::
 
 :::{grid-item-card} {octicon}`briefcase;1.5em;sd-mr-1` Create a Domain Dataset
-:link: create-greenteme-airlines-dataset
+:link: create-domain-dataset
 :link-type: doc
 Adapt the pipeline to a custom domain with a seed file and multiple category dimensions.
 +++
@@ -69,9 +69,9 @@ Configure an env.toml profile and run SDG on Lepton or Slurm.
 :hidden:
 :maxdepth: 1
 
-run
-create-greenteme-airlines-dataset
-tool-call-data
+Create a Domain Dataset <create-domain-dataset>
+Create Tool-Calling Dataset <tool-call-data>
 preference-data
 dispatch-to-cluster
+run
 ```

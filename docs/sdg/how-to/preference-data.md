@@ -18,15 +18,20 @@ limitations under the License.
 (sdg-preference-data)=
 # Generate Preference Data for DPO
 
-This guide walks through `rl_pref.yaml`, which generates prompt / chosen / rejected triples for DPO training. Output flows directly into `prep/rl_prep` and then `rl/nemo_rl/dpo`.
+This example shows how to use the `rl_pref.yaml` configurationf file.
+The example generates _prompt_, _chosen_, and _rejected_ triples for direct preference optimization (DPO) training.
+Output flows directly into `prep/rl_prep` and then `rl/nemo_rl/dpo`.
 
 ## How It Works
 
-`rl_pref.yaml` registers two model aliases at different temperatures — a high-temperature creative model and a low-temperature precise model — so the two responses per prompt are meaningfully distinct:
+The `rl_pref.yaml` file registers two model aliases at different temperatures:
+a high-temperature creative model and a low-temperature precise model.
+The goal is to produce two responses per prompt that are distinct:
 
 ```{literalinclude} ../../src/nemotron/steps/sdg/data_designer/config/rl_pref.yaml
 :language: yaml
-:caption: src/nemotron/steps/sdg/data_designer/config/rl_pref.yaml
+:lines: 15-
+:class: scrollable
 ```
 
 For each seed prompt the pipeline:
@@ -56,7 +61,7 @@ For each seed prompt the pipeline:
 
    Output is written to `./output/sdg/rl_pref.jsonl`.
 
-3. Inspect the output. Each line is a preference triple:
+   Inspect the output. Each line is a preference triple:
 
    ```json
    {"prompt": "Explain why retrieval-augmented generation can reduce hallucinations.", "chosen": "RAG grounds the model in retrieved documents, so claims are tied to specific passages rather than purely to weights.", "rejected": "RAG is better because it uses more data and is generally smarter than standard models."}
@@ -70,7 +75,8 @@ Swap `seed_dataset.path` to point at your own prompt seed file. Each line must b
 {"prompt": "Describe the tradeoffs between batch and streaming inference for real-time applications."}
 ```
 
-Keep seed prompts representative of the target capability and diverse across difficulty levels. The judge performs better when the two responses have a clear quality difference — consider widening the temperature gap between the two model aliases if the judge returns many ties or unexpected results.
+Keep seed prompts representative of the target capability and diverse across difficulty levels.
+The judge performs better when the two responses have a clear quality difference--consider widening the temperature gap between the two model aliases if the judge returns many ties or unexpected results.
 
 ## Downstream Pipeline
 

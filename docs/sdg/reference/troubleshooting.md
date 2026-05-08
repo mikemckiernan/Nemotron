@@ -62,21 +62,7 @@ Failure modes for local runs and cluster dispatch. For cluster-specific setup, s
 - Raise `max_tokens` if responses are being cut off mid-JSON.
 ::::
 
-::::{dropdown} `TypeError: create() got an unexpected keyword argument 'wait_until_done'`
-
-**Cause**: An older version of `step.py` passed `wait_until_done=True` to `client.create()`. This argument was removed from `data-designer >= 0.5.6`.
-
-**Solution**: Update `step.py` — remove the `wait_until_done=True` keyword argument from the `client.create()` call. This fix is already present in current versions of the step.
-::::
-
 ## Cluster Dispatch Failures
-
-::::{dropdown} `ErrImagePull` — container image not found
-
-**Cause**: The `container_image` in `env.toml` refers to a tag that does not exist on `nvcr.io`. Tags like `nemo:latest` do not exist.
-
-**Solution**: Look up a known-good image tag from `src/nemotron/steps/env/env_toml/config/lepton.yaml` or `slurm.yaml`. Do not invent image names from memory.
-::::
 
 ::::{dropdown} Job exits immediately with `No such file or directory` (launch script)
 
@@ -117,13 +103,6 @@ NVIDIA_API_KEY = "${oc.env:NVIDIA_API_KEY}"
 ```
 
 And set it in your shell before submitting: `export NVIDIA_API_KEY="..."`.
-::::
-
-::::{dropdown} `can_be_preempted` / `queue_priority` silently ignored
-
-**Cause**: Older versions of `src/nemo_runspec/execution.py` did not forward these fields from env.toml to `LeptonExecutor`.
-
-**Solution**: Ensure the current version of `execution.py` is in use — `can_be_preempted`, `can_preempt`, and `queue_priority` are now forwarded. See the unstaged changes in `execution.py` if you are on an older branch.
 ::::
 
 ## Related

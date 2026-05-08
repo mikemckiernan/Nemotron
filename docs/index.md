@@ -177,8 +177,7 @@ nemotron/artifacts.md
 
 About <sdg/index>
 Getting Started <sdg/getting-started>
-Planning and Outcomes <sdg/explanation/planning>
-How To <sdg/how-to/index>
+Tasks <sdg/how-to/index>
 Reference <sdg/reference/index>
 ```
 

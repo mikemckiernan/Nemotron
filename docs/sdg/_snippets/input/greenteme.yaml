@@ -1,20 +1,9 @@
-# SFT chat data for fictional Greenteme Airlines customer service.
-#
-# Adapts default.yaml to a custom domain by swapping seed topics for airline
-# scenario hooks and adding multiple category dimensions (traveler segment,
-# inquiry type, channel) on top. Output is OpenAI chat-format JSONL ready for
-# prep/sft_packing or AutoModel SFT.
-#
-# Run from a directory where greenteme_inquiry_seeds.jsonl is reachable, e.g.:
-#   nemotron step run sdg/data_designer \
-#     config_path=/path/to/greenteme.yaml preview=true num_records=2
-
 output_dir: ${oc.env:SDG_OUTPUT_DIR,${oc.env:NEMO_RUN_DIR,${oc.env:PWD}/output}/sdg}
 output_path: ${output_dir}/greenteme_sft.jsonl
 num_records: 100
 
 seed_dataset:
-  path: /path/to/greenteme_inquiry_seeds.jsonl
+  path: ${oc.env:PWD}/src/nemotron/steps/sdg/data_designer/data/greenteme_inquiry_seeds.jsonl
   strategy: shuffle
   fields: [scenario]
 

@@ -16,40 +16,51 @@ limitations under the License.
 -->
 
 (sdg-tool-call-data)=
-# Generate Tool-Calling SFT Data
+# Generate Tool-Calling Data for SFT
 
-This guide walks through `customer_support_tools.yaml`, which generates multi-turn ecommerce support conversations that include an OpenAI-style tool call and tool response. Output is training-ready JSONL with `messages` and `tools` arrays.
+Use this guide when you need multi-turn chat JSONL where the assistant issues OpenAI-style `tool_calls` and a `tool` role returns structured results, suitable for supervised fine-tuning (SFT) with a `tools` definition array.
+
+You will use the sample config `customer_support_tools.yaml`, which produces ecommerce-style support threads. Each output row includes a `messages` array (with tool turns) and a `tools` array, ready for packing and training.
+
+### Outcomes
+
+- Understand how one `llm_structured` column can emit a full multi-turn trace in a single model call.
+- Preview, generate, and validate records before training.
+- Know how to retarget seeds, prompts, and schema for your own domain.
 
 ## How It Works
 
-Unlike the single-turn `default.yaml`, this config uses one `llm_structured` column to generate the entire conversation in a single LLM call. The column's `output_format` is a JSON schema that enforces the message shape — roles, tool call structure, and turn count — so the model cannot produce malformed records:
+Compared with single-turn configs such as `default.yaml`, this setup drives the whole conversation from one `llm_structured` column. That column’s `output_format` is a JSON schema that fixes roles, tool-call shape, and approximate turn count so the model cannot drift into invalid shapes.
 
-```{literalinclude} ../../src/nemotron/steps/sdg/data_designer/config/customer_support_tools.yaml
+```{literalinclude} ../../../src/nemotron/steps/sdg/data_designer/config/customer_support_tools.yaml
 :language: yaml
-:caption: src/nemotron/steps/sdg/data_designer/config/customer_support_tools.yaml
+:lines: 15-
+:class: scrollable
 ```
 
-Each record in the seed file contributes five fields that anchor the conversation: `customer_name`, `issue`, `order_id`, `product`, and `policy_hint`. Two category columns (`urgency`, `channel`) add further variety without requiring seed rows for every combination.
+Each seed row supplies five anchor fields the prompt interpolates: `customer_name`, `issue`, `order_id`, `product`, and `policy_hint`. Two extra category columns (`urgency`, `channel`) add variety without multiplying seed rows for every combination.
 
 ## Prerequisites
 
-- `NVIDIA_API_KEY` set in your environment.
-- The bundled seed file `data/customer_support_tool_seeds.jsonl` ships with the step. Add rows to it or swap the path for your own seed file.
+- Nemotron CLI available and working; if this is your first SDG run, complete {doc}`../getting-started`.
+- `NVIDIA_API_KEY` set in the environment.
+- The bundled seed file `data/customer_support_tool_seeds.jsonl` (shipped with the step). Add rows, or point the config at your own JSONL.
 
 ## Procedure
 
-1. Preview two records to verify the structured output matches the schema:
+1. Preview two records so structured output matches the schema:
 
    ```console
    $ nemotron step run sdg/data_designer -c customer_support_tools preview=true num_records=2
    ```
 
-   Inspect the preview for:
-   - Exactly one `tool_calls` message from the assistant.
-   - Exactly one `tool` message with a matching `tool_call_id`.
-   - `function.arguments` is a JSON **string**, not a JSON object.
-   - The assistant's final message references the tool result.
-   - No markdown in message `content` fields.
+   In the preview, confirm:
+
+   - Exactly one assistant message with `tool_calls`.
+   - Exactly one `tool` message whose `tool_call_id` matches the call.
+   - `function.arguments` is a JSON string, not a nested object.
+   - The assistant’s closing turn references the tool result (not a generic reply).
+   - No markdown in message `content` if your trainer expects plain text.
 
 2. Generate the dataset:
 
@@ -57,9 +68,8 @@ Each record in the seed file contributes five fields that anchor the conversatio
    $ nemotron step run sdg/data_designer -c customer_support_tools num_records=200
    ```
 
-   Output is written to `./output/sdg/customer_support_tool_sft.jsonl`.
-
-3. Inspect the output. Each record has a `messages` array and a `tools` array plus metadata:
+   Output path: `./output/sdg/customer_support_tool_sft.jsonl`.
+   Spot-check a few lines. Each record exposes top-level `messages` and `tools` plus metadata, like the following example:
 
    ```json
    {
@@ -79,24 +89,22 @@ Each record in the seed file contributes five fields that anchor the conversatio
 
 ## Adapt to Your Domain
 
-To target a different domain:
+1. Replace or extend the seed file so rows cover your entities. You may rename the five anchor fields as long as the prompt and YAML refer to the same names.
+2. Update `seed_dataset.fields` in the YAML to match those names.
+3. Rewrite the `prompt` for your scenario and tool surface.
+4. Adjust `output_format` if the message layout changes (for example, multiple tool calls per conversation).
 
-1. Replace or extend the seed file with rows covering your domain's entities — the five fields (`customer_name`, `issue`, `order_id`, `product`, `policy_hint`) can be renamed to anything as long as the prompt references them by the same names.
-2. Update `seed_dataset.fields` in the YAML to match the new field names.
-3. Rewrite the `prompt` to describe your domain's scenario and available tool functions.
-4. Update `output_format` if the message structure differs (for example, multiple tool calls per conversation).
-
-Keep the `output_projection` as `structured_messages` — it extracts `messages` and `tools` from the structured column and merges the category metadata into the top-level record.
+Keep `output_projection` as `structured_messages` so the step extracts `messages` and `tools` from the structured column and merges category metadata onto each record.
 
 ## Validation Checklist
 
-Before using generated records for training, sample at least 50 records and check:
+Before training, sample at least 50 records and verify:
 
-- [ ] Every `tool_calls` entry has a corresponding `tool` message with a matching `tool_call_id`.
+- [ ] Every `tool_calls` block has a matching `tool` message with the same `tool_call_id`.
 - [ ] `function.arguments` values are JSON strings, not nested objects.
-- [ ] The assistant's final reply references the tool result (not a generic canned response).
-- [ ] No markdown in `content` fields if the trainer doesn't expect it.
-- [ ] The `tools` array is present and non-empty in every record.
+- [ ] The assistant’s final reply uses the tool result (not a canned answer that ignores it).
+- [ ] No unexpected markdown in `content` if the trainer assumes plain text.
+- [ ] `tools` is present and non-empty on every record.
 
 ## Downstream Use
 
@@ -104,10 +112,9 @@ Before using generated records for training, sample at least 50 records and chec
 customer_support_tool_sft.jsonl  →  prep/sft_packing  →  SFT training
 ```
 
-The `structured_messages` projection writes `messages` and `tools` at the top level, matching the format expected by AutoModel SFT and Megatron-Bridge-style training. Verify with `prep/sft_packing`'s dry run before launching a training job.
+The `structured_messages` projection writes `messages` and `tools` at the top level, matching formats common to AutoModel-style SFT and Megatron-Bridge-style workflows. Run `prep/sft_packing` in dry-run mode before a large training job to confirm the packer accepts your file.
 
 ## Next Steps
 
-- **Output projection reference**: {doc}`../reference/output-projections` — `structured_messages` schema.
-- **Config schema**: {doc}`../reference/config-schema` — `llm_structured` column type and `output_format`.
-- **Dispatch to a cluster**: {doc}`dispatch-to-cluster`.
+- Output projection reference: {doc}`../reference/output-projections` to learn the `structured_messages` schema.
+- Config schema: {doc}`../reference/config-schema` for information about the `llm_structured` column type and `output_format`.

@@ -40,11 +40,13 @@ limitations under the License.
 
 :::{grid-item-card}
 :columns: 4
-**Agentic workflow**: Set the key yourself first:
 
-`! export NVIDIA_API_KEY=...`
+{octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
 
-**Prompt**: Run a 2-record preview of the default SDG pipeline, then generate 5 records and show me the first output record.
+^^^
+
+Run a 2-record preview of the default SDG pipeline, then generate 5 records and show me the first output record.
+
 :::
 ::::
 
@@ -59,22 +61,22 @@ limitations under the License.
 - ✅ Repository cloned and `uv sync` complete. Refer to [Quick Start](../index.md) if you have not done this yet.
 - ✅ `NVIDIA_API_KEY` for the default model, `nvidia/nemotron-3-nano-30b-a3b`.
 
-## How the Bundled Pipeline Works
+## How the Default Pipeline Works
 
-The bundled config `sdg/data_designer:default` combines two sources of variation to generate each record.
+The `src/nemotron/steps/sdg/data_designer/config/default.yaml` combines two sources of variation to generate each record.
 A seed topic, such as "safe deployment of AI assistants in enterprise support workflows" or
-"ways to monitor data drift in production machine learning systems",
-is drawn from `sft_topic_seeds.jsonl`.
+"ways to monitor data drift in production machine learning systems", is drawn from `.../data/sft_topic_seeds.jsonl`.
 A persona category, such as teacher or engineer, is sampled from a fixed category.
-Together they anchor the user prompt: a researcher might  ask a concise technical question about RAG and a student might ask the same topic more tentatively.
+Together they anchor the user prompt: a researcher might ask a concise technical question about RAG and a student might ask the same topic more tentatively.
 
 The pipeline generates a matching assistant response and then projects the result into OpenAI chat-format messages.
 
-The full configuration lives at:
+The full configuration is stored at `src/nemotron/steps/sdg/data_designer/config/default.yaml`.
 
-```{literalinclude} ../../src/nemotron/steps/synth/data_designer/config/default.yaml
+```{literalinclude} ../../src/nemotron/steps/sdg/data_designer/config/default.yaml
 :language: yaml
-:caption: src/nemotron/steps/sdg/data_designer/config/default.yaml
+:lines: 15-
+:class: scrollable
 ```
 
 ## Procedure
@@ -89,41 +91,40 @@ The full configuration lives at:
    Preview mode runs the same pipeline against a tiny record count so you can verify the model alias, prompts, and column wiring cheaply before generating at scale.
 
    ```console
-   $ uv run nemotron step run sdg/data_designer -c default preview=true num_records=2
+   $ nemotron step run sdg/data_designer -c default preview=true num_records=2
    ```
 
-   You should see the pipeline register the model alias, generate two rows, and print a summary:
+   The pipeline registers the model alias, generate two rows, and prints a summary:
 
-   ```{literalinclude} _snippets/output/default/preview.txt
+   ````{dropdown} Example Output
+   :icon: code-block
+
+   ```{literalinclude} _snippets/output/preview.txt
    :language: text
    ```
-
-1. Generate a five-record dataset:
-
-   ```console
-   $ uv run nemotron step run sdg/data_designer -c default num_records=5
-   ```
+   ````
 
    The default output path is `./output/sdg/sft.jsonl`.
    You can override by setting `SDG_OUTPUT_DIR` or specifying `output_path=...` on the command line.
 
    Inspect the output.
    Each line is one chat record.
-   The `openai_messages` projection emits a `messages` array plus the seed `topic` and sampled `persona` as metadata for traceability:
+   The `openai_messages` projection emits a `messages` array plus the seed `topic` and sampled `persona` as metadata for traceability.
+   The following shows one sample record from the `sft.jsonl` file.
 
-   ```{literalinclude} _snippets/output/default/sft_first_record.jsonl
+   ```{literalinclude} _snippets/output/sft_first_record.jsonl
    :language: json
    ```
 
 ## Summary
 
-**What you did**:
+What you learned:
 
 - ✅ Ran a two-record preview to verify the pipeline and model.
 - ✅ Generated a five-record SFT chat dataset with `default.yaml`.
 - ✅ Located the OpenAI-format JSONL output.
 
-**Key takeaways**:
+Key takeaways:
 
 - **Preview first.** `preview=true num_records=N` runs the same pipeline against a tiny record count. Use it to iterate on column specs and prompts before scaling `num_records` up.
 - **Output format matches the trainer.** The `openai_messages` projection emits records ready for `prep/sft_packing` or AutoModel SFT.
