@@ -1,0 +1,1047 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Fine-Tuning NemotronOmni on CORD-v2 Receipts — End-to-End Guide &#8212; Nemotron</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css?v=6e6caa80" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/customize.css?v=86156489" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../../_static/documentation_options.js?v=3a686527"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'usage-cookbook/Nemotron-3-Nano-Omni/automodel/automodel_training_cookbook';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'pr-2';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/termynal.js?v=05ab89e6"></script>
+    <script src="../../../_static/js/termynal-init.js?v=7fa8cdf6"></script>
+
+    <link rel="icon" href="../../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Document Intelligence with Nemotron Parse + Nemotron 3 Nano Omni" href="../doc-intelligence-with-parse/README.html" />
+    <link rel="prev" title="Nemotron-3-Nano-Omni LoRA Fine-Tuning on CORD-v2 — Megatron Bridge" href="../Megatron-bridge/README.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+    <script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" ></script>
+    
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Usage Cookbook</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">Usage Cookbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-Nano2-VL/README.html">Nemotron-Nano2-VL Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-Parse-v1.1/README.html">Nemotron-Parse-v1.1 Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Megatron-bridge/README.html">Nemotron-3-Nano-Omni LoRA Fine-Tuning on CORD-v2 — Megatron Bridge</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Fine-Tuning NemotronOmni on CORD-v2 Receipts — End-to-End Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../doc-intelligence-with-parse/README.html">Document Intelligence with Nemotron Parse + Nemotron 3 Nano Omni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/README.html">Nemotron-3-Super Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/grpo-dapo/README.html">Nemotron-3-Super GRPO/DAPO Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/lora-text2sql/README.html">Nemotron-3-Super Text2SQL Fine-tuning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/lora-text2sql/nemo-automodel/README.html">Nemotron-3-Super Fine-tuning with NeMo AutoModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/lora-text2sql/nemo-megatron-bridge/README.html">Nemotron-3-Super Fine-tuning with Megatron Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/SparkDeploymentGuide/README.html">Nemotron 3 Super — DGX Spark Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Nemotron-3-Super/OpenScaffoldingResources/README.html">Nemotron 3 Super with Agentic Coding Tools</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Use Case Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/README.html">Nemotron Use Case Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/Simple%20Nemotron-3-Nano%20Usage%20Example/README.html">NVIDIA Nemotron 3 Nano - Simple Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/Data%20Science%20ML%20Agent/README.html">Data Science ML Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/RAG%20Agent%20with%20Nemotron%20RAG%20Models/README.html">RAG Agent with Nemotron RAG Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/Intelligent%20Document%20Processing%20with%20Nemotron%20RAG/README.html">📄 Intelligent Document Processing (IDP) with Nemotron RAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/nemotron-voice-rag-agent-example/README.html">🎙️ Voice-Powered RAG Agent with NVIDIA Nemotron Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/sql-lora-finetuning-and-deployment/README.html">LoRA Fine-Tuning &amp; Deployment of Nemotron 3 Nano for Text2SQL</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/README.html">Nemotron 3 Nano Training Recipe</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/embed/README.html">Embedding Model Fine-Tuning Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/artifacts.html">Artifact Types &amp; Lineage</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../customize/index.html">Customize Nemotron</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../customize/models/index.html">Model Knowledge Bases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../customize/models/nano3/index.html">Nemotron Nano 3</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../../customize/models/super3/index.html">Nemotron 3 Super</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customize/steps/index.html">Step Library</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../customize/patterns/index.html">Patterns</a></li>
+
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../customize/contributing/index.html">Contributing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../customize/contributing/add-step.html">Adding a New Step</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../../customize/contributing/add-model.html">Adding a New Model</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../../customize/contributing/add-pattern.html">Adding a New Pattern</a></li>
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nano3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/import.html">Importing Models and Data</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Omni3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Super3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nemotron/super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/kit.html">Nemotron Kit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nvidia-stack.html">NVIDIA AI Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/package-readme.html">nemo_runspec Package</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/nemo-run.html">Execution through NeMo-Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/omegaconf.html">OmegaConf Configuration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/artifacts.html">Artifact Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/wandb.html">Weights &amp; Biases Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/cli.html">CLI Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/data-prep.html">Data Preparation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/xenna-observability.html">Xenna Pipeline Observability</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/data/curation/nemotron-cc.html">Nemotron-CC Data Curation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/data/sdg/long-document.html">Long-Document SDG</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/README.html">Nemotron Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/design-philosophy.html">Design Philosophy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/cli-architecture.html">CLI Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runspec/v1/spec.html">Runspec: <code class="docutils literal notranslate"><span class="pre">[tool.runspec]</span></code> Specification</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Fine-Tuning NemotronOmni on CORD-v2 Receipts — End-to-End Guide</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="fine-tuning-nemotronomni-on-cord-v2-receipts-end-to-end-guide">
+<h1>Fine-Tuning NemotronOmni on CORD-v2 Receipts — End-to-End Guide<a class="headerlink" href="#fine-tuning-nemotronomni-on-cord-v2-receipts-end-to-end-guide" title="Link to this heading">#</a></h1>
+<p><strong>A step-by-step guide for fine-tuning NemotronOmni (33B MoE) to extract structured
+receipt data from scanned images using <a class="reference external" href="https://github.com/NVIDIA-NeMo/Automodel">NeMo Automodel</a>.
+Covers both full SFT and LoRA PEFT.</strong></p>
+<hr class="docutils" />
+<section id="what-is-nemotronomni">
+<h2>What is NemotronOmni?<a class="headerlink" href="#what-is-nemotronomni" title="Link to this heading">#</a></h2>
+<p>NemotronOmni (<code class="docutils literal notranslate"><span class="pre">NemotronH_Nano_Omni_Reasoning_V3</span></code>) is a ~33B multimodal MoE model supporting
+image, video, and audio inputs.</p>
+<p>Key architectural details:</p>
+<ul class="simple">
+<li><p><strong>LLM backbone</strong>: NemotronV3 hybrid Mamba2 + Attention + MoE, 52 layers, hidden dim 2688</p></li>
+<li><p><strong>Vision encoder</strong>: RADIO v2.5-H (ViT-Huge), 256 vision tokens per tile</p></li>
+<li><p><strong>Audio encoder</strong>: Parakeet FastConformer (1024-dim)</p></li>
+<li><p><strong>MoE</strong>: 128 experts per MoE layer, top-6 routing with sigmoid gating</p></li>
+<li><p><strong>Total parameters</strong>: 33B (31.5B trainable with frozen vision/audio towers)</p></li>
+</ul>
+</section>
+<section id="fine-tune-for-receipt-field-extraction">
+<h2>Fine-Tune for Receipt Field Extraction<a class="headerlink" href="#fine-tune-for-receipt-field-extraction" title="Link to this heading">#</a></h2>
+<p>We fine-tune NemotronOmni on the <strong>CORD-v2</strong> (Consolidated Receipt Dataset) to extract
+structured fields from scanned receipts:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">menu</span></code></p></td>
+<td><p>Item names, quantities, prices</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sub_total</span></code></p></td>
+<td><p>Subtotal, tax, discount</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">total</span></code></p></td>
+<td><p>Total price, cash paid, change</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>base model</strong> produces free-form descriptions. After fine-tuning, it outputs
+<strong>structured XML-like token sequences</strong> matching the receipt fields.</p>
+</section>
+<section id="guide-overview">
+<h2>Guide Overview<a class="headerlink" href="#guide-overview" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Step 0</strong></p></td>
+<td><p>Environment setup</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Step 1</strong></p></td>
+<td><p>Explore the CORD-v2 dataset</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Step 2</strong></p></td>
+<td><p>Training configuration (SFT and LoRA)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Step 3</strong></p></td>
+<td><p>Launch fine-tuning</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="hardware-requirements">
+<h2>Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>8x H100 80 GB</strong> GPUs required (MoE with EP=8)</p></li>
+<li><p><strong>SFT memory</strong>: ~49 GiB per GPU</p></li>
+<li><p><strong>LoRA memory</strong>: ~30 GiB per GPU</p></li>
+<li><p><strong>Estimated training time</strong>: ~10 min on 8x H100 (400 steps, 800 training samples)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="step-0-set-up-the-environment">
+<h2>Step 0 — Set Up the Environment<a class="headerlink" href="#step-0-set-up-the-environment" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Inside the NeMo AutoModel container (26.04+):</span>
+<span class="nb">cd</span><span class="w"> </span>/opt/Automodel
+
+<span class="c1"># Or from a source checkout:</span>
+git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>nemotron-omni<span class="w"> </span>ssh://git@gitlab-master.nvidia.com:12051/huiyingl/automodel-omni.git
+<span class="nb">cd</span><span class="w"> </span>automodel-omni
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>NemotronOmni requires <code class="docutils literal notranslate"><span class="pre">mamba_ssm</span></code>, <code class="docutils literal notranslate"><span class="pre">causal_conv1d</span></code>, and <code class="docutils literal notranslate"><span class="pre">decord</span></code> packages, which are included in the NeMo AutoModel container.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="step-1-explore-the-cord-v2-dataset">
+<h2>Step 1 — Explore the CORD-v2 Dataset<a class="headerlink" href="#step-1-explore-the-cord-v2-dataset" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://huggingface.co/datasets/naver-clova-ix/cord-v2">CORD-v2</a> contains scanned
+receipts with structured ground-truth JSON labels.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;naver-clova-ix/cord-v2&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Train      : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test       : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+
+<span class="c1"># Inspect a sample</span>
+<span class="n">ex</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">gt</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ex</span><span class="p">[</span><span class="s2">&quot;ground_truth&quot;</span><span class="p">])[</span><span class="s2">&quot;gt_parse&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Ground-truth keys: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Train</span>      <span class="p">:</span> <span class="mi">800</span> <span class="n">samples</span>
+<span class="n">Validation</span> <span class="p">:</span> <span class="mi">100</span> <span class="n">samples</span>
+<span class="n">Test</span>       <span class="p">:</span> <span class="mi">100</span> <span class="n">samples</span>
+
+<span class="n">Ground</span><span class="o">-</span><span class="n">truth</span> <span class="n">keys</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;menu&#39;</span><span class="p">,</span> <span class="s1">&#39;sub_total&#39;</span><span class="p">,</span> <span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="s1">&#39;void_menu&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="target-format-json-to-token-conversion">
+<h3>Target Format: JSON-to-Token Conversion<a class="headerlink" href="#target-format-json-to-token-conversion" title="Link to this heading">#</a></h3>
+<p>NeMo Automodel converts structured JSON into an XML-like <strong>token sequence</strong> using
+the <code class="docutils literal notranslate"><span class="pre">json2token()</span></code> function. This is the format the model is trained to produce:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">s_total</span><span class="o">&gt;&lt;</span><span class="n">s_total_price</span><span class="o">&gt;</span><span class="mi">45</span><span class="p">,</span><span class="mi">500</span><span class="o">&lt;/</span><span class="n">s_total_price</span><span class="o">&gt;&lt;</span><span class="n">s_changeprice</span><span class="o">&gt;</span><span class="mi">4</span><span class="p">,</span><span class="mi">500</span><span class="o">&lt;/</span><span class="n">s_changeprice</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">s_cashprice</span><span class="o">&gt;</span><span class="mi">50</span><span class="p">,</span><span class="mi">000</span><span class="o">&lt;/</span><span class="n">s_cashprice</span><span class="o">&gt;&lt;/</span><span class="n">s_total</span><span class="o">&gt;&lt;</span><span class="n">s_menu</span><span class="o">&gt;&lt;</span><span class="n">s_price</span><span class="o">&gt;</span><span class="mi">16</span><span class="p">,</span><span class="mi">500</span><span class="o">&lt;/</span><span class="n">s_price</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">s_nm</span><span class="o">&gt;</span><span class="n">REAL</span> <span class="n">GANACHE</span><span class="o">&lt;/</span><span class="n">s_nm</span><span class="o">&gt;&lt;</span><span class="n">s_cnt</span><span class="o">&gt;</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">s_cnt</span><span class="o">&gt;&lt;</span><span class="n">sep</span><span class="o">/&gt;&lt;</span><span class="n">s_price</span><span class="o">&gt;</span><span class="mi">13</span><span class="p">,</span><span class="mi">000</span><span class="o">&lt;/</span><span class="n">s_price</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">s_nm</span><span class="o">&gt;</span><span class="n">EGG</span> <span class="n">TART</span><span class="o">&lt;/</span><span class="n">s_nm</span><span class="o">&gt;&lt;</span><span class="n">s_cnt</span><span class="o">&gt;</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">s_cnt</span><span class="o">&gt;&lt;/</span><span class="n">s_menu</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="step-2-training-configuration">
+<h2>Step 2 — Training Configuration<a class="headerlink" href="#step-2-training-configuration" title="Link to this heading">#</a></h2>
+<section id="full-sft-config">
+<h3>Full SFT Config<a class="headerlink" href="#full-sft-config" title="Link to this heading">#</a></h3>
+<p><strong>Config file</strong>: <code class="docutils literal notranslate"><span class="pre">examples/vlm_finetune/nemotron_omni/nemotron_omni_cord_v2.yaml</span></code></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">recipe</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FinetuneRecipeForVLM</span>
+
+<span class="nt">step_scheduler</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">global_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">local_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">ckpt_every_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">val_every_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="nt">max_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">400</span>
+
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nemo_automodel.NeMoAutoModelForImageTextToText.from_pretrained</span>
+<span class="w">  </span><span class="nt">pretrained_model_name_or_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;path_to_nemotron_omni_v2.0&gt;</span>
+<span class="w">  </span><span class="nt">trust_remote_code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">torch_dtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch.bfloat16</span>
+<span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nemo_automodel.components.models.common.BackendConfig</span>
+<span class="w">    </span><span class="nt">attn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sdpa</span>
+<span class="w">    </span><span class="nt">linear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch</span>
+<span class="w">    </span><span class="nt">rms_norm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_fp32</span>
+<span class="w">    </span><span class="nt">rope_fusion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">enable_deepep</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">fake_balanced_gate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">enable_hf_state_dict_adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">distributed</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fsdp2</span>
+<span class="w">  </span><span class="nt">ep_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span><span class="w">            </span><span class="c1"># 128 MoE experts across 8 GPUs</span>
+
+<span class="nt">freeze_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">freeze_embeddings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">freeze_vision_tower</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">freeze_audio_tower</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">freeze_language_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="nt">dataset</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nemo_automodel.components.datasets.vlm.datasets.make_cord_v2_dataset</span>
+<span class="w">  </span><span class="nt">path_or_dataset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">naver-clova-ix/cord-v2</span>
+<span class="w">  </span><span class="nt">split</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train</span>
+
+<span class="nt">dataloader</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">collate_fn</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nemo_automodel.components.datasets.vlm.collate_fns.nemotron_omni_collate_fn</span>
+<span class="w">    </span><span class="nt">max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span>
+
+<span class="nt">optimizer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch.optim.AdamW</span>
+<span class="w">  </span><span class="nt">lr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1e-4</span>
+<span class="w">  </span><span class="nt">weight_decay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.01</span>
+<span class="w">  </span><span class="nt">betas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.9</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.95</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="lora-peft-config">
+<h3>LoRA PEFT Config<a class="headerlink" href="#lora-peft-config" title="Link to this heading">#</a></h3>
+<p><strong>Config file</strong>: <code class="docutils literal notranslate"><span class="pre">examples/vlm_finetune/nemotron_omni/nemotron_omni_cord_v2_peft.yaml</span></code></p>
+<p>Adds a <code class="docutils literal notranslate"><span class="pre">peft:</span></code> block to apply LoRA to language model linear layers only:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">peft</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nemo_automodel.components._peft.lora.PeftConfig</span>
+<span class="w">  </span><span class="nt">match_all_linear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">exclude_modules</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*vision_tower*&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*vision_model*&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*audio*&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*sound*&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*lm_head*&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*mlp1*&quot;</span>
+<span class="w">  </span><span class="nt">dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<span class="w">  </span><span class="nt">use_triton</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">optimizer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch.optim.AdamW</span>
+<span class="w">  </span><span class="nt">lr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1e-3</span>
+</pre></div>
+</div>
+</section>
+<section id="collate-function">
+<h3>Collate function<a class="headerlink" href="#collate-function" title="Link to this heading">#</a></h3>
+<p>NemotronOmni uses InternVL-style image handling where each <code class="docutils literal notranslate"><span class="pre">&lt;image&gt;</span></code> token in the
+input is replaced by 256 vision embeddings during the model’s forward pass. The
+collate function:</p>
+<ol class="arabic simple">
+<li><p>Extracts images from the conversation</p></li>
+<li><p>Applies the chat template (which adds <code class="docutils literal notranslate"><span class="pre">&lt;think&gt;&lt;/think&gt;</span></code> prefix for the assistant turn)</p></li>
+<li><p>Processes images through the NemotronOmni processor</p></li>
+<li><p>Builds <code class="docutils literal notranslate"><span class="pre">image_flags</span></code> tensors and creates training labels</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="step-3-launch-fine-tuning">
+<h2>Step 3 — Launch Fine-Tuning<a class="headerlink" href="#step-3-launch-fine-tuning" title="Link to this heading">#</a></h2>
+<section id="full-sft">
+<h3>Full SFT<a class="headerlink" href="#full-sft" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc-per-node<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>examples/vlm_finetune/finetune.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-c<span class="w"> </span>examples/vlm_finetune/nemotron_omni/nemotron_omni_cord_v2.yaml
+</pre></div>
+</div>
+</section>
+<section id="lora-peft">
+<h3>LoRA PEFT<a class="headerlink" href="#lora-peft" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc-per-node<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>examples/vlm_finetune/finetune.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-c<span class="w"> </span>examples/vlm_finetune/nemotron_omni/nemotron_omni_cord_v2_peft.yaml
+</pre></div>
+</div>
+</section>
+<section id="training-log-full-sft">
+<h3>Training log — Full SFT<a class="headerlink" href="#training-log-full-sft" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Trainable</span> <span class="n">parameters</span><span class="p">:</span> <span class="mi">31</span><span class="p">,</span><span class="mi">570</span><span class="p">,</span><span class="mi">023</span><span class="p">,</span><span class="mi">872</span>
+<span class="n">Trainable</span> <span class="n">parameters</span> <span class="n">percentage</span><span class="p">:</span> <span class="mf">95.63</span><span class="o">%</span>
+
+<span class="n">step</span>    <span class="mi">0</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.6866</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">7.57</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">37.29</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span>   <span class="mi">33</span>
+<span class="n">step</span>   <span class="mi">10</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0705</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">1.00</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">48.95</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2419</span>
+<span class="n">step</span>   <span class="mi">50</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0173</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.43</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">48.72</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2615</span>
+<span class="n">step</span>  <span class="mi">100</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0115</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.37</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">48.84</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2642</span>
+<span class="n">step</span>  <span class="mi">200</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0099</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.20</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">48.76</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2616</span>
+<span class="n">step</span>  <span class="mi">300</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0056</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.15</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">48.72</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2087</span>
+<span class="n">step</span>  <span class="mi">399</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0039</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.17</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-04</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">48.79</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2616</span>
+
+<span class="n">Validation</span><span class="p">:</span>
+  <span class="n">step</span>  <span class="mi">99</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0363</span>
+  <span class="n">step</span> <span class="mi">199</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0342</span>  <span class="o">&lt;--</span> <span class="n">LOWEST_VAL</span>
+  <span class="n">step</span> <span class="mi">299</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0414</span>
+  <span class="n">step</span> <span class="mi">399</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0425</span>
+</pre></div>
+</div>
+</section>
+<section id="training-log-lora-peft">
+<h3>Training log — LoRA PEFT<a class="headerlink" href="#training-log-lora-peft" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Trainable</span> <span class="n">parameters</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span><span class="mi">422</span><span class="p">,</span><span class="mi">976</span>
+<span class="n">Trainable</span> <span class="n">parameters</span> <span class="n">percentage</span><span class="p">:</span> <span class="mf">0.17</span><span class="o">%</span>
+
+<span class="n">step</span>    <span class="mi">0</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.6866</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">1.92</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.26</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span>   <span class="mi">34</span>
+<span class="n">step</span>   <span class="mi">10</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0557</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.30</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.16</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2455</span>
+<span class="n">step</span>   <span class="mi">50</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0392</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.32</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.16</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">3352</span>
+<span class="n">step</span>  <span class="mi">100</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0309</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.27</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.20</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2456</span>
+<span class="n">step</span>  <span class="mi">200</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0280</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.23</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.34</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2477</span>
+<span class="n">step</span>  <span class="mi">300</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0326</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.31</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.52</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">2737</span>
+<span class="n">step</span>  <span class="mi">399</span> <span class="o">|</span> <span class="n">loss</span> <span class="mf">0.0171</span> <span class="o">|</span> <span class="n">grad_norm</span>  <span class="mf">0.24</span> <span class="o">|</span> <span class="n">lr</span> <span class="mf">1.00e-03</span> <span class="o">|</span> <span class="n">mem</span> <span class="mf">30.33</span> <span class="n">GiB</span> <span class="o">|</span> <span class="n">tps</span><span class="o">/</span><span class="n">gpu</span> <span class="mi">3258</span>
+
+<span class="n">Validation</span><span class="p">:</span>
+  <span class="n">step</span>  <span class="mi">99</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0449</span>  <span class="o">&lt;--</span> <span class="n">LOWEST_VAL</span>
+  <span class="n">step</span> <span class="mi">199</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0524</span>
+  <span class="n">step</span> <span class="mi">299</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0482</span>
+  <span class="n">step</span> <span class="mi">399</span> <span class="o">|</span> <span class="n">val_loss</span> <span class="mf">0.0566</span>
+</pre></div>
+</div>
+</section>
+<section id="checkpoints-saved">
+<h3>Checkpoints saved<a class="headerlink" href="#checkpoints-saved" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">checkpoint_dir</span><span class="o">/</span>
+  <span class="n">epoch_0_step_99</span><span class="o">/</span>
+  <span class="n">epoch_1_step_199</span><span class="o">/</span>
+  <span class="n">epoch_2_step_299</span><span class="o">/</span>
+  <span class="n">epoch_3_step_399</span><span class="o">/</span>
+    <span class="n">model</span><span class="o">/</span>
+      <span class="n">consolidated</span><span class="o">/</span>          <span class="o">&lt;--</span> <span class="n">HF</span><span class="o">-</span><span class="n">compatible</span> <span class="n">checkpoint</span> <span class="k">for</span> <span class="n">inference</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">json</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">safetensors</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">json</span>
+        <span class="n">model</span><span class="o">-</span><span class="mi">00001</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="mf">00017.</span><span class="n">safetensors</span>
+        <span class="o">...</span>
+    <span class="n">optim</span><span class="o">/</span>
+    <span class="n">rng</span><span class="o">/</span>
+    <span class="n">dataloader</span><span class="o">/</span>
+  <span class="n">LATEST</span> <span class="o">-&gt;</span> <span class="n">epoch_3_step_399</span>
+  <span class="n">LOWEST_VAL</span> <span class="o">-&gt;</span> <span class="n">epoch_1_step_199</span>
+  <span class="n">training</span><span class="o">.</span><span class="n">jsonl</span>
+  <span class="n">validation</span><span class="o">.</span><span class="n">jsonl</span>
+</pre></div>
+</div>
+<p>For LoRA, the checkpoint saves adapter weights instead:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">model</span><span class="o">/</span>
+    <span class="n">adapter_model</span><span class="o">.</span><span class="n">safetensors</span>   <span class="p">(</span><span class="o">~</span><span class="mi">27</span> <span class="n">MB</span><span class="p">)</span>
+    <span class="n">adapter_config</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Tip</strong>: <code class="docutils literal notranslate"><span class="pre">LOWEST_VAL</span></code> symlink points to the checkpoint with the best validation loss.</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../Megatron-bridge/README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Nemotron-3-Nano-Omni LoRA Fine-Tuning on CORD-v2 — Megatron Bridge</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../doc-intelligence-with-parse/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Document Intelligence with Nemotron Parse + Nemotron 3 Nano Omni</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-nemotronomni">What is NemotronOmni?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fine-tune-for-receipt-field-extraction">Fine-Tune for Receipt Field Extraction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#guide-overview">Guide Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hardware-requirements">Hardware Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-0-set-up-the-environment">Step 0 — Set Up the Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-explore-the-cord-v2-dataset">Step 1 — Explore the CORD-v2 Dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-format-json-to-token-conversion">Target Format: JSON-to-Token Conversion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-training-configuration">Step 2 — Training Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full-sft-config">Full SFT Config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lora-peft-config">LoRA PEFT Config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#collate-function">Collate function</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-launch-fine-tuning">Step 3 — Launch Fine-Tuning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full-sft">Full SFT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lora-peft">LoRA PEFT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-log-full-sft">Training log — Full SFT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-log-lora-peft">Training log — LoRA PEFT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checkpoints-saved">Checkpoints saved</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+<div class="extra_footer">
+  
+  
+    <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+    
+  
+</div></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1784 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Nano3 Recipes &#8212; Nemotron</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css?v=6e6caa80" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/customize.css?v=86156489" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../../_static/documentation_options.js?v=3a686527"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'customize/models/nano3/recipes';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'pr-2';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/termynal.js?v=05ab89e6"></script>
+    <script src="../../../_static/js/termynal-init.js?v=7fa8cdf6"></script>
+
+    <link rel="icon" href="../../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Nemotron 3 Super" href="../super3/index.html" />
+    <link rel="prev" title="Nano3 Technical Report" href="paper.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+    <script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" ></script>
+    
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Usage Cookbook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/README.html">Usage Cookbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-Nano2-VL/README.html">Nemotron-Nano2-VL Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-Parse-v1.1/README.html">Nemotron-Parse-v1.1 Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Nano-Omni/Megatron-bridge/README.html">Nemotron-3-Nano-Omni LoRA Fine-Tuning on CORD-v2 — Megatron Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Nano-Omni/automodel/automodel_training_cookbook.html">Fine-Tuning NemotronOmni on CORD-v2 Receipts — End-to-End Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Nano-Omni/doc-intelligence-with-parse/README.html">Document Intelligence with Nemotron Parse + Nemotron 3 Nano Omni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/README.html">Nemotron-3-Super Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/grpo-dapo/README.html">Nemotron-3-Super GRPO/DAPO Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/lora-text2sql/README.html">Nemotron-3-Super Text2SQL Fine-tuning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/lora-text2sql/nemo-automodel/README.html">Nemotron-3-Super Fine-tuning with NeMo AutoModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/lora-text2sql/nemo-megatron-bridge/README.html">Nemotron-3-Super Fine-tuning with Megatron Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/SparkDeploymentGuide/README.html">Nemotron 3 Super — DGX Spark Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage-cookbook/Nemotron-3-Super/OpenScaffoldingResources/README.html">Nemotron 3 Super with Agentic Coding Tools</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Use Case Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/README.html">Nemotron Use Case Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/Simple%20Nemotron-3-Nano%20Usage%20Example/README.html">NVIDIA Nemotron 3 Nano - Simple Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/Data%20Science%20ML%20Agent/README.html">Data Science ML Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/RAG%20Agent%20with%20Nemotron%20RAG%20Models/README.html">RAG Agent with Nemotron RAG Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/Intelligent%20Document%20Processing%20with%20Nemotron%20RAG/README.html">📄 Intelligent Document Processing (IDP) with Nemotron RAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/nemotron-voice-rag-agent-example/README.html">🎙️ Voice-Powered RAG Agent with NVIDIA Nemotron Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use-case-examples/sql-lora-finetuning-and-deployment/README.html">LoRA Fine-Tuning &amp; Deployment of Nemotron 3 Nano for Text2SQL</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/README.html">Nemotron 3 Nano Training Recipe</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/embed/README.html">Embedding Model Fine-Tuning Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/artifacts.html">Artifact Types &amp; Lineage</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">Customize Nemotron</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Model Knowledge Bases</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html">Nemotron Nano 3</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../super3/index.html">Nemotron 3 Super</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../steps/index.html">Step Library</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../patterns/index.html">Patterns</a></li>
+
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../contributing/index.html">Contributing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../contributing/add-step.html">Adding a New Step</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../contributing/add-model.html">Adding a New Model</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../contributing/add-pattern.html">Adding a New Pattern</a></li>
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nano3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nano3/import.html">Importing Models and Data</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Omni3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Super3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nemotron/super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/kit.html">Nemotron Kit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/nvidia-stack.html">NVIDIA AI Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/package-readme.html">nemo_runspec Package</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/nemo-run.html">Execution through NeMo-Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/omegaconf.html">OmegaConf Configuration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/artifacts.html">Artifact Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/wandb.html">Weights &amp; Biases Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/cli.html">CLI Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/data-prep.html">Data Preparation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/xenna-observability.html">Xenna Pipeline Observability</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/data/curation/nemotron-cc.html">Nemotron-CC Data Curation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemotron/data/sdg/long-document.html">Long-Document SDG</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/README.html">Nemotron Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/design-philosophy.html">Design Philosophy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/cli-architecture.html">CLI Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runspec/v1/spec.html">Runspec: <code class="docutils literal notranslate"><span class="pre">[tool.runspec]</span></code> Specification</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Customize Nemotron</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Model Knowledge Bases</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Nemotron Nano 3</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Nano3 Recipes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="nano3-recipes">
+<h1>Nano3 Recipes<a class="headerlink" href="#nano3-recipes" title="Link to this heading">#</a></h1>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="nano3-public-recipe-map">
+<h1>Nano3 Public Recipe Map<a class="headerlink" href="#nano3-public-recipe-map" title="Link to this heading">#</a></h1>
+<p>This directory explains how the public Nano3 recipe stack in <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/</span></code> relates to the Nano3 paper.</p>
+<section id="the-short-version">
+<h2>The Short Version<a class="headerlink" href="#the-short-version" title="Link to this heading">#</a></h2>
+<p>The paper describes the <strong>full NVIDIA training/evaluation program</strong> for Nemotron 3 Nano.
+The public repo provides a <strong>reference implementation</strong> of the same stage structure:</p>
+<ol class="arabic simple">
+<li><p>pretraining</p></li>
+<li><p>supervised fine-tuning</p></li>
+<li><p>reinforcement learning</p></li>
+<li><p>evaluation</p></li>
+</ol>
+<p>But the repo repeatedly states that the public recipes use <strong>open-source subsets</strong> of the data and should be treated as <strong>reference implementations</strong>, not exact reproductions of the published benchmark runs.</p>
+</section>
+<section id="stage-map">
+<h2>Stage Map<a class="headerlink" href="#stage-map" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Repo path</p></th>
+<th class="head"><p>Main framework</p></th>
+<th class="head"><p>Public artifact shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/</span></code></p></td>
+<td><p>Megatron-Bridge</p></td>
+<td><p>Megatron checkpoint</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/</span></code></p></td>
+<td><p>Megatron-Bridge</p></td>
+<td><p>packed SFT Parquet + Megatron checkpoint</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/</span></code></p></td>
+<td><p>NeMo-RL + NeMo-Gym + vLLM</p></td>
+<td><p>JSONL RL data + aligned Megatron checkpoint</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage3_eval/</span></code></p></td>
+<td><p>NeMo Evaluator</p></td>
+<td><p>benchmark metrics / W&amp;B results</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="paper-public-recipe-alignment">
+<h2>Paper → Public Recipe Alignment<a class="headerlink" href="#paper-public-recipe-alignment" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paper topic</p></th>
+<th class="head"><p>Public stage</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>§2.1 architecture</p></td>
+<td><p>stage0 pretrain</p></td>
+<td><p>recipe invokes Nano3 Megatron-Bridge recipe target</p></td>
+</tr>
+<tr class="row-odd"><td><p>§2.2 pretraining data</p></td>
+<td><p>stage0 pretrain data prep</p></td>
+<td><p>public data blend is an open subset, not the full internal mix</p></td>
+</tr>
+<tr class="row-even"><td><p>§2.3 two-phase curriculum</p></td>
+<td><p>stage0 pretrain</p></td>
+<td><p>represented indirectly via configs and data blends, not a single paper-faithful manifest</p></td>
+</tr>
+<tr class="row-odd"><td><p>§2.5 long-context CPT</p></td>
+<td><p>stage0 pretrain</p></td>
+<td><p>public recipe is the closest pretraining scaffold, but long-context specifics are not surfaced as a one-command paper clone</p></td>
+</tr>
+<tr class="row-even"><td><p>§3.1 SFT</p></td>
+<td><p>stage1 sft</p></td>
+<td><p>public data prep applies chat template + role masking + packing</p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.2 RLVR</p></td>
+<td><p>stage2 rl</p></td>
+<td><p>public GRPO config mirrors major paper settings closely</p></td>
+</tr>
+<tr class="row-even"><td><p>§3.3 RLHF / DPO</p></td>
+<td><p>stage2 rl + paper-only notes</p></td>
+<td><p>RLHF details are mostly documented in the paper, not exposed as a separate public stage</p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.4 evaluations</p></td>
+<td><p>stage3 eval</p></td>
+<td><p>public default benchmark set is smaller than the full paper matrix</p></td>
+</tr>
+<tr class="row-even"><td><p>§4 quantization</p></td>
+<td><p>model-card deployment path</p></td>
+<td><p>public FP8 checkpoint is released, but quantization is not a separate recipe stage here</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="what-the-public-recipes-reproduce-well">
+<h2>What the Public Recipes Reproduce Well<a class="headerlink" href="#what-the-public-recipes-reproduce-well" title="Link to this heading">#</a></h2>
+<p>They are strongest when you want to reproduce the <strong>shape</strong> of the system:</p>
+<ul class="simple">
+<li><p>Megatron-format pretraining and SFT</p></li>
+<li><p>chat-template-based SFT data prep</p></li>
+<li><p>GRPO-based RL on JSONL task data</p></li>
+<li><p>evaluator-driven benchmark runs with W&amp;B artifacts</p></li>
+<li><p>artifact lineage between stages</p></li>
+<li><p>cluster execution via NeMo-Run</p></li>
+</ul>
+</section>
+<section id="what-they-do-not-promise">
+<h2>What They Do <em>Not</em> Promise<a class="headerlink" href="#what-they-do-not-promise" title="Link to this heading">#</a></h2>
+<p>They do <strong>not</strong> promise:</p>
+<ul class="simple">
+<li><p>the full proprietary/private training data used for the paper</p></li>
+<li><p>exact published data mixtures and sampling schedules at every point</p></li>
+<li><p>exact cluster scale and internal infra used for all reported results</p></li>
+<li><p>exact published scores from a public clean-room rerun</p></li>
+</ul>
+<p>That boundary should be stated clearly whenever the user asks about “reproducing the paper.”</p>
+</section>
+<section id="where-the-public-repo-is-especially-close-to-the-paper">
+<h2>Where the Public Repo Is Especially Close to the Paper<a class="headerlink" href="#where-the-public-repo-is-especially-close-to-the-paper" title="Link to this heading">#</a></h2>
+<p>Stage 2 RL is the closest public mirror of the paper’s training design because the repo config exposes many paper-aligned values directly:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grpo.num_prompts_per_step</span> <span class="pre">=</span> <span class="pre">128</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpo.num_generations_per_prompt</span> <span class="pre">=</span> <span class="pre">16</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy.train_global_batch_size</span> <span class="pre">=</span> <span class="pre">2048</span></code></p></li>
+<li><p>frozen MoE router</p></li>
+<li><p>aux-loss-free expert-bias updates</p></li>
+<li><p>NeMo-Gym environment list</p></li>
+<li><p>vLLM rollout backend</p></li>
+</ul>
+</section>
+<section id="where-the-public-repo-is-intentionally-lighter">
+<h2>Where the Public Repo Is Intentionally Lighter<a class="headerlink" href="#where-the-public-repo-is-intentionally-lighter" title="Link to this heading">#</a></h2>
+<p>The public SFT recipe is the clearest example.
+The paper describes:</p>
+<ul class="simple">
+<li><p>18M total samples</p></li>
+<li><p>13k steps</p></li>
+<li><p>sequence packing to 256k</p></li>
+<li><p>many proprietary or not-fully-open post-training mixtures</p></li>
+</ul>
+<p>The public stage1 recipe instead provides a compact operational path:</p>
+<ul class="simple">
+<li><p>open-source SFT blend</p></li>
+<li><p>packed Parquet data prep</p></li>
+<li><p>4k-scale pack settings by default in the public pipeline</p></li>
+<li><p>cluster-friendly Megatron-Bridge configs</p></li>
+</ul>
+<p>So the right framing is:</p>
+<blockquote>
+<div><p>“The repo exposes the methodology and wiring, not a literal paper benchmark rerun.”</p>
+</div></blockquote>
+</section>
+<section id="reproduce-with-nemotron-customize">
+<h2>Reproduce with nemotron-customize<a class="headerlink" href="#reproduce-with-nemotron-customize" title="Link to this heading">#</a></h2>
+<p>Use this map when the user shifts from “what is Nano3?” to “help me build something like Nano3.”</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Goal</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">nemotron-customize</span></code> path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>curate text corpora</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">curate/nemo_curator</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>pack SFT JSONL for Megatron</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>run Nano3-style Megatron SFT</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>run smaller-GPU SFT</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>run GRPO alignment</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlvr</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>benchmark a checkpoint</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>convert released HF weights to Megatron</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">convert/hf_to_megatron</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>export Megatron checkpoint back to HF</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">convert/megatron_to_hf</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="important-gaps-and-maturity-notes">
+<h2>Important Gaps and Maturity Notes<a class="headerlink" href="#important-gaps-and-maturity-notes" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/STEPS.md</span></code> does <strong>not</strong> currently expose a catalog <code class="docutils literal notranslate"><span class="pre">pretrain/*</span></code> step.
+So when a user wants to build Nano3-like pretraining with <code class="docutils literal notranslate"><span class="pre">/nemotron-customize</span></code>:</p>
+<ul class="simple">
+<li><p>treat stage0 as an <strong>Explorer-mode</strong> or direct recipe task</p></li>
+<li><p>ground on <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/</span></code></p></li>
+<li><p>optionally combine with <code class="docutils literal notranslate"><span class="pre">curate/nemo_curator</span></code> for upstream corpus work</p></li>
+</ul>
+<p>For RL, use <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlvr</span></code> as the catalog step and keep Nano3-specific details grounded in the recipe:</p>
+<ul class="simple">
+<li><p>mention <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlvr</span></code> as the step surface</p></li>
+<li><p>ground details on <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/</span></code></p></li>
+</ul>
+</section>
+<section id="recommended-answer-pattern">
+<h2>Recommended Answer Pattern<a class="headerlink" href="#recommended-answer-pattern" title="Link to this heading">#</a></h2>
+<p>When the user asks a reproduction question, answer in this order:</p>
+<ol class="arabic simple">
+<li><p><strong>Paper answer</strong> — what the report says</p></li>
+<li><p><strong>Public recipe answer</strong> — what the repo exposes</p></li>
+<li><p><strong>Customization answer</strong> — which <code class="docutils literal notranslate"><span class="pre">/nemotron-customize</span></code> step(s) to use</p></li>
+<li><p><strong>Gap note</strong> — what is not public or not yet cataloged</p></li>
+</ol>
+</section>
+<section id="read-next">
+<h2>Read Next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stage0_pretrain.md</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage1_sft.md</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage2_rl.md</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage3_eval.md</span></code></p></li>
+</ul>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="stage-0-recipe-bridge-pretraining">
+<h1>Stage 0 Recipe Bridge: Pretraining<a class="headerlink" href="#stage-0-recipe-bridge-pretraining" title="Link to this heading">#</a></h1>
+<p>This file connects the paper’s pretraining story to <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/</span></code>.</p>
+<section id="what-exists-publicly">
+<h2>What Exists Publicly<a class="headerlink" href="#what-exists-publicly" title="Link to this heading">#</a></h2>
+<p>Public files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/data_prep.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/train.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/config/default.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/config/tiny.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/README.md</span></code></p></li>
+</ul>
+<p>The stage is designed as:</p>
+<ol class="arabic simple">
+<li><p>raw text blend →</p></li>
+<li><p>tokenized Megatron <code class="docutils literal notranslate"><span class="pre">bin/idx</span></code> shards + <code class="docutils literal notranslate"><span class="pre">blend.json</span></code> →</p></li>
+<li><p>Megatron-Bridge pretraining run →</p></li>
+<li><p>base Megatron checkpoint artifact</p></li>
+</ol>
+</section>
+<section id="what-it-maps-to-in-the-paper">
+<h2>What It Maps To In The Paper<a class="headerlink" href="#what-it-maps-to-in-the-paper" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paper section</p></th>
+<th class="head"><p>Public recipe element</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>§2.2 pretraining data</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">data_prep.py</span></code> + data blend configs</p></td>
+</tr>
+<tr class="row-odd"><td><p>§2.3 data mixture and ordering</p></td>
+<td><p>blend JSONs and stage-level config selection</p></td>
+</tr>
+<tr class="row-even"><td><p>§2.4 hyperparameters</p></td>
+<td><p>Megatron recipe target + train/checkpoint settings</p></td>
+</tr>
+<tr class="row-odd"><td><p>§2.5 long-context extension</p></td>
+<td><p>conceptually stage0-adjacent, but not a one-command public paper clone</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="public-defaults">
+<h2>Public Defaults<a class="headerlink" href="#public-defaults" title="Link to this heading">#</a></h2>
+<p>From <code class="docutils literal notranslate"><span class="pre">config/default.yaml</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>container</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nvcr.io/nvidian/nemo:26.02.super.rc1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>recipe target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">megatron.bridge.recipes.nemotronh.nemotron_3_nano.nemotron_3_nano_pretrain_config</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>data input</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">${art:data,path}/blend.json</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>checkpoint save dir</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/nemo_run/nano3-pretrain-model</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>checkpoint save interval</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">20</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>From <code class="docutils literal notranslate"><span class="pre">config/tiny.yaml</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>recipe target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">megatron.bridge.recipes.qwen.qwen3.qwen3_8b_pretrain_config</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>train iterations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1700</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>global batch size</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>LR warmup iters</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>checkpoint path</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/nemo_run/nano3-pretrain-model-tiny</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Interpretation:</p>
+<ul class="simple">
+<li><p>the public stage exposes a <strong>Nano3-shaped Megatron pretraining path</strong></p></li>
+<li><p>the tiny config is a <strong>debug/smoke path</strong>, not a miniature faithful Nano3 run</p></li>
+</ul>
+</section>
+<section id="data-prep-behavior">
+<h2>Data Prep Behavior<a class="headerlink" href="#data-prep-behavior" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">data_prep.py</span></code> is a real pipeline, not a placeholder.
+Its structure shows that stage0 public pretraining depends on Nemotron’s data-prep stack:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DataBlend</span></code></p></li>
+<li><p>tokenizer config</p></li>
+<li><p>plan/download/tokenization stages</p></li>
+<li><p>split distribution</p></li>
+<li><p>W&amp;B artifact logging</p></li>
+</ul>
+<p>Its output shape is the expected Megatron pretraining corpus form:</p>
+<ul class="simple">
+<li><p>shard <code class="docutils literal notranslate"><span class="pre">.bin/.idx</span></code> files</p></li>
+<li><p>per-split directories</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blend.json</span></code></p></li>
+<li><p>artifact registration for downstream training</p></li>
+</ul>
+</section>
+<section id="what-the-recipe-reproduces-faithfully">
+<h2>What The Recipe Reproduces Faithfully<a class="headerlink" href="#what-the-recipe-reproduces-faithfully" title="Link to this heading">#</a></h2>
+<p>The public recipe faithfully reproduces the <em>operational pattern</em> of the paper:</p>
+<ul class="simple">
+<li><p>Megatron-format corpus preparation</p></li>
+<li><p>Megatron-Bridge training entrypoint</p></li>
+<li><p>distributed checkpointing</p></li>
+<li><p>artifact lineage</p></li>
+<li><p>cluster execution via NeMo-Run</p></li>
+</ul>
+</section>
+<section id="what-it-does-not-reproduce-exactly">
+<h2>What It Does Not Reproduce Exactly<a class="headerlink" href="#what-it-does-not-reproduce-exactly" title="Link to this heading">#</a></h2>
+<p>The paper reports:</p>
+<ul class="simple">
+<li><p>25T tokens total</p></li>
+<li><p>two curriculum phases</p></li>
+<li><p>a 94% phase switch</p></li>
+<li><p>long-context CPT</p></li>
+<li><p>a full fifteen-category training mixture</p></li>
+<li><p>internal and open data combined</p></li>
+</ul>
+<p>The public recipe does <strong>not</strong> claim a literal paper rerun.
+Its README explicitly says the recipe uses <strong>open-source data only</strong> and that results will differ from the paper.</p>
+</section>
+<section id="operator-guidance">
+<h2>Operator Guidance<a class="headerlink" href="#operator-guidance" title="Link to this heading">#</a></h2>
+<p>If a user asks:</p>
+<blockquote>
+<div><p>“Can I reproduce Nano3 pretraining?”</p>
+</div></blockquote>
+<p>The best precise answer is:</p>
+<ul class="simple">
+<li><p><strong>yes, structurally</strong> — the repo exposes the same kind of stage</p></li>
+<li><p><strong>no, not exactly</strong> — the paper’s full data mix and conditions are not fully public</p></li>
+</ul>
+</section>
+<section id="useful-file-anchors">
+<h2>Useful File Anchors<a class="headerlink" href="#useful-file-anchors" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Need</p></th>
+<th class="head"><p>File</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>actual data-prep pipeline</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/data_prep.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>training launcher</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/train.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>public defaults</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/config/default.yaml</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>smoke config</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/config/tiny.yaml</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>usage docs</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/README.md</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id1">
+<h2>Reproduce with nemotron-customize<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>Important limitation:</p>
+<ul class="simple">
+<li><p>there is <strong>no catalog pretraining step yet</strong> in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/STEPS.md</span></code></p></li>
+</ul>
+<p>So the correct <code class="docutils literal notranslate"><span class="pre">/nemotron-customize</span></code> handoff is:</p>
+<ol class="arabic simple">
+<li><p>use <strong>Explorer mode</strong> grounded on <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/</span></code></p></li>
+<li><p>optionally use <code class="docutils literal notranslate"><span class="pre">curate/nemo_curator</span></code> for corpus acquisition/filtering upstream</p></li>
+<li><p>treat Megatron pretraining config as recipe-driven rather than step-manifest-driven</p></li>
+</ol>
+</section>
+<section id="good-one-sentence-handoff">
+<h2>Good One-Sentence Handoff<a class="headerlink" href="#good-one-sentence-handoff" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><p>“Nano3 stage0 exists as a public recipe, but not yet as a catalog <code class="docutils literal notranslate"><span class="pre">nemotron-customize</span></code> step, so I’d hand this off as an Explorer-mode pretraining task grounded on <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage0_pretrain/</span></code>.”</p>
+</div></blockquote>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="stage-1-recipe-bridge-sft">
+<h1>Stage 1 Recipe Bridge: SFT<a class="headerlink" href="#stage-1-recipe-bridge-sft" title="Link to this heading">#</a></h1>
+<p>This file connects the paper’s SFT section to <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/</span></code>.</p>
+<section id="id2">
+<h2>What Exists Publicly<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>Public files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/data_prep.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/train.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/config/default.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/config/tiny.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/README.md</span></code></p></li>
+</ul>
+<p>The stage is a two-part pipeline:</p>
+<ol class="arabic simple">
+<li><p>OpenAI-format chat data → chat template → tokenization → role-based loss masking → packed Parquet</p></li>
+<li><p>packed Parquet + Megatron checkpoint → Megatron-Bridge SFT</p></li>
+</ol>
+</section>
+<section id="id3">
+<h2>What It Maps To In The Paper<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paper section</p></th>
+<th class="head"><p>Public recipe element</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>§3.1.1 chat template</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">data_prep.py</span></code> and SFT docs</p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.1.2 data</p></td>
+<td><p>SFT blend config and data-prep stage</p></td>
+</tr>
+<tr class="row-even"><td><p>§3.1.3 filtering</p></td>
+<td><p>validation and prep logic documented in <code class="docutils literal notranslate"><span class="pre">docs/nemotron/nano3/sft.md</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.1.4 data mixture</p></td>
+<td><p>blend JSON + public subset caveat</p></td>
+</tr>
+<tr class="row-even"><td><p>§3.1.5 reasoning control</p></td>
+<td><p>public docs explain reasoning-on/off and budget-control shaping, though not as a separate runtime knob in stage1</p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.1.6 hyperparameters</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">config/default.yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">config/tiny.yaml</span></code>, and <code class="docutils literal notranslate"><span class="pre">train.py</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="public-data-prep-behavior">
+<h2>Public Data Prep Behavior<a class="headerlink" href="#public-data-prep-behavior" title="Link to this heading">#</a></h2>
+<p>The public SFT prep path does real transformation work:</p>
+<ul class="simple">
+<li><p>apply Nano3 chat template</p></li>
+<li><p>split text into role-labeled chunks</p></li>
+<li><p>tokenize</p></li>
+<li><p>build assistant-only loss masks</p></li>
+<li><p>pack examples into fixed-size sequences</p></li>
+<li><p>write packed Parquet shards for Megatron-Bridge</p></li>
+</ul>
+<p>That matches the paper’s core SFT mechanics even though the public data mixture is smaller and more open.</p>
+</section>
+<section id="public-training-defaults">
+<h2>Public Training Defaults<a class="headerlink" href="#public-training-defaults" title="Link to this heading">#</a></h2>
+<p>From <code class="docutils literal notranslate"><span class="pre">config/default.yaml</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>run data artifact</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nano3-sft-data:latest</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>run model artifact</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nano3-pretrain-model:latest</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>container</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nvcr.io/nvidian/nemo:26.02.super.rc1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>recipe target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">megatron.bridge.recipes.nemotronh.nemotron_3_nano.nemotron_3_nano_finetune_config</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>packed sequence</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>PEFT</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> (full SFT)</p></td>
+</tr>
+<tr class="row-even"><td><p>train iterations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1700</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>global batch size</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>tensor parallel</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>context parallel</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>pipeline parallel</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>checkpoint finetune mode</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The public config also mounts pinned Megatron-LM and Megatron-Bridge revisions into the container.</p>
+</section>
+<section id="tiny-config-notes">
+<h2>Tiny Config Notes<a class="headerlink" href="#tiny-config-notes" title="Link to this heading">#</a></h2>
+<p>From <code class="docutils literal notranslate"><span class="pre">config/tiny.yaml</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>recipe target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qwen3_8b_finetune_config</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>train iterations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1700</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>global batch size</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>tensor parallel</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>pipeline parallel</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Interpretation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> is for smoke/debug runs</p></li>
+<li><p>it is <strong>not</strong> a paper-faithful Nano3 SFT schedule</p></li>
+</ul>
+</section>
+<section id="important-public-vs-paper-difference">
+<h2>Important Public-vs-Paper Difference<a class="headerlink" href="#important-public-vs-paper-difference" title="Link to this heading">#</a></h2>
+<p>The paper reports SFT on:</p>
+<ul class="simple">
+<li><p>18M total samples</p></li>
+<li><p>13,000 steps</p></li>
+<li><p>sequence packing to <strong>256k</strong></p></li>
+</ul>
+<p>The public stage1 recipe defaults to a much smaller operational footprint.
+That means the right answer is:</p>
+<ul class="simple">
+<li><p><strong>methodology aligns</strong></p></li>
+<li><p><strong>exact scale does not</strong></p></li>
+</ul>
+</section>
+<section id="why-this-stage-is-still-valuable">
+<h2>Why This Stage Is Still Valuable<a class="headerlink" href="#why-this-stage-is-still-valuable" title="Link to this heading">#</a></h2>
+<p>Even with that scale gap, stage1 is the best public explanation of how Nano3 SFT works in practice:</p>
+<ul class="simple">
+<li><p>the chat-template format</p></li>
+<li><p>assistant-only loss masking</p></li>
+<li><p>packed-sequence training</p></li>
+<li><p>Megatron checkpoint loading</p></li>
+<li><p>artifact handoff from stage0 to stage1</p></li>
+</ul>
+</section>
+<section id="where-to-point-users">
+<h2>Where To Point Users<a class="headerlink" href="#where-to-point-users" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Need</p></th>
+<th class="head"><p>File</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>public SFT data prep code</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/data_prep.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>public SFT train code</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/train.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>default config</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/config/default.yaml</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>tiny config</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage1_sft/config/tiny.yaml</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>explanatory docs</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">docs/nemotron/nano3/sft.md</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id4">
+<h2>Reproduce with nemotron-customize<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>This stage maps cleanly to catalog steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code></p></li>
+</ol>
+<p>Optional surrounding steps:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">convert/hf_to_megatron</span></code> if the user starts from released HF weights instead of a Megatron checkpoint</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> if the user wants a smaller-GPU or LoRA-first path rather than Megatron SFT</p></li>
+</ul>
+</section>
+<section id="good-handoff-pattern">
+<h2>Good Handoff Pattern<a class="headerlink" href="#good-handoff-pattern" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><p>“For a public Nano3-style SFT build, use <code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code> to produce packed Parquet and <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code> to run Megatron-Bridge fine-tuning. That reproduces the stage shape, but not the paper’s full 18M-sample, 256k packed run.”</p>
+</div></blockquote>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="stage-2-recipe-bridge-rl">
+<h1>Stage 2 Recipe Bridge: RL<a class="headerlink" href="#stage-2-recipe-bridge-rl" title="Link to this heading">#</a></h1>
+<p>This file connects the paper’s RL sections to <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/</span></code>.</p>
+<section id="id5">
+<h2>What Exists Publicly<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>Public files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/data_prep.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/train.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/config/default.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/config/tiny.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/README.md</span></code></p></li>
+</ul>
+<p>The public RL stage is real and substantial.
+It covers:</p>
+<ol class="arabic simple">
+<li><p>RL data prep into NeMo-RL-friendly JSONL</p></li>
+<li><p>placeholder resolution for external HF-linked examples</p></li>
+<li><p>GRPO training with NeMo-RL</p></li>
+<li><p>NeMo-Gym reward environments</p></li>
+<li><p>vLLM generation during rollouts</p></li>
+</ol>
+</section>
+<section id="id6">
+<h2>What It Maps To In The Paper<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paper section</p></th>
+<th class="head"><p>Public recipe element</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>§3.2.1 environments</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">env.nemo_gym.config_paths</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.2.2 curriculum</p></td>
+<td><p>dataset blend + RL data prep</p></td>
+</tr>
+<tr class="row-even"><td><p>§3.2.3 RLVR surpassing SFT</p></td>
+<td><p>not a recipe knob; paper result only</p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.2.4 infrastructure</p></td>
+<td><p>NeMo-RL + Megatron backend + Ray + vLLM config</p></td>
+</tr>
+<tr class="row-even"><td><p>§3.2.5 algorithm</p></td>
+<td><p>GRPO config values in <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.3 RLHF</p></td>
+<td><p>paper-driven understanding; not a separate public recipe stage</p></td>
+</tr>
+<tr class="row-even"><td><p>Appendix C DPO</p></td>
+<td><p>paper-driven understanding; not a standalone public stage here</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="paper-aligned-public-defaults">
+<h2>Paper-Aligned Public Defaults<a class="headerlink" href="#paper-aligned-public-defaults" title="Link to this heading">#</a></h2>
+<p>The public <code class="docutils literal notranslate"><span class="pre">config/default.yaml</span></code> exposes several paper-aligned numbers directly:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head text-right"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grpo.num_prompts_per_step</span></code></p></td>
+<td class="text-right"><p>128</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">grpo.num_generations_per_prompt</span></code></p></td>
+<td class="text-right"><p>16</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">policy.train_global_batch_size</span></code></p></td>
+<td class="text-right"><p>2048</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">policy.max_total_sequence_length</span></code></p></td>
+<td class="text-right"><p>49152</p></td>
+</tr>
+<tr class="row-even"><td><p>optimizer LR</p></td>
+<td class="text-right"><p>3e-6</p></td>
+</tr>
+<tr class="row-odd"><td><p>tensor parallel</p></td>
+<td class="text-right"><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>pipeline parallel</p></td>
+<td class="text-right"><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>context parallel</p></td>
+<td class="text-right"><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>expert parallel</p></td>
+<td class="text-right"><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>cluster nodes</p></td>
+<td class="text-right"><p>32</p></td>
+</tr>
+<tr class="row-even"><td><p>GPUs per node</p></td>
+<td class="text-right"><p>8</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>That makes stage2 the public Nano3 stage that most directly reflects the paper’s exposed algorithmic settings.</p>
+</section>
+<section id="important-training-details-in-the-public-config">
+<h2>Important Training Details In The Public Config<a class="headerlink" href="#important-training-details-in-the-public-config" title="Link to this heading">#</a></h2>
+<p>The default RL config also shows the paper’s intended stability choices in operational form:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">freeze_moe_router:</span> <span class="pre">true</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moe_router_load_balancing_type:</span> <span class="pre">&quot;none&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moe_router_enable_expert_bias:</span> <span class="pre">true</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_on_policy_kl_approximation:</span> <span class="pre">True</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_importance_sampling_correction:</span> <span class="pre">True</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">token_level_loss:</span> <span class="pre">True</span></code></p></li>
+<li><p>sequence packing enabled</p></li>
+<li><p>colocated vLLM rollouts enabled</p></li>
+</ul>
+<p>These are not generic RL defaults; they are Nano3-specific alignment choices.</p>
+</section>
+<section id="environment-coverage">
+<h2>Environment Coverage<a class="headerlink" href="#environment-coverage" title="Link to this heading">#</a></h2>
+<p>The public stage wires these NeMo-Gym environments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">math_with_judge</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">code_gen</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">workplace_assistant</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mcqa</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instruction_following</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">structured_outputs_json</span></code></p></li>
+</ul>
+<p>That list mirrors the six-environment RLVR framing from the paper.</p>
+</section>
+<section id="public-data-prep-specifics">
+<h2>Public Data Prep Specifics<a class="headerlink" href="#public-data-prep-specifics" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">data_prep.py</span></code> also reveals an important public-reproduction detail:</p>
+<ul class="simple">
+<li><p>some training records are placeholders that resolve to external datasets like DAPO and Skywork</p></li>
+<li><p>the stage reconstructs usable JSONL samples from those linked records</p></li>
+<li><p>that makes stage2 a concrete example of how public RL data is stitched together for Nano3-like training</p></li>
+</ul>
+</section>
+<section id="id7">
+<h2>Tiny Config Notes<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<p>The public <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> keeps the same basic GRPO structure but collapses resources to a debug-friendly shape:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cluster nodes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>base HF model handle</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-Base-BF16</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>convert initial checkpoint to HF</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code> by default</p></td>
+</tr>
+<tr class="row-odd"><td><p>data path</p></td>
+<td><p>artifact-driven</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>This is useful for debugging the stack, not for reproducing the paper’s RL scale.</p>
+</section>
+<section id="what-the-public-stage-does-not-fully-expose">
+<h2>What The Public Stage Does Not Fully Expose<a class="headerlink" href="#what-the-public-stage-does-not-fully-expose" title="Link to this heading">#</a></h2>
+<p>The paper discusses:</p>
+<ul class="simple">
+<li><p>RLHF with a large GenRM</p></li>
+<li><p>circular comparison strategy</p></li>
+<li><p>group-relative length control</p></li>
+<li><p>DPO experiments for hallucinated tool use</p></li>
+</ul>
+<p>The repo gives you the GRPO/RLVR backbone directly, but not a separate one-click public stage for every appendix-level alignment component.</p>
+</section>
+<section id="id8">
+<h2>Reproduce with nemotron-customize<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<p>The closest catalog step surface is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlvr</span></code></p></li>
+</ul>
+<p>Important grounding note:</p>
+<ul class="simple">
+<li><p>use the catalog step for GRPO/RLVR wiring</p></li>
+<li><p>ground Nano3-specific data and config details on <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/</span></code></p></li>
+</ul>
+<p>Common surrounding steps:</p>
+<ul class="simple">
+<li><p>upstream <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code></p></li>
+<li><p>downstream <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">convert/megatron_to_hf</span></code> if the user wants HF export after RL</p></li>
+</ul>
+</section>
+<section id="id9">
+<h2>Good Handoff Pattern<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><p>“For the public Nano3 RL path, use <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlvr</span></code> as the <code class="docutils literal notranslate"><span class="pre">nemotron-customize</span></code> surface and ground the concrete config details on <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage2_rl/</span></code>.”</p>
+</div></blockquote>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="stage-3-recipe-bridge-evaluation">
+<h1>Stage 3 Recipe Bridge: Evaluation<a class="headerlink" href="#stage-3-recipe-bridge-evaluation" title="Link to this heading">#</a></h1>
+<p>This file connects the paper’s evaluation sections to <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage3_eval/</span></code>.</p>
+<section id="id10">
+<h2>What Exists Publicly<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<p>Public files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage3_eval/config/default.yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/nano3/stage3_eval/README.md</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs/nemotron/nano3/evaluate.md</span></code></p></li>
+</ul>
+<p>Unlike the training stages, stage3 is mainly a <strong>compiled evaluator config path</strong>.
+There is no stage-local <code class="docutils literal notranslate"><span class="pre">train.py</span></code>.
+The CLI merges config, resolves artifacts, strips the <code class="docutils literal notranslate"><span class="pre">run</span></code> section, and calls NeMo Evaluator.</p>
+</section>
+<section id="id11">
+<h2>What It Maps To In The Paper<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paper section</p></th>
+<th class="head"><p>Public stage3 element</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>§2.6 base model evaluations</p></td>
+<td><p>NeMo Evaluator style benchmark execution</p></td>
+</tr>
+<tr class="row-odd"><td><p>§3.4 post-trained evaluations</p></td>
+<td><p>evaluator deployment + tasks</p></td>
+</tr>
+<tr class="row-even"><td><p>§4.3 quantization accuracy</p></td>
+<td><p>paper result only; public stage can evaluate released checkpoints</p></td>
+</tr>
+<tr class="row-odd"><td><p>Appendix E prompt sensitivity</p></td>
+<td><p>paper methodology only; not a default stage3 workflow</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id12">
+<h2>Public Defaults<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<p>From <code class="docutils literal notranslate"><span class="pre">config/default.yaml</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>default model artifact</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nano3-rl-model:latest</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>serving container</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nvcr.io/nvidia/nemo:25.11.nemotron_3_nano</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>deployment mode</p></td>
+<td><p>generic NeMo Framework Ray</p></td>
+</tr>
+<tr class="row-odd"><td><p>GPUs</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-even"><td><p>tensor parallel</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>expert parallel</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-even"><td><p>port</p></td>
+<td><p>1235</p></td>
+</tr>
+<tr class="row-odd"><td><p>default tasks</p></td>
+<td><p>MMLU, ARC Challenge 25-shot, Winogrande 5-shot, HellaSwag, OpenBookQA</p></td>
+</tr>
+<tr class="row-even"><td><p>evaluator parallelism</p></td>
+<td><p>4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="public-evaluation-flow">
+<h2>Public Evaluation Flow<a class="headerlink" href="#public-evaluation-flow" title="Link to this heading">#</a></h2>
+<p>The CLI flow is:</p>
+<ol class="arabic simple">
+<li><p>load YAML</p></li>
+<li><p>merge env.toml profile + CLI overrides</p></li>
+<li><p>resolve W&amp;B artifact references</p></li>
+<li><p>compile an evaluator-facing config</p></li>
+<li><p>deploy the model</p></li>
+<li><p>run benchmark tasks</p></li>
+<li><p>export results to W&amp;B</p></li>
+</ol>
+<p>That makes stage3 more of an <strong>evaluation launcher surface</strong> than a custom model-training recipe.</p>
+</section>
+<section id="why-stage3-is-narrower-than-the-paper">
+<h2>Why Stage3 Is Narrower Than The Paper<a class="headerlink" href="#why-stage3-is-narrower-than-the-paper" title="Link to this heading">#</a></h2>
+<p>The paper reports a large evaluation program including:</p>
+<ul class="simple">
+<li><p>base-model comparisons</p></li>
+<li><p>post-trained model comparisons</p></li>
+<li><p>long-context evaluations</p></li>
+<li><p>tool/no-tool splits</p></li>
+<li><p>multilingual evaluations</p></li>
+<li><p>quantization comparisons</p></li>
+<li><p>prompt sensitivity studies</p></li>
+</ul>
+<p>The public default stage3 config is intentionally narrower.
+It gives a practical benchmark starter pack rather than the full internal evaluation matrix.</p>
+</section>
+<section id="what-stage3-is-best-at">
+<h2>What Stage3 Is Best At<a class="headerlink" href="#what-stage3-is-best-at" title="Link to this heading">#</a></h2>
+<p>Use stage3 when the goal is:</p>
+<ul class="simple">
+<li><p>evaluate a checkpoint produced by public stage1 or stage2</p></li>
+<li><p>resolve model artifacts from W&amp;B lineage</p></li>
+<li><p>benchmark with the NeMo Evaluator ecosystem</p></li>
+<li><p>keep evaluation inside the same public artifact pipeline</p></li>
+</ul>
+</section>
+<section id="id13">
+<h2>Reproduce with nemotron-customize<a class="headerlink" href="#id13" title="Link to this heading">#</a></h2>
+<p>This stage maps directly to:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code></p></li>
+</ul>
+<p>Common adjacent steps:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">convert/megatron_to_hf</span></code> if a different deployment backend prefers HF checkpoints</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">convert/hf_to_megatron</span></code> when the evaluation path needs a Megatron-native checkpoint</p></li>
+</ul>
+</section>
+<section id="id14">
+<h2>Good Handoff Pattern<a class="headerlink" href="#id14" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><p>“For public Nano3 evaluation, use <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code>. It reproduces the evaluator-style deployment and benchmark flow, but the default task set is much smaller than the paper’s full reported evaluation matrix.”</p>
+</div></blockquote>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="paper.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Nano3 Technical Report</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../super3/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Nemotron 3 Super</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Nano3 Recipes</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nano3-public-recipe-map">Nano3 Public Recipe Map</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-short-version">The Short Version</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-map">Stage Map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paper-public-recipe-alignment">Paper → Public Recipe Alignment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-public-recipes-reproduce-well">What the Public Recipes Reproduce Well</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-they-do-not-promise">What They Do <em>Not</em> Promise</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-public-repo-is-especially-close-to-the-paper">Where the Public Repo Is Especially Close to the Paper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-public-repo-is-intentionally-lighter">Where the Public Repo Is Intentionally Lighter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reproduce-with-nemotron-customize">Reproduce with nemotron-customize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#important-gaps-and-maturity-notes">Important Gaps and Maturity Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recommended-answer-pattern">Recommended Answer Pattern</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read Next</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-0-recipe-bridge-pretraining">Stage 0 Recipe Bridge: Pretraining</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-exists-publicly">What Exists Publicly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-maps-to-in-the-paper">What It Maps To In The Paper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-defaults">Public Defaults</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-prep-behavior">Data Prep Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-recipe-reproduces-faithfully">What The Recipe Reproduces Faithfully</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-does-not-reproduce-exactly">What It Does Not Reproduce Exactly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-guidance">Operator Guidance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#useful-file-anchors">Useful File Anchors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Reproduce with nemotron-customize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#good-one-sentence-handoff">Good One-Sentence Handoff</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-1-recipe-bridge-sft">Stage 1 Recipe Bridge: SFT</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">What Exists Publicly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">What It Maps To In The Paper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-data-prep-behavior">Public Data Prep Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-training-defaults">Public Training Defaults</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tiny-config-notes">Tiny Config Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#important-public-vs-paper-difference">Important Public-vs-Paper Difference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-stage-is-still-valuable">Why This Stage Is Still Valuable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-point-users">Where To Point Users</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Reproduce with nemotron-customize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#good-handoff-pattern">Good Handoff Pattern</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-2-recipe-bridge-rl">Stage 2 Recipe Bridge: RL</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">What Exists Publicly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">What It Maps To In The Paper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paper-aligned-public-defaults">Paper-Aligned Public Defaults</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#important-training-details-in-the-public-config">Important Training Details In The Public Config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-coverage">Environment Coverage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-data-prep-specifics">Public Data Prep Specifics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Tiny Config Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-public-stage-does-not-fully-expose">What The Public Stage Does Not Fully Expose</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Reproduce with nemotron-customize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Good Handoff Pattern</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-3-recipe-bridge-evaluation">Stage 3 Recipe Bridge: Evaluation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">What Exists Publicly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">What It Maps To In The Paper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Public Defaults</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-evaluation-flow">Public Evaluation Flow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-stage3-is-narrower-than-the-paper">Why Stage3 Is Narrower Than The Paper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-stage3-is-best-at">What Stage3 Is Best At</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Reproduce with nemotron-customize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Good Handoff Pattern</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+<div class="extra_footer">
+  
+  
+    <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+    
+  
+</div></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
