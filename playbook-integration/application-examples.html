@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Nemotron Training Recipes &#8212; Nemotron</title>
+    <title>Application Examples &#8212; Nemotron</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'application-examples';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
@@ -67,7 +67,8 @@
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Application Examples" href="application-examples.html" />
+    <link rel="next" title="Deployment Guides" href="deployment-guides.html" />
+    <link rel="prev" title="Nemotron Training Recipes" href="index.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -136,7 +137,7 @@
     
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -239,10 +240,6 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
 
     </header>
@@ -263,7 +260,7 @@
     
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -358,8 +355,8 @@
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="application-examples.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment-guides.html">Deployment Guides</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
@@ -462,7 +459,31 @@
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article d-print-none"></div>
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Application Examples</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
               
               
               
@@ -474,216 +495,112 @@
   SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
   SPDX-License-Identifier: Apache-2.0
 -->
-<section class="tex2jax_ignore mathjax_ignore" id="nemotron-training-recipes">
-<h1>Nemotron Training Recipes<a class="headerlink" href="#nemotron-training-recipes" title="Link to this heading">#</a></h1>
-<p><strong>Open and efficient models for agentic AI.</strong> Reproducible training pipelines with transparent data, techniques, and weights.</p>
-<div style="text-align: center; margin: 2rem 0;">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/_y9SEtn1lU8" title="Nemotron Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-<section id="quick-start">
-<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
-<div class="termy">
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">// Install the Nemotron training recipes</span>
-<span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/nemotron
-<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>nemotron<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>sync
-
-<span class="go">// Run the Nano3 pipeline stage by stage</span>
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>data<span class="w"> </span>prep<span class="w"> </span>pretrain<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>pretrain<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>data<span class="w"> </span>prep<span class="w"> </span>sft<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>sft<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>data<span class="w"> </span>prep<span class="w"> </span>rl<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>rl<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
-</pre></div>
-</div>
-</div>
-<blockquote>
-<div><p><strong>Note</strong>: The <code class="docutils literal notranslate"><span class="pre">--run</span> <span class="pre">YOUR-CLUSTER</span></code> flag submits jobs to your configured Slurm cluster via <a class="reference internal" href="nemo_runspec/nemo-run.html"><span class="std std-doc">NeMo-Run</span></a>. See <a class="reference internal" href="nemo_runspec/nemo-run.html"><span class="std std-doc">Execution through NeMo-Run</span></a> for setup instructions.</p>
-</div></blockquote>
-</section>
-<section id="sample-deployments-and-applications">
-<h2>Sample Deployments and Applications<a class="headerlink" href="#sample-deployments-and-applications" title="Link to this heading">#</a></h2>
-<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Deployment Guides</div>
-<p class="sd-card-text">Deployment guides for Nemotron models: TensorRT-LLM, vLLM, SGLang, NIM, and Hugging Face.</p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="deployment-guides.html"><span class="doc">Deployment Guides</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Sample Applications</div>
-<p class="sd-card-text">End-to-end applications: RAG agents, ML agents, and multi-agent systems.</p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="application-examples.html"><span class="doc">Application Examples</span></a></div>
-</div>
-</div>
-</div>
-</section>
-<section id="training-recipes">
-<h2>Training Recipes<a class="headerlink" href="#training-recipes" title="Link to this heading">#</a></h2>
-<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Nemotron 3 Nano</div>
-<p class="sd-card-text">31.6B total / 3.6B active parameters, 25T tokens, up to 1M context. Hybrid Mamba-Transformer with sparse MoE.</p>
-<p class="sd-card-text"><strong>Stages:</strong> Pretraining → SFT → RL</p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="nemotron/nano3/README.html"><span class="doc">Nemotron 3 Nano Training Recipe</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Nemotron 3 Omni</div>
-<p class="sd-card-text">GA-checkpoint multimodal post-training recipe with stage-local container builds and a three-step RL stack.</p>
-<p class="sd-card-text"><strong>Stages:</strong> SFT → RL MPO → RL text → RL vision → Eval</p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="nemotron/omni3/README.html"><span class="doc">Nemotron 3 Omni Training Recipe</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Embedding Fine-Tuning</div>
-<p class="sd-card-text">Fine-tune Llama-Nemotron-Embed-1B-v2 on domain-specific data with synthetic data generation, evaluation, and NIM deployment.</p>
-<p class="sd-card-text"><strong>Stages:</strong> SDG → Data Prep → Finetune → Eval → Export → Deploy</p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="nemotron/embed/README.html"><span class="doc">Embedding Model Fine-Tuning Recipe</span></a></div>
-</div>
-</div>
-</div>
-</section>
-<section id="recipe-layout">
-<h2>Recipe Layout<a class="headerlink" href="#recipe-layout" title="Link to this heading">#</a></h2>
-<p>Nemotron keeps <strong>data-producing recipes</strong> separate from <strong>model-family training recipes</strong>:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Path</p></th>
-<th class="head"><p>Purpose</p></th>
-<th class="head"><p>Example</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/data/curation/</span></code></p></td>
-<td><p>Filter, dedup, and curate existing corpora</p></td>
-<td><p><a class="reference internal" href="nemotron/data/curation/nemotron-cc.html"><span class="std std-doc">Nemotron-CC</span></a></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/data/sdg/</span></code></p></td>
-<td><p>Generate synthetic datasets that can feed multiple families</p></td>
-<td><p><a class="reference internal" href="nemotron/data/sdg/long-document.html"><span class="std std-doc">Long-document SDG</span></a> feeding <a class="reference internal" href="nemotron/omni3/sft.html"><span class="std std-doc">Omni3 SFT</span></a></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/&lt;family&gt;/</span></code></p></td>
-<td><p>Family-specific training, RL, evaluation, and model lifecycle commands</p></td>
-<td><p><a class="reference internal" href="nemotron/nano3/README.html"><span class="std std-doc">Nano3</span></a>, <a class="reference internal" href="nemotron/omni3/README.html"><span class="std std-doc">Omni3</span></a></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="training-pipeline">
-<h2>Training Pipeline<a class="headerlink" href="#training-pipeline" title="Link to this heading">#</a></h2>
-<p>Each recipe family has its own stage layout, and all of them can be tracked through <a class="reference internal" href="nemotron/artifacts.html"><span class="std std-doc">artifact lineage</span></a>:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Family</p></th>
-<th class="head"><p>Stage layout</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="nemotron/nano3/README.html"><span class="std std-doc">Nano3</span></a></p></td>
-<td><p>Pretraining → SFT → RL</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nemotron/omni3/README.html"><span class="std std-doc">Omni3</span></a></p></td>
-<td><p>SFT → RL MPO → RL text → RL vision → Eval</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nemotron/super3/README.html"><span class="std std-doc">Super3</span></a></p></td>
-<td><p>Pretraining → SFT → RL → Quantization → Eval</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nemotron/embed/README.html"><span class="std std-doc">Embed</span></a></p></td>
-<td><p>SDG → Data Prep → Finetune → Eval → Export → Deploy</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="why-nemotron">
-<h2>Why Nemotron?<a class="headerlink" href="#why-nemotron" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p></p></th>
-<th class="head"><p></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><strong>Open Models</strong></p></td>
-<td><p>Transparent training data, techniques, and weights for community innovation</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Compute Efficiency</strong></p></td>
-<td><p>Model pruning enabling higher throughput via TensorRT-LLM</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>High Accuracy</strong></p></td>
-<td><p>Built on frontier open models with human-aligned reasoning</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Flexible Deployment</strong></p></td>
-<td><p>Deploy anywhere: edge, single GPU, or data center with NIM</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="features">
-<h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><strong>End-to-end pipelines</strong> from raw data to deployment-ready models</p></li>
-<li><p><strong><a class="reference internal" href="nemotron/artifacts.html"><span class="std std-doc">Artifact lineage</span></a></strong> via <a class="reference internal" href="nemotron/wandb.html"><span class="std std-doc">W&amp;B</span></a> from data to model</p></li>
-<li><p><strong>Built on <a class="reference internal" href="nemotron/nvidia-stack.html"><span class="std std-doc">NVIDIA’s NeMo stack</span></a></strong> (Megatron-Bridge, NeMo-RL)</p></li>
-<li><p><strong>Reproducible</strong> with versioned configs, data blends, and checkpoints</p></li>
-</ul>
-</section>
-<section id="resources">
-<h2>Resources<a class="headerlink" href="#resources" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Nano-Technical-Report.pdf">Tech Report</a> – Nemotron 3 Nano methodology</p></li>
-<li><p><a class="reference external" href="https://huggingface.co/collections/nvidia/nvidia-nemotron-v3">Model Weights</a> – pre-trained checkpoints on HuggingFace</p></li>
-<li><p><a class="reference external" href="https://huggingface.co/collections/nvidia/nemotron-pre-training-datasets">Pre-training Datasets</a> – open pre-training data</p></li>
-<li><p><a class="reference external" href="https://huggingface.co/collections/nvidia/nemotron-post-training-v3">Post-training Datasets</a> – SFT and RL data</p></li>
-<li><p><a class="reference internal" href="nemotron/artifacts.html"><span class="std std-doc">Artifact Lineage</span></a> – W&amp;B integration guide</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
 <!--
-```{toctree}
-:caption: Customization
-:hidden:
+Card footer badges
+==================
+Add a badge only when the attribute applies. Omit it (and do not substitute its opposite) when it does not.
+Absence is the signal for the simpler case.
 
-customize/index.md
-```
+{bdg-success}`Notebook`  — self-contained notebook; no environment beyond pip install.
+                           Omit for multi-file projects and anything that isn't a notebook.
+
+{bdg-secondary}`Local GPU` — requires a local GPU or hardware beyond a laptop or desktop.
+                           Omit for API/cloud-only examples. Do not add an "API" badge.
+
+{bdg-info}`Fine-tuning`  — example includes a training/fine-tuning step.
+                           Omit for inference-only examples. Do not add an "Inference" badge.
 -->
-<div class="toctree-wrapper compound">
+<section class="tex2jax_ignore mathjax_ignore" id="application-examples">
+<span id="id1"></span><h1>Application Examples<a class="headerlink" href="#application-examples" title="Link to this heading">#</a></h1>
+<p>End-to-end applications built on Nemotron models, including agentic workflows, RAG systems, and fine-tuning pipelines. Each card links to its directory in the <a class="reference external" href="https://github.com/NVIDIA-NeMo/nemotron">Nemotron GitHub repository</a>.</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> Nemotron 3 Super Getting Started Guide</div>
+<p class="sd-card-text">Introductory notebook covering Nemotron 3 Super’s reasoning features: thinking, reasoning budget, low effort mode, streaming responses, tool-call streaming, and Perplexity Search integration using the OpenAI-compatible API.</p>
 </div>
-<div class="toctree-wrapper compound">
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">Notebook</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Mar 11, 2026</span></p>
 </div>
-<div class="toctree-wrapper compound">
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Nemotron-3-Super-Getting-Started-Guide"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Nemotron-3-Super-Getting-Started-Guide</span></a></div>
 </div>
-<div class="toctree-wrapper compound">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> SQL LoRA Fine-tuning and Deployment</div>
+<p class="sd-card-text">End-to-end LoRA fine-tuning of Nemotron 3 Nano on Text2SQL (BIRD SQL) with deployment via NVIDIA NIM or vLLM using NeMo AutoModel or Megatron Bridge.</p>
 </div>
-<div class="toctree-wrapper compound">
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">Local GPU</span> <span class="sd-sphinx-override sd-badge sd-bg-info sd-bg-text-info">Fine-tuning</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Mar 11, 2026</span></p>
 </div>
-<div class="toctree-wrapper compound">
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/sql-lora-finetuning-and-deployment"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/sql-lora-finetuning-and-deployment</span></a></div>
 </div>
-</section>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> Intelligent Document Processing</div>
+<p class="sd-card-text">IDP pipeline that extracts and queries complex enterprise documents — financial reports, charts, and tables — using NeMo Retriever and multimodal Nemotron models.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">Local GPU</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Feb 09, 2026</span></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Intelligent%20Document%20Processing%20with%20Nemotron%20RAG"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Intelligent%20Document%20Processing%20with%20Nemotron%20RAG</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> Voice RAG Agent</div>
+<p class="sd-card-text">End-to-end voice-driven RAG agent combining speech-to-text, multimodal retrieval, 1M-token reasoning, and safety guardrails using open Nemotron models.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">Local GPU</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Jan 07, 2026</span></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/nemotron-voice-rag-agent-example"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/nemotron-voice-rag-agent-example</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> Simple Nemotron 3 Nano Usage</div>
+<p class="sd-card-text">Introductory notebook covering basic inference, reasoning mode toggling, and multi-agent systems using the OpenAI-compatible API via OpenRouter and LangChain.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">Notebook</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Dec 15, 2025</span></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Simple%20Nemotron-3-Nano%20Usage%20Example"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Simple%20Nemotron-3-Nano%20Usage%20Example</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> Data Science ML Agent</div>
+<p class="sd-card-text">Natural language-driven ML agent built on Nemotron Nano 9B with GPU-accelerated data exploration and model training using RAPIDS cuDF and cuML.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">Local GPU</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Nov 06, 2025</span></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Data%20Science%20ML%20Agent"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/Data%20Science%20ML%20Agent</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-mark-github sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg> RAG Agent</div>
+<p class="sd-card-text">Production-ready RAG agent using local Hugging Face embedding and reranking models with NVIDIA AI Endpoints for LLM inference, built on LangGraph.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">Local GPU</span> <span class="sd-sphinx-override sd-badge sd-outline-muted sd-text-muted">Oct 28, 2025</span></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/RAG%20Agent%20with%20Nemotron%20RAG%20Models"><span>https://github.com/NVIDIA-NeMo/nemotron/tree/main/use-case-examples/RAG%20Agent%20with%20Nemotron%20RAG%20Models</span></a></div>
+</div>
+</div>
+</div>
 </section>
 
 
@@ -696,12 +613,21 @@ customize/index.md
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Nemotron Training Recipes</p>
+      </div>
+    </a>
     <a class="right-next"
-       href="application-examples.html"
+       href="deployment-guides.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Application Examples</p>
+        <p class="prev-next-title">Deployment Guides</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -712,34 +638,9 @@ customize/index.md
             
             
 
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="bd-sidebar-secondary"></div>
 
 
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-deployments-and-applications">Sample Deployments and Applications</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-recipes">Training Recipes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recipe-layout">Recipe Layout</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-pipeline">Training Pipeline</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-nemotron">Why Nemotron?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a><ul class="nav section-nav flex-column">
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
 
