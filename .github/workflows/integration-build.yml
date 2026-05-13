@@ -14,71 +14,22 @@
 
 name: Integration Docs Build
 
-# Rebuilds an "all PRs merged" view whenever any PR targeting playbook_rc1 changes.
-# Published to GitHub Pages at playbook-integration/.
+# Builds docs from playbook_rc1 and publishes to GitHub Pages at playbook-integration/.
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
+  push:
     branches:
       - playbook_rc1
   workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: read
 
 jobs:
   build-integration:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
-        with:
-          ref: playbook_rc1
-          fetch-depth: 0
-
-      - name: Merge all open PRs targeting playbook_rc1
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          gh pr list --base playbook_rc1 --state open --json number,title \
-            --jq '.[] | "\(.number)\t\(.title)"' > /tmp/open_prs.tsv
-
-          SUMMARY_FILE=/tmp/integration_summary.md
-          echo "## Integration Build" >> "$SUMMARY_FILE"
-          echo "" >> "$SUMMARY_FILE"
-          echo "**Base:** \`playbook_rc1\`  |  **Built:** $(date -u)" >> "$SUMMARY_FILE"
-          echo "" >> "$SUMMARY_FILE"
-          echo "### Merged" >> "$SUMMARY_FILE"
-
-          MERGED_COUNT=0
-          SKIPPED_COUNT=0
-
-          while IFS=$'\t' read -r PR_NUM PR_TITLE; do
-            git fetch origin "refs/pull/${PR_NUM}/head:pr-${PR_NUM}" 2>/dev/null || {
-              echo "- ❌ #${PR_NUM} — ${PR_TITLE} (fetch failed)" >> "$SUMMARY_FILE"
-              SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
-              continue
-            }
-
-            if git merge "pr-${PR_NUM}" --no-edit 2>/dev/null; then
-              echo "- ✅ #${PR_NUM} — ${PR_TITLE}" >> "$SUMMARY_FILE"
-              MERGED_COUNT=$((MERGED_COUNT + 1))
-            else
-              git merge --abort
-              echo "- ❌ #${PR_NUM} — ${PR_TITLE} (conflict)" >> "$SUMMARY_FILE"
-              SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
-            fi
-          done < /tmp/open_prs.tsv
-
-          echo "" >> "$SUMMARY_FILE"
-          echo "**$MERGED_COUNT merged, $SKIPPED_COUNT skipped**" >> "$SUMMARY_FILE"
-
-          # Surface in workflow summary
-          cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: astral-sh/setup-uv@v8.1.0
 
@@ -88,8 +39,10 @@ jobs:
           DOCS_VERSION: "playbook-integration"
         run: uv run --group docs sphinx-build docs docs/_build/html
 
-      - name: Write integration summary into built site
-        run: cp /tmp/integration_summary.md docs/_build/html/INTEGRATION_SUMMARY.md
+      - name: Clean build artifacts
+        run: |
+          find docs/_build -name .doctrees -prune -exec rm -rf {} \;
+          find docs/_build -name .buildinfo -exec rm {} \;
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4.1.0
@@ -98,8 +51,3 @@ jobs:
           publish_dir: docs/_build/html
           destination_dir: playbook-integration
           keep_files: true
-
-      - name: Print integration URL
-        run: |
-          echo "## Integration build deployed" >> "$GITHUB_STEP_SUMMARY"
-          echo "**URL:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playbook-integration/" >> "$GITHUB_STEP_SUMMARY"
