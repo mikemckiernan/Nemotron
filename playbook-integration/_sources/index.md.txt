@@ -163,6 +163,18 @@ Tasks <sdg/how-to/index>
 Reference <sdg/reference/index>
 ```
 
+```{toctree}
+:caption: Translation
+:hidden:
+
+About <translation/index.md>
+Getting Started <translation/getting-started.md>
+Tips for Using Agents <translation/using-skills.md>
+translation/explanation/index.md
+Tasks <translation/how-to/index.md>
+translation/reference/index.md
+```
+
 <!--
 ```{toctree}
 :caption: Customization
