@@ -67,7 +67,7 @@ conductor.json
 # Project specific
 /artifacts/
 .logs/
-output/
+/output/
 outputs/
 logs/
 checkpoints/
