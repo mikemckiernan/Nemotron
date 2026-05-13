@@ -432,7 +432,7 @@ window.addEventListener("load", load);
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Embedding Model Fine-Tuning Recipe" href="../embed/README.html" />
+    <link rel="next" title="Stage 0: Pretraining" href="pretrain.html" />
     <link rel="prev" title="Nemotron 3 Nano Omni — Inference &amp; Deployment" href="../omni3/inference.html" />
 
 
@@ -730,59 +730,42 @@ window.addEventListener("load", load);
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../nano3/README.html">Nemotron 3 Nano Training Recipe</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nano3/README.html">Nemotron 3 Nano</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/import.html">Importing Models and Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../omni3/README.html">Nemotron 3 Omni</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../omni3/rl/data-prep.html">RL Data Preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Nemotron 3 Super Training Recipe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../embed/README.html">Embedding Model Fine-Tuning Recipe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../artifacts.html">Artifact Types &amp; Lineage</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nano3 Stages</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../nano3/pretrain.html">Stage 0: Pretraining</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../nano3/evaluate.html">Stage 3: Evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../nano3/import.html">Importing Models and Data</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Omni3 Stages</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Nemotron 3 Super</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl/data-prep.html">RL Data Preparation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../omni3/rl/data-prep.html">RL Data Preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Super3 Stages</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Nemotron 3 Super Training Recipe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pretrain.html">Stage 0: Pretraining</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rl/rlhf.html">RLHF (Stage 3)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantization.html">Stage 3: Quantization</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rl/rlhf.html">RLHF (Stage 3)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rl/data-prep.html">RL Data Preparation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluate.html">Stage 4: Evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quantization.html">Stage 3: Quantization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embed/README.html">Llama Nemotron Embed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../artifacts.html">Artifact Types &amp; Lineage</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
 <ul class="nav bd-sidenav">
@@ -1220,6 +1203,8 @@ flowchart TB
 <li><p><a class="reference internal" href="../../nemo_runspec/nemo-run.html"><span class="std std-doc">Execution through NeMo-Run</span></a></p></li>
 <li><p><a class="reference internal" href="../data-prep.html"><span class="std std-doc">Data Preparation Module</span></a></p></li>
 </ul>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 </section>
 
@@ -1243,11 +1228,11 @@ flowchart TB
       </div>
     </a>
     <a class="right-next"
-       href="../embed/README.html"
+       href="pretrain.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Embedding Model Fine-Tuning Recipe</p>
+        <p class="prev-next-title">Stage 0: Pretraining</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
