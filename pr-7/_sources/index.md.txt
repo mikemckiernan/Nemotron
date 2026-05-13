@@ -152,7 +152,6 @@ Llama Nemotron Embed <nemotron/embed/README.md>
 nemotron/artifacts.md
 ```
 
-<!--
 ```{toctree}
 :caption: Synthetic Data Generation
 :hidden:
@@ -164,6 +163,7 @@ Tasks <sdg/how-to/index>
 Reference <sdg/reference/index>
 ```
 
+<!--
 ```{toctree}
 :caption: Customization
 :hidden:
