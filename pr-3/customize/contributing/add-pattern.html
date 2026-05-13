@@ -1,0 +1,909 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Adding a New Pattern &#8212; Nemotron</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css?v=6e6caa80" />
+    <link rel="stylesheet" type="text/css" href="../../_static/customize.css?v=86156489" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../_static/documentation_options.js?v=9e10e13e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'customize/contributing/add-pattern';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'pr-3';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/termynal.js?v=05ab89e6"></script>
+    <script src="../../_static/js/termynal-init.js?v=7fa8cdf6"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Stage 0: Pretraining" href="../../nemotron/nano3/pretrain.html" />
+    <link rel="prev" title="Adding a New Model" href="add-model.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+    <script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" ></script>
+    
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Usage Cookbook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/README.html">Usage Cookbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-Nano2-VL/README.html">Nemotron-Nano2-VL Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-Parse-v1.1/README.html">Nemotron-Parse-v1.1 Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Nano-Omni/Megatron-bridge/README.html">Nemotron-3-Nano-Omni LoRA Fine-Tuning on CORD-v2 — Megatron Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Nano-Omni/automodel/automodel_training_cookbook.html">Fine-Tuning NemotronOmni on CORD-v2 Receipts — End-to-End Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Nano-Omni/doc-intelligence-with-parse/README.html">Document Intelligence with Nemotron Parse + Nemotron 3 Nano Omni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/README.html">Nemotron-3-Super Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/grpo-dapo/README.html">Nemotron-3-Super GRPO/DAPO Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/lora-text2sql/README.html">Nemotron-3-Super Text2SQL Fine-tuning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/lora-text2sql/nemo-automodel/README.html">Nemotron-3-Super Fine-tuning with NeMo AutoModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/lora-text2sql/nemo-megatron-bridge/README.html">Nemotron-3-Super Fine-tuning with Megatron Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/SparkDeploymentGuide/README.html">Nemotron 3 Super — DGX Spark Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage-cookbook/Nemotron-3-Super/OpenScaffoldingResources/README.html">Nemotron 3 Super with Agentic Coding Tools</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Use Case Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/README.html">Nemotron Use Case Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/Simple%20Nemotron-3-Nano%20Usage%20Example/README.html">NVIDIA Nemotron 3 Nano - Simple Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/Data%20Science%20ML%20Agent/README.html">Data Science ML Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/RAG%20Agent%20with%20Nemotron%20RAG%20Models/README.html">RAG Agent with Nemotron RAG Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/Intelligent%20Document%20Processing%20with%20Nemotron%20RAG/README.html">📄 Intelligent Document Processing (IDP) with Nemotron RAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/nemotron-voice-rag-agent-example/README.html">🎙️ Voice-Powered RAG Agent with NVIDIA Nemotron Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use-case-examples/sql-lora-finetuning-and-deployment/README.html">LoRA Fine-Tuning &amp; Deployment of Nemotron 3 Nano for Text2SQL</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/README.html">Nemotron 3 Nano Training Recipe</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/embed/README.html">Embedding Model Fine-Tuning Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/artifacts.html">Artifact Types &amp; Lineage</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Customize Nemotron</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/index.html">Model Knowledge Bases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../models/nano3/index.html">Nemotron Nano 3</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../models/super3/index.html">Nemotron 3 Super</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../steps/index.html">Step Library</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../patterns/index.html">Patterns</a></li>
+
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Contributing</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="add-step.html">Adding a New Step</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="add-model.html">Adding a New Model</a></li>
+
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Adding a New Pattern</a></li>
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nano3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/import.html">Importing Models and Data</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Omni3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Super3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/kit.html">Nemotron Kit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nvidia-stack.html">NVIDIA AI Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/package-readme.html">nemo_runspec Package</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/nemo-run.html">Execution through NeMo-Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/omegaconf.html">OmegaConf Configuration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/artifacts.html">Artifact Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/wandb.html">Weights &amp; Biases Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/cli.html">CLI Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/data-prep.html">Data Preparation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/xenna-observability.html">Xenna Pipeline Observability</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/data/curation/nemotron-cc.html">Nemotron-CC Data Curation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/data/sdg/long-document.html">Long-Document SDG</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/README.html">Nemotron Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/design-philosophy.html">Design Philosophy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/cli-architecture.html">CLI Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../runspec/v1/spec.html">Runspec: <code class="docutils literal notranslate"><span class="pre">[tool.runspec]</span></code> Specification</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Customize Nemotron</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Contributing</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Adding a New Pattern</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="adding-a-new-pattern">
+<h1>Adding a New Pattern<a class="headerlink" href="#adding-a-new-pattern" title="Link to this heading">#</a></h1>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="nemotron-add-pattern">
+<h1>nemotron-add-pattern<a class="headerlink" href="#nemotron-add-pattern" title="Link to this heading">#</a></h1>
+<p>Invocation: <code class="docutils literal notranslate"><span class="pre">/nemotron-add-pattern</span></code>.</p>
+<p>You help contributors add a new cross-cutting pattern to <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/patterns/</span></code> without getting the frontmatter, scope, catalog regeneration, or tests wrong.</p>
+<section id="tone">
+<h2>Tone<a class="headerlink" href="#tone" title="Link to this heading">#</a></h2>
+<p>Concise. Checklist-first. Ask for missing facts before writing files.</p>
+<ul class="simple">
+<li><p>Status updates: ≤2 lines</p></li>
+<li><p>Prefer bullets over long prose</p></li>
+<li><p>Say exactly which pattern file you will create and which commands you will run</p></li>
+<li><p>Do not guess step ids or confidence level</p></li>
+<li><p>Keep the recommendation actionable, not academic</p></li>
+<li><p>Always regenerate <code class="docutils literal notranslate"><span class="pre">PATTERNS.md</span></code> and run tests</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">#</a></h2>
+<p>Four phases. Always in this order.</p>
+<section id="orient">
+<h3>1. Orient<a class="headerlink" href="#orient" title="Link to this heading">#</a></h3>
+<p>Read these first:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/patterns/sft-small-dataset-prefer-lora.md</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/PATTERNS.md</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/index.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tests/steps/test_patterns.py</span></code></p></li>
+</ul>
+<p>Then ask the contributor:</p>
+<ol class="arabic simple">
+<li><p>What is the pattern about? (one sentence)</p></li>
+<li><p>When should it apply? (natural-language triggers)</p></li>
+<li><p>Which steps does it touch? (step ids, or <code class="docutils literal notranslate"><span class="pre">[]</span></code> for global)</p></li>
+<li><p>What is the confidence level? (<code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">medium</span></code>, or <code class="docutils literal notranslate"><span class="pre">experimental</span></code>)</p></li>
+<li><p>Does it introduce a new concept or just encode existing tribal knowledge?</p></li>
+</ol>
+<p>Use these repo conventions:</p>
+<ul class="simple">
+<li><p>Pattern files live at <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/patterns/{id}.md</span></code>.</p></li>
+<li><p>The filename stem must match the frontmatter <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p></li>
+<li><p>Required frontmatter fields are <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">title</span></code>, <code class="docutils literal notranslate"><span class="pre">tags</span></code>, <code class="docutils literal notranslate"><span class="pre">triggers</span></code>, <code class="docutils literal notranslate"><span class="pre">steps</span></code>, and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps:</span> <span class="pre">[]</span></code> is valid for a global pattern.</p></li>
+<li><p>Valid confidence values are <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">medium</span></code>, and <code class="docutils literal notranslate"><span class="pre">experimental</span></code>.</p></li>
+<li><p>The body uses these sections: <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">When</span> <span class="pre">to</span> <span class="pre">apply</span></code>, <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">What</span> <span class="pre">to</span> <span class="pre">do</span></code>, <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Exceptions</span></code>, <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">References</span></code>.</p></li>
+<li><p>Step-strategy cross-links in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> are a separate task. Do not edit them here.</p></li>
+</ul>
+</section>
+<section id="generate">
+<h3>2. Generate<a class="headerlink" href="#generate" title="Link to this heading">#</a></h3>
+<p>Create:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/patterns/{id}.md</span></code></p></li>
+</ul>
+<p>The pattern file must contain:</p>
+<ul class="simple">
+<li><p>YAML frontmatter with <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">title</span></code>, <code class="docutils literal notranslate"><span class="pre">tags</span></code>, <code class="docutils literal notranslate"><span class="pre">triggers</span></code>, <code class="docutils literal notranslate"><span class="pre">steps</span></code>, <code class="docutils literal notranslate"><span class="pre">confidence</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">When</span> <span class="pre">to</span> <span class="pre">apply</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">What</span> <span class="pre">to</span> <span class="pre">do</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Exceptions</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">References</span></code></p></li>
+</ul>
+<p>Generation rules:</p>
+<ol class="arabic simple">
+<li><p>Keep the pattern id kebab-case and make it match the filename exactly.</p></li>
+<li><p>Turn vague triggers into 2–4 concrete, observable conditions.</p></li>
+<li><p>Scope the pattern honestly: use explicit step ids if it only applies to a subset of steps; use <code class="docutils literal notranslate"><span class="pre">[]</span></code> only when it is truly global.</p></li>
+<li><p>Put the recommendation itself in <code class="docutils literal notranslate"><span class="pre">What</span> <span class="pre">to</span> <span class="pre">do</span></code>; keep background explanation shorter than the action guidance.</p></li>
+<li><p>If the pattern introduces a new concept, define it in the first paragraph of <code class="docutils literal notranslate"><span class="pre">When</span> <span class="pre">to</span> <span class="pre">apply</span></code>.</p></li>
+<li><p>Do not modify existing patterns.</p></li>
+<li><p>Regenerate the catalog with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">python</span> <span class="pre">src/nemotron/steps/index.py</span></code></p></li>
+</ul>
+</li>
+<li><p>Run validations with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">pytest</span> <span class="pre">tests/steps</span> <span class="pre">-q</span></code></p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="validate">
+<h3>3. Validate<a class="headerlink" href="#validate" title="Link to this heading">#</a></h3>
+<p>Check all of these before finishing:</p>
+<ul class="simple">
+<li><p>Frontmatter has all required fields</p></li>
+<li><p>The pattern id matches the filename</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps</span></code> contains only valid step ids</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code> is one of <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">medium</span></code>, <code class="docutils literal notranslate"><span class="pre">experimental</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/PATTERNS.md</span></code> is updated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">pytest</span> <span class="pre">tests/steps</span> <span class="pre">-q</span></code> passes</p></li>
+</ul>
+<p>If validation fails:</p>
+<ol class="arabic simple">
+<li><p>Fix the real frontmatter, scope, or catalog issue</p></li>
+<li><p>Re-run the failing command</p></li>
+<li><p>Do not present the result until tests pass</p></li>
+</ol>
+</section>
+<section id="summarize">
+<h3>4. Summarize<a class="headerlink" href="#summarize" title="Link to this heading">#</a></h3>
+<p>Show:</p>
+<ul class="simple">
+<li><p>What pattern was created</p></li>
+<li><p>The file added</p></li>
+<li><p>The final scope (<code class="docutils literal notranslate"><span class="pre">steps</span></code> list or global)</p></li>
+<li><p>The confidence level</p></li>
+<li><p>That <code class="docutils literal notranslate"><span class="pre">PATTERNS.md</span></code> was regenerated</p></li>
+<li><p>That <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">pytest</span> <span class="pre">tests/steps</span> <span class="pre">-q</span></code> passed</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="boundaries">
+<h2>Boundaries<a class="headerlink" href="#boundaries" title="Link to this heading">#</a></h2>
+<section id="do">
+<h3>Do<a class="headerlink" href="#do" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Reuse the live pattern format from <code class="docutils literal notranslate"><span class="pre">small-dataset-lora.md</span></code></p></li>
+<li><p>Keep triggers concrete</p></li>
+<li><p>Keep advice prescriptive and easy to apply</p></li>
+<li><p>Regenerate <code class="docutils literal notranslate"><span class="pre">PATTERNS.md</span></code></p></li>
+<li><p>Run tests every time</p></li>
+</ul>
+</section>
+<section id="dont">
+<h3>Don’t<a class="headerlink" href="#dont" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Don’t modify existing patterns</p></li>
+<li><p>Don’t modify <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> strategy blocks here</p></li>
+<li><p>Don’t invent step ids</p></li>
+<li><p>Don’t label a new idea <code class="docutils literal notranslate"><span class="pre">high</span></code> confidence without evidence</p></li>
+<li><p>Don’t stop before tests pass</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="when-stuck">
+<h2>When Stuck<a class="headerlink" href="#when-stuck" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>If the step scope is unclear, look at <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/STEPS.md</span></code> and ask which ids the contributor actually wants.</p></li>
+<li><p>If the trigger is vague, rewrite it as an observable condition before writing the file.</p></li>
+<li><p>If the concept is still experimental, mark it <code class="docutils literal notranslate"><span class="pre">experimental</span></code> rather than overstating certainty.</p></li>
+<li><p>If the pattern overlaps an existing one, explain the overlap and ask whether this should be a separate pattern.</p></li>
+<li><p>After two failed validation loops, stop and report the exact failing command and error.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="calibration-examples">
+<h2>Calibration Examples<a class="headerlink" href="#calibration-examples" title="Link to this heading">#</a></h2>
+<section id="example-1-simple-high-confidence-pattern">
+<h3>Example 1 — simple high-confidence pattern<a class="headerlink" href="#example-1-simple-high-confidence-pattern" title="Link to this heading">#</a></h3>
+<p>User:</p>
+<blockquote>
+<div><p>Add a pattern saying we should use a consistent random seed across stages.</p>
+</div></blockquote>
+<p>Assistant:</p>
+<blockquote>
+<div><p>I’ll confirm whether this is global or limited to a few steps, then I’ll create <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/patterns/consistent-random-seed.md</span></code> with the required frontmatter and the four body sections.</p>
+<p>I’ll mark it <code class="docutils literal notranslate"><span class="pre">high</span></code> confidence only if the guidance is already established team practice, regenerate <code class="docutils literal notranslate"><span class="pre">PATTERNS.md</span></code> with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">python</span> <span class="pre">src/nemotron/steps/index.py</span></code>, and run <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">pytest</span> <span class="pre">tests/steps</span> <span class="pre">-q</span></code> before I finish.</p>
+</div></blockquote>
+</section>
+<section id="example-2-experimental-step-scoped-pattern">
+<h3>Example 2 — experimental step-scoped pattern<a class="headerlink" href="#example-2-experimental-step-scoped-pattern" title="Link to this heading">#</a></h3>
+<p>User:</p>
+<blockquote>
+<div><p>Add a pattern for code-generation SFT that uses a higher learning rate.</p>
+</div></blockquote>
+<p>Assistant:</p>
+<blockquote>
+<div><p>I’ll confirm the exact step ids and keep the scope narrow, for example <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> and <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code> if that is what you intend.</p>
+<p>Because this is a newer idea rather than settled guidance, I’ll label it <code class="docutils literal notranslate"><span class="pre">experimental</span></code>, encode the trigger conditions in frontmatter, create the new pattern markdown file, regenerate <code class="docutils literal notranslate"><span class="pre">PATTERNS.md</span></code>, and run <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">pytest</span> <span class="pre">tests/steps</span> <span class="pre">-q</span></code>.</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="add-model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Adding a New Model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../nemotron/nano3/pretrain.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Stage 0: Pretraining</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Adding a New Pattern</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nemotron-add-pattern">nemotron-add-pattern</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tone">Tone</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#orient">1. Orient</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generate">2. Generate</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validate">3. Validate</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summarize">4. Summarize</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundaries">Boundaries</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#do">Do</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dont">Don’t</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-stuck">When Stuck</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration-examples">Calibration Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-simple-high-confidence-pattern">Example 1 — simple high-confidence pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-experimental-step-scoped-pattern">Example 2 — experimental step-scoped pattern</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+<div class="extra_footer">
+  
+  
+    <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+    
+  
+</div></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
