@@ -17,7 +17,7 @@ The goal is to validate wiring, NeMo Run, and your environment profile on real m
 
 1. Create an `env.toml` at the root of the repository like the following example:
 
-   ```{literalinclude} _snippets/input/env.toml
+   ```{literalinclude} _snippets/input/env.tmpl
    :language: toml
    ```
 
