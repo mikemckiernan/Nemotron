@@ -1,6 +1,6 @@
 ## Integration Build
 
-**Base:** `playbook_rc1`  |  **Built:** Wed May 13 17:53:05 UTC 2026
+**Base:** `playbook_rc1`  |  **Built:** Wed May 13 17:55:12 UTC 2026
 
 ### Merged
 - ✅ #2 — fix(docs): Replace broken link for mmlongbench-doc
