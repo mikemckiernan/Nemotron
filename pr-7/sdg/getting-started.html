@@ -648,7 +648,7 @@ Together they anchor the user prompt: a researcher might ask a concise technical
 </li>
 <li><p>Run a two-record preview.
 Preview mode runs the same pipeline against a tiny record count so you can verify the model alias, prompts, and column wiring cheaply before generating at scale.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 <p>The pipeline registers the model alias, generate two rows, and prints a summary:</p>

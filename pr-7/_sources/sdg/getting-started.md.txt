@@ -91,7 +91,7 @@ The full configuration is stored at `src/nemotron/steps/sdg/data_designer/config
    Preview mode runs the same pipeline against a tiny record count so you can verify the model alias, prompts, and column wiring cheaply before generating at scale.
 
    ```console
-   $ nemotron step run sdg/data_designer -c default preview=true num_records=2
+   $ uv run nemotron steps run sdg/data_designer -c default preview=true num_records=2
    ```
 
    The pipeline registers the model alias, generate two rows, and prints a summary:
