@@ -137,6 +137,7 @@ Each recipe family has its own stage layout, and all of them can be tracked thro
 - [Pre-training Datasets](https://huggingface.co/collections/nvidia/nemotron-pre-training-datasets) – open pre-training data
 - [Post-training Datasets](https://huggingface.co/collections/nvidia/nemotron-post-training-v3) – SFT and RL data
 - [Artifact Lineage](nemotron/artifacts.md) – W&B integration guide
+- [Model training steps](train-models/index.md) – SFT, PEFT, RL, and optimization with `nemotron step run`
 
 ```{toctree}
 :caption: Nemotron
@@ -200,6 +201,58 @@ Reference <build-benchmarks/reference/index.md>
 customize/index.md
 ```
 -->
+
+```{toctree}
+:caption: Model Training
+:hidden:
+
+About <train-models/index.md>
+Getting Started <train-models/getting-started.md>
+Tips for Using Agents <train-models/using-skill.md>
+Concepts <train-models/explanation/index.md>
+Tutorials <train-models/tutorials/index.md>
+Tasks <train-models/how-to/index.md>
+Reference <train-models/reference/index.md>
+```
+
+```{toctree}
+:caption: Nano3 Stages
+:hidden:
+
+nemotron/nano3/pretrain.md
+nemotron/nano3/sft.md
+nemotron/nano3/rl.md
+nemotron/nano3/evaluate.md
+nemotron/nano3/import.md
+```
+
+```{toctree}
+:caption: Omni3 Stages
+:hidden:
+
+nemotron/omni3/README.md
+nemotron/omni3/sft.md
+nemotron/omni3/rl.md
+nemotron/omni3/rl/data-prep.md
+nemotron/omni3/architecture.md
+nemotron/omni3/inference.md
+```
+
+```{toctree}
+:caption: Super3 Stages
+:hidden:
+
+nemotron/super3/README.md
+nemotron/super3/pretrain.md
+nemotron/super3/sft.md
+nemotron/super3/rl/index.md
+nemotron/super3/rl/rlvr.md
+nemotron/super3/rl/swe.md
+nemotron/super3/rl/rlhf.md
+nemotron/super3/rl/data-prep.md
+nemotron/super3/evaluate.md
+nemotron/super3/quantization.md
+```
 
 ```{toctree}
 :caption: Nemotron Kit
