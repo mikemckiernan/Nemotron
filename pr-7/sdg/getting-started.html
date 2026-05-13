@@ -655,6 +655,94 @@ Preview mode runs the same pipeline against a tiny record count so you can verif
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-code-square" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25Zm7.47 3.97a.75.75 0 0 1 1.06 0l2 2a.75.75 0 0 1 0 1.06l-2 2a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L10.69 8 9.22 6.53a.75.75 0 0 1 0-1.06ZM6.78 6.53 5.31 8l1.47 1.47a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215l-2-2a.75.75 0 0 1 0-1.06l2-2a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042Z"></path></svg></span><span class="sd-summary-text">Example Output</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Compiled Configuration
+
+╭──────────────────────────────────────── run ────────────────────────────────────────╮
+│ mode: local                                                                         │
+│ profile: null                                                                       │
+│ env: {}                                                                             │
+│ cli:                                                                                │
+│   argv:                                                                             │
+│   - preview=true                                                                    │
+│   - num_records=2                                                                   │
+│   dotlist:                                                                          │
+│   - preview=true                                                                    │
+│   - num_records=2                                                                   │
+│   passthrough: []                                                                   │
+│   config: default                                                                   │
+│ recipe:                                                                             │
+│   name: steps/sdg/data_designer                                                     │
+│   script: /local/var/tmp/nvidia/nemotron/src/nemotron/steps/sdg/data_designer/step.py │
+╰─────────────────────────────────────────────────────────────────────────────────────╯
+
+╭─────────────────────────────────────── config ────────────────────────────────────────╮
+│ output_dir: ${oc.env:SDG_OUTPUT_DIR,${oc.env:NEMO_RUN_DIR,${oc.env:PWD}/output}/sdg}  │
+│ output_path: ${output_dir}/sft.jsonl                                                  │
+│ num_records: 2                                                                        │
+│ seed_dataset:                                                                         │
+│   path: ${oc.env:PWD}/src/nemotron/steps/sdg/data_designer/data/sft_topic_seeds.jsonl │
+│   strategy: shuffle                                                                   │
+│   fields:                                                                             │
+│   - topic                                                                             │
+│ models:                                                                               │
+│ - alias: nvidia-text                                                                  │
+│   model: nvidia/nemotron-3-nano-30b-a3b                                               │
+│   provider: nvidia                                                                    │
+│   skip_health_check: true                                                             │
+│   inference_parameters:                                                               │
+│     temperature: 0.8                                                                  │
+│     top_p: 1.0                                                                        │
+│     max_tokens: &#39;******&#39;                                                              │
+│ columns:                                                                              │
+│ - name: persona                                                                       │
+│   type: category                                                                      │
+│   values:                                                                             │
+│   - teacher                                                                           │
+│   - engineer                                                                          │
+│   - student                                                                           │
+│   - researcher                                                                        │
+│   - support_agent                                                                     │
+│ - name: user_query                                                                    │
+│   type: llm_text                                                                      │
+│   model_alias: nvidia-text                                                            │
+│   prompt: &#39;Write a single user message for a {{ persona }} asking about: {{ topic     │
+│     }}.                                                                               │
+│                                                                                       │
+│     Keep it natural, 1-3 sentences.                                                   │
+│                                                                                       │
+│     &#39;                                                                                 │
+│ - name: assistant_response                                                            │
+│   type: llm_text                                                                      │
+│   model_alias: nvidia-text                                                            │
+│   prompt: &#39;Helpful assistant reply to: &quot;{{ user_query }}&quot;.                            │
+│                                                                                       │
+│     Style: concise, factual, no markdown.                                             │
+│                                                                                       │
+│     &#39;                                                                                 │
+│ output_projection:                                                                    │
+│   type: openai_messages                                                               │
+│   user_field: user_query                                                              │
+│   assistant_field: assistant_response                                                 │
+│   metadata_fields:                                                                    │
+│   - persona                                                                           │
+│   - topic                                                                             │
+│ preview: true                                                                         │
+╰───────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Job Submission                                                                                                │
+│ ├── configs                                                                                                   │
+│ │   ├── job:   /local/var/tmp/nvidia/nemotron/.nemotron/jobs/20260509-133530-steps-sdg-data_designer/job.yaml   │
+│ │   └── train: /local/var/tmp/nvidia/nemotron/.nemotron/jobs/20260509-133530-steps-sdg-data_designer/train.yaml │
+│ └── mode: local                                                                                               │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Executing: /local/var/tmp/nvidia/nemotron/.venv/bin/python3 /local/var/tmp/nvidia/nemotron/src/nemotron/steps/sdg/data_designer/step.py --config /local/var/tmp/nvidia/nemotron/.nemotron/jobs/20260509-133530-steps-sdg-data_designer/train.yaml
+Preview 2 records → /local/var/tmp/nvidia/nemotron/output/sdg/sft.jsonl
+</pre></div>
+</div>
 </div>
 </details><p>The default output path is <code class="docutils literal notranslate"><span class="pre">./output/sdg/sft.jsonl</span></code>.
 You can override by setting <code class="docutils literal notranslate"><span class="pre">SDG_OUTPUT_DIR</span></code> or specifying <code class="docutils literal notranslate"><span class="pre">output_path=...</span></code> on the command line.</p>
@@ -662,6 +750,22 @@ You can override by setting <code class="docutils literal notranslate"><span cla
 Each line is one chat record.
 The <code class="docutils literal notranslate"><span class="pre">openai_messages</span></code> projection emits a <code class="docutils literal notranslate"><span class="pre">messages</span></code> array plus the seed <code class="docutils literal notranslate"><span class="pre">topic</span></code> and sampled <code class="docutils literal notranslate"><span class="pre">persona</span></code> as metadata for traceability.
 The following shows one sample record from the <code class="docutils literal notranslate"><span class="pre">sft.jsonl</span></code> file.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Could you explain how reducing latency affects the quality of the model’s responses? I’m trying to understand the trade‑offs involved.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reducing latency shortens the time the model takes to generate a response, which often means it has less computational budget or fewer inference steps. With fewer steps or a tighter budget, the model may:\n\n- Produce shorter, less nuanced outputs  \n- Miss subtle contextual cues or deeper reasoning  \n- Rely more on surface‑level patterns rather than elaborate context  \n- Be more prone to errors or hallucinations that would be filtered out with additional processing  \n\nThe trade‑off is speed versus depth: faster responses can be less thorough, less coherent, or lower in quality, especially for tasks that benefit from extended reasoning or detailed elaboration. Balancing the two involves choosing an acceptable latency target while preserving enough inference capacity to maintain the desired response quality.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;persona&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;teacher&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;topic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tradeoffs between model latency and response quality&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </li>
 </ol>
 </section>
