@@ -1,0 +1,940 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SWE-RL (Stages 2.1–2.2) &#8212; Nemotron</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css?v=6e6caa80" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/customize.css?v=88bf5b46" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../../_static/documentation_options.js?v=6261fb99"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'nemotron/super3/rl/swe';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'pr-7';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/termynal.js?v=05ab89e6"></script>
+    <script src="../../../_static/js/termynal-init.js?v=7fa8cdf6"></script>
+
+    <link rel="icon" href="../../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="RLHF (Stage 3)" href="rlhf.html" />
+    <link rel="prev" title="Multi-Environment RLVR (Stages 1.1–1.3)" href="rlvr.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+    <script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" ></script>
+    
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../application-examples.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deployment-guides.html">Deployment Guides</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nano3/README.html">Nemotron 3 Nano</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nano3/import.html">Importing Models and Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../omni3/README.html">Nemotron 3 Omni</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Nemotron 3 Super</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Stage 2: Reinforcement Learning (RL)</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quantization.html">Stage 3: Quantization</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../embed/README.html">Llama Nemotron Embed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../artifacts.html">Artifact Types &amp; Lineage</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../kit.html">Nemotron Kit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nvidia-stack.html">NVIDIA AI Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/package-readme.html">nemo_runspec Package</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/nemo-run.html">Execution through NeMo-Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/omegaconf.html">OmegaConf Configuration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nemo_runspec/artifacts.html">Artifact Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wandb.html">Weights &amp; Biases Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data-prep.html">Data Preparation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xenna-observability.html">Xenna Pipeline Observability</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../data/curation/nemotron-cc.html">Nemotron-CC Data Curation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data/sdg/long-document.html">Long-Document SDG</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/README.html">Nemotron Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/design-philosophy.html">Design Philosophy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture/cli-architecture.html">CLI Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runspec/v1/spec.html">Runspec: <code class="docutils literal notranslate"><span class="pre">[tool.runspec]</span></code> Specification</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../README.html" class="nav-link">Nemotron 3 Super Training Recipe</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Stage 2: Reinforcement Learning (RL)</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">SWE-RL (Stages 2.1–2.2)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="swe-rl-stages-2-12-2">
+<h1>SWE-RL (Stages 2.1–2.2)<a class="headerlink" href="#swe-rl-stages-2-12-2" title="Link to this heading">#</a></h1>
+<p>End-to-end RL for software engineering tasks. SWE-RL is handled as a separate stage because its rollouts take substantially longer and require much longer context lengths, making it a throughput bottleneck when trained alongside the other RLVR environments.</p>
+<hr class="docutils" />
+<section id="swe-container">
+<h2>SWE Container<a class="headerlink" href="#swe-container" title="Link to this heading">#</a></h2>
+<p>Both SWE stages require pre-fetched Python virtual environments that are not included in the base <code class="docutils literal notranslate"><span class="pre">nemo-rl:v0.5.0.nemotron_3_super</span></code> image. Build the SWE container once (from within the <a class="reference external" href="https://github.com/NVIDIA-NeMo/RL">NeMo-RL</a> repo):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>docker buildx build \
+  -t your-registry/nemo-rl:v0.5.0.nemotron_3_super_swe \
+  --push \
+  -f- . &lt;&lt;&#39;EOF&#39;
+FROM nvcr.io/nvidia/nemo-rl:v0.5.0.nemotron_3_super
+
+RUN &lt;&lt;&#39;RUNEOF&#39;
+set -euxo pipefail
+UV_TORCH_BACKEND=$(uv run python -c &quot;import tomllib,pathlib; \
+  indexes=tomllib.loads(pathlib.Path(&#39;pyproject.toml&#39;).read_text())[&#39;tool&#39;][&#39;uv&#39;][&#39;index&#39;]; \
+  print(next(i[&#39;name&#39;].removeprefix(&#39;pytorch-&#39;) for i in indexes if i[&#39;name&#39;].startswith(&#39;pytorch-&#39;)))&quot;) \
+UV_LINK_MODE=hardlink uv run python examples/nemo_gym/prefetch_venvs.py \
+    examples/configs/super/stage2_swe1.yaml \
+    examples/configs/super/stage2_swe2.yaml
+RUNEOF
+EOF
+</pre></div>
+</div>
+<p>Set the container image in your config or via override:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>super3<span class="w"> </span>rl<span class="w"> </span>swe1<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>run.env.container<span class="o">=</span>your-registry/nemo-rl:v0.5.0.nemotron_3_super_swe
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="stage-2-1-swe-1-64-nodes">
+<h2>Stage 2.1 — SWE 1 (64 nodes)<a class="headerlink" href="#stage-2-1-swe-1-64-nodes" title="Link to this heading">#</a></h2>
+<p>SWE-pivot training using a single-step tool use comparison approach. The model receives a code problem and must produce a solution evaluated against ground truth.</p>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Nodes</p></td>
+<td><p>64 (512 GPUs)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Generation nodes</p></td>
+<td><p>32 (colocated=false)</p></td>
+</tr>
+<tr class="row-even"><td><p>Prompts/step</p></td>
+<td><p>64</p></td>
+</tr>
+<tr class="row-odd"><td><p>Generations/prompt</p></td>
+<td><p>16</p></td>
+</tr>
+<tr class="row-even"><td><p>Batch size</p></td>
+<td><p>1,024</p></td>
+</tr>
+<tr class="row-odd"><td><p>Max sequence length</p></td>
+<td><p>131,072</p></td>
+</tr>
+<tr class="row-even"><td><p>TP / CP</p></td>
+<td><p>8 / 8</p></td>
+</tr>
+<tr class="row-odd"><td><p>Learning rate</p></td>
+<td><p>1e-6</p></td>
+</tr>
+<tr class="row-even"><td><p>KL penalty</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Overlong filtering</p></td>
+<td><p>true</p></td>
+</tr>
+<tr class="row-even"><td><p>Prefix caching</p></td>
+<td><p>enabled</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="config-files">
+<h3>Config Files<a class="headerlink" href="#config-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stage2_swe1/config/default.yaml</span></code> — Full-scale 64-node config</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage2_swe1/config/small.yaml</span></code> — Reduced 8-node variant for testing</p></li>
+</ul>
+</section>
+<section id="using-nemotron-cli">
+<h3>Using nemotron CLI<a class="headerlink" href="#using-nemotron-cli" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>super3<span class="w"> </span>rl<span class="w"> </span>swe1<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong><code class="docutils literal notranslate"><span class="pre">--run</span> <span class="pre">YOUR-CLUSTER</span></code></strong> refers to a profile defined in your <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> file.
+See the <a class="reference internal" href="../README.html#configuration"><span class="std std-ref">env.toml setup guide</span></a> for details.</p>
+<p>SWE stages require the <a class="reference internal" href="index.html#swe-container"><span class="std std-ref">SWE container</span></a> with pre-fetched venvs.</p>
+</div></blockquote>
+</section>
+<section id="using-super-launch-sh">
+<h3>Using super_launch.sh<a class="headerlink" href="#using-super-launch-sh" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">EXP_NAME</span><span class="o">=</span>stage2.1-swe1<span class="w"> </span><span class="se">\</span>
+<span class="nv">CONFIG_PATH</span><span class="o">=</span>examples/configs/super/stage2_swe1.yaml<span class="w"> </span><span class="se">\</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span>/path/to/rlvr3_checkpoint<span class="w"> </span><span class="se">\</span>
+<span class="nv">TRAIN_PATH</span><span class="o">=</span><span class="nv">$DATA_DIR</span>/swe1/train-split.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="nv">VAL_PATH</span><span class="o">=</span><span class="nv">$DATA_DIR</span>/swe1/val-split.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="nv">CONTAINER</span><span class="o">=</span><span class="nv">$SWE_CONTAINER</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SANDBOX_CONTAINER</span><span class="o">=</span><span class="nv">$SANDBOX_CONTAINER</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">PERSISTENT_CACHE</span><span class="o">=</span><span class="nv">$PERSISTENT_CACHE</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">EXTRA_MOUNTS</span><span class="o">=</span><span class="nv">$EXTRA_MOUNTS</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SLURM_PARTITION</span><span class="o">=</span><span class="nv">$SLURM_PARTITION</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SLURM_ACCOUNT</span><span class="o">=</span><span class="nv">$SLURM_ACCOUNT</span><span class="w"> </span><span class="se">\</span>
+bash<span class="w"> </span>super_launch.sh
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stage-2-2-swe-2-64-nodes">
+<h2>Stage 2.2 — SWE 2 (64 nodes)<a class="headerlink" href="#stage-2-2-swe-2-64-nodes" title="Link to this heading">#</a></h2>
+<p>Full SWE-bench training with container-isolated sandboxes. Each rollout launches an isolated container with the target repository, runs the OpenHands agent loop to produce a code patch, and runs ground-truth tests to compute a binary reward.</p>
+<section id="id1">
+<h3>Configuration<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Nodes</p></td>
+<td><p>64 (512 GPUs)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Generation nodes</p></td>
+<td><p>32 (colocated=false)</p></td>
+</tr>
+<tr class="row-even"><td><p>Prompts/step</p></td>
+<td><p>16</p></td>
+</tr>
+<tr class="row-odd"><td><p>Generations/prompt</p></td>
+<td><p>32</p></td>
+</tr>
+<tr class="row-even"><td><p>Batch size</p></td>
+<td><p>512</p></td>
+</tr>
+<tr class="row-odd"><td><p>Max sequence length</p></td>
+<td><p>196,608</p></td>
+</tr>
+<tr class="row-even"><td><p>TP / CP</p></td>
+<td><p>8 / 8</p></td>
+</tr>
+<tr class="row-odd"><td><p>Learning rate</p></td>
+<td><p>1e-6</p></td>
+</tr>
+<tr class="row-even"><td><p>KL penalty</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Overlong filtering</p></td>
+<td><p>true</p></td>
+</tr>
+<tr class="row-even"><td><p>Agent max turns</p></td>
+<td><p>200</p></td>
+</tr>
+<tr class="row-odd"><td><p>Agent concurrency</p></td>
+<td><p>768</p></td>
+</tr>
+<tr class="row-even"><td><p>Agent timeout</p></td>
+<td><p>3,600s</p></td>
+</tr>
+<tr class="row-odd"><td><p>Thinking mode</p></td>
+<td><p>enabled</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id2">
+<h3>Config Files<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stage2_swe2/config/default.yaml</span></code> — Full-scale 64-node config</p></li>
+</ul>
+</section>
+<section id="infrastructure">
+<h3>Infrastructure<a class="headerlink" href="#infrastructure" title="Link to this heading">#</a></h3>
+<section id="container-isolation">
+<h4>Container Isolation<a class="headerlink" href="#container-isolation" title="Link to this heading">#</a></h4>
+<p>Each SWE task instance needs an isolated environment with its own filesystem to execute code and run tests. The upstream training uses <strong>Apptainer</strong> (formerly Singularity) because SLURM HPC clusters typically lack root access, which rules out Docker. Apptainer runs pre-built <code class="docutils literal notranslate"><span class="pre">.sif</span></code> images with a writable tmpfs overlay while sharing the host kernel.</p>
+<blockquote>
+<div><p><strong>Other environments</strong>: If you have root access or are running outside SLURM, Docker or Podman can provide the same container isolation with stronger process and memory boundaries (cgroup isolation). The SWE-bench environment images are available as standard Docker images from R2E-Gym, SWE-Gym, and SWE-Bench Verified on HuggingFace — they only need to be converted to <code class="docutils literal notranslate"><span class="pre">.sif</span></code> format for Apptainer.</p>
+</div></blockquote>
+<p>Because Apptainer shares the host kernel and memory space, additional safeguards are needed:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Memory Watchdog</strong></p></td>
+<td><p>Monitors aggregate RSS of tmux process trees and proactively kills runaway processes, since Apptainer containers share host memory (unlike Docker’s cgroup isolation).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Command Blocklist</strong></p></td>
+<td><p>Regex-based blocklist intercepts dangerous commands (<code class="docutils literal notranslate"><span class="pre">killall</span></code>, <code class="docutils literal notranslate"><span class="pre">pkill</span></code>) that could terminate training processes or vLLM servers on the same node.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These safeguards are less critical when using Docker or Podman, which provide cgroup-based process and memory isolation by default.</p>
+</section>
+<section id="agent-loop">
+<h4>Agent Loop<a class="headerlink" href="#agent-loop" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>OpenHands Agent Loop</strong></p></td>
+<td><p>Manages the full lifecycle: initializing runtime, presenting problems, running agent steps (up to 200 turns), extracting git patches, and running tests for binary reward.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Harness Diversity</strong></p></td>
+<td><p>OpenCode and Codex agent classes within OpenHands match external harness tool formats (Claude Code, Codex CLI) for training diversity.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
+<p>For SLURM clusters without root access, install <a class="reference external" href="https://apptainer.org/docs/admin/main/installation.html">Apptainer</a> and download SIF images:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Apptainer (Ubuntu/Debian)</span>
+wget<span class="w"> </span>https://github.com/apptainer/apptainer/releases/download/v1.3.1/apptainer_1.3.1_amd64.deb
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>./apptainer_1.3.1_amd64.deb
+
+<span class="c1"># Download and convert Docker images to .sif files</span>
+./examples/nemo_gym/download_swe_images.py<span class="w"> </span>--sif-dir<span class="w"> </span>/path/to/sif<span class="w"> </span>--concurrency<span class="w"> </span><span class="m">16</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>Using nemotron CLI<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>super3<span class="w"> </span>rl<span class="w"> </span>swe2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--run<span class="w"> </span>YOUR-CLUSTER<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>run.env.sif_dir<span class="o">=</span>/path/to/sif
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong><code class="docutils literal notranslate"><span class="pre">--run</span> <span class="pre">YOUR-CLUSTER</span></code></strong> refers to a profile defined in your <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> file.
+See the <a class="reference internal" href="../README.html#configuration"><span class="std std-ref">env.toml setup guide</span></a> for details.</p>
+<p>SWE stages require the <a class="reference internal" href="index.html#swe-container"><span class="std std-ref">SWE container</span></a> with pre-fetched venvs.</p>
+</div></blockquote>
+</section>
+<section id="id4">
+<h3>Using super_launch.sh<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">EXP_NAME</span><span class="o">=</span>stage2.2-swe2<span class="w"> </span><span class="se">\</span>
+<span class="nv">CONFIG_PATH</span><span class="o">=</span>examples/configs/super/stage2_swe2.yaml<span class="w"> </span><span class="se">\</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span>/path/to/swe1_checkpoint<span class="w"> </span><span class="se">\</span>
+<span class="nv">TRAIN_PATH</span><span class="o">=</span><span class="nv">$DATA_DIR</span>/swe2/train-split.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="nv">VAL_PATH</span><span class="o">=</span><span class="nv">$DATA_DIR</span>/swe2/val-split.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="nv">CONTAINER</span><span class="o">=</span><span class="nv">$SWE_CONTAINER</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SANDBOX_CONTAINER</span><span class="o">=</span><span class="nv">$SANDBOX_CONTAINER</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">PERSISTENT_CACHE</span><span class="o">=</span><span class="nv">$PERSISTENT_CACHE</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">EXTRA_MOUNTS</span><span class="o">=</span><span class="nv">$EXTRA_MOUNTS</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SLURM_PARTITION</span><span class="o">=</span><span class="nv">$SLURM_PARTITION</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SLURM_ACCOUNT</span><span class="o">=</span><span class="nv">$SLURM_ACCOUNT</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SIF_DIR</span><span class="o">=</span>/path/to/sif<span class="w"> </span><span class="se">\</span>
+bash<span class="w"> </span>super_launch.sh
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://github.com/NVIDIA-NeMo/RL/blob/super-v3/examples/nemotron_3_super/README.md">upstream training guide</a> for full details on environment variables.</p>
+<hr class="docutils" />
+<p><strong>Recipe Source</strong>: <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/super3/stage2_rl/stage2_swe1/</span></code> and <code class="docutils literal notranslate"><span class="pre">src/nemotron/recipes/super3/stage2_rl/stage2_swe2/</span></code></p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="rlvr.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Multi-Environment RLVR (Stages 1.1–1.3)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="rlhf.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">RLHF (Stage 3)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#swe-container">SWE Container</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-2-1-swe-1-64-nodes">Stage 2.1 — SWE 1 (64 nodes)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#config-files">Config Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nemotron-cli">Using nemotron CLI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-super-launch-sh">Using super_launch.sh</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-2-2-swe-2-64-nodes">Stage 2.2 — SWE 2 (64 nodes)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Config Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#infrastructure">Infrastructure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#container-isolation">Container Isolation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-loop">Agent Loop</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Using nemotron CLI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Using super_launch.sh</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+<div class="extra_footer">
+  
+  
+    <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+    
+  
+</div></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
