@@ -51,13 +51,18 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
 
 ## Prerequisites
 
-- You cloned the https://github.com/NVIDIA-NeMo/Nemotron repository.
 - You have a host with access to https://integrate.api.nvidia.com.
 - The `uv` tool available in your shell.
 - `NGC_API_KEY` exported in the same shell session before you run the procedure.
   The default model for the configuration is `openai/gpt-oss-120b`.
 
 ## Procedure
+
+1. Clone the repository:
+
+   ```console
+   git clonehttps://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
 
 1. From the repository root, add the dependencies for building benchmarks:
 
@@ -76,6 +81,8 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
      input_dir="./src/nemotron/steps/byob/data/tiny_input" \
      output_dir=./byob-output
    ```
+
+   When the `--config` argument is not a path, the command resolves the config file name in the `src/nemotron/steps/byob/config/` directory.
 
    When the command finishes, list the `./byob-output/byob_mcq_tiny/` directory.
    The `expt_name` field in the `src/nemotron/steps/byob/config/tiny.yaml` file specifies that directory.

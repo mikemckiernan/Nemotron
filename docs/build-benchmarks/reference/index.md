@@ -11,11 +11,11 @@ Specifications grounded in `src/nemotron/steps/byob`.
 :maxdepth: 1
 :hidden:
 
-output-files
-troubleshooting
 benchmarks
+output-files
 generate-config
 translation-config
+troubleshooting
 ```
 
 ## Outputs

@@ -85,4 +85,4 @@ The following intermediate files are created in the `staged_cache` directory.
 | `backtranslated_questions.parquet` | BACKTRANSLATION |
 | `quality_metrics.parquet` | QUALITY_METRICS |
 
-Intermediate translation Parquet files can include additional columns such as `question_translated`, `options_translated`, backtranslation fields, and metric scores; those are documented inline in `references/benchmark-schema.md`.
+Intermediate translation Parquet files can include additional columns such as `question_translated`, `options_translated`, backtranslation fields, and metric scores.
