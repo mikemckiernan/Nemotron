@@ -101,8 +101,7 @@ Judging prompts use ordinary double braces because that stage is forwarded as wr
 
 Use the layout from `src/nemotron/steps/byob/runtime/benchmark_families/mcq/prompts/qa_generation.py` as a starting point when you author your own file.
 
-```{code-block}
-:language: yaml
+```{code-block} yaml
 :class: scrollable
 
 qa_generation:

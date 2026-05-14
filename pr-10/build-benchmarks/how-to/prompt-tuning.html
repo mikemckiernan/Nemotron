@@ -668,54 +668,54 @@ Judging prompts use ordinary double braces because that stage is forwarded as wr
 <section id="example-qa-generation-block">
 <h2>Example: QA Generation Block<a class="headerlink" href="#example-qa-generation-block" title="Link to this heading">#</a></h2>
 <p>Use the layout from <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/runtime/benchmark_families/mcq/prompts/qa_generation.py</span></code> as a starting point when you author your own file.</p>
-<div class="scrollable highlight-default notranslate"><div class="highlight"><pre><span></span>qa_generation:
-  system_prompt: |
-    You are an expert in creating questions from a description of a given topic.
-    You will be given {num_few_shot_samples} example questions and answers unrelated to the topic.
+<div class="scrollable highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qa_generation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">system_prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">You are an expert in creating questions from a description of a given topic.</span>
+<span class="w">    </span><span class="no">You will be given {num_few_shot_samples} example questions and answers unrelated to the topic.</span>
 
-    You should
-    1. Create {num_questions} questions, four choices and answers similar to the example question answer.
-    2. Follow the question style of the example question answers (Direct WH question/Completion/Best explanation/Best action/Equivalence/Other).
-    3. Try to create questions that are higher in the cognitive level scale, by mostly using concepts from the text passage.
-    4. The questions should not explicitly refer to the passage or example question answer.
-    5. Assume that the person reading the questions does not have access to the passage or example question answer. So make the question clear as to what the topic is.
-  prompt: |
-    Definition of cognitive level (higher is better):
-    1: Recall
-    The question asks for recall of isolated facts, definitions, or simple formulas (e.g., “What is the full form of SEBI?”).
+<span class="w">    </span><span class="no">You should</span>
+<span class="w">    </span><span class="no">1. Create {num_questions} questions, four choices and answers similar to the example question answer.</span>
+<span class="w">    </span><span class="no">2. Follow the question style of the example question answers (Direct WH question/Completion/Best explanation/Best action/Equivalence/Other).</span>
+<span class="w">    </span><span class="no">3. Try to create questions that are higher in the cognitive level scale, by mostly using concepts from the text passage.</span>
+<span class="w">    </span><span class="no">4. The questions should not explicitly refer to the passage or example question answer.</span>
+<span class="w">    </span><span class="no">5. Assume that the person reading the questions does not have access to the passage or example question answer. So make the question clear as to what the topic is.</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">Definition of cognitive level (higher is better):</span>
+<span class="w">    </span><span class="no">1: Recall</span>
+<span class="w">    </span><span class="no">The question asks for recall of isolated facts, definitions, or simple formulas (e.g., “What is the full form of SEBI?”).</span>
 
-    2: Understanding
-    The question checks comprehension of concepts, classifications, or simple explanations (e.g., interpret what an LTV ratio means for a borrower).
+<span class="w">    </span><span class="no">2: Understanding</span>
+<span class="w">    </span><span class="no">The question checks comprehension of concepts, classifications, or simple explanations (e.g., interpret what an LTV ratio means for a borrower).</span>
 
-    3: Application
-    The question requires using a concept, rule, or formula in a straightforward, familiar situation (e.g., compute post‑tax return on a fixed deposit given basic data).
+<span class="w">    </span><span class="no">3: Application</span>
+<span class="w">    </span><span class="no">The question requires using a concept, rule, or formula in a straightforward, familiar situation (e.g., compute post‑tax return on a fixed deposit given basic data).</span>
 
-    4: Analysis
-    The question involves breaking down information, comparing alternatives, or identifying relationships/causes (e.g., infer the impact of an RBI rate change on bond prices or bank NIMs).
+<span class="w">    </span><span class="no">4: Analysis</span>
+<span class="w">    </span><span class="no">The question involves breaking down information, comparing alternatives, or identifying relationships/causes (e.g., infer the impact of an RBI rate change on bond prices or bank NIMs).</span>
 
-    5: Evaluate
-    The question requires judgment among alternatives based on criteria, or synthesizing information to choose the best course of action or construct a plan (e.g., select the most appropriate investment strategy for a given Indian retail investor scenario).
+<span class="w">    </span><span class="no">5: Evaluate</span>
+<span class="w">    </span><span class="no">The question requires judgment among alternatives based on criteria, or synthesizing information to choose the best course of action or construct a plan (e.g., select the most appropriate investment strategy for a given Indian retail investor scenario).</span>
 
 
-    Create {num_questions} questions, four choices and answers for the given topic:
-    Topic: {{{{target_subject}}}}
-    &lt;start of topic&gt;
-    {{{{text}}}}
-    &lt;end of topic&gt;
+<span class="w">    </span><span class="no">Create {num_questions} questions, four choices and answers for the given topic:</span>
+<span class="w">    </span><span class="no">Topic: {{{{target_subject}}}}</span>
+<span class="w">    </span><span class="no">&lt;start of topic&gt;</span>
+<span class="w">    </span><span class="no">{{{{text}}}}</span>
+<span class="w">    </span><span class="no">&lt;end of topic&gt;</span>
 
-    Now make {num_questions} questions, four choices and answers for the topic similar to the example question answer. Don&#39;t make the answer too obvious.
+<span class="w">    </span><span class="no">Now make {num_questions} questions, four choices and answers for the topic similar to the example question answer. Don&#39;t make the answer too obvious.</span>
 
-    Example questions and answers:-
-    {{{{few_shot_examples}}}}
+<span class="w">    </span><span class="no">Example questions and answers:-</span>
+<span class="w">    </span><span class="no">{{{{few_shot_examples}}}}</span>
 
-    Write the questions and options in the language: {{{{language}}}}
-    Return the questions in JSON format with each question having the following fields:
-    - question: The question
-    - choice_a: The first choice (A)
-    - choice_b: The second choice (B)
-    - choice_c: The third choice (C)
-    - choice_d: The fourth choice (D)
-    - answer: The answer (A/B/C/D)
+<span class="w">    </span><span class="no">Write the questions and options in the language: {{{{language}}}}</span>
+<span class="w">    </span><span class="no">Return the questions in JSON format with each question having the following fields:</span>
+<span class="w">    </span><span class="no">- question: The question</span>
+<span class="w">    </span><span class="no">- choice_a: The first choice (A)</span>
+<span class="w">    </span><span class="no">- choice_b: The second choice (B)</span>
+<span class="w">    </span><span class="no">- choice_c: The third choice (C)</span>
+<span class="w">    </span><span class="no">- choice_d: The fourth choice (D)</span>
+<span class="w">    </span><span class="no">- answer: The answer (A/B/C/D)</span>
 </pre></div>
 </div>
 </section>
