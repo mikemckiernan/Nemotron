@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Translation &#8212; Nemotron</title>
+    <title>Troubleshooting &#8212; Nemotron</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'build-benchmarks/explanation/translation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'build-benchmarks/reference/troubleshooting';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
@@ -67,8 +67,8 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="How-To Guides" href="../how-to/index.html" />
-    <link rel="prev" title="Easiness and Hallucination Filtering" href="filtering.html" />
+    <link rel="next" title="Supported Hugging Face Benchmarks" href="benchmarks.html" />
+    <link rel="prev" title="Output Files" href="output-files.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -454,14 +454,14 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data-preparation.html">Data Preparation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get-right-questions.html">Get the Right Questions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="question-generation.html">Question Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quality-validation.html">Quality Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="filtering.html">Easiness and Hallucination Filtering</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Translation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-preparation.html">Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/get-right-questions.html">Get the Right Questions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/question-generation.html">Question Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/quality-validation.html">Quality Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/filtering.html">Easiness and Hallucination Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/translation.html">Translation</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -472,12 +472,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to/skip-stages.html">Skip Stages</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/output-files.html">Output Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/generate-config.html">Generation Configuration Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/translation-config.html">Translation Configuration Reference</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="output-files.html">Output Files</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Supported Hugging Face Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate-config.html">Generation Configuration Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="translation-config.html">Translation Configuration Reference</a></li>
 </ul>
 </details></li>
 </ul>
@@ -541,9 +541,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Concepts</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Translation</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Troubleshooting</span></li>
   </ul>
 </nav>
 </div>
@@ -564,128 +564,123 @@
   SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
   SPDX-License-Identifier: Apache-2.0
 -->
-<!-- Explanation: translation YAML, quality gates, and operator-visible artifacts for BYOB MCQ translate. -->
-<section class="tex2jax_ignore mathjax_ignore" id="translation">
-<h1>Translation<a class="headerlink" href="#translation" title="Link to this heading">#</a></h1>
-<p>Learn how to take an existing <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> from generation, translate it to a target locale, score quality with backtranslation metrics, and export another <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code>.</p>
-<p>The field names, defaults, and validation rules are listed in <a class="reference internal" href="../reference/translation-config.html"><span class="doc">Translation Configuration Reference</span></a>.
-Artifact paths are summarized in <a class="reference internal" href="../reference/output-files.html"><span class="doc">Output Files</span></a>.</p>
-<section id="what-you-configure">
-<h2>What You Configure<a class="headerlink" href="#what-you-configure" title="Link to this heading">#</a></h2>
+<!-- Reference: symptom-to-remedy tables for bring your own benchmark MCQ runs and translation YAML checks. -->
+<section class="tex2jax_ignore mathjax_ignore" id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h1>
+<p>This page lists common symptoms when you run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> with the bring your own benchmark (BYOB) multiple choice question (MCQ) family and when you tune BYOB translation settings.
+Each table row pairs a symptom with the files, fields, or flags you should inspect first.
+For stage flow and design rationale, see the explanation pages linked from <a class="reference internal" href="../explanation/index.html"><span class="doc">Concepts</span></a>.</p>
+<section id="configuration-rejected-before-the-pipeline-runs">
+<h2>Configuration Rejected Before the Pipeline Runs<a class="headerlink" href="#configuration-rejected-before-the-pipeline-runs" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Control</p></th>
-<th class="head"><p>What you set</p></th>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dataset_path</span></code></p></td>
-<td><p>Absolute or workspace path to the source <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> you want translated.</p></td>
+<tr class="row-even"><td><p>Assertion that <code class="docutils literal notranslate"><span class="pre">tags</span></code> should not be specified when <code class="docutils literal notranslate"><span class="pre">metadata_file</span></code> is absent</p></td>
+<td><p>Remove <code class="docutils literal notranslate"><span class="pre">tags</span></code> from every <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code> entry, or set top-level <code class="docutils literal notranslate"><span class="pre">metadata_file</span></code> to the comma-separated values (CSV) file that supplies tag metadata. See <a class="reference internal" href="../how-to/prepare-data.html"><span class="doc">Prepare Your Own Domain Data</span></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">expt_name</span></code></p></td>
-<td><p>Where caches and the translated <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> are written.</p></td>
+<tr class="row-odd"><td><p>Assertion that BYOB translation does not support FAITH evaluation</p></td>
+<td><p>Under <code class="docutils literal notranslate"><span class="pre">translation_model_config.stage</span></code>, set <code class="docutils literal notranslate"><span class="pre">enable_faith_eval</span></code> to false or omit the field. BYOB translation expects <code class="docutils literal notranslate"><span class="pre">backtranslation_quality_metrics</span></code> instead of FAITH. See <a class="reference internal" href="translation-config.html"><span class="doc">Translation Configuration Reference</span></a> and <a class="reference internal" href="../explanation/translation.html"><span class="doc">Translation</span></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">source_language</span></code> / <code class="docutils literal notranslate"><span class="pre">target_language</span></code></p></td>
-<td><p>BCP-47 style tags, for example <code class="docutils literal notranslate"><span class="pre">en-US</span></code> and <code class="docutils literal notranslate"><span class="pre">hi-IN</span></code>.</p></td>
+<tr class="row-even"><td><p>Message that a prompt override key is missing or is not a string, or validation fails on <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code></p></td>
+<td><p>Open your <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code> YAML and match the structure in <a class="reference internal" href="../how-to/prompt-tuning.html"><span class="doc">Prompt Tuning for Benchmarks</span></a>. Easiness and hallucination overrides must include the expected blocks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">translation_model_config</span></code></p></td>
-<td><p>Curator experimental translation block: <code class="docutils literal notranslate"><span class="pre">backend_type</span></code>, <code class="docutils literal notranslate"><span class="pre">params</span></code> (model, provider, credentials, <code class="docutils literal notranslate"><span class="pre">inference_parameters</span></code>), plus optional <code class="docutils literal notranslate"><span class="pre">stage</span></code> and <code class="docutils literal notranslate"><span class="pre">segment_stage</span></code> maps.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">backtranslation_quality_metrics</span></code></p></td>
-<td><p>List of <code class="docutils literal notranslate"><span class="pre">{type,</span> <span class="pre">threshold}</span></code> entries. Each <code class="docutils literal notranslate"><span class="pre">type</span></code> must be <code class="docutils literal notranslate"><span class="pre">sacrebleu</span></code>, <code class="docutils literal notranslate"><span class="pre">chrf</span></code>, or <code class="docutils literal notranslate"><span class="pre">ter</span></code>; each <code class="docutils literal notranslate"><span class="pre">threshold</span></code> must be nonnegative. Keep at least one entry so scoring runs; outputs land in <code class="docutils literal notranslate"><span class="pre">quality_metrics.parquet</span></code> with per-metric scores and <code class="docutils literal notranslate"><span class="pre">is_quality_metric_passed</span></code>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code></p></td>
-<td><p>When <code class="docutils literal notranslate"><span class="pre">true</span></code> (the default if you omit the key), rows that fail the aggregate quality gate are dropped before the final export. When <code class="docutils literal notranslate"><span class="pre">false</span></code>, every row is kept so you can inspect scores first.</p></td>
+<tr class="row-odd"><td><p>Schema validation reports that <code class="docutils literal notranslate"><span class="pre">distractor_validity_model_config</span></code> is missing</p></td>
+<td><p>The current generation schema requires this block even when distractor expansion is off. Add the block as described in <a class="reference internal" href="../how-to/custom-model-endpoints.html"><span class="doc">Configure Model Endpoints for BYOB</span></a>.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Do not set <code class="docutils literal notranslate"><span class="pre">translation_model_config.stage.enable_faith_eval</span></code> to true.
-Translation relies on backtranslation metrics instead of FAITH.</p>
 </section>
-<section id="running-the-translate-stage">
-<h2>Running the Translate Stage<a class="headerlink" href="#running-the-translate-stage" title="Link to this heading">#</a></h2>
-<p>Pass <code class="docutils literal notranslate"><span class="pre">--stage</span> <span class="pre">translate</span></code> unless your YAML sets a top-level <code class="docutils literal notranslate"><span class="pre">stage</span></code> key.
-The CLI requires an explicit stage when that key is absent.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob -c translate -- --stage translate</span>
-</pre></div>
+<section id="skipped-stages-and-missing-parquet-inputs">
+<h2>Skipped Stages and Missing Parquet Inputs<a class="headerlink" href="#skipped-stages-and-missing-parquet-inputs" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A stage fails because an expected Parquet file is missing under <code class="docutils literal notranslate"><span class="pre">output_dir/&lt;expt_name&gt;/stage_cache/</span></code></p></td>
+<td><p>When you use <code class="docutils literal notranslate"><span class="pre">--skip-until</span></code>, every stage before the resume point must have written its output file to disk. Rerun from an earlier stage without skipping, or copy valid caches from a prior run. See <a class="reference internal" href="../how-to/skip-stages.html"><span class="doc">Skip Stages When Iterating</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section id="tune-quality-gates">
-<h2>Tune Quality Gates<a class="headerlink" href="#tune-quality-gates" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">backtranslation_quality_metrics</span></code> field is the only place you define automatic pass or fail rules for backtranslation checks.
-Add or remove list entries to change which scores are computed, and adjust <code class="docutils literal notranslate"><span class="pre">threshold</span></code> values when you want stricter or looser gates.</p>
-<p>After a run, open <code class="docutils literal notranslate"><span class="pre">quality_metrics.parquet</span></code> under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>/<code class="docutils literal notranslate"><span class="pre">expt_name</span></code>/<code class="docutils literal notranslate"><span class="pre">stage_cache/</span></code> to read per-metric score columns and <code class="docutils literal notranslate"><span class="pre">is_quality_metric_passed</span></code> before you change YAML again.</p>
-</section>
-<section id="final-filtering-control">
-<h2>Final Filtering Control<a class="headerlink" href="#final-filtering-control" title="Link to this heading">#</a></h2>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code> decides whether failing rows disappear from the exported <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code>.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">remove_low_quality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">   </span><span class="c1"># omit to get the same default</span>
-</pre></div>
-</div>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">remove_low_quality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># keep failing rows; filter manually using Parquet columns</span>
-</pre></div>
-</div>
-</li>
-</ul>
-</section>
-<section id="reference-layout">
-<h2>Reference Layout<a class="headerlink" href="#reference-layout" title="Link to this heading">#</a></h2>
-<p>The sample <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/translate.yaml</span></code> file shows a complete <code class="docutils literal notranslate"><span class="pre">translation_model_config</span></code> with <code class="docutils literal notranslate"><span class="pre">backend_type:</span> <span class="pre">llm</span></code>, NVIDIA provider parameters, and <code class="docutils literal notranslate"><span class="pre">stage</span></code> / <code class="docutils literal notranslate"><span class="pre">segment_stage</span></code> tuning.
-Copy that structure, then swap model IDs, concurrency, and language tags for your workload.</p>
-<p>The YAML below mirrors the sample configu, including <code class="docutils literal notranslate"><span class="pre">remove_low_quality:</span> <span class="pre">false</span></code> so rows that fail the aggregate quality gate remain in <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> and you can inspect <code class="docutils literal notranslate"><span class="pre">stage_cache/quality_metrics.parquet</span></code> while you tune thresholds.</p>
-<p>When you omit <code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code> or set it to <code class="docutils literal notranslate"><span class="pre">true</span></code>, failing rows are dropped before export.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">expt_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">byob_mcq_translation</span>
-<span class="nt">dataset_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/benchmark.parquet</span>
-<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/outputs</span>
-<span class="nt">source_language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">en-US</span>
-<span class="nt">target_language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hi-IN</span>
-
-<span class="nt">translation_model_config</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">backend_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm</span>
-<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-oss-120b</span>
-<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openai/gpt-oss-120b</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia</span>
-<span class="w">    </span><span class="nt">api_key_env</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NGC_API_KEY</span>
-<span class="w">    </span><span class="nt">inference_parameters</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16000</span>
-<span class="w">      </span><span class="nt">max_parallel_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
-<span class="w">      </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
-<span class="w">      </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.95</span>
-<span class="w">  </span><span class="nt">stage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">segmentation_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">coarse</span>
-<span class="w">    </span><span class="nt">min_segment_chars</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">    </span><span class="nt">output_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">both</span>
-<span class="w">  </span><span class="nt">segment_stage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">health_check</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">max_concurrent_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
-
-<span class="nt">backtranslation_quality_metrics</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sacrebleu</span>
-<span class="w">    </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chrf</span>
-<span class="w">    </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ter</span>
-<span class="w">    </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
-
-<span class="nt">remove_low_quality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-</pre></div>
+<section id="generation-ends-with-no-final-benchmark-rows">
+<h2>Generation Ends With No Final Benchmark Rows<a class="headerlink" href="#generation-ends-with-no-final-benchmark-rows" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Log line <code class="docutils literal notranslate"><span class="pre">No</span> <span class="pre">questions</span> <span class="pre">left</span> <span class="pre">after</span> <span class="pre">filtering</span></code>, or <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> is missing after a run that exited early</p></td>
+<td><p>Open <code class="docutils literal notranslate"><span class="pre">stage_cache/filtered_questions.parquet</span></code> and inspect <code class="docutils literal notranslate"><span class="pre">is_easy</span></code>, <code class="docutils literal notranslate"><span class="pre">is_hallucination</span></code>, and score columns. Loosen <code class="docutils literal notranslate"><span class="pre">easiness_threshold</span></code> or <code class="docutils literal notranslate"><span class="pre">hallucination_threshold</span></code>, set <code class="docutils literal notranslate"><span class="pre">remove_easy</span></code> and <code class="docutils literal notranslate"><span class="pre">remove_hallucinated</span></code> to false for a diagnostic run, or adjust upstream judgement and deduplication settings. See <a class="reference internal" href="../explanation/filtering.html"><span class="doc">Easiness and Hallucination Filtering</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section id="directory-structure">
-<h2>Directory Structure<a class="headerlink" href="#directory-structure" title="Link to this heading">#</a></h2>
-<p>The translation stage writes intermediate Parquet files to <code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/&lt;expt_name&gt;/&lt;stage_cache&gt;</span></code> as <code class="docutils literal notranslate"><span class="pre">translated_questions.parquet</span></code>, <code class="docutils literal notranslate"><span class="pre">backtranslated_questions.parquet</span></code>, and <code class="docutils literal notranslate"><span class="pre">quality_metrics.parquet</span></code>, followed by <code class="docutils literal notranslate"><span class="pre">benchmark_raw.parquet</span></code> and the renamed <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> in the experiment root.
-Use the intermediate files to debug language mix-ups, threshold misses, or model refusals before you change configuration again.</p>
+<section id="translation-export-drops-every-row">
+<h2>Translation Export Drops Every Row<a class="headerlink" href="#translation-export-drops-every-row" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> exists but has zero rows after translation</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code> is true, only rows with <code class="docutils literal notranslate"><span class="pre">is_quality_metric_passed</span></code> are exported. Inspect <code class="docutils literal notranslate"><span class="pre">stage_cache/quality_metrics.parquet</span></code>, relax metric thresholds in <code class="docutils literal notranslate"><span class="pre">backtranslation_quality_metrics</span></code>, or set <code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code> to false while you tune. See <a class="reference internal" href="../explanation/translation.html"><span class="doc">Translation</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
-<section id="related-information">
-<h2>Related Information<a class="headerlink" href="#related-information" title="Link to this heading">#</a></h2>
+<section id="few-shot-sampling-finds-no-rows">
+<h2>Few-Shot Sampling Finds No Rows<a class="headerlink" href="#few-shot-sampling-finds-no-rows" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Runtime error stating there are no samples for a given source subject and tag combination</p></td>
+<td><p>Tag filters must match comma-separated tag strings that appear in the metadata CSV for that Hugging Face subject. Widen <code class="docutils literal notranslate"><span class="pre">tags</span></code>, correct the CSV, or confirm <code class="docutils literal notranslate"><span class="pre">source_subjects</span></code> and <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code> names align with <a class="reference internal" href="../how-to/prepare-data.html"><span class="doc">Prepare Your Own Domain Data</span></a> and <a class="reference internal" href="../explanation/get-right-questions.html"><span class="doc">Getting the Right Questions From the Source Benchmark</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="hosted-models-throttle-or-stall">
+<h2>Hosted Models Throttle or Stall<a class="headerlink" href="#hosted-models-throttle-or-stall" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Timeouts, hypertext transfer protocol (HTTP) responses in the 429 range, or bursty failures when calling remote endpoints</p></td>
+<td><p>Reduce <code class="docutils literal notranslate"><span class="pre">max_parallel_requests</span></code> and related batch settings in your YAML, rerun on a smaller slice of data, and confirm application programming interface (API) keys and quotas. See <a class="reference internal" href="../explanation/question-generation.html"><span class="doc">Question Generation</span></a> and <a class="reference internal" href="../how-to/custom-model-endpoints.html"><span class="doc">Configure Model Endpoints for BYOB</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="related-reference">
+<h2>Related Reference<a class="headerlink" href="#related-reference" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../reference/translation-config.html"><span class="doc">Translation Configuration Reference</span></a> for every required and optional YAML key.</p></li>
-<li><p><a class="reference internal" href="../how-to/custom-model-endpoints.html"><span class="doc">Configure Model Endpoints for BYOB</span></a> for credentials and base URLs on your model blocks.</p></li>
-<li><p><a class="reference internal" href="../how-to/skip-stages.html"><span class="doc">Skip Stages When Iterating</span></a> when you need to rerun only translation or downstream stages after a config tweak.</p></li>
-<li><p><a class="reference internal" href="pipeline-overview.html"><span class="doc">Pipeline Overview</span></a> to see where translate sits after generate.</p></li>
+<li><p>Parquet layout and final column list: <a class="reference internal" href="output-files.html"><span class="doc">Output Files</span></a></p></li>
+<li><p>Generation YAML fields: <a class="reference internal" href="generate-config.html"><span class="doc">Generation Configuration Reference</span></a></p></li>
+<li><p>Translation YAML fields: <a class="reference internal" href="translation-config.html"><span class="doc">Translation Configuration Reference</span></a></p></li>
 </ul>
 </section>
 </section>
@@ -701,20 +696,20 @@ Use the intermediate files to debug language mix-ups, threshold misses, or model
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="filtering.html"
+       href="output-files.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Easiness and Hallucination Filtering</p>
+        <p class="prev-next-title">Output Files</p>
       </div>
     </a>
     <a class="right-next"
-       href="../how-to/index.html"
+       href="benchmarks.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">How-To Guides</p>
+        <p class="prev-next-title">Supported Hugging Face Benchmarks</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -739,13 +734,13 @@ Use the intermediate files to debug language mix-ups, threshold misses, or model
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-you-configure">What You Configure</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-translate-stage">Running the Translate Stage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tune-quality-gates">Tune Quality Gates</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-filtering-control">Final Filtering Control</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-layout">Reference Layout</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#directory-structure">Directory Structure</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-information">Related Information</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-rejected-before-the-pipeline-runs">Configuration Rejected Before the Pipeline Runs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#skipped-stages-and-missing-parquet-inputs">Skipped Stages and Missing Parquet Inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generation-ends-with-no-final-benchmark-rows">Generation Ends With No Final Benchmark Rows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translation-export-drops-every-row">Translation Export Drops Every Row</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#few-shot-sampling-finds-no-rows">Few-Shot Sampling Finds No Rows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hosted-models-throttle-or-stall">Hosted Models Throttle or Stall</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-reference">Related Reference</a></li>
 </ul>
   </nav></div>
 

@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tune Prompts for BYOB MCQ &#8212; Nemotron</title>
+    <title>Prompt Tuning for Benchmarks &#8212; Nemotron</title>
   
   
   
@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tasks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -541,7 +543,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Tune Prompts for BYOB MCQ</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Prompt Tuning for Benchmarks</span></li>
   </ul>
 </nav>
 </div>
@@ -562,38 +564,251 @@
   SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
   SPDX-License-Identifier: Apache-2.0
 -->
-<section class="tex2jax_ignore mathjax_ignore" id="tune-prompts-for-byob-mcq">
-<h1>Tune Prompts for BYOB MCQ<a class="headerlink" href="#tune-prompts-for-byob-mcq" title="Link to this heading">#</a></h1>
-<p>When <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code> is <code class="docutils literal notranslate"><span class="pre">null</span></code>, <code class="docutils literal notranslate"><span class="pre">ByobConfig.from_yaml</span></code> loads the built-in templates from <code class="docutils literal notranslate"><span class="pre">runtime/benchmark_families/mcq/prompts/utils.py#get_prompts</span></code>.</p>
-<section id="provide-a-yaml-file">
-<h2>Provide a YAML file<a class="headerlink" href="#provide-a-yaml-file" title="Link to this heading">#</a></h2>
-<p>Set <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code> to a path on disk.
-The loader opens that file, replaces <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code> with the parsed mapping, and asserts every required stage exists with <code class="docutils literal notranslate"><span class="pre">system_prompt</span></code> and <code class="docutils literal notranslate"><span class="pre">prompt</span></code> strings.</p>
-<p>Required top-level keys match the stages in <code class="docutils literal notranslate"><span class="pre">get_prompts()</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">qa_generation</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">question_judge</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">hallucination_filter</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">easiness_filter</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">distractor_expansion</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">distractor_validity</span></code></p></li>
-</ul>
-</section>
-<section id="format-strings">
-<h2>Format strings<a class="headerlink" href="#format-strings" title="Link to this heading">#</a></h2>
-<p>Some templates call <code class="docutils literal notranslate"><span class="pre">.format(...)</span></code> inside <code class="docutils literal notranslate"><span class="pre">runtime/benchmark_families/mcq/stages.py</span></code>.
-Keep the same placeholder names the defaults use, for example <code class="docutils literal notranslate"><span class="pre">num_questions</span></code> for QA generation, or the <code class="docutils literal notranslate"><span class="pre">{{num_choices}}</span></code> / <code class="docutils literal notranslate"><span class="pre">{{choices_text}}</span></code> placeholders used by easiness and hallucination filters.</p>
-</section>
-<section id="try-it">
-<h2>Try it<a class="headerlink" href="#try-it" title="Link to this heading">#</a></h2>
+<!-- How-to: point `prompt_config` at a YAML override for BYOB MCQ stages, keep placeholders valid, and run the step. Use when packaged prompts are close but you need different wording or guardrails. -->
+<section class="tex2jax_ignore mathjax_ignore" id="prompt-tuning-for-benchmarks">
+<span id="byob-mcq-prompt-tuning"></span><h1>Prompt Tuning for Benchmarks<a class="headerlink" href="#prompt-tuning-for-benchmarks" title="Link to this heading">#</a></h1>
+<p>The build-your-own benchmark (BYOB) pipeline for multiple-choice questions (MCQs) runs several stages that each call a large language model (LLM).
+Each stage reads prompt text from your configuration.
+You can replace the packaged wording to change tone, difficulty, guardrails, and output shape while keeping the same pipeline contract.</p>
+<p>Use this guide when packaged prompts are almost right and you want different instructions, tone, or few-shot examples without changing stage order or the expected output shape.</p>
+<p>For every field on the main experiment YAML file, see <a class="reference internal" href="../reference/generate-config.html"><span class="doc">Generation Configuration Reference</span></a>.
+For load-time validation errors, see <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p>
+<section id="point-the-experiment-file-at-your-prompts">
+<h2>Point the experiment file at your prompts<a class="headerlink" href="#point-the-experiment-file-at-your-prompts" title="Link to this heading">#</a></h2>
+<p>Leave <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code> set to <code class="docutils literal notranslate"><span class="pre">null</span></code> when the packaged prompts are acceptable.</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">prompt_config</span></code> to a filesystem path when you want a full override file for all six stages.
+The path is read when the configuration loads, so the file must exist and be readable at that moment.
+Relative paths resolve from the shell working directory where you launch <code class="docutils literal notranslate"><span class="pre">nemotron</span></code>, not from the directory that contains your main configuration file.
+Use an absolute path when you want the same resolution no matter which directory you run from.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">prompt_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/my_prompts.yaml</span>
 </pre></div>
 </div>
-<p>Then run:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob -c /path/to/config.yaml</span>
+<p>Run the step as usual.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>byob<span class="w"> </span>-c<span class="w"> </span>/path/to/config.yaml
 </pre></div>
 </div>
-<p>If a key is missing or a value is not a string, validation raises before the pipeline starts.</p>
+<p>If any required stage is missing, if either string under a stage is absent, or if a value is not a string, validation stops before the pipeline starts and reports the failing field.</p>
+<p>The samples that you can copy from are in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/runtime/benchmark_families/mcq/prompts/</span></code> in the Nemotron repository, one module per stage.</p>
+</section>
+<section id="structure-of-the-prompt-yaml-file">
+<h2>Structure of the Prompt YAML File<a class="headerlink" href="#structure-of-the-prompt-yaml-file" title="Link to this heading">#</a></h2>
+<p>Create one YAML file that defines all six stages.
+Each stage is a mapping with exactly two string keys, <code class="docutils literal notranslate"><span class="pre">system_prompt</span></code> and <code class="docutils literal notranslate"><span class="pre">prompt</span></code>.
+Multi-line strings are fine when you use YAML block scalars.</p>
+<p>The loader treats a custom file as all-or-nothing.
+You must include every stage even when you only intend to change one of them.</p>
+<section id="required-stages">
+<h3>Required Stages<a class="headerlink" href="#required-stages" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage key</p></th>
+<th class="head"><p>Role in the pipeline</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qa_generation</span></code></p></td>
+<td><p>Creates new questions with four choices from the seed passage and few-shot examples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">question_judge</span></code></p></td>
+<td><p>Scores clarity, validity, and knowledge versus reasoning style.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hallucination_filter</span></code></p></td>
+<td><p>Asks filter models to answer with the passage present to catch unsupported content.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">easiness_filter</span></code></p></td>
+<td><p>Asks filter models to answer without the passage to catch questions that are too easy.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distractor_expansion</span></code></p></td>
+<td><p>Adds six distractors when expansion is enabled in the main configuration file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distractor_validity</span></code></p></td>
+<td><p>Checks that only the labeled answer is correct given the passage.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="how-placeholders-work">
+<h2>How Placeholders Work<a class="headerlink" href="#how-placeholders-work" title="Link to this heading">#</a></h2>
+<p>Prompt strings are not plain static prose.
+They carry two different kinds of markers, and some stages use both kinds in the same string.</p>
+<p><em>NeMo Data Designer</em> substitutes <em>seed column</em> markers.
+After any earlier formatting, those markers look like <code class="docutils literal notranslate"><span class="pre">{{column_name}}</span></code> and pull values from the CSV row the stage is processing.</p>
+<p>Some stages run an earlier pass that substitutes <em>run-parameter</em> markers written with single braces, such as <code class="docutils literal notranslate"><span class="pre">{num_questions}</span></code>.
+Those values come from your main experiment configuration file or from small integers the pipeline derives before Data Designer runs.</p>
+<p>Packaged templates sometimes show column names with four braces, for example <code class="docutils literal notranslate"><span class="pre">{{{{target_subject}}}}</span></code>.
+That pattern survives the run-parameter pass and leaves a normal <code class="docutils literal notranslate"><span class="pre">{{target_subject}}</span></code> marker for Data Designer.</p>
+<p>If a stage forwards both strings as written, the pipeline does not apply the single-brace pass.
+Every <code class="docutils literal notranslate"><span class="pre">{{column_name}}</span></code> token you leave in YAML must match a real column in that stage’s seed data.</p>
+<section id="common-run-parameter-tokens">
+<h3>Common Run-Parameter Tokens<a class="headerlink" href="#common-run-parameter-tokens" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{num_few_shot_samples}</span></code> is the few-shot count from the main configuration file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{num_questions}</span></code> is the questions per query from the main configuration file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{num_choices}</span></code> either rewritten for filter stages so Data Designer can inject <code class="docutils literal notranslate"><span class="pre">{{num_choices}}</span></code>, or replaced with the integer <code class="docutils literal notranslate"><span class="pre">4</span></code> or <code class="docutils literal notranslate"><span class="pre">10</span></code> for distractor validity’s system prompt.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{choices}</span></code> rewritten during filtering so Data Designer receives <code class="docutils literal notranslate"><span class="pre">{{choices_text}}</span></code> for the rendered choice list on each row.</p></li>
+</ul>
+</section>
+<section id="column-markers-copied-from-packaged-templates">
+<h3>Column Markers Copied from Packaged Templates<a class="headerlink" href="#column-markers-copied-from-packaged-templates" title="Link to this heading">#</a></h3>
+<p>The list below shows fields that appear in the sample files.
+Quadruple-brace forms are common in <code class="docutils literal notranslate"><span class="pre">qa_generation</span></code> and in some filter user prompts.
+Judging prompts use ordinary double braces because that stage is forwarded as written.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{{{{target_subject}}}}</span></code> — subject label for the target passage.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{{{{text}}}}</span></code> — source passage body.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{{{{few_shot_examples}}}}</span></code> — serialized few-shot examples.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{{{{language}}}}</span></code> — target locale string for generation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{{{{question_generated_formatted}}}}</span></code> — question plus choices as produced upstream.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{{question}}</span></code> — generated question text for the judge stage.</p></li>
+</ul>
+</section>
+</section>
+<section id="example-qa-generation-block">
+<h2>Example: QA Generation Block<a class="headerlink" href="#example-qa-generation-block" title="Link to this heading">#</a></h2>
+<p>Use the layout from <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/runtime/benchmark_families/mcq/prompts/qa_generation.py</span></code> as a starting point when you author your own file.</p>
+<div class="scrollable highlight-default notranslate"><div class="highlight"><pre><span></span>qa_generation:
+  system_prompt: |
+    You are an expert in creating questions from a description of a given topic.
+    You will be given {num_few_shot_samples} example questions and answers unrelated to the topic.
+
+    You should
+    1. Create {num_questions} questions, four choices and answers similar to the example question answer.
+    2. Follow the question style of the example question answers (Direct WH question/Completion/Best explanation/Best action/Equivalence/Other).
+    3. Try to create questions that are higher in the cognitive level scale, by mostly using concepts from the text passage.
+    4. The questions should not explicitly refer to the passage or example question answer.
+    5. Assume that the person reading the questions does not have access to the passage or example question answer. So make the question clear as to what the topic is.
+  prompt: |
+    Definition of cognitive level (higher is better):
+    1: Recall
+    The question asks for recall of isolated facts, definitions, or simple formulas (e.g., “What is the full form of SEBI?”).
+
+    2: Understanding
+    The question checks comprehension of concepts, classifications, or simple explanations (e.g., interpret what an LTV ratio means for a borrower).
+
+    3: Application
+    The question requires using a concept, rule, or formula in a straightforward, familiar situation (e.g., compute post‑tax return on a fixed deposit given basic data).
+
+    4: Analysis
+    The question involves breaking down information, comparing alternatives, or identifying relationships/causes (e.g., infer the impact of an RBI rate change on bond prices or bank NIMs).
+
+    5: Evaluate
+    The question requires judgment among alternatives based on criteria, or synthesizing information to choose the best course of action or construct a plan (e.g., select the most appropriate investment strategy for a given Indian retail investor scenario).
+
+
+    Create {num_questions} questions, four choices and answers for the given topic:
+    Topic: {{{{target_subject}}}}
+    &lt;start of topic&gt;
+    {{{{text}}}}
+    &lt;end of topic&gt;
+
+    Now make {num_questions} questions, four choices and answers for the topic similar to the example question answer. Don&#39;t make the answer too obvious.
+
+    Example questions and answers:-
+    {{{{few_shot_examples}}}}
+
+    Write the questions and options in the language: {{{{language}}}}
+    Return the questions in JSON format with each question having the following fields:
+    - question: The question
+    - choice_a: The first choice (A)
+    - choice_b: The second choice (B)
+    - choice_c: The third choice (C)
+    - choice_d: The fourth choice (D)
+    - answer: The answer (A/B/C/D)
+</pre></div>
+</div>
+</section>
+<section id="shorter-excerpts-for-other-stages">
+<h2>Shorter Excerpts for Other Stages<a class="headerlink" href="#shorter-excerpts-for-other-stages" title="Link to this heading">#</a></h2>
+<p>Use these fragments when you want a quick visual check that a stage matches your expectations.</p>
+<section id="judging">
+<h3>Judging<a class="headerlink" href="#judging" title="Link to this heading">#</a></h3>
+<p>Forwarded as written, so only double-brace column names appear.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Here is the question:
+Question: {{question}}
+</pre></div>
+</div>
+</section>
+<section id="filtering">
+<h3>Filtering<a class="headerlink" href="#filtering" title="Link to this heading">#</a></h3>
+<p>The system line keeps <code class="docutils literal notranslate"><span class="pre">{num_choices}</span></code> in YAML.
+The pipeline rewrites it so Data Designer later fills <code class="docutils literal notranslate"><span class="pre">{{num_choices}}</span></code> per row.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>You are answering a multiple-choice question with {num_choices} choices.
+You will be given a passage on a topic and a question and a list of choices.
+</pre></div>
+</div>
+<p>The hallucination user prompt carries passage markers, the formatted question, and <code class="docutils literal notranslate"><span class="pre">{choices}</span></code>, which becomes <code class="docutils literal notranslate"><span class="pre">{{choices_text}}</span></code> for Data Designer.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Topic: {{{{target_subject}}}}
+&lt;start of topic&gt;
+{{{{text}}}}
+&lt;end of topic&gt;
+
+Answer the following question:
+
+{{{{question_generated_formatted}}}}
+
+The answer should be one of {choices}. Think step by step and then finish your answer with &quot;The answer is (X)&quot; where X is the correct letter choice.
+</pre></div>
+</div>
+<p>The easiness filter reuses the same <code class="docutils literal notranslate"><span class="pre">{num_choices}</span></code> and <code class="docutils literal notranslate"><span class="pre">{choices}</span></code> contract on the system and user strings but omits the topic and passage block.
+Copy each filter stage from its own packaged default instead of swapping strings between them.</p>
+</section>
+<section id="distractor-validity">
+<h3>Distractor Validity<a class="headerlink" href="#distractor-validity" title="Link to this heading">#</a></h3>
+<p>Only the system line runs the single-brace pass, replacing <code class="docutils literal notranslate"><span class="pre">{num_choices}</span></code> with the integer <code class="docutils literal notranslate"><span class="pre">4</span></code> or <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>The question claims that there is only one correct answer among the {num_choices} choices.
+</pre></div>
+</div>
+<p>The user <code class="docutils literal notranslate"><span class="pre">prompt</span></code> is forwarded as written; keep its <code class="docutils literal notranslate"><span class="pre">{{column}}</span></code> names aligned with the packaged file.</p>
+</section>
+</section>
+<section id="stage-by-stage-formatting-checklist">
+<h2>Stage-by-Stage Formatting Checklist<a class="headerlink" href="#stage-by-stage-formatting-checklist" title="Link to this heading">#</a></h2>
+<p>Use this table when you need a compact reminder of where single-brace substitution runs.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Single-brace pass on <code class="docutils literal notranslate"><span class="pre">system_prompt</span></code></p></th>
+<th class="head"><p>Single-brace pass on <code class="docutils literal notranslate"><span class="pre">prompt</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qa_generation</span></code></p></td>
+<td><p>Yes, <code class="docutils literal notranslate"><span class="pre">{num_few_shot_samples}</span></code> and <code class="docutils literal notranslate"><span class="pre">{num_questions}</span></code></p></td>
+<td><p>Yes, <code class="docutils literal notranslate"><span class="pre">{num_questions}</span></code> only</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">question_judge</span></code></p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hallucination_filter</span></code></p></td>
+<td><p>Yes, <code class="docutils literal notranslate"><span class="pre">{num_choices}</span></code> becomes <code class="docutils literal notranslate"><span class="pre">{{num_choices}}</span></code></p></td>
+<td><p>Yes, <code class="docutils literal notranslate"><span class="pre">{choices}</span></code> becomes <code class="docutils literal notranslate"><span class="pre">{{choices_text}}</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">easiness_filter</span></code></p></td>
+<td><p>Same as hallucination</p></td>
+<td><p>Same as hallucination</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distractor_expansion</span></code></p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distractor_validity</span></code></p></td>
+<td><p>Yes, <code class="docutils literal notranslate"><span class="pre">{num_choices}</span></code> becomes <code class="docutils literal notranslate"><span class="pre">4</span></code> or <code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">distractor_expansion</span></code> is fully forwarded, so treat it like judging for placeholder editing rules.</p>
+</section>
+<section id="practical-tips">
+<h2>Practical Tips<a class="headerlink" href="#practical-tips" title="Link to this heading">#</a></h2>
+<p>Duplicate an entire packaged stage before you delete lines.
+Partial copies are the most common source of missing <code class="docutils literal notranslate"><span class="pre">{{column}}</span></code> names.</p>
+<p>When you only need small wording edits, change sentences around the placeholder lines first and leave the markers alone until you must move them.</p>
+<p>You must still ship <code class="docutils literal notranslate"><span class="pre">hallucination_filter</span></code> and <code class="docutils literal notranslate"><span class="pre">easiness_filter</span></code> blocks in your override file even when your edits focus on question generation.</p>
 </section>
 </section>
 
@@ -646,9 +861,25 @@ Keep the same placeholder names the defaults use, for example <code class="docut
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#provide-a-yaml-file">Provide a YAML file</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#format-strings">Format strings</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#try-it">Try it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#point-the-experiment-file-at-your-prompts">Point the experiment file at your prompts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#structure-of-the-prompt-yaml-file">Structure of the Prompt YAML File</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-stages">Required Stages</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-placeholders-work">How Placeholders Work</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-run-parameter-tokens">Common Run-Parameter Tokens</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#column-markers-copied-from-packaged-templates">Column Markers Copied from Packaged Templates</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-qa-generation-block">Example: QA Generation Block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shorter-excerpts-for-other-stages">Shorter Excerpts for Other Stages</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#judging">Judging</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#filtering">Filtering</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distractor-validity">Distractor Validity</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-by-stage-formatting-checklist">Stage-by-Stage Formatting Checklist</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-tips">Practical Tips</a></li>
 </ul>
   </nav></div>
 

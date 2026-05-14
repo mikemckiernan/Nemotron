@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -568,7 +570,7 @@
 <p>Understand how the generate stage turns prepared seeds into new multiple-choice question (MCQ) rows, and which YAML settings you control.</p>
 <p>Generation reads <code class="docutils literal notranslate"><span class="pre">seed.parquet</span></code> from the prepare step, batches work through Data Designer using <code class="docutils literal notranslate"><span class="pre">generation_model_config</span></code> and your prompt templates, and writes <code class="docutils literal notranslate"><span class="pre">stage_cache/generated_questions.parquet</span></code> under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>/<code class="docutils literal notranslate"><span class="pre">expt_name</span></code>.</p>
 <p>For YAML field names and defaults, use <a class="reference internal" href="../reference/generate-config.html"><span class="doc">Generation Configuration Reference</span></a>.
-To override packaged prompts, use <a class="reference internal" href="../how-to/prompt-tuning.html"><span class="doc">Tune Prompts for BYOB MCQ</span></a>.</p>
+To override packaged prompts, use <a class="reference internal" href="../how-to/prompt-tuning.html"><span class="doc">Prompt Tuning for Benchmarks</span></a>.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Question generation uses few-shot prompting so a configured model can draft MCQs grounded in your domain text.

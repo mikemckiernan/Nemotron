@@ -67,7 +67,7 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Configure Model Endpoints for BYOB" href="custom-model-endpoints.html" />
+    <link rel="next" title="Using Your Own Domain Data" href="domain-data.html" />
     <link rel="prev" title="How-To Guides" href="index.html" />
 
 
@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tasks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -572,6 +574,7 @@ much work prepare does per document.</p>
 validate layout before you run prepare or the full pipeline.</p>
 <p>For how prepare joins few-shot rows and domain text, see
 <a class="reference internal" href="../explanation/data-preparation.html"><span class="doc">Data Preparation for Multiple-Choice Question Benchmarks</span></a>.
+For a filesystem-first walkthrough of directories and Parquet basenames, see <a class="reference internal" href="domain-data.html"><span class="doc">Using Your Own Domain Data</span></a>.
 Field-by-field options for the whole step live in <a class="reference internal" href="../reference/generate-config.html"><span class="doc">Generation Configuration Reference</span></a>.</p>
 <section id="directory-layout">
 <h2>Directory Layout<a class="headerlink" href="#directory-layout" title="Link to this heading">#</a></h2>
@@ -658,11 +661,11 @@ The file names and roles are listed in <a class="reference internal" href="../re
       </div>
     </a>
     <a class="right-next"
-       href="custom-model-endpoints.html"
+       href="domain-data.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Configure Model Endpoints for BYOB</p>
+        <p class="prev-next-title">Using Your Own Domain Data</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

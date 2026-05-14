@@ -12,6 +12,7 @@ Specifications grounded in `src/nemotron/steps/byob`.
 :hidden:
 
 output-files
+troubleshooting
 benchmarks
 generate-config
 translation-config
@@ -19,7 +20,7 @@ translation-config
 
 ## Outputs
 
-::::{grid} 1 1 1 2
+::::{grid} 1 1 2 2
 :gutter: 1 1 1 2
 
 :::{grid-item-card} {octicon}`file-code;1.5em;sd-mr-1` Output files
@@ -28,6 +29,14 @@ translation-config
 Seed, stage cache, raw and final Parquet paths.
 +++
 {bdg-secondary}`parquet`
+:::
+
+:::{grid-item-card} {octicon}`alert;1.5em;sd-mr-1` Troubleshooting
+:link: troubleshooting
+:link-type: doc
+Common configuration errors, missing caches, filtering, and endpoint issues.
++++
+{bdg-secondary}`faq`
 :::
 
 ::::

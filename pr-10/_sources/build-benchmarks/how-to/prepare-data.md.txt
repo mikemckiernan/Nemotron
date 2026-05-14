@@ -16,6 +16,7 @@ validate layout before you run prepare or the full pipeline.
 
 For how prepare joins few-shot rows and domain text, see
 {doc}`../explanation/data-preparation`.
+For a filesystem-first walkthrough of directories and Parquet basenames, see {doc}`domain-data`.
 Field-by-field options for the whole step live in {doc}`../reference/generate-config`.
 
 ## Directory Layout

@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -596,7 +598,7 @@ Field-level YAML is documented in <a class="reference internal" href="../referen
 <td><p>If true, rows with <code class="docutils literal notranslate"><span class="pre">is_hallucination</span></code> drop out of <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> during final assembly.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prompt_config</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> keeps packaged prompts; a path must supply <code class="docutils literal notranslate"><span class="pre">easiness_filter</span></code> and <code class="docutils literal notranslate"><span class="pre">hallucination_filter</span></code> blocks. Refer to <a class="reference internal" href="../how-to/prompt-tuning.html"><span class="doc">Tune Prompts for BYOB MCQ</span></a>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> keeps packaged prompts; a path must supply <code class="docutils literal notranslate"><span class="pre">easiness_filter</span></code> and <code class="docutils literal notranslate"><span class="pre">hallucination_filter</span></code> blocks. Refer to <a class="reference internal" href="../how-to/prompt-tuning.html"><span class="doc">Prompt Tuning for Benchmarks</span></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ndd_batch_size</span></code></p></td>
 <td><p>Batch size for the Data Designer calls that run this stage.</p></td>

@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -678,13 +680,16 @@ How-To Guides</label><div class="sd-tab-content docutils">
 <tr class="row-even"><td><p><a class="reference internal" href="how-to/prepare-data.html"><span class="doc">Prepare Your Own Domain Data</span></a></p></td>
 <td><p>Lay out <code class="docutils literal notranslate"><span class="pre">input_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="how-to/custom-model-endpoints.html"><span class="doc">Configure Model Endpoints for BYOB</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="how-to/domain-data.html"><span class="doc">Using Your Own Domain Data</span></a></p></td>
+<td><p>Lay out per-target <code class="docutils literal notranslate"><span class="pre">.txt</span></code> corpora under <code class="docutils literal notranslate"><span class="pre">input_dir</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="how-to/custom-model-endpoints.html"><span class="doc">Configure Model Endpoints for BYOB</span></a></p></td>
 <td><p>Point generation, judgement, and filter models at your endpoints</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="how-to/prompt-tuning.html"><span class="doc">Tune Prompts for BYOB MCQ</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="how-to/prompt-tuning.html"><span class="doc">Prompt Tuning for Benchmarks</span></a></p></td>
 <td><p>Override prompts with a YAML file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="how-to/skip-stages.html"><span class="doc">Skip Stages When Iterating</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="how-to/skip-stages.html"><span class="doc">Skip Stages When Iterating</span></a></p></td>
 <td><p>Resume after intermediate Parquet caches</p></td>
 </tr>
 </tbody>
@@ -739,13 +744,16 @@ Reference</label><div class="sd-tab-content docutils">
 <tr class="row-even"><td><p><a class="reference internal" href="reference/output-files.html"><span class="doc">Output Files</span></a></p></td>
 <td><p>Paths under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">expt_name</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="reference/benchmarks.html"><span class="doc">Supported Hugging Face Benchmarks</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a></p></td>
+<td><p>Symptom-to-fix index for BYOB runs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="reference/benchmarks.html"><span class="doc">Supported Hugging Face Benchmarks</span></a></p></td>
 <td><p>Allowed <code class="docutils literal notranslate"><span class="pre">hf_dataset</span></code> values and default subsets</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="reference/generate-config.html"><span class="doc">Generation Configuration Reference</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="reference/generate-config.html"><span class="doc">Generation Configuration Reference</span></a></p></td>
 <td><p>Generation YAML keys</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="reference/translation-config.html"><span class="doc">Translation Configuration Reference</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="reference/translation-config.html"><span class="doc">Translation Configuration Reference</span></a></p></td>
 <td><p>Translation YAML keys</p></td>
 </tr>
 </tbody>

@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Reference" href="../reference/index.html" />
-    <link rel="prev" title="Tune Prompts for BYOB MCQ" href="prompt-tuning.html" />
+    <link rel="prev" title="Prompt Tuning for Benchmarks" href="prompt-tuning.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tasks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -590,6 +592,7 @@ Stages whose enum value is <strong>less than</strong> the named stage are skippe
 <h2>Preconditions<a class="headerlink" href="#preconditions" title="Link to this heading">#</a></h2>
 <p>Skipping only works when the Parquet file produced by the previous stage is already on disk under <code class="docutils literal notranslate"><span class="pre">output_dir/expt_name/stage_cache/</span></code>.
 Otherwise the next stage reads missing input and fails.</p>
+<p>For other common failure modes, see <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p>
 </section>
 </section>
 
@@ -609,7 +612,7 @@ Otherwise the next stage reads missing input and fails.</p>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tune Prompts for BYOB MCQ</p>
+        <p class="prev-next-title">Prompt Tuning for Benchmarks</p>
       </div>
     </a>
     <a class="right-next"

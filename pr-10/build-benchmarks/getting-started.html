@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/translation-config.html">Translation Configuration Reference</a></li>
@@ -573,7 +575,7 @@ You’ll run the <code class="docutils literal notranslate"><span class="pre">ne
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><strong>In this tutorial, you will</strong>:</p>
 <ol class="arabic simple">
-<li><p class="sd-card-text">Set up prerequisites and Python dependencies.</p></li>
+<li><p class="sd-card-text">Install Python dependencies.</p></li>
 <li><p class="sd-card-text">Run the <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration from the repository root.</p></li>
 <li><p class="sd-card-text">Locate outputs and scan the main Parquet artifacts.</p></li>
 <li><p class="sd-card-text">Confirm <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> columns against the output reference.</p></li>
@@ -619,6 +621,11 @@ The default model for the configuration is <code class="docutils literal notrans
 <section id="procedure">
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
 <ol class="arabic">
+<li><p>From the repository root, add the dependencies for building benchmarks:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv sync --extra byob</span>
+</pre></div>
+</div>
+</li>
 <li><p>Run generation with host paths.
 The <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration sets <code class="docutils literal notranslate"><span class="pre">stage:</span> <span class="pre">all</span></code>.
 This stage setting chains the data preparation and then generation for MCQ.</p>

@@ -67,7 +67,7 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Supported Hugging Face Benchmarks" href="benchmarks.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
     <link rel="prev" title="Reference" href="index.html" />
 
 
@@ -466,6 +466,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/domain-data.html">Use Your Domain Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/custom-model-endpoints.html">Model Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/prompt-tuning.html">Tune Prompts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/skip-stages.html">Skip Stages</a></li>
@@ -473,6 +474,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Supported Hugging Face Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generate-config.html">Generation Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="translation-config.html">Translation Configuration Reference</a></li>
@@ -575,14 +577,32 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">seed.parquet</span></code></p></td>
-<td><p>Few-shot rows plus domain chunks produced by <code class="docutils literal notranslate"><span class="pre">McqByobDataset.sample_and_dump</span></code> in <code class="docutils literal notranslate"><span class="pre">runtime/benchmark_families/mcq/dataset.py</span></code>.</p></td>
+<td><p>Few-shot rows plus domain chunks.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </section>
-<section id="generate-stage-cache">
-<h2>Generate (<code class="docutils literal notranslate"><span class="pre">stage_cache/</span></code>)<a class="headerlink" href="#generate-stage-cache" title="Link to this heading">#</a></h2>
+<section id="generate">
+<h2>Generate<a class="headerlink" href="#generate" title="Link to this heading">#</a></h2>
+<p>The final generation creates these files:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark_raw.parquet</span></code></p></td>
+<td><p>Snapshot immediately before column renaming for the final schema.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code></p></td>
+<td><p>Final MCQ schema; column meanings and a sample row are in the next section.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The following intermediate files that are created in the <code class="docutils literal notranslate"><span class="pre">stage_cache</span></code> directory:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>File</p></th>
@@ -618,8 +638,63 @@
 </table>
 </div>
 </section>
-<section id="generate-experiment-root">
-<h2>Generate (experiment root)<a class="headerlink" href="#generate-experiment-root" title="Link to this heading">#</a></h2>
+<section id="final-mcq-columns">
+<span id="id1"></span><h2>Final MCQ Columns<a class="headerlink" href="#final-mcq-columns" title="Link to this heading">#</a></h2>
+<p>Generation and translation both export the same eight columns on the final <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> file.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">question_id</span></code></p></td>
+<td><p>Stable identifier for the row, taken from the internal <code class="docutils literal notranslate"><span class="pre">id_question</span></code> field before export.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">question</span></code></p></td>
+<td><p>Stem text for the multiple-choice item. After translation this is the target-language text.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">options</span></code></p></td>
+<td><p>Ordered list of choice strings. The list order matches the letter labels implied by <code class="docutils literal notranslate"><span class="pre">answer_index</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">answer_index</span></code></p></td>
+<td><p>Zero-based index into <code class="docutils literal notranslate"><span class="pre">options</span></code> for the correct choice.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">answer</span></code></p></td>
+<td><p>Letter label for the correct choice, derived from <code class="docutils literal notranslate"><span class="pre">answer_index</span></code> (<code class="docutils literal notranslate"><span class="pre">0</span></code> → <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code> → <code class="docutils literal notranslate"><span class="pre">B</span></code>, and so on).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cot_content</span></code></p></td>
+<td><p>Reserved for chain-of-thought text. The current pipeline sets this column to the literal <code class="docutils literal notranslate"><span class="pre">-</span></code> for every row on export.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src</span></code></p></td>
+<td><p>Reserved for a source document marker. The current pipeline sets this column to the literal <code class="docutils literal notranslate"><span class="pre">-</span></code> for every row on export.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+<td><p>Target key from <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code> in your generation configuration, in other words the domain bucket name for the row, not the Hugging Face few-shot subject name.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="sample-row">
+<h3>Sample Row<a class="headerlink" href="#sample-row" title="Link to this heading">#</a></h3>
+<p>Values below are illustrative; your identifiers and wording will differ.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mcq-00042&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;question&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;If x^2 = 9, which value can x take?&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-3 only&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-3 or 3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;3 only&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;9&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;answer_index&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cot_content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maths&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="translate">
+<h2>Translate<a class="headerlink" href="#translate" title="Link to this heading">#</a></h2>
+<p>The translate stage creates the following final output files:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>File</p></th>
@@ -628,17 +703,15 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark_raw.parquet</span></code></p></td>
-<td><p>Snapshot immediately before column renaming for the final schema.</p></td>
+<td><p>Intermediate snapshot prior to optional quality filtering.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code></p></td>
-<td><p>Final MCQ schema with columns <code class="docutils literal notranslate"><span class="pre">question_id</span></code>, <code class="docutils literal notranslate"><span class="pre">question</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code>, <code class="docutils literal notranslate"><span class="pre">answer_index</span></code>, <code class="docutils literal notranslate"><span class="pre">answer</span></code>, <code class="docutils literal notranslate"><span class="pre">cot_content</span></code>, <code class="docutils literal notranslate"><span class="pre">src</span></code>, and <code class="docutils literal notranslate"><span class="pre">category</span></code> (see <code class="docutils literal notranslate"><span class="pre">references/benchmark-schema.md</span></code> in the source tree).</p></td>
+<td><p>Final translated MCQ after fields are renamed back to <code class="docutils literal notranslate"><span class="pre">question</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code>, <code class="docutils literal notranslate"><span class="pre">answer_index</span></code>, and <code class="docutils literal notranslate"><span class="pre">answer</span></code>. Column semantics match generation; see <a class="reference internal" href="#final-mcq-columns"><span class="std std-ref">Final MCQ Columns</span></a>.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
-<section id="translate-stage-cache">
-<h2>Translate (<code class="docutils literal notranslate"><span class="pre">stage_cache/</span></code>)<a class="headerlink" href="#translate-stage-cache" title="Link to this heading">#</a></h2>
+<p>The following intermediate files are created in the <code class="docutils literal notranslate"><span class="pre">staged_cache</span></code> directory.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>File</p></th>
@@ -654,25 +727,6 @@
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">quality_metrics.parquet</span></code></p></td>
 <td><p>QUALITY_METRICS</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="translate-experiment-root">
-<h2>Translate (experiment root)<a class="headerlink" href="#translate-experiment-root" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>File</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark_raw.parquet</span></code></p></td>
-<td><p>Intermediate snapshot prior to optional quality filtering.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code></p></td>
-<td><p>Final translated MCQ with the same column names as generation, after renaming translated fields back to <code class="docutils literal notranslate"><span class="pre">question</span></code> / <code class="docutils literal notranslate"><span class="pre">options</span></code> / <code class="docutils literal notranslate"><span class="pre">answer_index</span></code> / <code class="docutils literal notranslate"><span class="pre">answer</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -701,11 +755,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="benchmarks.html"
+       href="troubleshooting.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Supported Hugging Face Benchmarks</p>
+        <p class="prev-next-title">Troubleshooting</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -731,10 +785,12 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare">Prepare</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-stage-cache">Generate (<code class="docutils literal notranslate"><span class="pre">stage_cache/</span></code>)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-experiment-root">Generate (experiment root)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translate-stage-cache">Translate (<code class="docutils literal notranslate"><span class="pre">stage_cache/</span></code>)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translate-experiment-root">Translate (experiment root)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate">Generate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-mcq-columns">Final MCQ Columns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-row">Sample Row</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translate">Translate</a></li>
 </ul>
   </nav></div>
 
