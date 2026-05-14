@@ -90,12 +90,12 @@ filtering_model_configs:
         temperature: 0.0
         top_p: 1.0
     - alias: hal_backup
-      model: openai/gpt-oss-120b
+      model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
       provider: nvidia
       inference_parameters:
-        max_tokens: 1024
+        max_tokens: 65536
         temperature: 0.2
-        top_p: 1.0
+        top_p: 0.95
   easiness:
     - alias: eas_primary
       model: openai/gpt-oss-120b
@@ -106,7 +106,7 @@ filtering_model_configs:
         top_p: 1.0
 ```
 
-The duplicate model ID is only for illustration
+Use a model from a different model family when the generator model is also the primary filter model.
 Set each entry to the production models you want in the vote.
 
 ## Removal Defaults

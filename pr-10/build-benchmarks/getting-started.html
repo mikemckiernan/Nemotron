@@ -621,6 +621,11 @@ The default model for the configuration is <code class="docutils literal notrans
 <section id="procedure">
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
 <ol class="arabic">
+<li><p>Clone the repository:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clonehttps://github.com/NVIDIA-NeMo/Nemotron &amp;&amp; cd Nemotron</span>
+</pre></div>
+</div>
+</li>
 <li><p>From the repository root, add the dependencies for building benchmarks:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv sync --extra byob</span>
 </pre></div>
@@ -636,6 +641,7 @@ This stage setting chains the data preparation and then generation for MCQ.</p>
 <span class="go">  output_dir=./byob-output</span>
 </pre></div>
 </div>
+<p>When the <code class="docutils literal notranslate"><span class="pre">--config</span></code> argument is not a path, the command resolves the config file name in the <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/</span></code> directory.</p>
 <p>When the command finishes, list the <code class="docutils literal notranslate"><span class="pre">./byob-output/byob_mcq_tiny/</span></code> directory.
 The <code class="docutils literal notranslate"><span class="pre">expt_name</span></code> field in the <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/tiny.yaml</span></code> file specifies that directory.
 Look for the following files:</p>

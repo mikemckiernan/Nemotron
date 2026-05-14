@@ -564,11 +564,12 @@
   SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
   SPDX-License-Identifier: Apache-2.0
 -->
+<!-- Reference: BYOB translate YAML keys, metric semantics, and parse-time validation. -->
 <section class="tex2jax_ignore mathjax_ignore" id="translation-configuration-reference">
 <h1>Translation Configuration Reference<a class="headerlink" href="#translation-configuration-reference" title="Link to this heading">#</a></h1>
-<p>Translation YAML is parsed by <code class="docutils literal notranslate"><span class="pre">ByobTranslationConfig.from_yaml</span></code> in <code class="docutils literal notranslate"><span class="pre">runtime/config.py</span></code>.</p>
+<p>This page describes the YAML configuration file that you provide for the translate stage: the keys you set or override, how backtranslation quality scores show up in Parquet output columns, and which rows are omitted from the final <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> when quality filtering is enabled.</p>
 <section id="required-keys">
-<h2>Required keys<a class="headerlink" href="#required-keys" title="Link to this heading">#</a></h2>
+<h2>Required Keys<a class="headerlink" href="#required-keys" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
@@ -577,7 +578,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">expt_name</span></code></p></td>
-<td><p>Directory name under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> for caches and finals.</p></td>
+<td><p>Directory name under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> for caches and final artifacts.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dataset_path</span></code></p></td>
 <td><p>Existing <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> from a generation run.</p></td>
@@ -592,22 +593,57 @@
 <td><p>Target locale tag (for example <code class="docutils literal notranslate"><span class="pre">hi-IN</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">translation_model_config</span></code></p></td>
-<td><p>Dict with <code class="docutils literal notranslate"><span class="pre">backend_type</span></code>, <code class="docutils literal notranslate"><span class="pre">params</span></code>, optional <code class="docutils literal notranslate"><span class="pre">stage</span></code> and <code class="docutils literal notranslate"><span class="pre">segment_stage</span></code>.</p></td>
+<td><p>Dictionary with <code class="docutils literal notranslate"><span class="pre">backend_type</span></code>, <code class="docutils literal notranslate"><span class="pre">params</span></code>, and optional <code class="docutils literal notranslate"><span class="pre">stage</span></code> and <code class="docutils literal notranslate"><span class="pre">segment_stage</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">backtranslation_quality_metrics</span></code></p></td>
-<td><p>Non-empty list of dicts with <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">threshold</span></code>.</p></td>
+<td><p>Non-empty list; each element is a dictionary with <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">threshold</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </section>
 <section id="quality-metrics">
-<h2>Quality metrics<a class="headerlink" href="#quality-metrics" title="Link to this heading">#</a></h2>
-<p>Each metric <code class="docutils literal notranslate"><span class="pre">type</span></code> must be one of <code class="docutils literal notranslate"><span class="pre">sacrebleu</span></code>, <code class="docutils literal notranslate"><span class="pre">chrf</span></code>, or <code class="docutils literal notranslate"><span class="pre">ter</span></code> (<code class="docutils literal notranslate"><span class="pre">AVAILABLE_QUALITY_METRICS</span></code> in <code class="docutils literal notranslate"><span class="pre">runtime/constants.py</span></code>).</p>
-<p><code class="docutils literal notranslate"><span class="pre">threshold</span></code> must be a nonnegative number; the translation pipeline interprets scores relative to these cutoffs when labeling rows.</p>
+<h2>Quality Metrics<a class="headerlink" href="#quality-metrics" title="Link to this heading">#</a></h2>
+<p>Each <code class="docutils literal notranslate"><span class="pre">type</span></code> must be <code class="docutils literal notranslate"><span class="pre">sacrebleu</span></code>, <code class="docutils literal notranslate"><span class="pre">chrf</span></code>, or <code class="docutils literal notranslate"><span class="pre">ter</span></code>.
+Each <code class="docutils literal notranslate"><span class="pre">threshold</span></code> must be nonnegative.</p>
+<p>NeMo Curator writes one numeric score column and one boolean pass column per configured metric, for example <code class="docutils literal notranslate"><span class="pre">score_chrf</span></code> and <code class="docutils literal notranslate"><span class="pre">score_chrf_passed</span></code>.
+The column <code class="docutils literal notranslate"><span class="pre">is_quality_metric_passed</span></code> is true on a row when every per-metric pass column is true for that row.</p>
+<p>Each score compares the original benchmark text with the round-trip backtranslation from the target locale, using sentence-level APIs from the <em>sacrebleu</em> library.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></th>
+<th class="head"><p>Measures</p></th>
+<th class="head"><p>Scale and direction</p></th>
+<th class="head"><p>How to interpret scores</p></th>
+<th class="head"><p>Row passes when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sacrebleu</span></code></p></td>
+<td><p>Sentence bilingual evaluation understudy (BLEU)</p></td>
+<td><p>0 through 100 after <em>sacrebleu</em> tokenization; higher values track closer matches to the reference.</p></td>
+<td><p>High scores mean the backtranslation preserved wording and order; scores near zero mean little <em>n</em>-gram overlap.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">score_sacrebleu</span></code> ≥ <code class="docutils literal notranslate"><span class="pre">threshold</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chrf</span></code></p></td>
+<td><p>Sentence character n-gram F-score (chrF)</p></td>
+<td><p>0 through 100 in typical sentence outputs; higher values mean closer character-level match.</p></td>
+<td><p>High scores track spelling and phrasing fidelity; low scores mean the backtranslation diverged on the surface string.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">score_chrf</span></code> ≥ <code class="docutils literal notranslate"><span class="pre">threshold</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ter</span></code></p></td>
+<td><p>Sentence translation error rate (TER)</p></td>
+<td><p>Zero means no edits; larger values report more insertions, deletions, or substitutions relative to the reference.</p></td>
+<td><p>Values close to zero mean the backtranslation needed minimal editing to match the original; large values signal heavy rewrites or mismatch.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">score_ter</span></code> ≤ <code class="docutils literal notranslate"><span class="pre">threshold</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Inspect <code class="docutils literal notranslate"><span class="pre">stage_cache/quality_metrics.parquet</span></code> under your experiment directory to pick thresholds from the score spread you see in data.</p>
 </section>
 <section id="optional-keys">
-<h2>Optional keys<a class="headerlink" href="#optional-keys" title="Link to this heading">#</a></h2>
+<h2>Optional Keys<a class="headerlink" href="#optional-keys" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
@@ -617,8 +653,8 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> in the dataclass, unless YAML overrides it</p></td>
-<td><p>When true, drops rows failing the aggregated metric gate before export.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> unless YAML overrides it</p></td>
+<td><p>When true, the pipeline omits rows where <code class="docutils literal notranslate"><span class="pre">is_quality_metric_passed</span></code> is false before export.</p></td>
 </tr>
 </tbody>
 </table>
@@ -626,15 +662,8 @@
 </section>
 <section id="faith-evaluation">
 <h2>FAITH evaluation<a class="headerlink" href="#faith-evaluation" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">from_yaml</span></code> asserts <code class="docutils literal notranslate"><span class="pre">translation_model_config.stage.enable_faith_eval</span></code> is not true, because BYOB translation relies on backtranslation metrics instead of FAITH.</p>
-</section>
-<section id="running-translate">
-<h2>Running translate<a class="headerlink" href="#running-translate" title="Link to this heading">#</a></h2>
-<p>The checked-in <code class="docutils literal notranslate"><span class="pre">translate.yaml</span></code> does not set a top-level <code class="docutils literal notranslate"><span class="pre">stage</span></code> key, so pass <code class="docutils literal notranslate"><span class="pre">--stage</span> <span class="pre">translate</span></code> through the step script:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob -c translate -- --stage translate</span>
-</pre></div>
-</div>
-<p>Update <code class="docutils literal notranslate"><span class="pre">dataset_path</span></code> in YAML (or via dotlist override) so it points at the <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> you want to translate.</p>
+<p><code class="docutils literal notranslate"><span class="pre">translation_model_config.stage.enable_faith_eval</span></code> must not be true.
+The benchmark translation relies on backtranslation metrics instead of FAITH filtering</p>
 </section>
 </section>
 
@@ -687,11 +716,10 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#required-keys">Required keys</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quality-metrics">Quality metrics</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-keys">Optional keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#required-keys">Required Keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quality-metrics">Quality Metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-keys">Optional Keys</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faith-evaluation">FAITH evaluation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-translate">Running translate</a></li>
 </ul>
   </nav></div>
 

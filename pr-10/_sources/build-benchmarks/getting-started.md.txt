@@ -59,6 +59,12 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
 
 ## Procedure
 
+1. Clone the repository:
+
+   ```console
+   git clonehttps://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
+
 1. From the repository root, add the dependencies for building benchmarks:
 
    ```console
@@ -76,6 +82,8 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
      input_dir="./src/nemotron/steps/byob/data/tiny_input" \
      output_dir=./byob-output
    ```
+
+   When the `--config` argument is not a path, the command resolves the config file name in the `src/nemotron/steps/byob/config/` directory.
 
    When the command finishes, list the `./byob-output/byob_mcq_tiny/` directory.
    The `expt_name` field in the `src/nemotron/steps/byob/config/tiny.yaml` file specifies that directory.
