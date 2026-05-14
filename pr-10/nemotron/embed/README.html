@@ -1,0 +1,2141 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Embedding Model Fine-Tuning Recipe &#8212; Nemotron</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css?v=6e6caa80" />
+    <link rel="stylesheet" type="text/css" href="../../_static/customize.css?v=88bf5b46" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../_static/documentation_options.js?v=735ee59f"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'nemotron/embed/README';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'pr-10';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/termynal.js?v=05ab89e6"></script>
+    <script src="../../_static/js/termynal-init.js?v=7fa8cdf6"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Artifact Types &amp; Lineage" href="../artifacts.html" />
+    <link rel="prev" title="Stage 3: Quantization" href="../super3/quantization.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+    <script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" ></script>
+    
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../application-examples.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deployment-guides.html">Deployment Guides</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nano3/README.html">Nemotron 3 Nano</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nano3/import.html">Importing Models and Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../omni3/README.html">Nemotron 3 Omni</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../super3/README.html">Nemotron 3 Super</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Llama Nemotron Embed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../artifacts.html">Artifact Types &amp; Lineage</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/preference-data.html">Generate Preference Data for DPO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/dispatch-to-cluster.html">Dispatch SDG to a Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/run.html">Tips for the Data Generation Pipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/config-schema.html">Config Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/cli-reference.html">CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/output-projections.html">Output Projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Translation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../translation/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../translation/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../translation/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../translation/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/explanation/segmentation.html">Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/explanation/faith-evaluation.html">FAITH Evaluation Inside Translation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../translation/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-llm-translation.html">Run LLM Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-nmt-translation.html">Run NMT Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-google-aws-translation.html">Run Google or AWS Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/configure-fields-and-output.html">Configure Fields and Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/use-fine-segmentation.html">Use Fine Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-faith-evaluation.html">Run FAITH Evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../translation/reference/index.html">Reference for Translation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/translate-config.html">Translation YAML Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/cli-translation.html">CLI Reference for Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/io-format.html">Input and Output Format</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build MCQ Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../build-benchmarks/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../build-benchmarks/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../build-benchmarks/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/data-preparation.html">Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/get-right-questions.html">Get the Right Questions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/question-generation.html">Question Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/quality-validation.html">Quality Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/filtering.html">Easiness and Hallucination Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/translation.html">Translation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../build-benchmarks/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/custom-model-endpoints.html">Model Endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/prompt-tuning.html">Tune Prompts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/skip-stages.html">Skip Stages</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../build-benchmarks/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/generate-config.html">Generation Configuration Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/translation-config.html">Translation Configuration Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../kit.html">Nemotron Kit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nvidia-stack.html">NVIDIA AI Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/package-readme.html">nemo_runspec Package</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/nemo-run.html">Execution through NeMo-Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/omegaconf.html">OmegaConf Configuration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/artifacts.html">Artifact Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wandb.html">Weights &amp; Biases Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data-prep.html">Data Preparation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xenna-observability.html">Xenna Pipeline Observability</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../data/curation/nemotron-cc.html">Nemotron-CC Data Curation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/sdg/long-document.html">Long-Document SDG</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/README.html">Nemotron Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/design-philosophy.html">Design Philosophy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/cli-architecture.html">CLI Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../runspec/v1/spec.html">Runspec: <code class="docutils literal notranslate"><span class="pre">[tool.runspec]</span></code> Specification</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Embedding Model Fine-Tuning Recipe</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="embedding-model-fine-tuning-recipe">
+<h1>Embedding Model Fine-Tuning Recipe<a class="headerlink" href="#embedding-model-fine-tuning-recipe" title="Link to this heading">#</a></h1>
+<p>A complete 6-stage pipeline for fine-tuning and deploying embedding models on domain-specific data using synthetic data generation.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>This recipe fine-tunes NVIDIA’s <a class="reference external" href="https://huggingface.co/nvidia/llama-nemotron-embed-1b-v2">Llama-Nemotron-Embed-1B-v2</a> embedding model on your own domain data. By the end of this pipeline, you’ll have a domain-adapted embedding model that excels at retrieving relevant documents from your specific corpus.</p>
+<section id="why-fine-tune-embedding-models">
+<h3>Why Fine-Tune Embedding Models?<a class="headerlink" href="#why-fine-tune-embedding-models" title="Link to this heading">#</a></h3>
+<p>Pre-trained embedding models work well for general-purpose retrieval, but may underperform on specialized domains with unique terminology, document structures, or query patterns. Fine-tuning adapts the model to:</p>
+<ul class="simple">
+<li><p>Understand domain-specific vocabulary and concepts</p></li>
+<li><p>Better match the types of queries your users will ask</p></li>
+<li><p>Improve retrieval accuracy on your specific document corpus</p></li>
+</ul>
+</section>
+</section>
+<section id="training-pipeline">
+<h2>Training Pipeline<a class="headerlink" href="#training-pipeline" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           YOUR DOCUMENT CORPUS                              │
+│                    (Text files: .txt, .md, etc.)                            │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              STAGE 0: SYNTHETIC DATA GENERATION (retriever-sdg)             │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌──────────────────────────┐ │
+│  │ Document Chunks │ →  │  LLM Generation │ →  │ Q&amp;A Pairs + Evaluations  │ │
+│  │                 │    │  (NVIDIA API)   │    │                          │ │
+│  └─────────────────┘    └─────────────────┘    └──────────────────────────┘ │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    STAGE 1: TRAINING DATA PREPARATION                       │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌──────────────────────────┐ │
+│  │ Train/Val/Test  │ →  │  Hard Negative  │ →  │   Multi-hop Unrolling    │ │
+│  │     Split       │    │     Mining      │    │                          │ │
+│  └─────────────────┘    └─────────────────┘    └──────────────────────────┘ │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     STAGE 2: MODEL FINE-TUNING (Automodel)                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │  Contrastive Learning: Query → Positive Documents vs Hard Negatives     ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          STAGE 3: EVALUATION (BEIR)                         │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │     Compare Base vs Fine-tuned Model on IR Metrics (nDCG, Recall)       ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    STAGE 4: EXPORT (ONNX/TensorRT)                          │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │     Export Model to ONNX and TensorRT for Optimized Inference           ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        STAGE 5: DEPLOY (NIM)                                │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │     Launch NIM Container with Custom Model for Production Inference     ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Command</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Output</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Stage 0: SDG</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">sdg</span></code></p></td>
+<td><p>Validate corpus, generate synthetic Q&amp;A pairs from documents</p></td>
+<td><p>Q&amp;A pairs with quality scores</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage 1: Data Prep</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">prep</span></code></p></td>
+<td><p>Convert, mine hard negatives, unroll</p></td>
+<td><p>Training-ready data</p></td>
+</tr>
+<tr class="row-even"><td><p>Stage 2: Finetune</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">finetune</span></code></p></td>
+<td><p>Fine-tune embedding model</p></td>
+<td><p>Model checkpoint</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage 3: Eval</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">eval</span></code></p></td>
+<td><p>Evaluate on retrieval metrics</p></td>
+<td><p>Metrics comparison</p></td>
+</tr>
+<tr class="row-even"><td><p>Stage 4: Export</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">export</span></code></p></td>
+<td><p>Export to ONNX/TensorRT</p></td>
+<td><p>Optimized inference models</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage 5: Deploy</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">deploy</span></code></p></td>
+<td><p>Deploy NIM with custom model</p></td>
+<td><p>Running inference service</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<section id="install-uv-package-manager">
+<h3>1. Install UV Package Manager<a class="headerlink" href="#install-uv-package-manager" title="Link to this heading">#</a></h3>
+<p>This project <strong>requires <a class="reference external" href="https://docs.astral.sh/uv/">UV</a></strong> as its package manager. UV automatically creates and manages a virtual environment under the repository root, and each pipeline stage uses its own isolated environment as well. <strong>Do not use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code></strong> — the project relies on UV workspaces and per-stage dependency isolation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</pre></div>
+</div>
+</section>
+<section id="clone-and-install-nemotron">
+<h3>2. Clone and Install Nemotron<a class="headerlink" href="#clone-and-install-nemotron" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/Nemotron.git
+<span class="nb">cd</span><span class="w"> </span>Nemotron
+
+<span class="c1"># UV creates a virtual environment at .venv/ and installs all dependencies</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--all-extras
+</pre></div>
+</div>
+</section>
+<section id="get-your-nvidia-api-key">
+<h3>3. Get Your NVIDIA API Key<a class="headerlink" href="#get-your-nvidia-api-key" title="Link to this heading">#</a></h3>
+<p>The SDG stage (Stage 0) uses NVIDIA’s hosted LLM APIs for synthetic data generation.</p>
+<ol class="arabic simple">
+<li><p>Sign up at <a class="reference external" href="https://build.nvidia.com">build.nvidia.com</a></p></li>
+<li><p>Create an API key</p></li>
+<li><p>Set the environment variable:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span>nvapi-your_key_here
+</pre></div>
+</div>
+</section>
+<section id="configure-execution-profiles-optional">
+<h3>4. Configure Execution Profiles (Optional)<a class="headerlink" href="#configure-execution-profiles-optional" title="Link to this heading">#</a></h3>
+<p>For Docker or Slurm execution, create <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> in the <strong>repository root directory</strong>.</p>
+<p><strong>Minimal configuration (local execution only):</strong></p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[wandb]</span>
+<span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-embedding-project&quot;</span>
+<span class="n">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-username&quot;</span>
+</pre></div>
+</div>
+<p><strong>Full configuration with Docker and Slurm support:</strong>
+See the <a class="reference internal" href="#execution-profiles">Execution Profiles</a> section below.</p>
+</section>
+</section>
+<section id="preparing-your-corpus">
+<h2>Preparing Your Corpus<a class="headerlink" href="#preparing-your-corpus" title="Link to this heading">#</a></h2>
+<section id="supported-formats">
+<h3>Supported Formats<a class="headerlink" href="#supported-formats" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Any text files, default: .txt, .md, .text, and files with no extension</p></li>
+<li><p>Documents should be UTF-8 encoded</p></li>
+<li><p>Files are processed recursively from the corpus directory</p></li>
+</ul>
+</section>
+<section id="corpus-size-recommendations">
+<h3>Corpus Size Recommendations<a class="headerlink" href="#corpus-size-recommendations" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Corpus Size</p></th>
+<th class="head"><p>Documents</p></th>
+<th class="head"><p>Expected Results</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Minimum</strong></p></td>
+<td><p>50-100 docs (~50K tokens)</p></td>
+<td><p>Basic domain adaptation</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Recommended</strong></p></td>
+<td><p>500+ docs</p></td>
+<td><p>Good domain coverage</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Optimal</strong></p></td>
+<td><p>1000+ docs</p></td>
+<td><p>Best performance</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="document-organization">
+<h3>Document Organization<a class="headerlink" href="#document-organization" title="Link to this heading">#</a></h3>
+<p>Organize your documents in a directory structure:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>data/corpus/
+├──<span class="w"> </span>doc1.txt
+├──<span class="w"> </span>doc2.md
+└──<span class="w"> </span>subdirectory/
+<span class="w">    </span>└──<span class="w"> </span>doc3.txt
+</pre></div>
+</div>
+<p>All files matching the <code class="docutils literal notranslate"><span class="pre">file_extensions</span></code> config (default: <code class="docutils literal notranslate"><span class="pre">.txt,.md</span></code>) will be processed recursively.</p>
+</section>
+<section id="document-quality-tips">
+<h3>Document Quality Tips<a class="headerlink" href="#document-quality-tips" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Length</strong>: Aim for 200-2000 tokens per document</p></li>
+<li><p><strong>Content</strong>: Ensure documents are representative of your domain</p></li>
+<li><p><strong>Diversity</strong>: Include various document types/topics from your domain</p></li>
+<li><p><strong>Quality</strong>: Clean, well-formatted text yields better synthetic Q&amp;A pairs</p></li>
+</ul>
+</section>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<section id="hardware-requirements">
+<h3>Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>GPU</strong>: NVIDIA GPU with at least 80GB VRAM (e.g., A100, H100)</p>
+<ul>
+<li><p>Stages 0 uses NVIDIA API (no GPU required)</p></li>
+<li><p>Stage 1-5: Require GPU for model inference and training</p></li>
+</ul>
+</li>
+<li><p><strong>CPU</strong>: Modern multi-core processor (16+ cores recommended)</p></li>
+<li><p><strong>Memory</strong>: 128GB+ RAM recommended</p></li>
+<li><p><strong>Storage</strong>: ~50GB free disk space for outputs, models, and containers</p></li>
+</ul>
+</section>
+<section id="software-requirements">
+<h3>Software Requirements<a class="headerlink" href="#software-requirements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Python</strong>: 3.12 or later</p></li>
+<li><p><strong>UV</strong>: Package manager (installation instructions above)</p></li>
+<li><p><strong>NVIDIA API Key</strong>: Required for synthetic data generation</p></li>
+<li><p><strong>NVIDIA GPU Drivers</strong>: Latest drivers for your GPU</p></li>
+<li><p><strong>Docker</strong> (optional): For containerized execution</p></li>
+<li><p><strong>Slurm</strong> (optional): For cluster execution</p></li>
+</ul>
+</section>
+<section id="expected-runtime-resources">
+<h3>Expected Runtime &amp; Resources<a class="headerlink" href="#expected-runtime-resources" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>GPU VRAM</p></th>
+<th class="head"><p>CPU</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Stage 0 (SDG)</p></td>
+<td><p>N/A</p></td>
+<td><p>8+ cores</p></td>
+<td><p>Uses API (no local GPU); runtime varies by dataset size</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage 1 (Data Prep)</p></td>
+<td><p>40GB</p></td>
+<td><p>16+ cores</p></td>
+<td><p>Hard negative mining on GPU; runtime varies by dataset size</p></td>
+</tr>
+<tr class="row-even"><td><p>Stage 2 (Finetune)</p></td>
+<td><p>80GB</p></td>
+<td><p>16+ cores</p></td>
+<td><p>Runtime varies by dataset size and epochs</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage 3 (Eval)</p></td>
+<td><p>40GB</p></td>
+<td><p>8+ cores</p></td>
+<td><p>Evaluation metrics computation; runtime varies by dataset size</p></td>
+</tr>
+<tr class="row-even"><td><p>Stage 4 (Export)</p></td>
+<td><p>40GB</p></td>
+<td><p>8+ cores</p></td>
+<td><p>TensorRT export requires NGC container</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage 5 (Deploy)</p></td>
+<td><p>40GB</p></td>
+<td><p>4+ cores</p></td>
+<td><p>NIM container initialization</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Total disk space</strong>: ~50GB for outputs, model checkpoints, and containers</p>
+<p><strong>Runtime</strong>: Highly dependent on dataset size. Expect longer runtimes for larger corpora and more training epochs.</p>
+<ul class="simple">
+<li><p>For small dataset (e.g. nv_pp_random with ~70 input files), it can take ~30 minutes for Stage 0 (SDG) with the default setup. Changing to other LLM endpoints or tune <code class="docutils literal notranslate"><span class="pre">max_parallel_requests_for_gen</span></code> can affect the runtime, rate limit failures, and generation quality. It can take 10-20 minutes for Stage 2 (Finetune) with the default setup.</p></li>
+<li><p>For large dataset (e.g. 10K+ input files), it can take tens of hours or 1-2 days for Stage 0 (SDG) and 5-10 hours for Stage 2 (Finetune). Changing model endpoints, type and number of GPUs (and other fine-tune parameters) can affect the runtime.</p></li>
+</ul>
+</section>
+<section id="llm-api-usage-stage-0">
+<h3>LLM API Usage (Stage 0)<a class="headerlink" href="#llm-api-usage-stage-0" title="Link to this heading">#</a></h3>
+<p>Stage 0 uses LLM APIs for synthetic data generation. By default, it uses NVIDIA’s hosted LLMs:</p>
+<ul class="simple">
+<li><p><strong>Default provider</strong>: NVIDIA API (free tier available at <a class="reference external" href="https://build.nvidia.com">build.nvidia.com</a>)</p></li>
+<li><p><strong>Default model</strong>: <code class="docutils literal notranslate"><span class="pre">nvidia/nemotron-3-nano-30b-a3b</span></code> (fast, reliable for structured generation)</p></li>
+<li><p><strong>Usage</strong>: ~4 API calls per document (artifact extraction, QA generation, dedup, quality eval)</p></li>
+<li><p><strong>Cost</strong>: Free tier has rate limits; contact NVIDIA for production usage</p></li>
+<li><p><strong>Progress</strong>: Built-in progress logging shows completion %, records/second, and ETA per stage</p></li>
+<li><p><strong>Other providers</strong>: NeMo Data Designer supports multiple providers (OpenAI, OpenRouter, etc.)</p>
+<ul>
+<li><p>Customize provider settings in the config file</p></li>
+<li><p>See <a class="reference external" href="https://nvidia-nemo.github.io/DataDesigner/latest/concepts/models/default-model-settings/">default provider settings</a> for configuration options</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<section id="local-execution">
+<h3>Local Execution<a class="headerlink" href="#local-execution" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set environment (important for CUDA compatibility)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span>nvapi-your_key_here
+
+<span class="c1"># Stage 0: Generate synthetic Q&amp;A pairs from your documents</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>sdg<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">corpus_dir</span><span class="o">=</span>/path/to/your/docs
+
+<span class="c1"># Stage 1: Prepare training data (convert, mine hard negatives, unroll)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default
+
+<span class="c1"># Stage 2: Fine-tune the embedding model</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default
+
+<span class="c1"># Stage 3: Evaluate base vs fine-tuned model</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default
+
+<span class="c1"># Stage 4: Export to ONNX/TensorRT for deployment</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-c<span class="w"> </span>default
+
+<span class="c1"># Stage 5: Deploy NIM with custom model</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>deploy<span class="w"> </span>-c<span class="w"> </span>default
+
+<span class="c1"># Optional: Verify NIM accuracy matches checkpoint</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">eval_nim</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">eval_base</span><span class="o">=</span><span class="nb">false</span>
+</pre></div>
+</div>
+</section>
+<section id="preview-commands-dry-run">
+<h3>Preview Commands (Dry Run)<a class="headerlink" href="#preview-commands-dry-run" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># See what would be executed without running</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--dry-run
+</pre></div>
+</div>
+</section>
+</section>
+<section id="pipeline-flexibility">
+<h2>Pipeline Flexibility<a class="headerlink" href="#pipeline-flexibility" title="Link to this heading">#</a></h2>
+<p>Stages are designed to run sequentially, but you can start from any stage if you have the required inputs:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Start From</p></th>
+<th class="head"><p>Requirement</p></th>
+<th class="head"><p>Use Case</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Stage 0</strong></p></td>
+<td><p>Document corpus</p></td>
+<td><p>Full pipeline from scratch</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Stage 1</strong></p></td>
+<td><p>Q&amp;A pairs (JSON)</p></td>
+<td><p>Skip SDG if you have labeled data or use <a class="reference internal" href="#using-nvidia-s-pre-generated-dataset">NVIDIA’s pre-generated dataset</a></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Stage 2</strong></p></td>
+<td><p>Training data (Automodel format)</p></td>
+<td><p>Skip data prep if data is ready</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Stage 3</strong></p></td>
+<td><p>Model checkpoint</p></td>
+<td><p>Evaluate existing checkpoint</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Stage 4</strong></p></td>
+<td><p>Model checkpoint</p></td>
+<td><p>Export existing model</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Stage 5</strong></p></td>
+<td><p>Exported model (ONNX/TensorRT)</p></td>
+<td><p>Deploy existing model</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>See individual stage READMEs for input format requirements.</p>
+<section id="using-nvidia-s-pre-generated-dataset">
+<h3>Using NVIDIA’s Pre-Generated Dataset<a class="headerlink" href="#using-nvidia-s-pre-generated-dataset" title="Link to this heading">#</a></h3>
+<p>NVIDIA provides a ready-to-use synthetic retrieval dataset on Hugging Face: <a class="reference external" href="https://huggingface.co/datasets/nvidia/Retrieval-Synthetic-NVDocs-v1">Retrieval-Synthetic-NVDocs-v1</a>. This dataset was generated from NVIDIA’s publicly available content using the same SDG pipeline (Stage 0) in this recipe, and contains ~15K documents with 105K+ question-answer pairs across multiple reasoning types.</p>
+<p>If you want to fine-tune an embedding model on NVIDIA-related content, you can <strong>skip Stage 0 entirely</strong> and start directly from Stage 1:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the pre-generated dataset</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from datasets import load_dataset</span>
+<span class="s2">ds = load_dataset(&#39;nvidia/Retrieval-Synthetic-NVDocs-v1&#39;, split=&#39;train&#39;)</span>
+<span class="s2">ds.to_json(&#39;./output/embed/stage0_sdg/nv_docs_sdg.json&#39;)</span>
+<span class="s2">&quot;</span>
+
+<span class="c1"># Start from Stage 1 (data preparation) using the downloaded data</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">sdg_input_path</span><span class="o">=</span>./output/embed/stage0_sdg
+
+<span class="c1"># Continue with the rest of the pipeline</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default
+</pre></div>
+</div>
+<p>This is useful for quickly getting started with the recipe or benchmarking the pipeline without needing an NVIDIA API key for synthetic data generation.</p>
+</section>
+</section>
+<section id="execution-modes">
+<h2>Execution Modes<a class="headerlink" href="#execution-modes" title="Link to this heading">#</a></h2>
+<p>The embed recipe supports multiple execution modes for flexibility between local development and production cluster runs.</p>
+<section id="local-execution-default">
+<h3>Local Execution (Default)<a class="headerlink" href="#local-execution-default" title="Link to this heading">#</a></h3>
+<p>Run directly on your local machine with GPU:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default
+</pre></div>
+</div>
+</section>
+<section id="docker-execution">
+<h3>Docker Execution<a class="headerlink" href="#docker-execution" title="Link to this heading">#</a></h3>
+<p>Run inside a Docker container with GPU passthrough using <code class="docutils literal notranslate"><span class="pre">--run</span> <span class="pre">local-docker</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Runs the command inside a Docker container with GPU access</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>local-docker
+
+<span class="c1"># All stages support Docker execution</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>sdg<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>local-docker
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>local-docker
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>local-docker
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Note</strong>: Requires <code class="docutils literal notranslate"><span class="pre">local-docker</span></code> profile in <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> (see <a class="reference internal" href="#execution-profiles">Execution Profiles</a> below)</p>
+</div></blockquote>
+</section>
+<section id="slurm-batch-execution">
+<h3>Slurm Batch Execution<a class="headerlink" href="#slurm-batch-execution" title="Link to this heading">#</a></h3>
+<p>Submit jobs to a Slurm cluster for production workloads:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Attached execution (waits for completion, streams logs via SSH)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-cluster
+
+<span class="c1"># Detached execution (submits job and exits immediately)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster
+
+<span class="c1"># Run full pipeline on cluster</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>sdg<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster
+</pre></div>
+</div>
+</section>
+<section id="execution-profiles">
+<h3>Execution Profiles<a class="headerlink" href="#execution-profiles" title="Link to this heading">#</a></h3>
+<p>Execution profiles are defined in <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> in the <strong>repository root directory</strong>.</p>
+<p><strong>Example <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> for local and cluster execution:</strong></p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Weights &amp; Biases configuration (optional but recommended)</span>
+<span class="k">[wandb]</span>
+<span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-embedding-project&quot;</span>
+<span class="n">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-team&quot;</span>
+
+<span class="c1"># Local Docker execution profile</span>
+<span class="k">[local-docker]</span>
+<span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span>
+<span class="n">container_image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nvcr.io/nvidia/pytorch:25.01-py3&quot;</span>
+<span class="n">runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nvidia&quot;</span><span class="w">  </span><span class="c1"># Enable GPU passthrough</span>
+<span class="n">ipc_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;host&quot;</span>
+<span class="n">shm_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;16g&quot;</span>
+<span class="n">mounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;./data:/workspace/data&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;./output:/workspace/output&quot;</span>
+<span class="p">]</span>
+
+<span class="c1"># Slurm cluster execution profile</span>
+<span class="k">[my-cluster]</span>
+<span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;slurm&quot;</span>
+<span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-account&quot;</span>
+<span class="n">partition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;interactive&quot;</span>
+<span class="n">batch_partition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;batch&quot;</span>
+<span class="n">container_image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nvcr.io/nvidia/pytorch:25.01-py3&quot;</span>
+<span class="n">tunnel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ssh&quot;</span>
+<span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cluster.example.com&quot;</span>
+<span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;username&quot;</span>
+<span class="n">remote_job_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/shared/path/to/jobs&quot;</span>
+<span class="n">mounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/shared:/shared&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="runtime-overrides">
+<h3>Runtime Overrides<a class="headerlink" href="#runtime-overrides" title="Link to this heading">#</a></h3>
+<p>Override execution settings on the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use more GPUs</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-cluster<span class="w"> </span>run.env.gpus_per_node<span class="o">=</span><span class="m">4</span>
+
+<span class="c1"># Use different partition</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster<span class="w"> </span>run.env.partition<span class="o">=</span>batch
+
+<span class="c1"># Override time limit</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>my-cluster<span class="w"> </span>run.env.time<span class="o">=</span><span class="m">08</span>:00:00
+</pre></div>
+</div>
+</section>
+<section id="interactive-debugging">
+<h3>Interactive Debugging<a class="headerlink" href="#interactive-debugging" title="Link to this heading">#</a></h3>
+<p>Stage files to the cluster for interactive debugging:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stage files without executing</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-cluster<span class="w"> </span>--stage
+
+<span class="c1"># Then SSH to cluster and run manually</span>
+ssh<span class="w"> </span>cluster.example.com
+<span class="nb">cd</span><span class="w"> </span>/path/to/staged/files
+./run.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
+<p>Each stage has a <code class="docutils literal notranslate"><span class="pre">config/</span></code> directory with YAML configuration files.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">default.yaml</span></code></p></td>
+<td><p>Production-ready configuration</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="key-configuration-options">
+<h3>Key Configuration Options<a class="headerlink" href="#key-configuration-options" title="Link to this heading">#</a></h3>
+<p><strong>Stage 0: SDG</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">corpus_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_corpus</span><span class="w">           </span><span class="c1"># Identifier for your corpus</span>
+<span class="nt">corpus_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./data/corpus</span><span class="w">      </span><span class="c1"># Path to your documents</span>
+<span class="nt">file_extensions</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.txt,.md&quot;</span><span class="w">    </span><span class="c1"># File types to process</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./output/embed/stage0_sdg</span><span class="w">  </span><span class="c1"># Path to save the generated data</span>
+<span class="nt">artifact_extraction_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/nemotron-3-nano-30b-a3b</span><span class="w">  </span><span class="c1"># LLM Model name for document artifacts extraction</span>
+<span class="nt">qa_generation_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/nemotron-3-nano-30b-a3b</span><span class="w">  </span><span class="c1"># LLM Model name for QA generation</span>
+<span class="nt">quality_judge_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/nemotron-3-nano-30b-a3b</span><span class="w">  </span><span class="c1"># LLM Model name for QA quality evaluation</span>
+<span class="nt">max_parallel_requests_for_gen</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w">  </span><span class="c1"># Number of parallel requests to submit to LLMs</span>
+</pre></div>
+</div>
+<p><strong>Stage 1: Data Prep</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">base_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/llama-nemotron-embed-1b-v2</span><span class="w">  </span><span class="c1"># Model for hard negative mining</span>
+<span class="nt">quality_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7.0</span><span class="w">         </span><span class="c1"># Minimum Q&amp;A quality score (0-10)</span>
+<span class="nt">hard_negatives_to_mine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w">      </span><span class="c1"># Number of hard negatives per query</span>
+<span class="nt">query_max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w">          </span><span class="c1"># Max query tokens (check your base model&#39;s max sequence length)</span>
+<span class="nt">passage_max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w">        </span><span class="c1"># Max passage tokens (check your base model&#39;s max sequence length)</span>
+<span class="c1"># Adjust train/val/test split ratio based on your generated data size</span>
+<span class="c1"># For small data (e.g. the sample data `nv_pp_random`), use 80/20 for train/test and 0 validation in order to make the most use of the limited data</span>
+<span class="c1"># For medium/large data, use 80/10/10 or tune for your use case</span>
+<span class="nt">train_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8</span><span class="w">               </span><span class="c1"># Training data split (80%)</span>
+<span class="nt">val_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">                 </span><span class="c1"># Validation split (10%)</span>
+<span class="nt">test_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">                </span><span class="c1"># Test split (10%)</span>
+</pre></div>
+</div>
+<p><strong>Stage 2: Finetune</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">base_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/llama-nemotron-embed-1b-v2</span>
+<span class="nt">num_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">global_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<span class="nt">learning_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0e-5</span>
+<span class="nt">query_max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w">          </span><span class="c1"># Max query tokens (check your base model&#39;s max sequence length)</span>
+<span class="nt">passage_max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w">        </span><span class="c1"># Max passage tokens (check your base model&#39;s max sequence length)</span>
+<span class="c1"># attn_implementation: null    # Auto-detects flash_attention_2 if available, else sdpa</span>
+<span class="nt">train_n_passages</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w">            </span><span class="c1"># 1 positive + 4 hard negatives</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Warning — Overfitting risk</strong>: The default <code class="docutils literal notranslate"><span class="pre">num_epochs:</span> <span class="pre">3</span></code> is set for the small example dataset shipped with this recipe, where fewer epochs may not produce a visible training signal. For most real-world datasets, <strong>1–2 epochs is sufficient</strong> and 3 epochs carries a high risk of overfitting. Lower this value when working with your own data (e.g., <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">finetune</span> <span class="pre">-c</span> <span class="pre">default</span> <span class="pre">num_epochs=1</span></code>).</p>
+</div></blockquote>
+<p><strong>Stage 3: Eval</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">k_values</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">10</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">100</span><span class="p p-Indicator">]</span><span class="w">      </span><span class="c1"># K values for Recall@k, nDCG@k</span>
+<span class="nt">max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w">                </span><span class="c1"># Max sequence length (check your base model&#39;s max sequence length)</span>
+<span class="nt">eval_base</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                </span><span class="c1"># Evaluate base model</span>
+<span class="nt">eval_finetuned</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">           </span><span class="c1"># Evaluate fine-tuned model</span>
+<span class="nt">eval_nim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">                </span><span class="c1"># Evaluate NIM endpoint</span>
+</pre></div>
+</div>
+<p><strong>Stage 4: Export</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./output/embed/stage2_finetune/checkpoints/LATEST/model/consolidated</span>
+<span class="nt">export_to_trt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">            </span><span class="c1"># Export to TensorRT (requires nemo:25.07+ container)</span>
+<span class="nt">quant_cfg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">                </span><span class="c1"># Quantization: null, &quot;fp8&quot;, &quot;int8_sq&quot;</span>
+<span class="nt">trt_opt_batch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span><span class="w">              </span><span class="c1"># Optimal batch size for TRT</span>
+<span class="nt">trt_opt_seq_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span><span class="w">           </span><span class="c1"># Optimal sequence length for TRT</span>
+</pre></div>
+</div>
+<p><strong>Stage 5: Deploy</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">nim_image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvcr.io/nim/nvidia/llama-3.2-nv-embedqa-1b-v2:1.10.1</span>
+<span class="nt">model_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./output/embed/stage4_export/onnx</span><span class="w">  </span><span class="c1"># Path to exported model</span>
+<span class="nt">host_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span><span class="w">                </span><span class="c1"># Port for NIM API</span>
+<span class="nt">detach</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">                  </span><span class="c1"># Run in background</span>
+</pre></div>
+</div>
+</section>
+<section id="customizing-sequence-length">
+<h3>Customizing Sequence Length<a class="headerlink" href="#customizing-sequence-length" title="Link to this heading">#</a></h3>
+<p>The pipeline defaults to 512-token sequences. You can change this to match your use case, up to the base model’s max sequence length (e.g., 8192 for the default <code class="docutils literal notranslate"><span class="pre">nvidia/llama-nemotron-embed-1b-v2</span></code>; check your model’s documentation if using a different base model).</p>
+<p>For example, to use 2000-token passages, override the sequence length consistently across stages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stage 0: Increase sentences per chunk so passages approach the new token budget</span>
+<span class="c1"># ~80 sentences ≈ 2000 tokens for average English text; adjust for your domain</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>sdg<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">sentences_per_chunk</span><span class="o">=</span><span class="m">80</span>
+
+<span class="c1"># Stage 1: Match sequence length for hard negative mining</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">query_max_length</span><span class="o">=</span><span class="m">2000</span><span class="w"> </span><span class="nv">passage_max_length</span><span class="o">=</span><span class="m">2000</span>
+
+<span class="c1"># Stage 2: Match sequence length for training</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">query_max_length</span><span class="o">=</span><span class="m">2000</span><span class="w"> </span><span class="nv">passage_max_length</span><span class="o">=</span><span class="m">2000</span>
+
+<span class="c1"># Stage 3: Match sequence length for evaluation</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">max_length</span><span class="o">=</span><span class="m">2000</span>
+
+<span class="c1"># Stage 4: Update TensorRT profile for longer sequences</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">trt_max_seq_len</span><span class="o">=</span><span class="m">2000</span><span class="w"> </span><span class="nv">trt_opt_seq_len</span><span class="o">=</span><span class="m">512</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Note</strong>: Longer sequences increase GPU memory usage significantly (attention is quadratic in sequence length). You may need to reduce <code class="docutils literal notranslate"><span class="pre">global_batch_size</span></code> in Stage 2 to avoid out-of-memory errors. Ensure <code class="docutils literal notranslate"><span class="pre">sentences_per_chunk</span></code> in Stage 0 produces passages that actually use the longer token budget — the default of 5 sentences typically yields passages well under 512 tokens.</p>
+</div></blockquote>
+</section>
+<section id="overriding-configuration">
+<h3>Overriding Configuration<a class="headerlink" href="#overriding-configuration" title="Link to this heading">#</a></h3>
+<p>Override config values on the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Override training epochs</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">num_epochs</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Override learning rate</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">learning_rate</span><span class="o">=</span>2e-5
+
+<span class="c1"># Override multiple values</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">num_epochs</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="nv">learning_rate</span><span class="o">=</span>2e-5
+
+<span class="c1"># Force specific attention implementation</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">attn_implementation</span><span class="o">=</span>flash_attention_2
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cli-commands">
+<h2>CLI Commands<a class="headerlink" href="#cli-commands" title="Link to this heading">#</a></h2>
+<section id="workspace-info">
+<h3>Workspace Info<a class="headerlink" href="#workspace-info" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Display workflow overview</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>info
+</pre></div>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate synthetic Q&amp;A pairs from documents</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>sdg<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">corpus_dir</span><span class="o">=</span>/path/to/docs
+
+<span class="c1"># Prepare training data (convert, mine, unroll)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">sdg_input_path</span><span class="o">=</span>/path/to/sdg
+</pre></div>
+</div>
+</section>
+<section id="training">
+<h3>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fine-tune the embedding model</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">train_data_path</span><span class="o">=</span>/path/to/data
+</pre></div>
+</div>
+</section>
+<section id="evaluation">
+<h3>Evaluation<a class="headerlink" href="#evaluation" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate base and fine-tuned models</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">finetuned_model_path</span><span class="o">=</span>/path/to/checkpoint
+</pre></div>
+</div>
+</section>
+<section id="export">
+<h3>Export<a class="headerlink" href="#export" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Export model to ONNX and TensorRT</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">model_path</span><span class="o">=</span>/path/to/checkpoint
+
+<span class="c1"># Export to ONNX only (skip TensorRT)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">export_to_trt</span><span class="o">=</span><span class="nb">false</span>
+
+<span class="c1"># Export with FP8 quantization</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">quant_cfg</span><span class="o">=</span>fp8
+</pre></div>
+</div>
+</section>
+<section id="deploy">
+<h3>Deploy<a class="headerlink" href="#deploy" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deploy NIM with custom TensorRT model (foreground)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>deploy<span class="w"> </span>-c<span class="w"> </span>default
+
+<span class="c1"># Deploy in background (detached mode)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>deploy<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">detach</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># Deploy with ONNX model instead</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>deploy<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">model_dir</span><span class="o">=</span>./output/embed/stage4_export/onnx
+
+<span class="c1"># Stop the NIM container</span>
+docker<span class="w"> </span>stop<span class="w"> </span>nemotron-embed-nim
+</pre></div>
+</div>
+</section>
+<section id="verify-nim-accuracy">
+<h3>Verify NIM Accuracy<a class="headerlink" href="#verify-nim-accuracy" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate NIM endpoint against fine-tuned checkpoint</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">eval_nim</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">eval_base</span><span class="o">=</span><span class="nb">false</span>
+
+<span class="c1"># The output will show if NIM metrics match the checkpoint</span>
+<span class="c1"># ✓ indicates metrics match within tolerance (0.03 for @1, 0.01 for @5+)</span>
+<span class="c1"># ⚠️ indicates potential accuracy loss beyond ONNX/TensorRT conversion noise</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="output-structure">
+<h2>Output Structure<a class="headerlink" href="#output-structure" title="Link to this heading">#</a></h2>
+<p>After running the full pipeline:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>output/embed/
+├── stage0_sdg/                    # Synthetic Q&amp;A pairs
+│   └── generated_batch*.json
+├── stage1_data_prep/              # Training-ready data
+│   ├── train.json                 # Original training data
+│   ├── train_mined.automodel.json # With hard negatives
+│   ├── train_mined.automodel_unrolled.json  # Final training file
+│   ├── val.json                   # Validation data
+│   ├── corpus/                    # Document corpus
+│   └── eval_beir/                 # BEIR-format evaluation data
+├── stage2_finetune/               # Model checkpoints
+│   └── checkpoints/
+│       └── LATEST/model/consolidated/  # Final model
+├── stage3_eval/                   # Evaluation results
+│   └── eval_results.json
+└── stage4_export/                 # Exported models
+    ├── onnx/                      # ONNX model files
+    │   └── model.onnx
+    └── tensorrt/                  # TensorRT engine
+        └── model.plan
+</pre></div>
+</div>
+</section>
+<section id="evaluation-metrics">
+<h2>Evaluation Metrics<a class="headerlink" href="#evaluation-metrics" title="Link to this heading">#</a></h2>
+<p>The evaluation stage computes standard information retrieval metrics using the BEIR framework.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Range</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>nDCG&#64;k</strong></p></td>
+<td><p>Normalized Discounted Cumulative Gain (ranking quality)</p></td>
+<td><p>0.0-1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Recall&#64;k</strong></p></td>
+<td><p>Fraction of relevant documents in top-k results</p></td>
+<td><p>0.0-1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Precision&#64;k</strong></p></td>
+<td><p>Fraction of retrieved documents that are relevant</p></td>
+<td><p>0.0-1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>MAP&#64;k</strong></p></td>
+<td><p>Mean Average Precision</p></td>
+<td><p>0.0-1.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Higher scores indicate better retrieval performance.</p>
+<section id="interpreting-results">
+<h3>Interpreting Results<a class="headerlink" href="#interpreting-results" title="Link to this heading">#</a></h3>
+<p><strong>Good fine-tuning results typically show:</strong></p>
+<ul class="simple">
+<li><p>nDCG&#64;10 and Recall&#64;10 improvement of <strong>15%</strong> over base model</p></li>
+<li><p>Consistent improvements across all k values</p></li>
+</ul>
+<p><strong>Example successful evaluation:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Model: base
+- nDCG@10: 0.42
+- Recall@10: 0.65
+- Precision@10: 0.38
+
+Model: fine-tuned
+- nDCG@10: 0.51 (+21%) ✓
+- Recall@10: 0.78 (+20%) ✓
+- Precision@10: 0.45 (+18%) ✓
+</pre></div>
+</div>
+<p><strong>Warning signs:</strong></p>
+<ul class="simple">
+<li><p><strong>No improvement</strong>: May need more training data or higher quality Q&amp;A pairs</p></li>
+<li><p><strong>Worse performance</strong>: Check for data quality issues or training hyperparameters</p></li>
+<li><p><strong>Overfitting</strong>: Good training metrics but poor validation metrics</p></li>
+</ul>
+</section>
+</section>
+<section id="key-components">
+<h2>Key Components<a class="headerlink" href="#key-components" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>Repository</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>retriever-sdg</p></td>
+<td><p>Synthetic data generation using NeMo Data Designer</p></td>
+<td><p><a class="reference external" href="https://github.com/NVIDIA/NeMo-Data-Designer">GitHub</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Automodel</p></td>
+<td><p>Embedding model training framework</p></td>
+<td><p><a class="reference external" href="https://github.com/NVIDIA/NeMo-Automodel">GitHub</a></p></td>
+</tr>
+<tr class="row-even"><td><p>BEIR</p></td>
+<td><p>Evaluation framework for information retrieval</p></td>
+<td><p><a class="reference external" href="https://github.com/beir-cellar/beir">GitHub</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>NeMo Export-Deploy</p></td>
+<td><p>ONNX/TensorRT export for optimized inference</p></td>
+<td><p><a class="reference external" href="https://github.com/NVIDIA/NeMo-Export-Deploy">GitHub</a></p></td>
+</tr>
+<tr class="row-even"><td><p>NVIDIA NIM</p></td>
+<td><p>Production inference microservice with custom model support</p></td>
+<td><p><a class="reference external" href="https://developer.nvidia.com/nim">Developer Site</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="base-model">
+<h2>Base Model<a class="headerlink" href="#base-model" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Model</p></td>
+<td><p>nvidia/llama-nemotron-embed-1b-v2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Parameters</p></td>
+<td><p>~1B</p></td>
+</tr>
+<tr class="row-even"><td><p>Embedding Dimension</p></td>
+<td><p>768</p></td>
+</tr>
+<tr class="row-odd"><td><p>Max Sequence Length</p></td>
+<td><p>8192 (pipeline default: 512; see <a class="reference internal" href="#customizing-sequence-length">Customizing Sequence Length</a>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Pooling</p></td>
+<td><p>Average</p></td>
+</tr>
+<tr class="row-odd"><td><p>HuggingFace</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/nvidia/llama-nemotron-embed-1b-v2">Model Card</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="installation-issues">
+<h3>Installation Issues<a class="headerlink" href="#installation-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: <code class="docutils literal notranslate"><span class="pre">uv:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code></strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install UV package manager</span>
+curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+<span class="c1"># Add to PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.cargo/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p><strong>Error: <code class="docutils literal notranslate"><span class="pre">nemotron:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code></strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make sure you&#39;re in the Nemotron directory</span>
+<span class="nb">cd</span><span class="w"> </span>/path/to/Nemotron
+<span class="c1"># Run with uv</span>
+uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>embed<span class="w"> </span>info
+</pre></div>
+</div>
+</section>
+<section id="stage-0-sdg-issues">
+<h3>Stage 0: SDG Issues<a class="headerlink" href="#stage-0-sdg-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span> <span class="pre">not</span> <span class="pre">set</span></code></strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set your API key</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span>nvapi-your_key_here
+</pre></div>
+</div>
+<p><strong>Error: API rate limiting</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Reduce batch size in config or add delays between API calls</p></li>
+<li><p><strong>Alternative</strong>: Contact NVIDIA for increased rate limits for production use</p></li>
+</ul>
+<p><strong>Error: Poor Q&amp;A quality scores</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Check document quality - ensure clean, well-formatted text</p></li>
+<li><p><strong>Solution</strong>: Adjust <code class="docutils literal notranslate"><span class="pre">sentences_per_chunk</span></code> in config (default: 5 sentences per chunk)</p></li>
+</ul>
+</section>
+<section id="stage-1-data-preparation-issues">
+<h3>Stage 1: Data Preparation Issues<a class="headerlink" href="#stage-1-data-preparation-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: <code class="docutils literal notranslate"><span class="pre">CUDA</span> <span class="pre">out</span> <span class="pre">of</span> <span class="pre">memory</span></code> during hard negative mining</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reduce mining batch size in config</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>prep<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">mining_batch_size</span><span class="o">=</span><span class="m">64</span>
+</pre></div>
+</div>
+<p><strong>Error: No valid Q&amp;A pairs after quality filtering</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Lower quality_threshold (default: 7.0)</p></li>
+<li><p><strong>Solution</strong>: Check SDG output quality scores</p></li>
+</ul>
+<p><strong>Error: Import errors for <code class="docutils literal notranslate"><span class="pre">nemo_automodel</span></code></strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ensure dependencies are installed</span>
+<span class="nb">cd</span><span class="w"> </span>/path/to/Nemotron
+uv<span class="w"> </span>sync<span class="w"> </span>--all-extras
+</pre></div>
+</div>
+</section>
+<section id="stage-2-training-issues">
+<h3>Stage 2: Training Issues<a class="headerlink" href="#stage-2-training-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: Train Loss not decreasing</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Try adjusting learning rate (default: 1e-5; try 5e-6 or 2e-5)</p></li>
+<li><p><strong>Solution</strong>: Lower <code class="docutils literal notranslate"><span class="pre">global_batch_size</span></code> to increase the number of gradient update steps</p></li>
+<li><p><strong>Solution</strong>: Check training data quality</p></li>
+</ul>
+<p><strong>Error: Train Loss is NaN</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Reduce learning rate significantly</p></li>
+<li><p><strong>Solution</strong>: Check for data quality issues (missing values, corrupted entries)</p></li>
+</ul>
+<p><strong>Error: <code class="docutils literal notranslate"><span class="pre">CUDA</span> <span class="pre">out</span> <span class="pre">of</span> <span class="pre">memory</span></code> during training</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reduce local batch size</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">local_batch_size</span><span class="o">=</span><span class="m">2</span>
+</pre></div>
+</div>
+<p><strong>Error: Training very slow</strong></p>
+<ul class="simple">
+<li><p><strong>Check</strong>: GPU utilization with <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code></p></li>
+<li><p><strong>Solution</strong>: Increase batch size if GPU not fully utilized</p></li>
+<li><p><strong>Solution</strong>: Enable mixed precision training (usually enabled by default)</p></li>
+</ul>
+</section>
+<section id="stage-3-evaluation-issues">
+<h3>Stage 3: Evaluation Issues<a class="headerlink" href="#stage-3-evaluation-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: Model checkpoint not found</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check checkpoint path</span>
+ls<span class="w"> </span>-la<span class="w"> </span>output/embed/stage2_finetune/checkpoints/LATEST/model/consolidated/
+
+<span class="c1"># Specify custom path</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">finetuned_model_path</span><span class="o">=</span>/path/to/checkpoint
+</pre></div>
+</div>
+<p><strong>Error: BEIR evaluation fails</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Ensure eval_beir data was created in Stage 1</p></li>
+<li><p><strong>Solution</strong>: Check that corpus.jsonl and queries.jsonl exist</p></li>
+</ul>
+</section>
+<section id="stage-4-export-issues">
+<h3>Stage 4: Export Issues<a class="headerlink" href="#stage-4-export-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: TensorRT export fails</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Ensure using NGC container with TensorRT (nemo:25.07+)</p></li>
+<li><p><strong>Solution</strong>: Try ONNX-only export first: <code class="docutils literal notranslate"><span class="pre">export_to_trt=false</span></code></p></li>
+</ul>
+<p><strong>Error: ONNX export fails</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Check model checkpoint is valid</p></li>
+<li><p><strong>Solution</strong>: Ensure sufficient disk space</p></li>
+</ul>
+</section>
+<section id="stage-5-deployment-issues">
+<h3>Stage 5: Deployment Issues<a class="headerlink" href="#stage-5-deployment-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: NIM container fails to start</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check NGC credentials</span>
+docker<span class="w"> </span>login<span class="w"> </span>nvcr.io
+
+<span class="c1"># Check if port is already in use</span>
+sudo<span class="w"> </span>lsof<span class="w"> </span>-i<span class="w"> </span>:8000
+
+<span class="c1"># Use different port</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>deploy<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">host_port</span><span class="o">=</span><span class="m">8002</span>
+</pre></div>
+</div>
+<p><strong>Error: NIM accuracy differs from checkpoint</strong></p>
+<ul class="simple">
+<li><p><strong>Solution</strong>: Ensure using same model format (TensorRT vs ONNX)</p></li>
+<li><p><strong>Solution</strong>: Check quantization settings match</p></li>
+<li><p><strong>Solution</strong>: Verify model files are complete and not corrupted</p></li>
+</ul>
+</section>
+<section id="cuda-library-errors">
+<h3>CUDA Library Errors<a class="headerlink" href="#cuda-library-errors" title="Link to this heading">#</a></h3>
+<p><strong>Error: <code class="docutils literal notranslate"><span class="pre">nvJitLink</span></code> or CUDA symbol errors</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clear LD_LIBRARY_PATH to avoid conflicts</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Error: HybridCache import errors</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clear HuggingFace cache</span>
+rm<span class="w"> </span>-rf<span class="w"> </span>~/.cache/huggingface/modules/transformers_modules/nvidia/
+</pre></div>
+</div>
+</section>
+<section id="docker-issues">
+<h3>Docker Issues<a class="headerlink" href="#docker-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: Container has no GPU access</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify NVIDIA runtime is installed</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>nvidia/cuda:12.1.0-base-ubuntu22.04<span class="w"> </span>nvidia-smi
+
+<span class="c1"># Check docker daemon.json includes nvidia runtime</span>
+cat<span class="w"> </span>/etc/docker/daemon.json
+</pre></div>
+</div>
+</section>
+<section id="slurm-issues">
+<h3>Slurm Issues<a class="headerlink" href="#slurm-issues" title="Link to this heading">#</a></h3>
+<p><strong>Error: Job submission fails</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Slurm is configured in env.toml</span>
+cat<span class="w"> </span>env.toml
+
+<span class="c1"># Verify SSH access to cluster</span>
+ssh<span class="w"> </span>cluster.example.com
+
+<span class="c1"># Check Slurm partition exists</span>
+sinfo<span class="w"> </span>-p<span class="w"> </span>interactive
+</pre></div>
+</div>
+<p><strong>Error: Job stays in pending state</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check job queue</span>
+squeue<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span>
+
+<span class="c1"># Check job reason</span>
+squeue<span class="w"> </span>-j<span class="w"> </span>&lt;job-id&gt;<span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R&quot;</span>
+</pre></div>
+</div>
+<p><strong>Debugging Slurm jobs</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check job status</span>
+squeue<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span>
+
+<span class="c1"># View job logs</span>
+cat<span class="w"> </span>/path/to/job/logs/stdout.txt
+cat<span class="w"> </span>/path/to/job/logs/stderr.txt
+
+<span class="c1"># Cancel stuck job</span>
+scancel<span class="w"> </span>&lt;job-id&gt;
+
+<span class="c1"># View job details</span>
+scontrol<span class="w"> </span>show<span class="w"> </span>job<span class="w"> </span>&lt;job-id&gt;
+</pre></div>
+</div>
+</section>
+<section id="general-debugging">
+<h3>General Debugging<a class="headerlink" href="#general-debugging" title="Link to this heading">#</a></h3>
+<p><strong>Enable verbose logging</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add --verbose flag (if available)</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--verbose
+
+<span class="c1"># Check logs in output directory</span>
+cat<span class="w"> </span>output/embed/stage2_finetune/logs/*.log
+</pre></div>
+</div>
+<p><strong>Dry run to preview</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Preview command without executing</span>
+nemotron<span class="w"> </span>embed<span class="w"> </span>finetune<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--dry-run
+</pre></div>
+</div>
+</section>
+</section>
+<section id="monitoring-training">
+<h2>Monitoring Training<a class="headerlink" href="#monitoring-training" title="Link to this heading">#</a></h2>
+<section id="weights-biases-integration">
+<h3>Weights &amp; Biases Integration<a class="headerlink" href="#weights-biases-integration" title="Link to this heading">#</a></h3>
+<p>Training automatically logs to Weights &amp; Biases if configured in <code class="docutils literal notranslate"><span class="pre">env.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[wandb]</span>
+<span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-embedding-project&quot;</span>
+<span class="n">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-team&quot;</span>
+</pre></div>
+</div>
+<p>Monitor training progress at: <code class="docutils literal notranslate"><span class="pre">https://wandb.ai/&lt;entity&gt;/&lt;project&gt;</span></code></p>
+</section>
+<section id="local-monitoring">
+<h3>Local Monitoring<a class="headerlink" href="#local-monitoring" title="Link to this heading">#</a></h3>
+<p><strong>Check training logs:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tail<span class="w"> </span>-f<span class="w"> </span>output/embed/stage2_finetune/logs/train.log
+</pre></div>
+</div>
+<p><strong>GPU utilization:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>nvidia-smi
+</pre></div>
+</div>
+<p><strong>Checkpoint progress:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-lh<span class="w"> </span>output/embed/stage2_finetune/checkpoints/
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<section id="data-quality">
+<h3>Data Quality<a class="headerlink" href="#data-quality" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Use clean, well-formatted documents</p></li>
+<li><p>Ensure documents represent your target domain</p></li>
+<li><p>Aim for diverse document types and topics</p></li>
+<li><p>Start with small corpus to test pipeline, then scale up</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Training<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Start with default hyperparameters (1-2 epochs, LR 1e-5, batch size 128)</p></li>
+<li><p>Monitor validation metrics to avoid overfitting</p></li>
+<li><p>Attention implementation is auto-detected (flash_attention_2 if available, else sdpa)</p></li>
+<li><p>Checkpoint frequency: if <code class="docutils literal notranslate"><span class="pre">ckpt_every_steps</span></code> is omitted, defaults to once per epoch for map-style datasets or twice during training for iterable datasets</p></li>
+</ul>
+<p><strong>Key hyperparameters to tune:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Parameter</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Epochs</p></td>
+<td class="text-left"><p>3</p></td>
+<td class="text-left"><p><strong>Default is tuned for the small example dataset; for real-world data, 1–2 epochs is usually sufficient.</strong> 3 epochs risks overfitting on most datasets. See <a class="reference internal" href="#how-many-epochs-typically-improve-accuracy-before-overfitting-becomes-a-risk-is-there-a-rule-of-thumb">epoch guidance in FAQ</a>.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Learning rate</p></td>
+<td class="text-left"><p>1e-5</p></td>
+<td class="text-left"><p>Try double and half of the default value</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Learning rate warmup steps</p></td>
+<td class="text-left"><p>5</p></td>
+<td class="text-left"><p>Set to 5-10% of total steps of finetune to have better early training stability</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Sequence length</p></td>
+<td class="text-left"><p>512</p></td>
+<td class="text-left"><p>Set <code class="docutils literal notranslate"><span class="pre">query_max_length</span></code> / <code class="docutils literal notranslate"><span class="pre">passage_max_length</span></code> consistently across Stages 1-3 (up to your base model’s max sequence length). Increase <code class="docutils literal notranslate"><span class="pre">sentences_per_chunk</span></code> in Stage 0 accordingly. Longer sequences require reducing batch size. See <a class="reference internal" href="#customizing-sequence-length">Customizing Sequence Length</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id2">
+<h3>Evaluation<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Always compare against base model</p></li>
+<li><p>Test on held-out test set (not used in training)</p></li>
+<li><p>Evaluate on realistic queries from your domain</p></li>
+<li><p>Consider multiple metrics (nDCG, Recall, Precision)</p></li>
+</ul>
+</section>
+<section id="deployment">
+<h3>Deployment<a class="headerlink" href="#deployment" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Test exported models thoroughly before production</p></li>
+<li><p>Verify NIM accuracy matches checkpoint</p></li>
+<li><p>Monitor inference latency and throughput</p></li>
+<li><p>Set up proper logging and monitoring</p></li>
+</ul>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">#</a></h2>
+<section id="synthetic-data-generation-sdg">
+<h3>Synthetic Data Generation (SDG)<a class="headerlink" href="#synthetic-data-generation-sdg" title="Link to this heading">#</a></h3>
+<p><strong>How much does SDG model quality impact final embedding accuracy, and when is it worth upgrading the SDG model?</strong></p>
+<p>The SDG model directly determines the quality of synthetic queries and answers used to train the embedding model, so it has a first-order effect on final retrieval accuracy. The default model (<code class="docutils literal notranslate"><span class="pre">nvidia/nemotron-3-nano-30b-a3b</span></code>) is a practical starting point that balances cost, speed, and structured-generation reliability. Consider upgrading the SDG model when: (1) quality scores from the SDG quality judge are consistently low (median below 7/10), (2) you observe that generated queries are shallow or fail to capture the reasoning patterns your users need, or (3) your domain has highly specialized terminology that the default model handles poorly. You can swap SDG models per-task via config — e.g., use a stronger model for <code class="docutils literal notranslate"><span class="pre">qa_generation_model</span></code> while keeping the lighter one for <code class="docutils literal notranslate"><span class="pre">artifact_extraction_model</span></code> and <code class="docutils literal notranslate"><span class="pre">quality_judge_model</span></code> to control cost. Run a small pilot (50–100 docs) with each model and compare the downstream Stage 3 eval metrics to decide whether the upgrade is worth the added latency and API cost.</p>
+<p>As of now, we’ve seen good results with the NVIDIA Nemotron Super 49B and Nemotron Ultra 253B</p>
+<p><strong>How should SDG prompts be designed to reliably capture rare words and domain-specific identifiers (bug IDs, product IDs, versions) that matter for retrieval accuracy?</strong></p>
+<p>The built-in SDG pipeline extracts structured artifacts from each document chunk — including entities, technical terms, key concepts, and relationships — before generating QA pairs. These artifacts are injected into the QA generation prompt, which biases the LLM toward producing queries that reference specific identifiers. To improve coverage of rare tokens: (1) ensure your source documents contain the identifiers in-context (the LLM can only reference what it sees in the chunk), (2) increase <code class="docutils literal notranslate"><span class="pre">max_artifacts_per_type</span></code> (default: 2) so more entities and technical terms are extracted per chunk, and (3) increase <code class="docutils literal notranslate"><span class="pre">num_pairs</span></code> to generate more QA pairs per document, raising the chance that niche identifiers appear in at least some queries. If identifiers span multiple chunks (e.g., a bug ID mentioned in one section and its resolution in another), enable multi-document bundling (<code class="docutils literal notranslate"><span class="pre">multi_doc:</span> <span class="pre">true</span></code>) so the LLM sees cross-chunk context. After SDG, spot-check a sample of generated queries for identifier coverage before proceeding to training.</p>
+<p>In addition, prompts can be tailored to the specific document type - bug vs ticket vs technical manual. It makes sense that prompts should be tailored to the specific document type for optimal Q/A generation.</p>
+</section>
+<section id="data-volume-and-saturation">
+<h3>Data Volume and Saturation<a class="headerlink" href="#data-volume-and-saturation" title="Link to this heading">#</a></h3>
+<p><strong>What is the optimal number of source documents (or QA pairs) needed before embedding fine-tuning accuracy saturates?</strong></p>
+<p>There is no universal threshold — saturation depends on domain complexity, vocabulary diversity, and document heterogeneity. As a rough guide:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Corpus Size</p></th>
+<th class="head"><p>Typical Outcome</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>100+ docs</p></td>
+<td><p>Basic domain adaptation</p></td>
+</tr>
+<tr class="row-odd"><td><p>500-1000 docs</p></td>
+<td><p>Good domain coverage for enterprise corpora</p></td>
+</tr>
+<tr class="row-even"><td><p>5000+ docs</p></td>
+<td><p>Strong and reliable adaptation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>After SDG and quality filtering (default threshold 7.0), the effective training set is typically smaller than the raw doc count. Monitor Stage 3 eval metrics (nDCG&#64;10, Recall&#64;10) across runs with increasing data to find your domain’s saturation point.</p>
+<p><strong>How can we reliably detect saturation of the embedding model as we scale data volume?</strong></p>
+<p>Run the pipeline at two or three data scales (e.g., 25%, 50%, 100% of your corpus) with identical hyperparameters and compare Stage 3 eval metrics. Saturation is reached when doubling the data yields less than ~1–2 absolute points of nDCG&#64;10 improvement. Use a fixed held-out evaluation set across all runs to ensure comparability (see the evaluation questions below).</p>
+<p><strong>Should we prioritize adding more documents or generating more queries per document to improve accuracy?</strong></p>
+<p>In general, more documents with diverse content have a larger impact than more queries per document, because new documents introduce new vocabulary, concepts, and retrieval patterns. More queries per document (via <code class="docutils literal notranslate"><span class="pre">num_pairs</span></code>) primarily helps the model see the same content from different query angles, which has diminishing returns once the core semantics are covered. Prioritize adding documents first; once your corpus is representative, increase <code class="docutils literal notranslate"><span class="pre">num_pairs</span></code> (default: 10) to improve query diversity for chunks that cover complex or multi-faceted topics.</p>
+</section>
+<section id="using-existing-vector-db-chunks">
+<h3>Using Existing Vector-DB Chunks<a class="headerlink" href="#using-existing-vector-db-chunks" title="Link to this heading">#</a></h3>
+<p><strong>Would using real production vector-DB chunks as positives (instead of synthetic chunks) improve embedding accuracy?</strong></p>
+<p>Yes, this can improve accuracy — if your production chunks reflect the actual retrieval units users will query against, training on them aligns the embedding space more closely with your deployment setup. The recipe supports this: you can skip Stage 0 entirely and start from Stage 1 by supplying your own QA pairs with real chunks as positives (see the <a class="reference internal" href="#pipeline-flexibility">Pipeline Flexibility</a> table). Format your data as JSON with query–positive-passage pairs and feed it to <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">embed</span> <span class="pre">prep</span></code>. The main risk is that real chunks without synthetic queries may lack query diversity; consider generating synthetic queries against your real chunks (see next question) to get the best of both worlds.</p>
+<p><strong>Is it recommended to generate multiple synthetic queries per real chunk to better shape the embedding space?</strong></p>
+<p>Yes. Generating multiple diverse queries per chunk teaches the model that many different phrasings should map to the same passage. You can do this by running Stage 0 with your real chunks as input documents and increasing <code class="docutils literal notranslate"><span class="pre">num_pairs</span></code>. The SDG pipeline will generate varied query types (factual, relational, inferential, procedural, etc.) and complexity levels against each chunk. This is especially valuable for chunks covering dense or multi-faceted content where a single query captures only one retrieval intent.</p>
+<p><strong>Should training-time chunking exactly match production chunking to maximize retrieval accuracy, or is approximate alignment sufficient?</strong></p>
+<p>Exact matching is ideal but approximate alignment is usually good enough. What matters most is that training chunks and production chunks are in the same ballpark of length and boundary style — if production chunks are ~500 tokens with sentence-boundary splitting, training on ~500-token sentence-boundary chunks will transfer well even if the exact split points differ. The embedding model learns semantic similarity at the passage level, not memorized chunk boundaries. That said, large mismatches hurt: training on 5-sentence chunks (the Stage 0 default, typically ~100–150 tokens) while deploying with 2000-token chunks creates a distribution gap where the model has never seen passages of that length during training. To close the gap, either (1) feed your real production chunks directly as positives (see above), or (2) adjust <code class="docutils literal notranslate"><span class="pre">sentences_per_chunk</span></code> in Stage 0 and <code class="docutils literal notranslate"><span class="pre">passage_max_length</span></code> in Stages 1–3 to approximate your production chunk size. Also ensure <code class="docutils literal notranslate"><span class="pre">passage_max_length</span></code> is set consistently across stages so that tokenization truncation during training and evaluation matches what happens at inference time. In practice, aligning chunk length within ~2x of production is sufficient; pixel-perfect boundary matching yields negligible additional gain.</p>
+</section>
+<section id="hard-negative-mining">
+<h3>Hard-Negative Mining<a class="headerlink" href="#hard-negative-mining" title="Link to this heading">#</a></h3>
+<p><strong>How should hard-negative mining thresholds be tuned to improve embedding discrimination?</strong></p>
+<p>Hard-negative mining uses a margin-based filter to exclude documents that are too similar to the positive. The key parameter is <code class="docutils literal notranslate"><span class="pre">hard_neg_margin</span></code> (default: 0.95 with <code class="docutils literal notranslate"><span class="pre">perc</span></code> margin type), which acts as an exclusion ceiling: any document scoring <em>above</em> <code class="docutils literal notranslate"><span class="pre">min_positive_score</span> <span class="pre">*</span> <span class="pre">margin</span></code> is eliminated, and the top-k highest-scoring survivors become the hard negatives. To tune:</p>
+<ul class="simple">
+<li><p><strong>Raise the margin</strong> (e.g., 0.98–1.0) to narrow the exclusion zone, allowing negatives that score closer to the positive. This produces harder negatives that improve discrimination but risks including false negatives (relevant documents mislabeled as negative), especially in corpora with near-duplicate passages.</p></li>
+<li><p><strong>Lower the margin</strong> (e.g., 0.85–0.90) to widen the exclusion zone, forcing negatives to be further from the positive score. This produces easier, safer negatives with less risk of false negatives, but provides weaker training signal.</p></li>
+<li><p><strong>Increase <code class="docutils literal notranslate"><span class="pre">hard_negatives_to_mine</span></code></strong> (default: 5) to give the model more contrastive examples per query. The training stage uses <code class="docutils literal notranslate"><span class="pre">train_n_passages</span></code> (default: 5, meaning 1 positive + 4 negatives), so mine at least as many as you plan to train with.</p></li>
+</ul>
+<p>Start with defaults and only raise the margin if Stage 3 metrics plateau — aggressive hard negatives on noisy data can hurt more than help.</p>
+<p><strong>What is the recommended number of hard negatives for best accuracy (e.g., 5 vs 10 vs higher)?</strong></p>
+<p>The default of 4 hard negatives per query (<code class="docutils literal notranslate"><span class="pre">train_n_passages:</span> <span class="pre">5</span></code> = 1 positive + 4 negatives) is a solid baseline. Increasing to 10 negatives can improve discrimination, especially for large corpora with many similar-looking passages, but the gains taper off quickly beyond that. Two parameters must be adjusted together: <code class="docutils literal notranslate"><span class="pre">hard_negatives_to_mine</span></code> in Stage 1 (how many candidates are mined) and <code class="docutils literal notranslate"><span class="pre">train_n_passages</span></code> in Stage 2 (how many are used during training), e.g., mine 10 and train with 10.</p>
+</section>
+<section id="training-hyperparameters">
+<h3>Training Hyperparameters<a class="headerlink" href="#training-hyperparameters" title="Link to this heading">#</a></h3>
+<p><strong>Which hyperparameters most strongly affect embedding accuracy (learning rate, epochs, batch size), and in what priority order should they be tuned?</strong></p>
+<p>In order of typical impact:</p>
+<ol class="arabic simple">
+<li><p><strong>Learning rate</strong> (default: 1e-5) — the single most sensitive parameter. Try 5e-6 and 2e-5 as first alternatives. Too high causes instability or NaN loss; too low undertrains.</p></li>
+<li><p><strong>Epochs</strong> (default: 3) — controls how many passes the model makes over the data. The default of 3 is calibrated for the small example dataset in this recipe; <strong>for most real-world datasets, 1–2 epochs is recommended</strong> to avoid overfitting. See the epoch table below.</p></li>
+<li><p><strong>Learning rate warmup</strong> (default: 5 steps) — set to 5–10% of total training steps for better early stability.</p></li>
+<li><p><strong>Batch size</strong> (default: 128) — determines the number of gradient update steps per epoch. Use smaller values for small datasets to get more updates; see the <a class="reference internal" href="#how-does-batch-size-affect-training-and-how-should-it-be-set">batch size FAQ</a> below.</p></li>
+</ol>
+<p><strong>What learning-rate sweep strategy is recommended to maximize accuracy (e.g., halve/double defaults)?</strong></p>
+<p>A simple three-point sweep around the default is the most cost-effective approach. Start with the default 1e-5, then try 5e-6 (half) and 2e-5 (double). Compare Stage 3 eval metrics (nDCG&#64;10) across the three runs — the winner is usually obvious. If the best result is at an endpoint (e.g., 2e-5 beats both others), extend one more step in that direction (try 4e-5) to confirm you haven’t undershot. Keep epochs and all other hyperparameters fixed during the sweep so that LR is the only variable.</p>
+<section id="how-many-epochs-typically-improve-accuracy-before-overfitting-becomes-a-risk-is-there-a-rule-of-thumb">
+<h4>How many epochs typically improve accuracy before overfitting becomes a risk? Is there a rule of thumb?<a class="headerlink" href="#how-many-epochs-typically-improve-accuracy-before-overfitting-becomes-a-risk-is-there-a-rule-of-thumb" title="Link to this heading">#</a></h4>
+<p>The default <code class="docutils literal notranslate"><span class="pre">num_epochs:</span> <span class="pre">3</span></code> exists because the example dataset shipped with this recipe is very small and training for only 1–2 epochs may not produce a measurable signal. <strong>For your own data, start with 1–2 epochs and only increase if evaluation metrics are still improving.</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset Size</p></th>
+<th class="head"><p>Recommended Epochs</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Small (&lt;1K examples)</p></td>
+<td><p>2–3</p></td>
+<td><p>Use 3 only if val loss is still decreasing</p></td>
+</tr>
+<tr class="row-odd"><td><p>Medium (1K–10K examples)</p></td>
+<td><p>1–2</p></td>
+<td><p>2 epochs is usually the upper bound</p></td>
+</tr>
+<tr class="row-even"><td><p>Large (10K+ examples)</p></td>
+<td><p>1</p></td>
+<td><p>More than 1 epoch rarely helps and often hurts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="how-does-batch-size-affect-training-and-how-should-it-be-set">
+<h4>How does batch size affect training, and how should it be set?<a class="headerlink" href="#how-does-batch-size-affect-training-and-how-should-it-be-set" title="Link to this heading">#</a></h4>
+<p>This pipeline uses only hard negatives in the contrastive loss (no in-batch negatives), so batch size does not change the number of negatives per query. Instead, batch size primarily affects the <strong>number of gradient update steps</strong> the model takes: <code class="docutils literal notranslate"><span class="pre">steps_per_epoch</span> <span class="pre">=</span> <span class="pre">total_training_samples</span> <span class="pre">/</span> <span class="pre">global_batch_size</span></code>. A smaller <code class="docutils literal notranslate"><span class="pre">global_batch_size</span></code> means more steps and more frequent weight updates; a larger one means fewer steps and faster wall-clock time per epoch.</p>
+<p>As a rule of thumb, use a <strong>smaller <code class="docutils literal notranslate"><span class="pre">global_batch_size</span></code> for small datasets</strong> and a <strong>larger <code class="docutils literal notranslate"><span class="pre">global_batch_size</span></code> for larger datasets</strong>.</p>
+</section>
+</section>
+<section id="loss-interpretation-and-evaluation">
+<h3>Loss Interpretation and Evaluation<a class="headerlink" href="#loss-interpretation-and-evaluation" title="Link to this heading">#</a></h3>
+<p><strong>How should training loss and evaluation loss be interpreted to assess real accuracy gains?</strong></p>
+<ul class="simple">
+<li><p><strong>Training loss</strong> (contrastive/InfoNCE loss) measures how well the model separates positives from negatives in each batch. A steadily decreasing training loss is expected; a very low floor (~0.0–0.01) suggests the model has learned the training set well.</p></li>
+<li><p><strong>Validation loss</strong> tracks the same metric on held-out data. The gap between training and validation loss is your primary overfitting indicator. If validation loss decreases alongside training loss, the model is generalizing. If validation loss plateaus or rises while training loss keeps falling, stop training or reduce epochs.</p></li>
+<li><p><strong>Neither loss directly equals retrieval accuracy.</strong> Always rely on Stage 3 eval metrics (nDCG&#64;k, Recall&#64;k) as the ground truth for actual embedding quality. Loss is a proxy — it’s possible for loss to improve while retrieval metrics stagnate if the hard negatives are too easy.</p></li>
+</ul>
+<p><strong>Are there target loss behaviors or patterns that indicate optimal embedding learning?</strong></p>
+<p>Healthy training typically shows: (1) rapid loss decrease in the first 20–30% of training, (2) gradual flattening toward a stable floor, (3) validation loss tracking close to training loss throughout. Warning signs include loss spikes (often caused by bad data or LR too high), NaN loss (reduce LR or batch size), or loss that never decreases (LR too low, or data quality issues). There is no universal “target loss value” — the absolute number depends on batch size, number of negatives, and temperature. Focus on the trajectory and the train/val gap rather than the absolute value.</p>
+<p><strong>Should a fixed evaluation dataset always be used to measure true accuracy gains across runs?</strong></p>
+<p>Yes. The recipe creates a fixed held-out test split in Stage 1 (default: 10–20% of data, configurable via <code class="docutils literal notranslate"><span class="pre">test_ratio</span></code>) that is formatted into BEIR evaluation format (<code class="docutils literal notranslate"><span class="pre">eval_beir/</span></code>). This test set is never used during training and provides a consistent benchmark across experiments. When comparing runs with different hyperparameters, SDG models, or data volumes, always use the same evaluation set — otherwise metric differences may reflect data variance rather than model improvement. For the most rigorous comparison, freeze the evaluation set from your first run and reuse it across all subsequent experiments.</p>
+<p><strong>How large should the fixed evaluation set be to reliably reflect embedding accuracy improvements?</strong></p>
+<p>Aim for at least 100 queries in the evaluation set to get stable metric estimates; 200–500 queries is better for detecting small improvements. The pipeline warns if your evaluation set has fewer than 50 queries. With very small evaluation sets, metric variance can be high enough to mask real gains. If your total dataset is small, consider using a 80/0/20 train/val/test split (the default for small datasets) to maximize the evaluation set size at the cost of skipping validation-during-training.</p>
+<p><strong>What level of accuracy improvement (relative vs absolute) is typical or expected from embedding fine-tuning in similar enterprise domains?</strong></p>
+<p>Typical results on enterprise domains show <strong>+5 to +20 absolute points of nDCG&#64;10</strong> over the base model, depending on how specialized the domain is. Domains with highly specialized vocabulary (legal, biomedical, internal engineering docs) tend to see larger gains because the base model has less prior exposure. Domains closer to general web text see smaller but still meaningful improvements. If you see less than 5 absolute points of nDCG&#64;10 improvement, investigate data quality, SDG coverage, or hyperparameter settings before concluding that fine-tuning doesn’t help your domain.</p>
+</section>
+</section>
+<section id="further-reading">
+<h2>Further Reading<a class="headerlink" href="#further-reading" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/NVIDIA/NeMo-Data-Designer">NeMo Data Designer Documentation</a> - Synthetic data generation framework</p></li>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/NeMo-Automodel">Automodel Documentation</a> - Model training framework</p></li>
+<li><p><a class="reference external" href="https://github.com/beir-cellar/beir">BEIR Benchmark</a> - Information retrieval evaluation</p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/nim">NVIDIA NIM Documentation</a> - Production inference microservices</p></li>
+<li><p><a class="reference external" href="https://huggingface.co/nvidia/llama-nemotron-embed-1b-v2">Llama-Nemotron-Embed-1B-v2 Model Card</a> - Base model details</p></li>
+<li><p><a class="reference external" href="https://huggingface.co/datasets/nvidia/Retrieval-Synthetic-NVDocs-v1">Retrieval-Synthetic-NVDocs-v1 Dataset</a> - Pre-generated synthetic retrieval dataset on NVIDIA content</p></li>
+</ul>
+</section>
+<section id="support">
+<h2>Support<a class="headerlink" href="#support" title="Link to this heading">#</a></h2>
+<p>For issues, questions, or contributions:</p>
+<ul class="simple">
+<li><p><strong>Issues</strong>: <a class="reference external" href="https://github.com/NVIDIA/Nemotron/issues">GitHub Issues</a></p></li>
+<li><p><strong>Discussions</strong>: <a class="reference external" href="https://github.com/NVIDIA/Nemotron/discussions">GitHub Discussions</a></p></li>
+<li><p><strong>Documentation</strong>: <a class="reference external" href="https://github.com/NVIDIA/Nemotron">Nemotron Documentation</a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../super3/quantization.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Stage 3: Quantization</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../artifacts.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Artifact Types &amp; Lineage</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-fine-tune-embedding-models">Why Fine-Tune Embedding Models?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-pipeline">Training Pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-uv-package-manager">1. Install UV Package Manager</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clone-and-install-nemotron">2. Clone and Install Nemotron</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-your-nvidia-api-key">3. Get Your NVIDIA API Key</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-execution-profiles-optional">4. Configure Execution Profiles (Optional)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-your-corpus">Preparing Your Corpus</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-formats">Supported Formats</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#corpus-size-recommendations">Corpus Size Recommendations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#document-organization">Document Organization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#document-quality-tips">Document Quality Tips</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hardware-requirements">Hardware Requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#software-requirements">Software Requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expected-runtime-resources">Expected Runtime &amp; Resources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm-api-usage-stage-0">LLM API Usage (Stage 0)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-execution">Local Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#preview-commands-dry-run">Preview Commands (Dry Run)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-flexibility">Pipeline Flexibility</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nvidia-s-pre-generated-dataset">Using NVIDIA’s Pre-Generated Dataset</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-modes">Execution Modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-execution-default">Local Execution (Default)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-execution">Docker Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slurm-batch-execution">Slurm Batch Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-profiles">Execution Profiles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-overrides">Runtime Overrides</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interactive-debugging">Interactive Debugging</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-configuration-options">Key Configuration Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#customizing-sequence-length">Customizing Sequence Length</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overriding-configuration">Overriding Configuration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-commands">CLI Commands</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workspace-info">Workspace Info</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training">Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation">Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#export">Export</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deploy">Deploy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-nim-accuracy">Verify NIM Accuracy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-structure">Output Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-metrics">Evaluation Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-results">Interpreting Results</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">Key Components</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#base-model">Base Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-issues">Installation Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-0-sdg-issues">Stage 0: SDG Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-1-data-preparation-issues">Stage 1: Data Preparation Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-2-training-issues">Stage 2: Training Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-3-evaluation-issues">Stage 3: Evaluation Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-4-export-issues">Stage 4: Export Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-5-deployment-issues">Stage 5: Deployment Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-library-errors">CUDA Library Errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-issues">Docker Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slurm-issues">Slurm Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#general-debugging">General Debugging</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-training">Monitoring Training</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#weights-biases-integration">Weights &amp; Biases Integration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-monitoring">Local Monitoring</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-quality">Data Quality</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deployment">Deployment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#synthetic-data-generation-sdg">Synthetic Data Generation (SDG)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-volume-and-saturation">Data Volume and Saturation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-existing-vector-db-chunks">Using Existing Vector-DB Chunks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hard-negative-mining">Hard-Negative Mining</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-hyperparameters">Training Hyperparameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#how-many-epochs-typically-improve-accuracy-before-overfitting-becomes-a-risk-is-there-a-rule-of-thumb">How many epochs typically improve accuracy before overfitting becomes a risk? Is there a rule of thumb?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#how-does-batch-size-affect-training-and-how-should-it-be-set">How does batch size affect training, and how should it be set?</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-interpretation-and-evaluation">Loss Interpretation and Evaluation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further Reading</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support">Support</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+<div class="extra_footer">
+  
+  
+    <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+    
+  
+</div></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
