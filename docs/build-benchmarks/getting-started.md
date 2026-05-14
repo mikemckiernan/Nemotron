@@ -20,7 +20,7 @@ You'll run the `nemotron steps run byob` command and it will use an NVIDIA-hoste
 
 **In this tutorial, you will**:
 
-1. Set up prerequisites and Python dependencies.
+1. Install Python dependencies.
 2. Run the `tiny` configuration from the repository root.
 3. Locate outputs and scan the main Parquet artifacts.
 4. Confirm `benchmark.parquet` columns against the output reference.
@@ -58,6 +58,12 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
   The default model for the configuration is `openai/gpt-oss-120b`.
 
 ## Procedure
+
+1. From the repository root, add the dependencies for building benchmarks:
+
+   ```console
+   uv sync --extra byob
+   ```
 
 1. Run generation with host paths.
    The `tiny` configuration sets `stage: all`.

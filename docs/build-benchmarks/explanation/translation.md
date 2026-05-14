@@ -59,6 +59,10 @@ After a run, open `quality_metrics.parquet` under `output_dir`/`expt_name`/`stag
 The sample `src/nemotron/steps/byob/config/translate.yaml` file shows a complete `translation_model_config` with `backend_type: llm`, NVIDIA provider parameters, and `stage` / `segment_stage` tuning.
 Copy that structure, then swap model IDs, concurrency, and language tags for your workload.
 
+The YAML below mirrors the sample configu, including `remove_low_quality: false` so rows that fail the aggregate quality gate remain in `benchmark.parquet` and you can inspect `stage_cache/quality_metrics.parquet` while you tune thresholds.
+
+When you omit `remove_low_quality` or set it to `true`, failing rows are dropped before export.
+
 ```yaml
 expt_name: byob_mcq_translation
 dataset_path: /path/to/benchmark.parquet

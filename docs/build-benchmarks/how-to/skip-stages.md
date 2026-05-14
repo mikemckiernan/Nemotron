@@ -36,3 +36,5 @@ uv run nemotron steps run byob -c translate -- --stage translate --skip-until BA
 
 Skipping only works when the Parquet file produced by the previous stage is already on disk under `output_dir/expt_name/stage_cache/`.
 Otherwise the next stage reads missing input and fails.
+
+For other common failure modes, see {doc}`../reference/troubleshooting`.

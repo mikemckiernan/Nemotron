@@ -92,6 +92,7 @@ Supported Hugging Face datasets, Parquet outputs, and YAML fields.
 | Guide | What you will do |
 | --- | --- |
 | {doc}`how-to/prepare-data` | Lay out `input_dir` and `target_source_mapping` |
+| {doc}`how-to/domain-data` | Lay out per-target `.txt` corpora under `input_dir` |
 | {doc}`how-to/custom-model-endpoints` | Point generation, judgement, and filter models at your endpoints |
 | {doc}`how-to/prompt-tuning` | Override prompts with a YAML file |
 | {doc}`how-to/skip-stages` | Resume after intermediate Parquet caches |
@@ -117,6 +118,7 @@ Supported Hugging Face datasets, Parquet outputs, and YAML fields.
 | Guide | What you will find |
 | --- | --- |
 | {doc}`reference/output-files` | Paths under `output_dir` / `expt_name` |
+| {doc}`reference/troubleshooting` | Symptom-to-fix index for BYOB runs |
 | {doc}`reference/benchmarks` | Allowed `hf_dataset` values and default subsets |
 | {doc}`reference/generate-config` | Generation YAML keys |
 | {doc}`reference/translation-config` | Translation YAML keys |

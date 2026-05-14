@@ -11,9 +11,18 @@ All paths below are relative to `output_dir` from your YAML and the string `expt
 
 | File | Description |
 | --- | --- |
-| `seed.parquet` | Few-shot rows plus domain chunks produced by `McqByobDataset.sample_and_dump` in `runtime/benchmark_families/mcq/dataset.py`. |
+| `seed.parquet` | Few-shot rows plus domain chunks. |
 
-## Generate (`stage_cache/`)
+## Generate
+
+The final generation creates these files:
+
+| File | Description |
+| --- | --- |
+| `benchmark_raw.parquet` | Snapshot immediately before column renaming for the final schema. |
+| `benchmark.parquet` | Final MCQ schema; column meanings and a sample row are in the next section. |
+
+The following intermediate files that are created in the `stage_cache` directory:
 
 | File | Stage |
 | --- | --- |
@@ -26,26 +35,54 @@ All paths below are relative to `output_dir` from your YAML and the string `expt
 | `semantic_outlier_detection.parquet` | SEMANTIC_OUTLIER_DETECTION |
 | `filtered_questions.parquet` | HALLUCINATION_EASINESS_DETECTION |
 
-## Generate (experiment root)
+(final-mcq-columns)=
+## Final MCQ Columns
+
+Generation and translation both export the same eight columns on the final `benchmark.parquet` file.
+
+| Column | Meaning |
+| --- | --- |
+| `question_id` | Stable identifier for the row, taken from the internal `id_question` field before export. |
+| `question` | Stem text for the multiple-choice item. After translation this is the target-language text. |
+| `options` | Ordered list of choice strings. The list order matches the letter labels implied by `answer_index`. |
+| `answer_index` | Zero-based index into `options` for the correct choice. |
+| `answer` | Letter label for the correct choice, derived from `answer_index` (`0` → `A`, `1` → `B`, and so on). |
+| `cot_content` | Reserved for chain-of-thought text. The current pipeline sets this column to the literal `-` for every row on export. |
+| `src` | Reserved for a source document marker. The current pipeline sets this column to the literal `-` for every row on export. |
+| `category` | Target key from `target_source_mapping` in your generation configuration, in other words the domain bucket name for the row, not the Hugging Face few-shot subject name. |
+
+### Sample Row
+
+Values below are illustrative; your identifiers and wording will differ.
+
+```json
+{
+  "question_id": "mcq-00042",
+  "question": "If x^2 = 9, which value can x take?",
+  "options": ["-3 only", "-3 or 3", "3 only", "9"],
+  "answer_index": 1,
+  "answer": "B",
+  "cot_content": "-",
+  "src": "-",
+  "category": "maths"
+}
+```
+
+## Translate
+
+The translate stage creates the following final output files:
 
 | File | Description |
 | --- | --- |
-| `benchmark_raw.parquet` | Snapshot immediately before column renaming for the final schema. |
-| `benchmark.parquet` | Final MCQ schema with columns `question_id`, `question`, `options`, `answer_index`, `answer`, `cot_content`, `src`, and `category` (see `references/benchmark-schema.md` in the source tree). |
+| `benchmark_raw.parquet` | Intermediate snapshot prior to optional quality filtering. |
+| `benchmark.parquet` | Final translated MCQ after fields are renamed back to `question`, `options`, `answer_index`, and `answer`. Column semantics match generation; see {ref}`final-mcq-columns`. |
 
-## Translate (`stage_cache/`)
+The following intermediate files are created in the `staged_cache` directory.
 
 | File | Stage |
 | --- | --- |
 | `translated_questions.parquet` | TRANSLATION |
 | `backtranslated_questions.parquet` | BACKTRANSLATION |
 | `quality_metrics.parquet` | QUALITY_METRICS |
-
-## Translate (experiment root)
-
-| File | Description |
-| --- | --- |
-| `benchmark_raw.parquet` | Intermediate snapshot prior to optional quality filtering. |
-| `benchmark.parquet` | Final translated MCQ with the same column names as generation, after renaming translated fields back to `question` / `options` / `answer_index` / `answer`. |
 
 Intermediate translation Parquet files can include additional columns such as `question_translated`, `options_translated`, backtranslation fields, and metric scores; those are documented inline in `references/benchmark-schema.md`.

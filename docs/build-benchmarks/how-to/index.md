@@ -14,6 +14,7 @@ Start with {doc}`../getting-started` if you have not produced `benchmark.parquet
 :hidden:
 
 Prepare Data <prepare-data>
+Use Your Domain Data <domain-data>
 Model Endpoints <custom-model-endpoints>
 Tune Prompts <prompt-tuning>
 Skip Stages <skip-stages>
@@ -21,7 +22,7 @@ Skip Stages <skip-stages>
 
 ## Setup and configuration
 
-::::{grid} 1 1 1 2
+::::{grid} 1 1 2 2
 :gutter: 1 1 1 2
 
 :::{grid-item-card} {octicon}`file-directory;1.5em;sd-mr-1` Prepare your data
@@ -30,6 +31,14 @@ Skip Stages <skip-stages>
 Lay out `input_dir`, text or Parquet inputs, and `target_source_mapping`.
 +++
 {bdg-secondary}`input_dir`
+:::
+
+:::{grid-item-card} {octicon}`database;1.5em;sd-mr-1` Domain corpus files
+:link: domain-data
+:link-type: doc
+Create per-target directories of `.txt` files and match them to YAML.
++++
+{bdg-secondary}`corpus`
 :::
 
 :::{grid-item-card} {octicon}`gear;1.5em;sd-mr-1` Model endpoints
