@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Concepts &#8212; Nemotron</title>
+    <title>Troubleshooting &#8212; Nemotron</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'translation/explanation/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'translation/reference/troubleshooting';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
@@ -67,8 +67,8 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Pipeline Overview" href="pipeline-overview.html" />
-    <link rel="prev" title="Tips for Translation With Agents" href="../using-skills.html" />
+    <link rel="next" title="About Building Multiple-Choice Question Benchmarks" href="../../build-benchmarks/index.html" />
+    <link rel="prev" title="Input and Output Format" href="io-format.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -428,10 +428,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="faith-evaluation.html">FAITH Evaluation Inside Translation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/segmentation.html">Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/faith-evaluation.html">FAITH Evaluation Inside Translation</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -443,11 +443,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to/run-faith-evaluation.html">Run FAITH Evaluation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/translate-config.html">Translation YAML Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/cli-translation.html">CLI Reference for Translation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/io-format.html">Input and Output Format</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="translate-config.html">Translation YAML Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli-translation.html">CLI Reference for Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io-format.html">Input and Output Format</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -655,7 +655,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Concepts</span></li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Reference for Translation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Troubleshooting</span></li>
   </ul>
 </nav>
 </div>
@@ -672,61 +675,120 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="concepts">
-<h1>Concepts<a class="headerlink" href="#concepts" title="Link to this heading">#</a></h1>
-<p>Background on how the translation pipeline fits together, how segmentation behaves, and what FAITH measures. Use these pages when how-to steps refer to behavior you want to understand before changing defaults.</p>
-<div class="toctree-wrapper compound">
-</div>
-<p>Concept-focused explanations for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> and the <code class="docutils literal notranslate"><span class="pre">translate/translation</span></code> Curator pipeline.</p>
-<section id="pipeline-processing">
-<h2>Pipeline Processing<a class="headerlink" href="#pipeline-processing" title="Link to this heading">#</a></h2>
-<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-1 sd-row-cols-lg-2 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-2 docutils">
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-graph sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 2.75a.75.75 0 0 0-1.5 0v18.5c0 .414.336.75.75.75H20a.75.75 0 0 0 0-1.5H2.5V2.75Z"></path><path d="M22.28 7.78a.75.75 0 0 0-1.06-1.06l-5.72 5.72-3.72-3.72a.75.75 0 0 0-1.06 0l-6 6a.75.75 0 1 0 1.06 1.06l5.47-5.47 3.72 3.72a.75.75 0 0 0 1.06 0l6.25-6.25Z"></path></svg> Pipeline overview</div>
-<p class="sd-card-text">Reader to <code class="docutils literal notranslate"><span class="pre">TranslationStage</span></code> to writer, with an optional FAITH branch.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">architecture</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="pipeline-overview.html"><span class="doc">Pipeline Overview</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-package sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.876.64V.639l8.25 4.763c.541.313.875.89.875 1.515v9.525a1.75 1.75 0 0 1-.875 1.516l-8.25 4.762a1.748 1.748 0 0 1-1.75 0l-8.25-4.763a1.75 1.75 0 0 1-.875-1.515V6.917c0-.625.334-1.202.875-1.515L11.126.64a1.748 1.748 0 0 1 1.75 0Zm-1 1.298L4.251 6.34l7.75 4.474 7.75-4.474-7.625-4.402a.248.248 0 0 0-.25 0Zm.875 19.123 7.625-4.402a.25.25 0 0 0 .125-.216V7.639l-7.75 4.474ZM3.501 7.64v8.803c0 .09.048.172.125.216l7.625 4.402v-8.947Z"></path></svg> Segmentation</div>
-<p class="sd-card-text">Coarse versus fine <code class="docutils literal notranslate"><span class="pre">segmentation_mode</span></code> trade-offs.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">segmentation</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="segmentation.html"><span class="doc">Segmentation</span></a></div>
-</div>
-</div>
+  <!-- Reference: symptom-to-remedy tables for nemotron steps translation runs across all four backends and FAITH evaluation. -->
+<section class="tex2jax_ignore mathjax_ignore" id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h1>
+<p>This page lists common symptoms when you run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> and shows the field, flag, or environment variable to inspect first.
+Each table pairs a symptom with a concrete remedy.
+For stage flow and design rationale, see the explanation pages linked from <a class="reference internal" href="../explanation/index.html"><span class="doc">Concepts</span></a>.</p>
+<section id="authentication-and-credentials">
+<h2>Authentication and Credentials<a class="headerlink" href="#authentication-and-credentials" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Hypertext transfer protocol (HTTP) 401 or 403 from the chat-completions endpoint, or a Curator log line about a missing API key</p></td>
+<td><p>Confirm the variable named in <code class="docutils literal notranslate"><span class="pre">server.api_key_env</span></code> is exported in the shell that launches the run. The starter <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> expects <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>; export it with <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">NVIDIA_API_KEY=&quot;&lt;api-key&gt;&quot;</span></code> and rerun. See <a class="reference internal" href="../how-to/run-llm-translation.html"><span class="doc">Run LLM Translation</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>FAITH scoring fails with a credentials error even though <code class="docutils literal notranslate"><span class="pre">backend</span></code> is <code class="docutils literal notranslate"><span class="pre">nmt</span></code>, <code class="docutils literal notranslate"><span class="pre">google</span></code>, or <code class="docutils literal notranslate"><span class="pre">aws</span></code></p></td>
+<td><p>FAITH always uses the large language model (LLM) client under <code class="docutils literal notranslate"><span class="pre">server</span></code>. Keep <code class="docutils literal notranslate"><span class="pre">server.api_key_env</span></code> populated whenever <code class="docutils literal notranslate"><span class="pre">faith_eval.enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>, or set <code class="docutils literal notranslate"><span class="pre">faith_eval.enabled=false</span></code> for a diagnostic run. See <a class="reference internal" href="../how-to/run-faith-evaluation.html"><span class="doc">Run FAITH Evaluation</span></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>Google backend rejects the request with a permission or project error</p></td>
+<td><p>Confirm application default credentials are present in the environment that runs the step. Do not paste secrets into <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>. See <a class="reference internal" href="../how-to/run-google-aws-translation.html"><span class="doc">Run Google or AWS Translation</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section id="evaluation-inside-translation">
-<h2>Evaluation Inside Translation<a class="headerlink" href="#evaluation-inside-translation" title="Link to this heading">#</a></h2>
-<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-1 sd-row-cols-lg-2 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-2 docutils">
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-checklist sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 3.75a.25.25 0 0 1 .25-.25h13.5a.25.25 0 0 1 .25.25v10a.75.75 0 0 0 1.5 0v-10A1.75 1.75 0 0 0 17.25 2H3.75A1.75 1.75 0 0 0 2 3.75v16.5c0 .966.784 1.75 1.75 1.75h7a.75.75 0 0 0 0-1.5h-7a.25.25 0 0 1-.25-.25V3.75Z"></path><path d="M6.25 7a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Zm-.75 4.75a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Zm16.28 4.53a.75.75 0 1 0-1.06-1.06l-4.97 4.97-1.97-1.97a.75.75 0 1 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l5.5-5.5Z"></path></svg> FAITH evaluation</div>
-<p class="sd-card-text">What FAITH captures when <code class="docutils literal notranslate"><span class="pre">faith_eval.enabled</span></code> is true.</p>
+<section id="model-and-endpoint-configuration">
+<h2>Model and Endpoint Configuration<a class="headerlink" href="#model-and-endpoint-configuration" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HTTP 404 or a “model not found” message from the LLM endpoint</p></td>
+<td><p>Hosted catalogs retire identifiers frequently. List the models your tenant currently exposes and pin <code class="docutils literal notranslate"><span class="pre">server.model</span></code> to one of them before large batch jobs. See <a class="reference internal" href="../how-to/run-llm-translation.html"><span class="doc">Run LLM Translation</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Google translation rejects the request because <code class="docutils literal notranslate"><span class="pre">project_id</span></code> is missing</p></td>
+<td><p>Application programming interface (API) version <code class="docutils literal notranslate"><span class="pre">v3</span></code> requires project metadata. Set both <code class="docutils literal notranslate"><span class="pre">google.project_id</span></code> and <code class="docutils literal notranslate"><span class="pre">google.api_version=v3</span></code>, or downgrade <code class="docutils literal notranslate"><span class="pre">google.api_version</span></code> to a release that does not require the project. See <a class="reference internal" href="../how-to/run-google-aws-translation.html"><span class="doc">Run Google or AWS Translation</span></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>NMT requests time out before the service responds</p></td>
+<td><p>Raise <code class="docutils literal notranslate"><span class="pre">nmt.timeout</span></code> to match observed server latency, lower <code class="docutils literal notranslate"><span class="pre">nmt.batch_size</span></code> so each request returns sooner, and confirm <code class="docutils literal notranslate"><span class="pre">nmt.server_url</span></code> resolves from the host that runs the step. See <a class="reference internal" href="../how-to/run-nmt-translation.html"><span class="doc">Run NMT Translation</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">faith</span></p>
+</section>
+<section id="throttling-and-concurrency">
+<h2>Throttling and Concurrency<a class="headerlink" href="#throttling-and-concurrency" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HTTP 429 responses, bursty failures, or sustained slowdowns from a hosted LLM endpoint</p></td>
+<td><p>Lower <code class="docutils literal notranslate"><span class="pre">max_concurrent_requests</span></code> in your YAML and rerun on a smaller slice of data. Confirm your tenant quota covers the planned batch size. See <a class="reference internal" href="translate-config.html"><span class="doc">Translation YAML Reference</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A self-hosted NMT service returns errors under load</p></td>
+<td><p>Reduce <code class="docutils literal notranslate"><span class="pre">nmt.max_concurrent_requests</span></code> and <code class="docutils literal notranslate"><span class="pre">nmt.batch_size</span></code> together, then raise them only after the service reports healthy throughput. See <a class="reference internal" href="../how-to/run-nmt-translation.html"><span class="doc">Run NMT Translation</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="faith-evaluation.html"><span class="doc">FAITH Evaluation Inside Translation</span></a></div>
+</section>
+<section id="inputs-and-output-layout">
+<h2>Inputs and Output Layout<a class="headerlink" href="#inputs-and-output-layout" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Reader errors about mixed file types when <code class="docutils literal notranslate"><span class="pre">input_path</span></code> points at a directory containing both JSONL and Parquet files</p></td>
+<td><p>Curator readers expect one record format per directory. Split the inputs into separate directories for JavaScript Object Notation Lines (JSONL) and Parquet, or set <code class="docutils literal notranslate"><span class="pre">input_path</span></code> to a single file. See <a class="reference internal" href="io-format.html"><span class="doc">Input and Output Format</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Output shards do not appear under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> after the run reports success</p></td>
+<td><p>The writer emits partitioned files, not a single merged file. Inspect the shard pattern under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> and confirm <code class="docutils literal notranslate"><span class="pre">output_format</span></code> matches what downstream consumers expect. See <a class="reference internal" href="io-format.html"><span class="doc">Input and Output Format</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
+</section>
+<section id="faith-evaluation">
+<h2>FAITH Evaluation<a class="headerlink" href="#faith-evaluation" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symptom</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Every translated row is dropped after FAITH runs</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">faith_eval.threshold</span></code> value may be too strict for the chosen scorer model. Lower the threshold, set <code class="docutils literal notranslate"><span class="pre">faith_eval.filter_enabled=false</span></code> while you tune, or override the scorer with <code class="docutils literal notranslate"><span class="pre">faith_eval.model_name</span></code>. See <a class="reference internal" href="../how-to/run-faith-evaluation.html"><span class="doc">Run FAITH Evaluation</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>FAITH scores look inconsistent across runs of the same data</p></td>
+<td><p>Pin both <code class="docutils literal notranslate"><span class="pre">server.model</span></code> and <code class="docutils literal notranslate"><span class="pre">faith_eval.model_name</span></code> to specific identifiers so scorer drift does not move the threshold under you. See <a class="reference internal" href="../explanation/faith-evaluation.html"><span class="doc">FAITH Evaluation Inside Translation</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
-</div>
+</section>
+<section id="related-reference">
+<h2>Related Reference<a class="headerlink" href="#related-reference" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Translation YAML fields: <a class="reference internal" href="translate-config.html"><span class="doc">Translation YAML Reference</span></a></p></li>
+<li><p>Command-line interface (CLI) syntax: <a class="reference internal" href="cli-translation.html"><span class="doc">CLI Reference for Translation</span></a></p></li>
+<li><p>Input and output shapes: <a class="reference internal" href="io-format.html"><span class="doc">Input and Output Format</span></a></p></li>
+</ul>
 </section>
 </section>
 
@@ -741,20 +803,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../using-skills.html"
+       href="io-format.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tips for Translation With Agents</p>
+        <p class="prev-next-title">Input and Output Format</p>
       </div>
     </a>
     <a class="right-next"
-       href="pipeline-overview.html"
+       href="../../build-benchmarks/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Pipeline Overview</p>
+        <p class="prev-next-title">About Building Multiple-Choice Question Benchmarks</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -779,8 +841,12 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-processing">Pipeline Processing</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-inside-translation">Evaluation Inside Translation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#authentication-and-credentials">Authentication and Credentials</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-and-endpoint-configuration">Model and Endpoint Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#throttling-and-concurrency">Throttling and Concurrency</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs-and-output-layout">Inputs and Output Layout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faith-evaluation">FAITH Evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-reference">Related Reference</a></li>
 </ul>
   </nav></div>
 

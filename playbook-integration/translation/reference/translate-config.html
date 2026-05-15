@@ -443,10 +443,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../how-to/run-faith-evaluation.html">Run FAITH Evaluation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Reference for Translation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Translation YAML Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli-translation.html">CLI Reference for Translation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="io-format.html">Input and Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -862,7 +863,7 @@
 <td><p>Turns FAITH scoring on. The starter YAML sets this to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code></p></td>
-<td><p>Minimum acceptable average score before filtering.</p></td>
+<td><p>Minimum acceptable <code class="docutils literal notranslate"><span class="pre">faith_avg</span></code> on a one-to-five scale. The starter default <code class="docutils literal notranslate"><span class="pre">2.5</span></code> is a permissive noisy-data floor. See <a class="reference internal" href="../explanation/faith-evaluation.html"><span class="doc">FAITH Evaluation Inside Translation</span></a> for the full rubric.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model_name</span></code></p></td>
 <td><p>Optional scorer-only model. Defaults to <code class="docutils literal notranslate"><span class="pre">server.model</span></code>.</p></td>

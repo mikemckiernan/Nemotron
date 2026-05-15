@@ -21,11 +21,10 @@ Lookup pages for YAML keys, CLI flags, and file shapes. Prefer the tutorial and 
 translate-config
 cli-translation
 io-format
+troubleshooting
 ```
 
 Specifications for `nemotron steps translation`.
-
-## Configuration
 
 ::::{grid} 1 1 1 2
 :gutter: 1 1 1 2
@@ -38,13 +37,6 @@ Anchored on `config/default.yaml` plus FAITH semantics.
 {bdg-secondary}`yaml`
 :::
 
-::::
-
-## Command-Line Interface
-
-::::{grid} 1 1 1 2
-:gutter: 1 1 1 2
-
 :::{grid-item-card} {octicon}`terminal;1.5em;sd-mr-1` CLI syntax
 :link: cli-translation
 :link-type: doc
@@ -52,13 +44,6 @@ Global recipe flags and translation-specific constraints.
 +++
 {bdg-secondary}`cli`
 :::
-
-::::
-
-## Data Files
-
-::::{grid} 1 1 1 2
-:gutter: 1 1 1 2
 
 :::{grid-item-card} {octicon}`file-code;1.5em;sd-mr-1` I/O format
 :link: io-format

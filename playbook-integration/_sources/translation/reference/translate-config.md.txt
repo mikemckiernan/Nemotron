@@ -67,7 +67,7 @@ Used whenever `backend=llm` or FAITH needs an OpenAI-compatible judge.
 | Key | Description |
 |-----|-------------|
 | `enabled` | Turns FAITH scoring on. The starter YAML sets this to `true`. |
-| `threshold` | Minimum acceptable average score before filtering. |
+| `threshold` | Minimum acceptable `faith_avg` on a one-to-five scale. The starter default `2.5` is a permissive noisy-data floor. See {doc}`../explanation/faith-evaluation` for the full rubric. |
 | `model_name` | Optional scorer-only model. Defaults to `server.model`. |
 | `segment_level` | Align FAITH granularity with translation segmentation. |
 | `filter_enabled` | Drop failing rows when `true`. |
