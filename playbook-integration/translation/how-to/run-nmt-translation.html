@@ -687,11 +687,26 @@
 </section>
 <section id="service-contract">
 <h2>Service Contract<a class="headerlink" href="#service-contract" title="Link to this heading">#</a></h2>
-<p>NeMo Curator expects:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/translate</span></code> accepting JSON payloads with <code class="docutils literal notranslate"><span class="pre">texts</span></code>, <code class="docutils literal notranslate"><span class="pre">src_lang</span></code>, and <code class="docutils literal notranslate"><span class="pre">tgt_lang</span></code> arrays or lists compatible with the Curator client.</p></li>
-<li><p>Tune <code class="docutils literal notranslate"><span class="pre">nmt.batch_size</span></code>, <code class="docutils literal notranslate"><span class="pre">nmt.timeout</span></code>, and <code class="docutils literal notranslate"><span class="pre">nmt.max_concurrent_requests</span></code> once you understand server throughput.</p></li>
-</ul>
+<p>Your service must implement one endpoint.</p>
+<p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/translate</span></code> — request body:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;texts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Hello, world.&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;How are you?&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;src_lang&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tgt_lang&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hi&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">texts</span></code> is a list of strings (one per segment). <code class="docutils literal notranslate"><span class="pre">src_lang</span></code> and <code class="docutils literal notranslate"><span class="pre">tgt_lang</span></code> are BCP 47 / ISO 639-1 codes; Nemotron lowercases them before the call.</p>
+<p>Success response body:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;translations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;नमस्ते, दुनिया।&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;आप कैसे हैं?&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">translations</span></code> must contain exactly as many strings as <code class="docutils literal notranslate"><span class="pre">texts</span></code>. Curator raises a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> on a count mismatch.</p>
+<p>On error, return a non-2xx HTTP status with a JSON body containing an <code class="docutils literal notranslate"><span class="pre">&quot;error&quot;</span></code> field. Curator retries with exponential backoff and surfaces unrecoverable failures as an <code class="docutils literal notranslate"><span class="pre">aiohttp.ClientResponseError</span></code>. Streaming is not supported — return the full batch in a single response.</p>
+<p>Curator also sends <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/health</span></code> at startup as an optional liveness check. Return any 2xx to pass; if the endpoint is absent, Curator logs a warning and continues.</p>
+<p>Tune <code class="docutils literal notranslate"><span class="pre">nmt.batch_size</span></code>, <code class="docutils literal notranslate"><span class="pre">nmt.timeout</span></code>, and <code class="docutils literal notranslate"><span class="pre">nmt.max_concurrent_requests</span></code> once you understand your server’s throughput.</p>
 </section>
 <section id="procedure">
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
