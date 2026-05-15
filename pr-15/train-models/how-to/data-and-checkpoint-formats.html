@@ -1,0 +1,881 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Data and Checkpoint Formats &#8212; Nemotron</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css?v=6e6caa80" />
+    <link rel="stylesheet" type="text/css" href="../../_static/customize.css?v=88bf5b46" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../_static/documentation_options.js?v=2b577b21"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'train-models/how-to/data-and-checkpoint-formats';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'pr-15';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/termynal.js?v=05ab89e6"></script>
+    <script src="../../_static/js/termynal-init.js?v=7fa8cdf6"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Training Reference" href="../reference/index.html" />
+    <link rel="prev" title="Environment Profiles and Executors" href="env-and-executors.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+    <script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" ></script>
+    
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="Nemotron - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="Nemotron - Home"/>
+  
+  
+    <p class="title logo__title">Nemotron</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA-NeMo/Nemotron" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../application-examples.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deployment-guides.html">Deployment Guides</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/nano3/README.html">Nemotron 3 Nano</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/nano3/import.html">Importing Models and Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/omni3/README.html">Nemotron 3 Omni</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/super3/README.html">Nemotron 3 Super</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../nemotron/super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/embed/README.html">Llama Nemotron Embed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/artifacts.html">Artifact Types &amp; Lineage</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/preference-data.html">Generate Preference Data for DPO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/dispatch-to-cluster.html">Dispatch SDG to a Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/run.html">Tips for the Data Generation Pipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/config-schema.html">Config Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/cli-reference.html">CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/output-projections.html">Output Projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Translation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../translation/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../translation/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../translation/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../translation/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/explanation/segmentation.html">Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/explanation/faith-evaluation.html">FAITH Evaluation Inside Translation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../translation/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-llm-translation.html">Run LLM Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-nmt-translation.html">Run NMT Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-google-aws-translation.html">Run Google or AWS Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/configure-fields-and-output.html">Configure Fields and Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/use-fine-segmentation.html">Use Fine Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/how-to/run-faith-evaluation.html">Run FAITH Evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../translation/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/translate-config.html">Translation YAML Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/cli-translation.html">CLI Reference for Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/io-format.html">Input and Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../translation/reference/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Build MCQ Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../build-benchmarks/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../build-benchmarks/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../build-benchmarks/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/data-preparation.html">Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/get-right-questions.html">Get the Right Questions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/question-generation.html">Question Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/quality-validation.html">Quality Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/filtering.html">Easiness and Hallucination Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/explanation/translation.html">Translation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../build-benchmarks/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/prepare-data.html">Prepare Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/domain-data.html">Use Your Domain Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/custom-model-endpoints.html">Model Endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/prompt-tuning.html">Tune Prompts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/how-to/skip-stages.html">Skip Stages</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../build-benchmarks/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/benchmarks.html">Supported Hugging Face Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/output-files.html">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/generate-config.html">Generation Configuration Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/translation-config.html">Translation Configuration Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../build-benchmarks/reference/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../using-skill.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/basics.html">Training Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/artifact-graph.html">Artifact Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/training-libraries.html">Training Libraries</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tasks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="choose-sft-backend.html">Choose an SFT Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="choose-peft-backend.html">Choose a PEFT Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="choose-rl-step.html">Choose an RL Alignment Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run-optimization.html">Run Post-Training Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="env-and-executors.html">Environment Profiles and Executors</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Data and Checkpoint Formats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">Nemotron Steps CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/env-profile-generator.html">Env Profile Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/step-catalog.html">Step Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/config-conventions.html">Configuration Conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/sft/index.html">SFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/sft/automodel.html">sft/automodel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/sft/megatron-bridge.html">sft/megatron_bridge</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/peft/index.html">PEFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/peft/automodel.html">peft/automodel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/peft/megatron-bridge.html">peft/megatron_bridge</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/rl/index.html">RL Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/rl/dpo.html">rl/nemo_rl/dpo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/rl/rlvr.html">rl/nemo_rl/rlvr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/optimize/prune.html">optimize/modelopt/prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/optimize/distill.html">optimize/modelopt/distill</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nano3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/rl.html">Stage 2: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/evaluate.html">Stage 3: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nano3/import.html">Importing Models and Data</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Omni3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/omni3/README.html">Nemotron 3 Omni Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/sft.html">Stage 0: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/rl.html">Stage 1: Reinforcement Learning (RL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/architecture.html">Nemotron 3 Nano Omni — Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/omni3/inference.html">Nemotron 3 Nano Omni — Inference &amp; Deployment</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Super3 Stages</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/super3/README.html">Nemotron 3 Super Training Recipe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../nemotron/super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/pretrain.html">Stage 0: Pretraining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/sft.html">Stage 1: Supervised Fine-Tuning (SFT)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/super3/rl/index.html">Stage 2: Reinforcement Learning (RL)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/rlvr.html">Multi-Environment RLVR (Stages 1.1–1.3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/swe.html">SWE-RL (Stages 2.1–2.2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/rlhf.html">RLHF (Stage 3)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/rl/data-prep.html">RL Data Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/evaluate.html">Stage 4: Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/super3/quantization.html">Stage 3: Quantization</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Kit</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/kit.html">Nemotron Kit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/nvidia-stack.html">NVIDIA AI Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/package-readme.html">nemo_runspec Package</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/nemo-run.html">Execution through NeMo-Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/omegaconf.html">OmegaConf Configuration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemo_runspec/artifacts.html">Artifact Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/wandb.html">Weights &amp; Biases Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/cli.html">CLI Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/data-prep.html">Data Preparation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/xenna-observability.html">Xenna Pipeline Observability</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Recipes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/data/curation/nemotron-cc.html">Nemotron-CC Data Curation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nemotron/data/sdg/long-document.html">Long-Document SDG</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/README.html">Nemotron Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/design-philosophy.html">Design Philosophy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/cli-architecture.html">CLI Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../runspec/v1/spec.html">Runspec: <code class="docutils literal notranslate"><span class="pre">[tool.runspec]</span></code> Specification</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Data and Checkpoint Formats</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="data-and-checkpoint-formats">
+<h1>Data and Checkpoint Formats<a class="headerlink" href="#data-and-checkpoint-formats" title="Link to this heading">#</a></h1>
+<p>Training steps declare compatible artifacts in each <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> file. This page summarizes the types that most training steps use so you can chain steps without format surprises.</p>
+<section id="canonical-definitions">
+<h2>Canonical Definitions<a class="headerlink" href="#canonical-definitions" title="Link to this heading">#</a></h2>
+<p>Artifact names and compatibility rules live in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/types.toml</span></code> at the repository root of the step library. Treat that file as the source of truth for names such as <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code>, <code class="docutils literal notranslate"><span class="pre">packed_parquet</span></code>, and <code class="docutils literal notranslate"><span class="pre">checkpoint_megatron</span></code>.</p>
+</section>
+<section id="frequently-used-types">
+<h2>Frequently Used Types<a class="headerlink" href="#frequently-used-types" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code> type means JSON Lines (JSONL) with a <code class="docutils literal notranslate"><span class="pre">messages</span></code> field in OpenAI chat shape. AutoModel supervised fine tuning (SFT) and parameter-efficient fine tuning (PEFT) consume it, and several reinforcement learning (RL) data paths consume it.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">packed_parquet</span></code> type means packed shards with token columns and masks for Megatron Bridge style trainers. You get this type only after you run a packing prep step when you use the Parquet path.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code> type means Hugging Face layout checkpoints or full weights on disk.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">checkpoint_megatron</span></code> type means Megatron distributed checkpoints sharded across parallel ranks.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">checkpoint_lora</span></code> type means low-rank adaptation (LoRA) adapter weights. Many downstream tools still need merge or export before deployment.</p></li>
+</ul>
+</section>
+<section id="chaining-guidance">
+<h2>Chaining Guidance<a class="headerlink" href="#chaining-guidance" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>AutoModel SFT never consumes <code class="docutils literal notranslate"><span class="pre">packed_parquet</span></code>. Megatron Bridge SFT does not consume raw JSON Lines (JSONL) for the packed pipeline.</p></li>
+<li><p>RL steps in this repository expect a Megatron policy checkpoint for warm start. If your SFT used AutoModel, insert the appropriate conversion step before RL.</p></li>
+<li><p>Optimization steps that start from <code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code> require a merged base when the trainable artifact was LoRA.</p></li>
+</ol>
+</section>
+<section id="where-to-look-in-the-tree">
+<h2>Where to Look in the Tree<a class="headerlink" href="#where-to-look-in-the-tree" title="Link to this heading">#</a></h2>
+<p>Each step directory contains the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">step.toml</span></code> holds the identifier, human title, tags, <code class="docutils literal notranslate"><span class="pre">[[consumes]]</span></code>, <code class="docutils literal notranslate"><span class="pre">[[produces]]</span></code>, <code class="docutils literal notranslate"><span class="pre">[[parameters]]</span></code>, optional <code class="docutils literal notranslate"><span class="pre">[[strategies]]</span></code>, <code class="docutils literal notranslate"><span class="pre">[[errors]]</span></code>, and <code class="docutils literal notranslate"><span class="pre">[[models]]</span></code> blocks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config/default.yaml</span></code> holds primary configuration tuned for real workloads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config/tiny.yaml</span></code> holds reduced settings for short sample runs and end-to-end execution validation.</p></li>
+<li><p>Extra files such as <code class="docutils literal notranslate"><span class="pre">config/nemo_gym.yaml</span></code> appear only on steps that need alternate method profiles.</p></li>
+</ul>
+</section>
+<section id="related-reading">
+<h2>Related Reading<a class="headerlink" href="#related-reading" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../explanation/artifact-graph.html"><span class="std std-doc">Artifact Graph</span></a></p></li>
+<li><p><a class="reference internal" href="../reference/step-catalog.html"><span class="std std-doc">Step Catalog (Training)</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="env-and-executors.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Environment Profiles and Executors</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../reference/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Training Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#canonical-definitions">Canonical Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#frequently-used-types">Frequently Used Types</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chaining-guidance">Chaining Guidance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-look-in-the-tree">Where to Look in the Tree</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-reading">Related Reading</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+<div class="extra_footer">
+  
+  
+    <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+    
+  
+</div></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
