@@ -22,13 +22,13 @@ Megatron Bridge SFT expects packed Parquet that is compatible with the tokenizer
 ## Sample Commands
 
 ```console
-$ uv run nemotron step run sft/automodel -c tiny
-$ uv run nemotron step run sft/megatron_bridge -c tiny
+$ uv run nemotron steps run sft/automodel -c tiny
+$ uv run nemotron steps run sft/megatron_bridge -c tiny
 ```
 
 ## Success Criteria
 
-- The commands `nemotron step show sft/automodel` and `nemotron step show sft/megatron_bridge` list the `consumes` types your workspace must provide.
+- The commands `nemotron steps show sft/automodel` and `nemotron steps show sft/megatron_bridge` list the `consumes` types your workspace must provide.
 - Loss decreases on a small slice before you scale data or learning rate.
 - Tokenizer, chat template, and sequence length stay aligned with evaluation and with any later reinforcement learning (RL) step that reuses the policy.
 

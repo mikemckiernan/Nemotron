@@ -18,8 +18,8 @@ Parameter-efficient fine tuning (PEFT) in Nemotron is implemented as dedicated s
 ## Sample Commands
 
 ```console
-$ uv run nemotron step run peft/automodel -c tiny
-$ uv run nemotron step run peft/megatron_bridge -c tiny
+$ uv run nemotron steps run peft/automodel -c tiny
+$ uv run nemotron steps run peft/megatron_bridge -c tiny
 ```
 
 The Megatron Bridge path needs compatible packed Parquet and a base `checkpoint_megatron` path that you set in training configuration.

@@ -1,5 +1,5 @@
 ──────────────────────────── sft/automodel — SFT Training (AutoModel) ────────────────────────────
-/mnt/lustre-shared/user/nemotron/src/nemotron/steps/sft/automodel
+~/nemotron/src/nemotron/steps/sft/automodel
 
 Supervised fine-tuning with the AutoModel stack for HF-format models and JSONL
 datasets that already use OpenAI chat-format messages. Supports full SFT and
@@ -18,5 +18,5 @@ Runspec
   launcher: torchrun
   image: -
   resources: nodes=1 gpus_per_node=4
-  config dir: /mnt/lustre-shared/user/nemotron/src/nemotron/steps/sft/automodel/config
+  config dir: ~/nemotron/src/nemotron/steps/sft/automodel/config
   default config: default

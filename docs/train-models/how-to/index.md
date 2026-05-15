@@ -1,6 +1,6 @@
 # How-To Guides
 
-These guides are task-focused instructions for training with Nemotron steps. Each guide assumes you run `nemotron step run` and that you edit manifests under `src/nemotron/steps/`.
+These guides are task-focused instructions for training with Nemotron steps. Each guide assumes you run `nemotron steps run` and that you edit manifests under `src/nemotron/steps/`.
 
 ```{toctree}
 :maxdepth: 1

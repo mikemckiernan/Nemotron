@@ -12,11 +12,11 @@ Training steps use the same NeMo Run integration as the rest of Nemotron. Config
 
 ## How This Maps to Steps
 
-The command `nemotron step run` resolves a step identifier to `step.py`, loads the step `config/` directory, and parses the same `env.toml` file that other Nemotron jobs use. Your workflow can select a different environment file if you configure that consistently. The command then hands the built job to the selected backend. You do not need a separate executor YAML file per step beyond what NeMo Run already consumes through the profile.
+The command `nemotron steps run` resolves a step identifier to `step.py`, loads the step `config/` directory, and parses the same `env.toml` file that other Nemotron jobs use. Your workflow can select a different environment file if you configure that consistently. The command then hands the built job to the selected backend. You do not need a separate executor YAML file per step beyond what NeMo Run already consumes through the profile.
 
 ## Practical Checklist
 
-1. Confirm `uv run nemotron step show <step_id>` prints the run specification you expect.
+1. Confirm `uv run nemotron steps show <step_id>` prints the run specification you expect.
 2. Run with `--dry-run` once per new profile to catch mount and image issues early.
 3. For reinforcement learning (RL) steps that require Ray, align node count, graphics processing unit (GPU) count, and Ray settings with what NeMo RL expects for your cluster. Long-form details stay in NeMo Run and NeMo RL documentation linked from each step `step.toml` reference block.
 
