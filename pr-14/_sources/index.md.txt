@@ -206,7 +206,7 @@ Tasks <train-models/how-to/index.md>
 Reference <train-models/reference/index.md>
 ```
 
-```
+```{toctree}
 :caption: Model Evaluation
 :hidden:
 
