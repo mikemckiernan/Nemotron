@@ -193,15 +193,6 @@ Tasks <build-benchmarks/how-to/index.md>
 Reference <build-benchmarks/reference/index.md>
 ```
 
-<!--
-```{toctree}
-:caption: Customization
-:hidden:
-
-customize/index.md
-```
--->
-
 ```{toctree}
 :caption: Model Training
 :hidden:
@@ -213,6 +204,18 @@ Concepts <train-models/explanation/index.md>
 Tutorials <train-models/tutorials/index.md>
 Tasks <train-models/how-to/index.md>
 Reference <train-models/reference/index.md>
+```
+
+```{toctree}
+:caption: Model Evaluation
+:hidden:
+
+About <model-eval/index.md>
+Getting Started <model-eval/getting-started.md>
+Tips for Using Agents <model-eval/using-skills.md>
+Concepts <model-eval/explanation/index.md>
+Tasks <model-eval/how-to/index.md>
+Reference <model-eval/reference/index.md>
 ```
 
 ```{toctree}
@@ -253,6 +256,7 @@ nemotron/super3/rl/data-prep.md
 nemotron/super3/evaluate.md
 nemotron/super3/quantization.md
 ```
+
 
 ```{toctree}
 :caption: Nemotron Kit
