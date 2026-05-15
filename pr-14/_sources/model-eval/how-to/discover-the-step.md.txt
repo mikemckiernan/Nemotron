@@ -7,7 +7,6 @@
 # Discover The Model Evaluation Step
 
 This guide shows how to find `eval/model_eval` in the step catalog, how to read its contract, and how to decide whether it applies to a given task.
-The commands here mirror EVAL-002 from the customization quality-assurance plan.
 
 ## Prerequisites
 
@@ -24,7 +23,7 @@ uv run --no-sync nemotron steps list --category eval --json
 ```
 
 The response includes one entry per evaluation step.
-`eval/model_eval` is the entry that wraps *NeMo Evaluator*.
+`eval/model_eval` is the entry that wraps NeMo Evaluator.
 
 ## Inspect The Step Contract
 
@@ -53,7 +52,6 @@ The step provides two sample configuration files under `src/nemotron/steps/eval/
 
 ```{literalinclude} ../../../src/nemotron/steps/eval/model_eval/config/tiny.yaml
 :language: yaml
-:caption: config/tiny.yaml
 ```
 
 The sample `tiny.yaml` file runs one *log-probability* benchmark, `hellaswag`, with `params.limit_samples` set to `20`.
@@ -61,7 +59,6 @@ Use it to confirm the endpoint, the credential, and the tokenizer configuration 
 
 ```{literalinclude} ../../../src/nemotron/steps/eval/model_eval/config/default.yaml
 :language: yaml
-:caption: config/default.yaml
 ```
 
 The sample `default.yaml` file runs `mmlu`, `hellaswag`, and `arc_challenge` with `params.limit_samples` set to `null`, which means no cap.
@@ -73,10 +70,10 @@ The {doc}`../reference/config-schema` reference documents every field.
 `eval/model_eval` applies when the following statements are true.
 
 - The model is already deployed behind an OpenAI-compatible *endpoint*, or you are prepared to deploy it as part of the run.  This step does not deploy checkpoints.
-- The benchmarks you need are implemented by *NeMo Evaluator* or one of the harnesses it integrates with.
+- The benchmarks you need are implemented by NeMo Evaluator or one of the harnesses it integrates with.
 - The endpoint type matches the benchmark family.  Chat benchmarks need a chat endpoint, and *log-probability* benchmarks need a completions endpoint with `logprobs` support.
 
-`eval/model_eval` is not the right step when the evaluation needs a custom scorer that *NeMo Evaluator* does not implement.
+`eval/model_eval` is not the right step when the evaluation needs a custom scorer that NeMo Evaluator does not implement.
 Write a dedicated evaluation step in that case, modeled on the contract layout under `src/nemotron/steps/`.
 
 ## Related

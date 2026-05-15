@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -721,14 +722,14 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">eval_results</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">description</span></code></p></td>
-<td><p>Benchmark metrics, artifacts, and evaluation summaries produced by <em>NeMo Evaluator</em>.</p></td>
+<td><p>Benchmark metrics, artifacts, and evaluation summaries produced by NeMo Evaluator.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>The contract is intentionally loose.
 The step does not constrain the file set inside each benchmark subdirectory.
-<em>NeMo Evaluator</em> writes whatever the benchmark implementation chooses, which keeps the step a thin wrapper.</p>
+NeMo Evaluator writes whatever the benchmark implementation chooses, which keeps the step a thin wrapper.</p>
 </section>
 <section id="directory-layout">
 <h2>Directory Layout<a class="headerlink" href="#directory-layout" title="Link to this heading">#</a></h2>
@@ -755,7 +756,7 @@ Include a run identifier in the <code class="docutils literal notranslate"><span
 </section>
 <section id="per-benchmark-files">
 <h2>Per-Benchmark Files<a class="headerlink" href="#per-benchmark-files" title="Link to this heading">#</a></h2>
-<p>The file set inside each benchmark subdirectory comes from <em>NeMo Evaluator</em>.
+<p>The file set inside each benchmark subdirectory comes from NeMo Evaluator.
 The exact names and structure can vary across benchmark versions.
 A typical run produces three kinds of files.</p>
 <ul class="simple">
@@ -767,7 +768,7 @@ A typical run produces three kinds of files.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EVAL_ROOT</span><span class="s2">/results-tiny&quot;</span><span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">5</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
 </pre></div>
 </div>
-<p>For benchmark-specific file layouts, refer to the upstream <em>NeMo Evaluator</em> documentation at <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">https://docs.nvidia.com/nemo/evaluator/latest/</a>.</p>
+<p>For benchmark-specific file layouts, refer to the upstream NeMo Evaluator documentation at <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">https://docs.nvidia.com/nemo/evaluator/latest/</a>.</p>
 </section>
 <section id="comparing-runs">
 <span id="model-eval-comparing-runs"></span><h2>Comparing Runs<a class="headerlink" href="#comparing-runs" title="Link to this heading">#</a></h2>

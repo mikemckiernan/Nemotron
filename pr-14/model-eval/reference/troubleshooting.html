@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Generate Preference Data for DPO &#8212; Nemotron</title>
+    <title>Troubleshooting &#8212; Nemotron</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'sdg/how-to/preference-data';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'model-eval/reference/troubleshooting';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
@@ -67,8 +67,8 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Dispatch SDG to a Cluster" href="dispatch-to-cluster.html" />
-    <link rel="prev" title="Generate Tool-Calling Data for SFT" href="tool-call-data.html" />
+    <link rel="next" title="Nemotron Kit" href="../../nemotron/kit.html" />
+    <link rel="prev" title="Benchmarks Catalog" href="benchmarks-catalog.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -403,23 +403,23 @@
 <li class="toctree-l1"><a class="reference internal" href="../../nemotron/artifacts.html">Artifact Types &amp; Lineage</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../index.html">About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tasks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="create-domain-dataset.html">Create a Domain Dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tool-call-data.html">Create Tool-Calling Dataset</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Generate Preference Data for DPO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dispatch-to-cluster.html">Dispatch SDG to a Cluster</a></li>
-<li class="toctree-l2"><a class="reference internal" href="run.html">Tips for the Data Generation Pipeline</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/preference-data.html">Generate Preference Data for DPO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/dispatch-to-cluster.html">Dispatch SDG to a Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/run.html">Tips for the Data Generation Pipeline</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/config-schema.html">Config Schema</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/output-projections.html">Output Projections</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/config-schema.html">Config Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/cli-reference.html">CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/output-projections.html">Output Projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sdg/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -537,28 +537,28 @@
 </details></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Evaluation</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../model-eval/index.html">About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../model-eval/getting-started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/pipeline-overview.html">Pipeline Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/how-to/discover-the-step.html">Discover The Model Evaluation Step</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/how-to/run-hosted-evaluation.html">Run A Hosted Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/how-to/evaluate-deployed-checkpoint.html">Evaluate A Deployed Checkpoint</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/discover-the-step.html">Discover The Model Evaluation Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/run-hosted-evaluation.html">Run A Hosted Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/evaluate-deployed-checkpoint.html">Evaluate A Deployed Checkpoint</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="config-schema.html">Configuration Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output-artifacts.html">Output Artifacts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -682,9 +682,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Synthetic Data How-To Guides</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Model Evaluation Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Generate Preference Data for DPO</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Troubleshooting</span></li>
   </ul>
 </nav>
 </div>
@@ -702,157 +702,122 @@
                 <article class="bd-article">
                   
   <!--
-SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+  SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+  SPDX-License-Identifier: Apache-2.0
 -->
-<section class="tex2jax_ignore mathjax_ignore" id="generate-preference-data-for-dpo">
-<span id="sdg-preference-data"></span><h1>Generate Preference Data for DPO<a class="headerlink" href="#generate-preference-data-for-dpo" title="Link to this heading">#</a></h1>
-<p>This example shows how to use the <code class="docutils literal notranslate"><span class="pre">rl_pref.yaml</span></code> configuration file.
-The example generates <em>prompt</em>, <em>chosen</em>, and <em>rejected</em> triples for direct preference optimization (DPO) training.
-Output flows directly into <code class="docutils literal notranslate"><span class="pre">prep/rl_prep</span></code> and then <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code>.</p>
-<section id="how-it-works">
-<h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">rl_pref.yaml</span></code> file registers two model aliases at different temperatures:
-a high-temperature creative model and a low-temperature precise model.
-The goal is to produce two responses per prompt that are distinct:</p>
-<div class="scrollable highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># DPO preference data — two responses per prompt + LLM judge for chosen/rejected.</span>
-
-<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:SDG_OUTPUT_DIR,${oc.env:NEMO_RUN_DIR,${oc.env:PWD}/output}/sdg}</span>
-<span class="nt">output_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${output_dir}/rl_pref.jsonl</span>
-<span class="nt">num_records</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-
-<span class="nt">seed_dataset</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:PWD}/src/nemotron/steps/sdg/data_designer/data/rl_pref_prompt_seeds.jsonl</span>
-<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shuffle</span>
-<span class="w">  </span><span class="nt">fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">prompt</span><span class="p p-Indicator">]</span>
-
-<span class="c1"># Two model aliases: a high-temperature &#39;creative&#39; model and a low-temperature</span>
-<span class="c1"># &#39;precise&#39; model, so the resulting preference pairs are meaningfully distinct.</span>
-<span class="nt">models</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia-text</span>
-<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/nemotron-3-nano-30b-a3b</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia</span>
-<span class="w">    </span><span class="nt">skip_health_check</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">inference_parameters</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
-<span class="w">      </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
-<span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
-
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia-text-precise</span>
-<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia/nemotron-3-nano-30b-a3b</span>
-<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia</span>
-<span class="w">    </span><span class="nt">skip_health_check</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">inference_parameters</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.3</span>
-<span class="w">      </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
-<span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
-
-<span class="c1"># `prompt` is supplied automatically by the seed dataset (must match the field</span>
-<span class="c1"># name in the seed JSONL). No need to declare it here.</span>
-<span class="nt">columns</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">response_a</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm_text</span>
-<span class="w">    </span><span class="nt">model_alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia-text</span>
-<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Answer</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">user&#39;s</span><span class="nv"> </span><span class="s">question:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">prompt</span><span class="nv"> </span><span class="s">}}&quot;</span>
-
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">response_b</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm_text</span>
-<span class="w">    </span><span class="nt">model_alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia-text-precise</span>
-<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Answer</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">user&#39;s</span><span class="nv"> </span><span class="s">question:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">prompt</span><span class="nv"> </span><span class="s">}}&quot;</span>
-
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">judge</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm_judge</span>
-<span class="w">    </span><span class="nt">model_alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia-text</span>
-<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">      </span><span class="no">Compare two responses for: {{ prompt }}</span>
-<span class="w">      </span><span class="no">A: {{ response_a }}</span>
-<span class="w">      </span><span class="no">B: {{ response_b }}</span>
-<span class="w">      </span><span class="no">Which is more helpful and correct?</span>
-<span class="w">    </span><span class="nt">output_format</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
-<span class="w">      </span><span class="nt">properties</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">winner</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
-<span class="w">          </span><span class="nt">enum</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">A</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">B</span><span class="p p-Indicator">]</span>
-<span class="w">      </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">winner</span><span class="p p-Indicator">]</span>
-
-<span class="nt">output_projection</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dpo_preference</span>
-<span class="w">  </span><span class="nt">prompt_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prompt</span>
-<span class="w">  </span><span class="nt">response_a_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">response_a</span>
-<span class="w">  </span><span class="nt">response_b_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">response_b</span>
-<span class="w">  </span><span class="nt">judge_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">judge</span>
-<span class="w">  </span><span class="nt">winner_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">winner</span>
-</pre></div>
-</div>
-<p>For each seed prompt the pipeline:</p>
-<ol class="arabic simple">
-<li><p>Generates <code class="docutils literal notranslate"><span class="pre">response_a</span></code> (high temperature) and <code class="docutils literal notranslate"><span class="pre">response_b</span></code> (low temperature) independently.</p></li>
-<li><p>Asks a third LLM call (<code class="docutils literal notranslate"><span class="pre">judge</span></code> column, <code class="docutils literal notranslate"><span class="pre">llm_judge</span></code> type) to compare them and return <code class="docutils literal notranslate"><span class="pre">{&quot;winner&quot;:</span> <span class="pre">&quot;A&quot;}</span></code> or <code class="docutils literal notranslate"><span class="pre">{&quot;winner&quot;:</span> <span class="pre">&quot;B&quot;}</span></code>.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">dpo_preference</span></code> projection maps winner → chosen / rejected and writes <code class="docutils literal notranslate"><span class="pre">{&quot;prompt&quot;:</span> <span class="pre">&quot;...&quot;,</span> <span class="pre">&quot;chosen&quot;:</span> <span class="pre">&quot;...&quot;,</span> <span class="pre">&quot;rejected&quot;:</span> <span class="pre">&quot;...&quot;}</span></code>.</p></li>
-</ol>
-</section>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<section class="tex2jax_ignore mathjax_ignore" id="troubleshooting">
+<span id="model-eval-troubleshooting"></span><h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h1>
+<p>This page is the canonical place to recognize a failed <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> run and decide what to change before rerunning.
+A <em>named error</em> is an entry in the <code class="docutils literal notranslate"><span class="pre">[[errors]]</span></code> table of <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code>.
+The runner uses these names to identify common misconfigurations and reports them with their recovery guidance.</p>
+<section id="how-a-failed-run-surfaces">
+<h2>How A Failed Run Surfaces<a class="headerlink" href="#how-a-failed-run-surfaces" title="Link to this heading">#</a></h2>
+<p>A failure in <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> arrives in one of two shapes.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> set in your environment.</p></li>
-<li><p>A seed file with one <code class="docutils literal notranslate"><span class="pre">prompt</span></code> field per line. The bundled <code class="docutils literal notranslate"><span class="pre">rl_pref_prompt_seeds.jsonl</span></code> contains general reasoning prompts. Replace it with domain-specific prompts for targeted preference data.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe fails before the benchmark loop starts.
+This catches a typo in <code class="docutils literal notranslate"><span class="pre">deployment.url</span></code>, a mismatch between the URL path and <code class="docutils literal notranslate"><span class="pre">deployment.endpoint_type</span></code>, and an endpoint that does not advertise the configured <code class="docutils literal notranslate"><span class="pre">deployment.model_id</span></code>.
+For where the probe sits in the pipeline, refer to <a class="reference internal" href="../explanation/pipeline-overview.html"><span class="doc">Pipeline Overview</span></a>.</p></li>
+<li><p>A configuration that the probe cannot detect surfaces as a named error from <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>.
+Each named error is keyed to a specific misconfiguration and ships with a recovery string that the runner reports alongside the name.</p></li>
 </ul>
+<p>The Validation Behavior section of <a class="reference internal" href="config-schema.html"><span class="doc">Configuration Reference</span></a> summarizes both shapes from the configuration side.</p>
 </section>
-<section id="procedure">
-<h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
-<ol class="arabic">
-<li><p>Preview two records to verify the judge returns valid <code class="docutils literal notranslate"><span class="pre">winner</span></code> values:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>rl_pref<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
-</pre></div>
-</div>
-</li>
-<li><p>Generate the dataset. The default is 2000 records:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>rl_pref<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">500</span>
-</pre></div>
-</div>
-<p>Output is written to <code class="docutils literal notranslate"><span class="pre">./output/sdg/rl_pref.jsonl</span></code>.</p>
-<p>Inspect the output. Each line is a preference triple:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Explain why retrieval-augmented generation can reduce hallucinations.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;chosen&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RAG grounds the model in retrieved documents, so claims are tied to specific passages rather than purely to weights.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;rejected&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RAG is better because it uses more data and is generally smarter than standard models.&quot;</span><span class="p">}</span>
-</pre></div>
-</div>
-</li>
-</ol>
+<section id="named-errors">
+<h2>Named Errors<a class="headerlink" href="#named-errors" title="Link to this heading">#</a></h2>
+<p>The three errors in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> today are listed below in the order they appear in the contract.
+The recovery prose is quoted verbatim from the <code class="docutils literal notranslate"><span class="pre">[[errors]]</span></code> table, so that the reference page and the contract cannot drift.
+If the contract changes, update the matching subsection here.</p>
+<section id="missing-tokenizer-for-log-probability-benchmarks">
+<h3>Missing Tokenizer For Log-Probability Benchmarks<a class="headerlink" href="#missing-tokenizer-for-log-probability-benchmarks" title="Link to this heading">#</a></h3>
+<p>The runner reports the <code class="docutils literal notranslate"><span class="pre">missing_tokenizer_for_logprobs</span></code> named error when a log-probability benchmark is requested without a tokenizer the run can resolve.
+The most common cause is a <code class="docutils literal notranslate"><span class="pre">params.extra</span></code> block that omits <code class="docutils literal notranslate"><span class="pre">tokenizer</span></code> or <code class="docutils literal notranslate"><span class="pre">tokenizer_backend</span></code>, or a <code class="docutils literal notranslate"><span class="pre">tokenizer</span></code> value that points at a placeholder path.
+The recovery, from <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>:</p>
+<blockquote>
+<div><p>Provide tokenizer and tokenizer_backend for log-probability tasks, using checkpoint/tokenizer for Megatron Bridge or the Hugging Face model ID or path for checkpoint_hf.</p>
+</div></blockquote>
+<p>For why log-probability benchmarks require a matching tokenizer and the three accepted shapes for <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code>, refer to <a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a>.</p>
 </section>
-<section id="adapt-the-seed-file">
-<h2>Adapt the Seed File<a class="headerlink" href="#adapt-the-seed-file" title="Link to this heading">#</a></h2>
-<p>Swap <code class="docutils literal notranslate"><span class="pre">seed_dataset.path</span></code> to point at your own prompt seed file. Each line must be valid JSON with a <code class="docutils literal notranslate"><span class="pre">prompt</span></code> field:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Describe the tradeoffs between batch and streaming inference for real-time applications.&quot;</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>Keep seed prompts representative of the target capability and diverse across difficulty levels.
-The judge performs better when the two responses have a clear quality difference–consider widening the temperature gap between the two model aliases if the judge returns many ties or unexpected results.</p>
+<section id="mismatched-endpoint-type-and-benchmark-family">
+<h3>Mismatched Endpoint Type And Benchmark Family<a class="headerlink" href="#mismatched-endpoint-type-and-benchmark-family" title="Link to this heading">#</a></h3>
+<p>The runner reports the <code class="docutils literal notranslate"><span class="pre">wrong_endpoint_type</span></code> named error when <code class="docutils literal notranslate"><span class="pre">deployment.endpoint_type</span></code> does not match the family of every benchmark in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> list.
+The most common cause is a chat endpoint paired with a log-probability benchmark such as <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>, or <code class="docutils literal notranslate"><span class="pre">piqa</span></code>, or a completions endpoint paired with an instruction benchmark.
+The recovery, from <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>:</p>
+<blockquote>
+<div><p>Use chat endpoints for instruction/chat benchmarks and completions endpoints with logprobs for multiple-choice log-probability tasks.</p>
+</div></blockquote>
+<p>For the chat versus completions decision and the per-family endpoint requirements, refer to <a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a>.</p>
 </section>
-<section id="downstream-pipeline">
-<h2>Downstream Pipeline<a class="headerlink" href="#downstream-pipeline" title="Link to this heading">#</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rl_pref.jsonl  →  prep/rl_prep  →  rl/nemo_rl/dpo
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">prep/rl_prep</span></code> tokenizes and packs preference pairs. <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code> consumes the packed dataset. Verify the <code class="docutils literal notranslate"><span class="pre">prompt</span></code>, <code class="docutils literal notranslate"><span class="pre">chosen</span></code>, and <code class="docutils literal notranslate"><span class="pre">rejected</span></code> fields are present in every record before handing off.</p>
+<section id="bad-megatron-bridge-checkpoint-path">
+<h3>Bad Megatron Bridge Checkpoint Path<a class="headerlink" href="#bad-megatron-bridge-checkpoint-path" title="Link to this heading">#</a></h3>
+<p>The runner reports the <code class="docutils literal notranslate"><span class="pre">bad_megatron_checkpoint_path</span></code> named error when the evaluation deployment is pointed at the parent run output folder rather than at a specific <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint directory.
+The most common cause is reusing the training output path without descending into the iteration directory that holds the weights and the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory.
+The recovery, from <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>:</p>
+<blockquote>
+<div><p>Point evaluation deployment at the specific iter_* checkpoint directory rather than only the parent output folder.</p>
+</div></blockquote>
+<p>For the Megatron Bridge tokenizer convention that goes with this path shape, refer to <a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a>.</p>
 </section>
-<section id="next-steps">
-<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+</section>
+<section id="quick-lookup-table">
+<h2>Quick Lookup Table<a class="headerlink" href="#quick-lookup-table" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Error Name</p></th>
+<th class="head"><p>Most Common Cause</p></th>
+<th class="head"><p>Read More</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">missing_tokenizer_for_logprobs</span></code></p></td>
+<td><p>A log-probability benchmark is requested with no resolvable <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code>.</p></td>
+<td><p><a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wrong_endpoint_type</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">deployment.endpoint_type</span></code> value does not match the family of every benchmark in the list.</p></td>
+<td><p><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bad_megatron_checkpoint_path</span></code></p></td>
+<td><p>The deployment path stops at the parent output folder instead of descending into an <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory.</p></td>
+<td><p><a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">step.toml</span></code> is the source of truth for this table.
+If a new <code class="docutils literal notranslate"><span class="pre">[[errors]]</span></code> block is added to the contract, add the matching subsection above and a row here.</p>
+</section>
+<section id="endpoint-probe-failures">
+<h2>Endpoint Probe Failures<a class="headerlink" href="#endpoint-probe-failures" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe is not itself a named error, but it is the most common reason a run halts before any benchmark dispatches.
+The probe checks three things.</p>
 <ul class="simple">
-<li><p><strong>Output projection reference</strong>: <a class="reference internal" href="../reference/output-projections.html"><span class="doc">Output Projections</span></a> — <code class="docutils literal notranslate"><span class="pre">dpo_preference</span></code> schema.</p></li>
-<li><p><strong>Config schema</strong>: <a class="reference internal" href="../reference/config-schema.html"><span class="doc">Config Schema</span></a> — <code class="docutils literal notranslate"><span class="pre">llm_judge</span></code> column type and <code class="docutils literal notranslate"><span class="pre">dpo_preference</span></code> projection fields.</p></li>
-<li><p><strong>Dispatch to a cluster</strong>: <a class="reference internal" href="dispatch-to-cluster.html"><span class="doc">Dispatch SDG to a Cluster</span></a>.</p></li>
+<li><p>The URL is reachable and returns a successful response from the configured path.</p></li>
+<li><p>The configured <code class="docutils literal notranslate"><span class="pre">endpoint_type</span></code> agrees with the URL path inside <code class="docutils literal notranslate"><span class="pre">deployment.url</span></code>.</p></li>
+<li><p>The endpoint advertises the configured <code class="docutils literal notranslate"><span class="pre">deployment.model_id</span></code> as a model identifier.</p></li>
+</ul>
+<p>A failure in the first check surfaces as a connection error or a hypertext transfer protocol (HTTP) status error from <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code>.
+A failure in the second check surfaces as the <code class="docutils literal notranslate"><span class="pre">wrong_endpoint_type</span></code> named error.
+A failure in the third check surfaces as a model-not-found error from <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code>, with the configured <code class="docutils literal notranslate"><span class="pre">model_id</span></code> named in the message.</p>
+<p>For the configuration side, refer to the Validation Behavior section of <a class="reference internal" href="config-schema.html"><span class="doc">Configuration Reference</span></a>.
+For the endpoint and benchmark pairing rule, refer to <a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a>.</p>
+</section>
+<section id="when-scores-look-wrong-after-a-successful-run">
+<h2>When Scores Look Wrong After A Successful Run<a class="headerlink" href="#when-scores-look-wrong-after-a-successful-run" title="Link to this heading">#</a></h2>
+<p>A run can complete successfully and still produce scores that are not meaningful.
+The case the docs already name is a tokenizer that resolves but does not match the served model.
+The <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe does not detect this case, because the probe only inspects the endpoint and not the local tokenization output.
+Symptoms are unstable scores across reruns, or implausibly poor scores on a benchmark where the model is known to do well.</p>
+<p>Detect this case by comparing scores against a known baseline rather than reading a single run in isolation.
+The <a class="reference internal" href="output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> framing in <a class="reference internal" href="output-artifacts.html"><span class="doc">Output Artifacts</span></a> describes the comparison pattern.</p>
+</section>
+<section id="related-pages">
+<h2>Related Pages<a class="headerlink" href="#related-pages" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="config-schema.html"><span class="doc">Configuration Reference</span></a> for the field-by-field schema and the Validation Behavior section.</p></li>
+<li><p><a class="reference internal" href="output-artifacts.html"><span class="doc">Output Artifacts</span></a> for the on-disk layout and the <a class="reference internal" href="output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> framing.</p></li>
+<li><p><a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a> for why log-probability benchmarks need a matching tokenizer.</p></li>
+<li><p><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a> for the chat versus completions decision.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> for the full step contract, including the <code class="docutils literal notranslate"><span class="pre">[[errors]]</span></code> table that this page mirrors.</p></li>
 </ul>
 </section>
 </section>
@@ -868,20 +833,20 @@ The judge performs better when the two responses have a clear quality difference
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tool-call-data.html"
+       href="benchmarks-catalog.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Generate Tool-Calling Data for SFT</p>
+        <p class="prev-next-title">Benchmarks Catalog</p>
       </div>
     </a>
     <a class="right-next"
-       href="dispatch-to-cluster.html"
+       href="../../nemotron/kit.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Dispatch SDG to a Cluster</p>
+        <p class="prev-next-title">Nemotron Kit</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -906,12 +871,17 @@ The judge performs better when the two responses have a clear quality difference
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#procedure">Procedure</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adapt-the-seed-file">Adapt the Seed File</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#downstream-pipeline">Downstream Pipeline</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-a-failed-run-surfaces">How A Failed Run Surfaces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#named-errors">Named Errors</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-tokenizer-for-log-probability-benchmarks">Missing Tokenizer For Log-Probability Benchmarks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mismatched-endpoint-type-and-benchmark-family">Mismatched Endpoint Type And Benchmark Family</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bad-megatron-bridge-checkpoint-path">Bad Megatron Bridge Checkpoint Path</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-lookup-table">Quick Lookup Table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#endpoint-probe-failures">Endpoint Probe Failures</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-scores-look-wrong-after-a-successful-run">When Scores Look Wrong After A Successful Run</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-pages">Related Pages</a></li>
 </ul>
   </nav></div>
 

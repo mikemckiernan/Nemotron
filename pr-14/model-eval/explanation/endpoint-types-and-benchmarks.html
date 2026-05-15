@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -703,7 +704,8 @@
   <section class="tex2jax_ignore mathjax_ignore" id="endpoint-types-and-benchmark-families">
 <span id="model-eval-endpoint-types-and-benchmarks"></span><h1>Endpoint Types And Benchmark Families<a class="headerlink" href="#endpoint-types-and-benchmark-families" title="Link to this heading">#</a></h1>
 <p>The step reads two coupled fields from the <code class="docutils literal notranslate"><span class="pre">deployment</span></code> block: the <code class="docutils literal notranslate"><span class="pre">endpoint_type</span></code> and the URL path inside <code class="docutils literal notranslate"><span class="pre">url</span></code>.
-Both fields must agree with the benchmark family for the benchmarks named in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> list, otherwise the run halts during validation.</p>
+Both fields must agree with the benchmark family for the benchmarks named in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> list.
+The step itself does not validate the match; a mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.</p>
 <section id="two-endpoint-types">
 <h2>Two Endpoint Types<a class="headerlink" href="#two-endpoint-types" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> supports two endpoint shapes.</p>
@@ -727,9 +729,12 @@ These benchmarks use a completions endpoint with <code class="docutils literal n
 </section>
 <section id="why-the-match-matters">
 <h2>Why The Match Matters<a class="headerlink" href="#why-the-match-matters" title="Link to this heading">#</a></h2>
-<p>The matching rule is enforced by the <code class="docutils literal notranslate"><span class="pre">wrong_endpoint_type</span></code> named error in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code>.
-When the endpoint type does not match the family of every benchmark in the list, the <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe fails, no benchmark is dispatched, and the runner reports the named error.
-The recovery is symmetric: change the endpoint type to match the benchmark family, or change the benchmark family to match the endpoint type.</p>
+<p>The step does not enforce the matching rule itself.
+The <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.py</span></code> calls NeMo Evaluator with the URL, the endpoint type, and the model identifier only, so it reports reachability and authentication failures but does not see the benchmark list.
+When the endpoint type does not match the benchmark family, the failure surfaces later, inside the per-benchmark <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> call from NeMo Evaluator.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">wrong_endpoint_type</span></code> entry in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> documents this class of mistake and points to the recovery guidance.
+That entry is documentation rather than an enforcement check.
+For the recovery, refer to <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p>
 </section>
 <section id="decision-table">
 <h2>Decision Table<a class="headerlink" href="#decision-table" title="Link to this heading">#</a></h2>
@@ -774,6 +779,7 @@ Outside of reasoning models, the recommendation is to keep generation determinis
 <li><p><a class="reference internal" href="pipeline-overview.html"><span class="doc">Pipeline Overview</span></a> for where the endpoint sits in the artifact flow.</p></li>
 <li><p><a class="reference internal" href="../how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> for choosing an endpoint type in context.</p></li>
 <li><p><a class="reference internal" href="../reference/benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for the benchmark identifiers in each family.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a> for the named error modes and their recovery guidance.</p></li>
 </ul>
 </section>
 </section>

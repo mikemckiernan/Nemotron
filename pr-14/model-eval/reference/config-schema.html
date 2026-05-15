@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -712,9 +713,7 @@ The sample <code class="docutils literal notranslate"><span class="pre">tiny.yam
 <section id="top-level-structure">
 <h2>Top-Level Structure<a class="headerlink" href="#top-level-structure" title="Link to this heading">#</a></h2>
 <p>The step loads a single OmegaConf document and reads four top-level keys.</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">config/default.yaml</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard NeMo Evaluator starter config for a deployed model</span>
+<div class="scrollable highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard NeMo Evaluator starter config for a deployed model</span>
 <span class="c1"># Uses completions-style evaluation for standard NLU benchmarks.</span>
 
 <span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results</span>
@@ -740,7 +739,6 @@ The sample <code class="docutils literal notranslate"><span class="pre">tiny.yam
 <span class="w">    </span><span class="nt">tokenizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/checkpoint/tokenizer</span>
 <span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
 </pre></div>
-</div>
 </div>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -774,7 +772,7 @@ The sample <code class="docutils literal notranslate"><span class="pre">tiny.yam
 </tbody>
 </table>
 </div>
-<p>The runner loads the document, applies Hydra-style dotlist overrides, and resolves OmegaConf interpolations before constructing the <em>NeMo Evaluator</em> request objects.</p>
+<p>The runner loads the document, applies Hydra-style dotlist overrides, and resolves OmegaConf interpolations before constructing the NeMo Evaluator request objects.</p>
 </section>
 <section id="output-directory">
 <h2>Output Directory<a class="headerlink" href="#output-directory" title="Link to this heading">#</a></h2>
@@ -818,9 +816,8 @@ Include a run identifier in the override you pass on the command line if you wan
 </tbody>
 </table>
 </div>
-<p>The runner reads <code class="docutils literal notranslate"><span class="pre">api_key_name</span></code> and passes its current shell value through to NeMo Evaluator at request time.
-Set the variable in your shell before launching the step.
-The sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file names <code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code>; the <em>Getting Started</em> tutorial uses <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> for the NVIDIA-hosted endpoint.</p>
+<p>Set the value for the <code class="docutils literal notranslate"><span class="pre">api_key_name</span></code> variable in your shell before launching the step.
+The sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file names <code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code>; the getting started tutorial uses <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> for the NVIDIA-hosted endpoint.</p>
 </section>
 <section id="benchmarks">
 <h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Link to this heading">#</a></h2>
@@ -904,7 +901,7 @@ The two fields exercised by the sample files are the tokenizer location and its 
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tokenizer</span></code></p></td>
 <td><p>string</p></td>
-<td><p>Tokenizer to load.  Accepts a Hugging Face handle, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></td>
+<td><p>Tokenizer to load.  Accepts a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tokenizer_backend</span></code></p></td>
 <td><p>string</p></td>
@@ -922,8 +919,8 @@ The two fields exercised by the sample files are the tokenizer location and its 
 It calls <code class="docutils literal notranslate"><span class="pre">nemo_evaluator.api.check_endpoint</span></code> with the configured <code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">endpoint_type</span></code>, and <code class="docutils literal notranslate"><span class="pre">model_id</span></code>.
 A failing probe stops the run before any benchmark is dispatched, which protects against typos in the endpoint URL and against an endpoint that does not advertise the configured <code class="docutils literal notranslate"><span class="pre">model_id</span></code>.</p>
 <p>Misconfigurations beyond the endpoint probe surface as the named error modes in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>.
-The three most common are <code class="docutils literal notranslate"><span class="pre">missing_tokenizer_for_logprobs</span></code>, <code class="docutils literal notranslate"><span class="pre">wrong_endpoint_type</span></code>, and <code class="docutils literal notranslate"><span class="pre">bad_megatron_checkpoint_path</span></code>.
-Read <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> in the repository for the full list of error names and their recovery guidance.</p>
+For each named error, the most common cause, and the recovery, refer to <a class="reference internal" href="troubleshooting.html"><span class="doc">Troubleshooting</span></a>.
+Read <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> in the repository for the full list of error names.</p>
 </section>
 <section id="related">
 <h2>Related<a class="headerlink" href="#related" title="Link to this heading">#</a></h2>
@@ -931,6 +928,7 @@ Read <code class="docutils literal notranslate"><span class="pre">src/nemotron/s
 <li><p><a class="reference internal" href="cli-reference.html"><span class="doc">CLI Reference</span></a> for command-line flags and Hydra override syntax.</p></li>
 <li><p><a class="reference internal" href="benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for benchmark identifiers grouped by family.</p></li>
 <li><p><a class="reference internal" href="output-artifacts.html"><span class="doc">Output Artifacts</span></a> for the <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> contract and the on-disk layout.</p></li>
+<li><p><a class="reference internal" href="troubleshooting.html"><span class="doc">Troubleshooting</span></a> for the named error modes and their recovery guidance.</p></li>
 <li><p><a class="reference internal" href="../explanation/index.html"><span class="doc">Concepts</span></a> for the concept set behind tokenizer alignment and endpoint families.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> for the full step contract.</p></li>
 </ul>

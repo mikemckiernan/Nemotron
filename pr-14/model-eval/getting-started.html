@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -708,7 +709,7 @@
 <div class="sd-col sd-d-flex-row sd-col-8 sd-col-xs-8 sd-col-sm-8 sd-col-md-8 sd-col-lg-8 docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
 <div class="sd-card-header docutils">
-<p class="sd-card-text"><strong>What You’ll Build</strong>: A one benchmark result for a single sample of <em>HellaSwag</em>, written under a writable <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> by <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an OpenAI-compatible hosted endpoint.</p>
+<p class="sd-card-text"><strong>What You’ll Build</strong>: A one benchmark result for a single sample of HellaSwag, written under a writable <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> by <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an OpenAI-compatible hosted endpoint.</p>
 </div>
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><strong>In this tutorial, you will</strong>:</p>
@@ -773,7 +774,7 @@ Two fields control this tutorial: <code class="docutils literal notranslate"><sp
 <li><p>The Nemotron repository synced and <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> complete.  Refer to the <a class="reference internal" href="../index.html"><span class="doc">Nemotron Training Recipes</span></a> page if you have not done this yet.</p></li>
 <li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
 <li><p>A bearer token exported as the environment variable referenced by <code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code>.</p></li>
-<li><p>A tokenizer that matches the served model.  This can be a Hugging Face handle, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>A tokenizer that matches the served model.  This can be a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
 </section>
 <section id="procedure">
@@ -784,7 +785,7 @@ Two fields control this tutorial: <code class="docutils literal notranslate"><sp
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
 <span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_URL</span><span class="o">=</span><span class="s2">&quot;&lt;full-endpoint-url-with-path&gt;&quot;</span>
 <span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_MODEL_ID</span><span class="o">=</span><span class="s2">&quot;&lt;model-identifier-from-the-endpoint&gt;&quot;</span>
-<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_TOKENIZER</span><span class="o">=</span><span class="s2">&quot;&lt;hf-handle-or-tokenizer-path&gt;&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_TOKENIZER</span><span class="o">=</span><span class="s2">&quot;&lt;hf-dataset-or-tokenizer-path&gt;&quot;</span>
 <span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/output/eval-getting-started&quot;</span>
 </pre></div>
 </div>

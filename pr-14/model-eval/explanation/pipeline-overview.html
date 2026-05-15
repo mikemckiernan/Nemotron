@@ -923,6 +923,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -1068,7 +1069,7 @@ window.addEventListener("load", load);
   <section class="tex2jax_ignore mathjax_ignore" id="pipeline-overview">
 <span id="model-eval-pipeline-overview"></span><h1>Pipeline Overview<a class="headerlink" href="#pipeline-overview" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> step is the evaluation stage of the Nemotron pipeline.
-Its artifact flow begins at a <em>Hugging Face</em> checkpoint or a <em>Megatron Bridge</em> checkpoint, passes through an OpenAI-compatible endpoint that some other process deploys, runs through <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code>, and ends as an <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> directory on disk.</p>
+Its artifact flow begins at a Hugging Face checkpoint or a Megatron Bridge checkpoint, passes through an OpenAI-compatible endpoint that some other process deploys, runs through <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code>, and ends as an <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> directory on disk.</p>
 <section id="architecture">
 <h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h2>
 <pre  class="mermaid">
@@ -1083,8 +1084,8 @@ flowchart LR
 <h2>Input Artifacts<a class="headerlink" href="#input-artifacts" title="Link to this heading">#</a></h2>
 <p>The step declares two optional input artifacts in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code>.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_megatron</span></code> is a <em>Megatron Bridge</em> checkpoint directory, usually an <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory, deployed by a separate process before the step runs.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code> is a <em>Hugging Face</em> checkpoint or model path, deployed by a separate process before the step runs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_megatron</span></code> is a Megatron Bridge checkpoint directory, usually an <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory, deployed by a separate process before the step runs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code> is a Hugging Face checkpoint or model path, deployed by a separate process before the step runs.</p></li>
 </ul>
 <p>Both are marked <code class="docutils literal notranslate"><span class="pre">required</span> <span class="pre">=</span> <span class="pre">false</span></code> because the step does not deploy the checkpoint.
 A third case is also supported: the user points the step at an already-running hosted endpoint, in which case no checkpoint artifact is consumed and only the <code class="docutils literal notranslate"><span class="pre">deployment</span></code> configuration is needed.</p>
@@ -1099,12 +1100,12 @@ A failing probe stops the run before any benchmark is dispatched, which catches 
 <h2>Per-Benchmark Loop<a class="headerlink" href="#per-benchmark-loop" title="Link to this heading">#</a></h2>
 <p>The runner iterates the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> list in declaration order and writes each benchmark’s results to <code class="docutils literal notranslate"><span class="pre">output_dir/&lt;benchmark&gt;/</span></code>.
 No merge step combines results across benchmarks.
-Each subdirectory contains whatever <em>NeMo Evaluator</em> writes for that benchmark, treated as a per-benchmark contract that the step does not normalize.</p>
+Each subdirectory contains whatever NeMo Evaluator writes for that benchmark, treated as a per-benchmark contract that the step does not normalize.</p>
 </section>
 <section id="output-artifact">
 <h2>Output Artifact<a class="headerlink" href="#output-artifact" title="Link to this heading">#</a></h2>
 <p>The step produces a single <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> artifact, which is the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> directory together with its per-benchmark subdirectories.
-This is a loose contract: <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> declares only <code class="docutils literal notranslate"><span class="pre">produces.type</span> <span class="pre">=</span> <span class="pre">&quot;eval_results&quot;</span></code>, and the on-disk layout is whatever the underlying <em>NeMo Evaluator</em> benchmark writes.
+This is a loose contract: <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> declares only <code class="docutils literal notranslate"><span class="pre">produces.type</span> <span class="pre">=</span> <span class="pre">&quot;eval_results&quot;</span></code>, and the on-disk layout is whatever the underlying NeMo Evaluator benchmark writes.
 For the layout details and the recommended pattern for comparing runs, refer to <a class="reference internal" href="../reference/output-artifacts.html"><span class="doc">Output Artifacts</span></a>.</p>
 </section>
 <section id="what-is-owned-where">
@@ -1132,7 +1133,7 @@ For the layout details and the recommended pattern for comparing runs, refer to 
 </table>
 </div>
 <p>Use this split to decide where a given parameter lives.
-Parameters that live in the YAML and are documented in this section are owned by Nemotron; everything below the YAML surface sits upstream in <em>NeMo Evaluator</em>.</p>
+Parameters that live in the YAML and are documented in this section are owned by Nemotron; everything below the YAML surface sits upstream in NeMo Evaluator.</p>
 </section>
 <section id="related-pages">
 <h2>Related Pages<a class="headerlink" href="#related-pages" title="Link to this heading">#</a></h2>

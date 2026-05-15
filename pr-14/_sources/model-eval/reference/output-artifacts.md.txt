@@ -15,11 +15,11 @@ This page describes the artifact produced by `eval/model_eval`, both as a contra
 | Field | Value |
 | --- | --- |
 | `type` | `eval_results` |
-| `description` | Benchmark metrics, artifacts, and evaluation summaries produced by *NeMo Evaluator*. |
+| `description` | Benchmark metrics, artifacts, and evaluation summaries produced by NeMo Evaluator. |
 
 The contract is intentionally loose.
 The step does not constrain the file set inside each benchmark subdirectory.
-*NeMo Evaluator* writes whatever the benchmark implementation chooses, which keeps the step a thin wrapper.
+NeMo Evaluator writes whatever the benchmark implementation chooses, which keeps the step a thin wrapper.
 
 ## Directory Layout
 
@@ -51,7 +51,7 @@ Include a run identifier in the `output_dir` override you pass on the command li
 
 ## Per-Benchmark Files
 
-The file set inside each benchmark subdirectory comes from *NeMo Evaluator*.
+The file set inside each benchmark subdirectory comes from NeMo Evaluator.
 The exact names and structure can vary across benchmark versions.
 A typical run produces three kinds of files.
 
@@ -65,7 +65,7 @@ List the directory after a run completes to see the exact file set for the bench
 find "$EVAL_ROOT/results-tiny" -maxdepth 5 -type f | sort
 ```
 
-For benchmark-specific file layouts, refer to the upstream *NeMo Evaluator* documentation at <https://docs.nvidia.com/nemo/evaluator/latest/>.
+For benchmark-specific file layouts, refer to the upstream NeMo Evaluator documentation at <https://docs.nvidia.com/nemo/evaluator/latest/>.
 
 (model-eval-comparing-runs)=
 ## Comparing Runs

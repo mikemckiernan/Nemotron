@@ -14,7 +14,7 @@ content:
 # Pipeline Overview
 
 The `eval/model_eval` step is the evaluation stage of the Nemotron pipeline.
-Its artifact flow begins at a *Hugging Face* checkpoint or a *Megatron Bridge* checkpoint, passes through an OpenAI-compatible endpoint that some other process deploys, runs through `eval/model_eval`, and ends as an `eval_results` directory on disk.
+Its artifact flow begins at a Hugging Face checkpoint or a Megatron Bridge checkpoint, passes through an OpenAI-compatible endpoint that some other process deploys, runs through `eval/model_eval`, and ends as an `eval_results` directory on disk.
 
 ## Architecture
 
@@ -31,8 +31,8 @@ flowchart LR
 
 The step declares two optional input artifacts in `src/nemotron/steps/eval/model_eval/step.toml`.
 
-- `checkpoint_megatron` is a *Megatron Bridge* checkpoint directory, usually an `iter_*` directory, deployed by a separate process before the step runs.
-- `checkpoint_hf` is a *Hugging Face* checkpoint or model path, deployed by a separate process before the step runs.
+- `checkpoint_megatron` is a Megatron Bridge checkpoint directory, usually an `iter_*` directory, deployed by a separate process before the step runs.
+- `checkpoint_hf` is a Hugging Face checkpoint or model path, deployed by a separate process before the step runs.
 
 Both are marked `required = false` because the step does not deploy the checkpoint.
 A third case is also supported: the user points the step at an already-running hosted endpoint, in which case no checkpoint artifact is consumed and only the `deployment` configuration is needed.
@@ -47,12 +47,12 @@ A failing probe stops the run before any benchmark is dispatched, which catches 
 
 The runner iterates the `benchmarks` list in declaration order and writes each benchmark's results to `output_dir/<benchmark>/`.
 No merge step combines results across benchmarks.
-Each subdirectory contains whatever *NeMo Evaluator* writes for that benchmark, treated as a per-benchmark contract that the step does not normalize.
+Each subdirectory contains whatever NeMo Evaluator writes for that benchmark, treated as a per-benchmark contract that the step does not normalize.
 
 ## Output Artifact
 
 The step produces a single `eval_results` artifact, which is the `output_dir` directory together with its per-benchmark subdirectories.
-This is a loose contract: `step.toml` declares only `produces.type = "eval_results"`, and the on-disk layout is whatever the underlying *NeMo Evaluator* benchmark writes.
+This is a loose contract: `step.toml` declares only `produces.type = "eval_results"`, and the on-disk layout is whatever the underlying NeMo Evaluator benchmark writes.
 For the layout details and the recommended pattern for comparing runs, refer to {doc}`../reference/output-artifacts`.
 
 ## What Is Owned Where
@@ -65,7 +65,7 @@ For the layout details and the recommended pattern for comparing runs, refer to 
 | The deterministic-by-default generation parameters in the sample files. | The accepted set of benchmark identifiers and their version handling. |
 
 Use this split to decide where a given parameter lives.
-Parameters that live in the YAML and are documented in this section are owned by Nemotron; everything below the YAML surface sits upstream in *NeMo Evaluator*.
+Parameters that live in the YAML and are documented in this section are owned by Nemotron; everything below the YAML surface sits upstream in NeMo Evaluator.
 
 ## Related Pages
 

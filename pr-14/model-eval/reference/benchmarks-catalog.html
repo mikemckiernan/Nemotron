@@ -67,7 +67,7 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Nemotron Kit" href="../../nemotron/kit.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
     <link rel="prev" title="Output Artifacts" href="output-artifacts.html" />
 
 
@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -708,8 +709,8 @@
 <span id="model-eval-benchmarks-catalog"></span><h1>Benchmarks Catalog<a class="headerlink" href="#benchmarks-catalog" title="Link to this heading">#</a></h1>
 <p>This page catalogs the benchmark identifiers accepted by the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> field, grouped by family.
 The step does not own these benchmarks.
-<em>NeMo Evaluator</em> owns the implementations, and this page is a curated map into the upstream catalog.
-Refer to the upstream <em>NeMo Evaluator</em> documentation at <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">https://docs.nvidia.com/nemo/evaluator/latest/</a> for the authoritative, version-specific list.</p>
+NeMo Evaluator owns the implementations, and this page is a curated map into the upstream catalog.
+Refer to the upstream NeMo Evaluator documentation at <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">https://docs.nvidia.com/nemo/evaluator/latest/</a> for the authoritative, version-specific list.</p>
 <section id="naming-convention">
 <h2>Naming Convention<a class="headerlink" href="#naming-convention" title="Link to this heading">#</a></h2>
 <p>Benchmark identifiers come in two shapes.</p>
@@ -717,8 +718,8 @@ Refer to the upstream <em>NeMo Evaluator</em> documentation at <a class="referen
 <li><p>A short bare name, such as <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, or <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>.  Bare names are common for established benchmarks provided by NeMo Evaluator by default.</p></li>
 <li><p>A dotted, harness-qualified name, such as <code class="docutils literal notranslate"><span class="pre">lm-evaluation-harness.ifeval</span></code> or <code class="docutils literal notranslate"><span class="pre">simple_evals.gpqa_diamond</span></code>.  The prefix names the harness that hosts the task, and the suffix names the task within it.</p></li>
 </ul>
-<p>Both shapes are valid in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> field.
-Use the exact identifier published by the harness, because the runner passes it through to <em>NeMo Evaluator</em> unchanged.</p>
+<p>Both types are valid in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> field.
+Use the exact identifier published by the harness, because the runner passes it through to NeMo Evaluator unchanged.</p>
 </section>
 <section id="recommended-starting-sets">
 <h2>Recommended Starting Sets<a class="headerlink" href="#recommended-starting-sets" title="Link to this heading">#</a></h2>
@@ -742,8 +743,6 @@ Use the exact identifier published by the harness, because the runner passes it 
 </tbody>
 </table>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">[[parameters]]</span> <span class="pre">benchmarks</span></code> entry in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> is metadata for the discovery commands.
-Treat it as documentation of the parameter, not as the recommended starting set.</p>
 </section>
 <section id="chat-and-instruction-benchmarks">
 <h2>Chat And Instruction Benchmarks<a class="headerlink" href="#chat-and-instruction-benchmarks" title="Link to this heading">#</a></h2>
@@ -804,7 +803,7 @@ Treat it as documentation of the parameter, not as the recommended starting set.
 </tbody>
 </table>
 </div>
-<p>Configure <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> to a Hugging Face handle, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.
+<p>Configure <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> to a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.
 Set <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer_backend</span></code> to <code class="docutils literal notranslate"><span class="pre">huggingface</span></code>.</p>
 </section>
 <section id="reasoning-and-math">
@@ -865,7 +864,7 @@ These require a chat endpoint that supports tool-calling responses.</p>
 <li><p>What behavior do you need to score?  Instruction following, multi-task knowledge, commonsense reasoning, math, code, or tool use each map to different families above.</p></li>
 <li><p>Is this a sample run or a production comparison?  Sample runs should stay on the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file.  Production comparisons should run the same benchmark set across the baseline and the post-training checkpoint, by following <a class="reference internal" href="output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a>.</p></li>
 </ol>
-<p>For benchmark-specific configuration parameters, refer to the upstream documentation at <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">https://docs.nvidia.com/nemo/evaluator/latest/</a>.</p>
+<p>For benchmark-specific configuration parameters, refer to the NeMo Evaluator <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">documentation</a>.</p>
 </section>
 <section id="related">
 <h2>Related<a class="headerlink" href="#related" title="Link to this heading">#</a></h2>
@@ -899,11 +898,11 @@ These require a chat endpoint that supports tool-calling responses.</p>
       </div>
     </a>
     <a class="right-next"
-       href="../../nemotron/kit.html"
+       href="troubleshooting.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Nemotron Kit</p>
+        <p class="prev-next-title">Troubleshooting</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

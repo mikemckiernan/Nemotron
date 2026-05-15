@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -706,16 +707,15 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="run-a-hosted-evaluation">
 <span id="model-eval-run-hosted-evaluation"></span><h1>Run A Hosted Evaluation<a class="headerlink" href="#run-a-hosted-evaluation" title="Link to this heading">#</a></h1>
-<p>This guide runs <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an already-running, OpenAI-compatible hypertext transfer protocol (HTTP) endpoint.
-You do not deploy anything in this guide.
-For deployment paths, refer to <a class="reference internal" href="evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a>.</p>
+<p>This guide runs <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an already-running, OpenAI-compatible endpoint.</p>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The Nemotron repository synced with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> complete.</p></li>
 <li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
-<li><p>A credential exported as an environment variable.  The sample files name <code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code>; the NVIDIA-hosted endpoint uses <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
-<li><p>A tokenizer that matches the served model.  Accept a Hugging Face handle, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>A credential exported as an environment variable.</p></li>
+<li><p>A tokenizer that matches the served model.
+Accept a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
 </section>
 <section id="choose-a-starting-sample-file">
@@ -729,7 +729,7 @@ For deployment paths, refer to <a class="reference internal" href="evaluate-depl
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code></p></td>
-<td><p>Sample run with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">20</span></code> on one <em>log-probability</em> benchmark, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>.  Confirms endpoint, credential, and tokenizer configuration.</p></td>
+<td><p>Sample run with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">20</span></code> on the <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code> benchmar.  Confirms endpoint, credential, and tokenizer configuration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">default.yaml</span></code></p></td>
 <td><p>Production run with <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, and <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>, with no sample cap.</p></td>
@@ -737,8 +737,8 @@ For deployment paths, refer to <a class="reference internal" href="evaluate-depl
 </tbody>
 </table>
 </div>
-<p>Pass the sample file name with <code class="docutils literal notranslate"><span class="pre">-c</span></code>.
-You may also point <code class="docutils literal notranslate"><span class="pre">-c</span></code> at an explicit YAML file path if you keep a custom configuration outside the step’s <code class="docutils literal notranslate"><span class="pre">config/</span></code> directory.</p>
+<p>Pass the configuration file name with <code class="docutils literal notranslate"><span class="pre">--config</span></code>.
+You can also specify <code class="docutils literal notranslate"><span class="pre">--config</span></code> with a path to a YAML configuration file outside the step’s <code class="docutils literal notranslate"><span class="pre">config/</span></code> directory.</p>
 </section>
 <section id="override-endpoint-credential-and-model">
 <h2>Override Endpoint, Credential, And Model<a class="headerlink" href="#override-endpoint-credential-and-model" title="Link to this heading">#</a></h2>
@@ -762,24 +762,18 @@ You may also point <code class="docutils literal notranslate"><span class="pre">
 </tbody>
 </table>
 </div>
-<p>The runner reads <code class="docutils literal notranslate"><span class="pre">api_key_name</span></code>, then looks up the current shell value of that variable at request time.
-Export the variable before launching the step.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
-</pre></div>
-</div>
 </section>
 <section id="choose-benchmarks">
 <h2>Choose Benchmarks<a class="headerlink" href="#choose-benchmarks" title="Link to this heading">#</a></h2>
 <p>The sample files include benchmark lists that match the file’s intent.
 Override the list when you want a different selection.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">benchmarks</span><span class="o">=</span><span class="s1">&#39;[mmlu,hellaswag]&#39;</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">benchmarks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mmlu</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hellaswag</span>
 </pre></div>
 </div>
-<p>Quote the value so the shell does not interpret the brackets.
-The benchmark identifiers come from <em>NeMo Evaluator</em>.
-See <a class="reference internal" href="../reference/benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for families and endpoint-type guidance.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">[[parameters]]</span> <span class="pre">benchmarks</span></code> entry in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> is metadata, not a recommended set.
-Use the sample files as the source of truth for the recommended starting points.</p>
+<p>The benchmark identifiers come from NeMo Evaluator.
+Refer to <a class="reference internal" href="../reference/benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for families and endpoint-type guidance.</p>
 </section>
 <section id="set-generation-parameters">
 <h2>Set Generation Parameters<a class="headerlink" href="#set-generation-parameters" title="Link to this heading">#</a></h2>
@@ -816,15 +810,14 @@ Use the sample files as the source of truth for the recommended starting points.
 </table>
 </div>
 <p>The tokenizer fields under <code class="docutils literal notranslate"><span class="pre">params.extra</span></code> are required for <em>log-probability</em> benchmarks.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>params.extra.tokenizer<span class="o">=</span>&lt;hf-handle-or-path&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>params.extra.tokenizer<span class="o">=</span>&lt;hf-model-id-or-path&gt;
 params.extra.tokenizer_backend<span class="o">=</span>huggingface
 </pre></div>
 </div>
 </section>
 <section id="run-and-stream-output">
 <h2>Run And Stream Output<a class="headerlink" href="#run-and-stream-output" title="Link to this heading">#</a></h2>
-<p>The following command runs the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file against a hosted endpoint and limits to one sample.
-The shell variables match the names documented in EVAL-003 of the customization quality-assurance plan.</p>
+<p>The following command runs the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file against a hosted endpoint and limits to one sample.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>:<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NVIDIA_API_KEY</span><span class="p">:?Set NVIDIA_API_KEY for the hosted eval</span><span class="si">}</span><span class="s2">&quot;</span>
 :<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EVAL_URL</span><span class="p">:?Set EVAL_URL for the eval endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
 :<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EVAL_MODEL_ID</span><span class="p">:?Set EVAL_MODEL_ID for the eval endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -857,7 +850,7 @@ uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> <
 <p>The runner writes one subdirectory per benchmark.
 For the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file, the only subdirectory is <code class="docutils literal notranslate"><span class="pre">hellaswag/</span></code>.
 For the sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file, three subdirectories are written: <code class="docutils literal notranslate"><span class="pre">mmlu/</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag/</span></code>, and <code class="docutils literal notranslate"><span class="pre">arc_challenge/</span></code>.</p>
-<p>The file set inside each subdirectory comes from <em>NeMo Evaluator</em>.
+<p>The file set inside each subdirectory comes from NeMo Evaluator.
 A typical run produces a summary file with aggregate metrics, a per-sample predictions file, and a configuration record.
 For the contract and the on-disk layout, refer to <a class="reference internal" href="../reference/output-artifacts.html"><span class="doc">Output Artifacts</span></a>.</p>
 </section>

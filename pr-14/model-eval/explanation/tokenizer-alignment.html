@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -722,25 +723,26 @@ Candidate scores computed under mismatched tokenizers are not meaningful, and sm
 <h2>Accepted Shapes<a class="headerlink" href="#accepted-shapes" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> field accepts three shapes.</p>
 <ul class="simple">
-<li><p>A <em>Hugging Face</em> handle, for example <code class="docutils literal notranslate"><span class="pre">meta-llama/Llama-3.1-8B</span></code>, resolved through the <em>Hugging Face</em> hub by the loader.</p></li>
+<li><p>A Hugging Face model ID, for example <code class="docutils literal notranslate"><span class="pre">meta-llama/Llama-3.1-8B</span></code>, resolved through the Hugging Face Hub by the loader.</p></li>
 <li><p>A filesystem path that contains the tokenizer files, for use when the tokenizer is not published on the hub or when the run executes offline.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, for runs that evaluate a <em>Megatron Bridge</em> training output.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, for runs that evaluate a Megatron Bridge training output.</p></li>
 </ul>
 <p>The companion field <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer_backend</span></code> is documented for this step as <code class="docutils literal notranslate"><span class="pre">huggingface</span></code>.
-Other values exist upstream in <em>NeMo Evaluator</em> and are not exercised by this step by default.</p>
+Other values exist upstream in NeMo Evaluator and are not exercised by this step by default.</p>
 </section>
 <section id="the-megatron-bridge-tokenizer-convention">
 <h2>The Megatron Bridge Tokenizer Convention<a class="headerlink" href="#the-megatron-bridge-tokenizer-convention" title="Link to this heading">#</a></h2>
-<p><em>Megatron Bridge</em> writes a self-contained <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory inside each <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, alongside the model weights for that iteration.
-Pointing <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> at that subdirectory is the recommended pattern for <em>Megatron Bridge</em> deployments, because the tokenizer travels with the weights and matches them by construction.</p>
+<p>Megatron Bridge writes a self-contained <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory inside each <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, alongside the model weights for that iteration.
+Pointing <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> at that subdirectory is the recommended pattern for Megatron Bridge deployments, because the tokenizer travels with the weights and matches them by construction.</p>
 <p>Pointing <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> at the parent run output folder instead of at a specific <code class="docutils literal notranslate"><span class="pre">iter_*/tokenizer</span></code> subdirectory is a configuration error.
 That mistake surfaces as the <code class="docutils literal notranslate"><span class="pre">bad_megatron_checkpoint_path</span></code> named error in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code>.
-The recovery is to extend the path to a specific <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory and its <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory.</p>
+For the recovery, refer to <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p>
 </section>
 <section id="failure-modes">
 <h2>Failure Modes<a class="headerlink" href="#failure-modes" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>An absent tokenizer for a log-probability benchmark surfaces as the <code class="docutils literal notranslate"><span class="pre">missing_tokenizer_for_logprobs</span></code> named error in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>, raised before any benchmark dispatches.</p></li>
+<li><p>An absent tokenizer for a log-probability benchmark surfaces as the <code class="docutils literal notranslate"><span class="pre">missing_tokenizer_for_logprobs</span></code> named error in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>, raised before any benchmark dispatches.
+For the recovery, refer to <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p></li>
 <li><p>A tokenizer that resolves but does not match the served model produces unstable or implausibly poor scores, and is not caught by the <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe.
 Detect this case by comparing scores against a known baseline; the <a class="reference internal" href="../reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> framing in the output-artifacts reference describes the comparison pattern.</p></li>
 </ul>
@@ -751,6 +753,7 @@ Detect this case by comparing scores against a known baseline; the <a class="ref
 <li><p><a class="reference internal" href="endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a> for the endpoint side of the log-probability case.</p></li>
 <li><p><a class="reference internal" href="pipeline-overview.html"><span class="doc">Pipeline Overview</span></a> for where the tokenizer load sits in the run.</p></li>
 <li><p><a class="reference internal" href="../reference/config-schema.html"><span class="doc">Configuration Reference</span></a> for the field-by-field documentation of <code class="docutils literal notranslate"><span class="pre">params.extra</span></code>.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a> for the named error modes and their recovery guidance.</p></li>
 <li><p><a class="reference internal" href="../how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> for choosing the tokenizer value in context.</p></li>
 </ul>
 </section>

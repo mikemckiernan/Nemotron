@@ -13,8 +13,8 @@ Second, you point `eval/model_eval` at that endpoint, exactly the way {doc}`run-
 
 ## Prerequisites
 
-- A trained checkpoint in one of the supported formats.  Hugging Face safetensors or a *Megatron Bridge* `iter_*` directory both work.
-- A host or workspace that can serve the checkpoint.  This may be your workstation, a Slurm cluster, a vLLM container, or a managed *NVIDIA DGX Cloud Lepton* endpoint.
+- A trained checkpoint in one of the supported formats.  Hugging Face safetensors or a Megatron Bridge `iter_*` directory both work.
+- A host or workspace that can serve the checkpoint.  This may be your workstation, a Slurm cluster, a vLLM container, or a managed NVIDIA DGX Cloud Lepton endpoint.
 - A reachable network path from the machine that runs `nemotron steps run` to the host that serves the model.
 - A tokenizer that matches the served model.
 
@@ -33,7 +33,7 @@ Choose the path that matches your environment and the level of orchestration you
 :::{admonition} Lepton Mini-Recipe
 :class: tip
 
-Deploy the model by using the *NVIDIA DGX Cloud Lepton* dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
+Deploy the model by using the NVIDIA DGX Cloud Lepton dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
 Export the key under that variable name, then point `eval/model_eval` at the endpoint.
 
 ```bash
@@ -45,7 +45,7 @@ uv run --no-sync nemotron steps run eval/model_eval \
   deployment.url="https://<your-endpoint>.lepton.run/v1/completions/" \
   deployment.model_id="<served-model-name>" \
   deployment.api_key_name=LEPTON_API_KEY \
-  params.extra.tokenizer="<hf-handle-or-path>"
+  params.extra.tokenizer="<hf-model-id-or-path>"
 ```
 
 For Lepton endpoint setup, refer to <https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/>.
@@ -79,9 +79,9 @@ params:
 
 ## Configure A Megatron Bridge Checkpoint
 
-For the tokenizer field shapes and the *Megatron Bridge* `tokenizer/` convention, refer to {doc}`../explanation/tokenizer-alignment`.
+For the tokenizer field shapes and the Megatron Bridge `tokenizer/` convention, refer to {doc}`../explanation/tokenizer-alignment`.
 
-For a *Megatron Bridge* `iter_*` checkpoint, the same fields apply, with the tokenizer pointing at the `tokenizer/` subdirectory of the specific iteration.
+For a Megatron Bridge `iter_*` checkpoint, the same fields apply, with the tokenizer pointing at the `tokenizer/` subdirectory of the specific iteration.
 
 ```yaml
 deployment:

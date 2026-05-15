@@ -8,8 +8,8 @@
 
 This page catalogs the benchmark identifiers accepted by the `benchmarks` field, grouped by family.
 The step does not own these benchmarks.
-*NeMo Evaluator* owns the implementations, and this page is a curated map into the upstream catalog.
-Refer to the upstream *NeMo Evaluator* documentation at <https://docs.nvidia.com/nemo/evaluator/latest/> for the authoritative, version-specific list.
+NeMo Evaluator owns the implementations, and this page is a curated map into the upstream catalog.
+Refer to the upstream NeMo Evaluator documentation at <https://docs.nvidia.com/nemo/evaluator/latest/> for the authoritative, version-specific list.
 
 ## Naming Convention
 
@@ -18,8 +18,8 @@ Benchmark identifiers come in two shapes.
 - A short bare name, such as `mmlu`, `hellaswag`, or `arc_challenge`.  Bare names are common for established benchmarks provided by NeMo Evaluator by default.
 - A dotted, harness-qualified name, such as `lm-evaluation-harness.ifeval` or `simple_evals.gpqa_diamond`.  The prefix names the harness that hosts the task, and the suffix names the task within it.
 
-Both shapes are valid in the `benchmarks` field.
-Use the exact identifier published by the harness, because the runner passes it through to *NeMo Evaluator* unchanged.
+Both types are valid in the `benchmarks` field.
+Use the exact identifier published by the harness, because the runner passes it through to NeMo Evaluator unchanged.
 
 ## Recommended Starting Sets
 
@@ -29,9 +29,6 @@ The recommended starting sets come from the sample YAML files, which are the sou
 | --- | --- | --- |
 | `default.yaml` | `[mmlu, hellaswag, arc_challenge]` | Initial pass against a deployed checkpoint where you want a mix of multiple-choice knowledge and commonsense reasoning. |
 | `tiny.yaml` | `[hellaswag]` | Sample run that exercises the endpoint, tokenizer configuration, and result-writing path with one *log-probability* benchmark. |
-
-The `[[parameters]] benchmarks` entry in `step.toml` is metadata for the discovery commands.
-Treat it as documentation of the parameter, not as the recommended starting set.
 
 ## Chat And Instruction Benchmarks
 
@@ -58,7 +55,7 @@ Representative identifiers.
 | `arc_challenge` | Reasoning | Grade-school science questions, challenge split. |
 | `piqa` | Physical reasoning | Physical-interaction commonsense. |
 
-Configure `params.extra.tokenizer` to a Hugging Face handle, a filesystem path, or the `tokenizer/` subdirectory of a *Megatron Bridge* `iter_*` checkpoint.
+Configure `params.extra.tokenizer` to a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 Set `params.extra.tokenizer_backend` to `huggingface`.
 
 ## Reasoning And Math
@@ -93,7 +90,7 @@ Three questions decide the benchmark choice.
 2. What behavior do you need to score?  Instruction following, multi-task knowledge, commonsense reasoning, math, code, or tool use each map to different families above.
 3. Is this a sample run or a production comparison?  Sample runs should stay on the sample `tiny.yaml` file.  Production comparisons should run the same benchmark set across the baseline and the post-training checkpoint, by following {ref}`model-eval-comparing-runs`.
 
-For benchmark-specific configuration parameters, refer to the upstream documentation at <https://docs.nvidia.com/nemo/evaluator/latest/>.
+For benchmark-specific configuration parameters, refer to the NeMo Evaluator [documentation](https://docs.nvidia.com/nemo/evaluator/latest/).
 
 ## Related
 

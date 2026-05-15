@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -705,17 +706,15 @@
 <span id="model-eval-using-skills"></span><h1>Use The Model Evaluation Skill With Confidence<a class="headerlink" href="#use-the-model-evaluation-skill-with-confidence" title="Link to this heading">#</a></h1>
 <p>This page is for newcomers who plan to drive <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> from a coding agent.
 The goal is to make the chat productive: less back-and-forth, fewer clarifying questions, and a clear handoff between what you decide and what the agent edits or runs in the repository.</p>
-<p>The page aligns with the EVAL-004 agent-driven flow from the customization quality-assurance plan.
-Use an agent to translate your intent about endpoints, benchmarks, and tokenizers into the right <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span></code> invocation and YAML overrides.</p>
+<p>Use an agent to translate your intent about endpoints, benchmarks, and tokenizers into the right <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span></code> invocation and YAML overrides.</p>
 <section id="keeping-an-agent-session-productive">
 <h2>Keeping An Agent Session Productive<a class="headerlink" href="#keeping-an-agent-session-productive" title="Link to this heading">#</a></h2>
-<p>Provide a short brief you write yourself, not something the agent drafts for you.
-The agent needs four pieces of information to make progress without guessing.</p>
+<p>The agent needs four pieces of information to make progress without guessing.</p>
 <ul class="simple">
 <li><p>The evaluation endpoint URL.</p></li>
 <li><p>The model identifier the endpoint advertises.</p></li>
 <li><p>The name of the environment variable that holds the bearer token.  Not the secret value.</p></li>
-<li><p>A tokenizer location, either as a Hugging Face handle, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>A tokenizer location, either as a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
 <p>Until the agent has these four, ask it to wait rather than to invent values.</p>
 </section>
@@ -737,7 +736,7 @@ Goal for this session: [one outcome, for example a one-sample HellaSwag run that
 Endpoint URL: [full URL with path segment, or &quot;I do not have this yet, please ask&quot;]
 Model identifier: [as the endpoint advertises it]
 API key environment variable: [name only, for example NVIDIA_API_KEY]
-Tokenizer: [HF handle, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
+Tokenizer: [Hugging Face model ID, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
 Hard limits: [for example, do not change endpoint type, do not invent values]
 Please: [one request]. Use Nemotron eval/model_eval defaults from the repo unless something blocks that.
 </pre></div>
@@ -751,7 +750,7 @@ The session reaches that point when three things have happened.</p>
 <ul class="simple">
 <li><p>The agent has issued one <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span> <span class="pre">-c</span> <span class="pre">tiny</span> <span class="pre">...</span></code> command with overrides built from the brief.</p></li>
 <li><p>The runner’s <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe has succeeded, which means the URL, endpoint type, and model identifier are aligned.</p></li>
-<li><p>A per-benchmark subdirectory exists under the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> you chose, with files written by <em>NeMo Evaluator</em> inside it.</p></li>
+<li><p>A per-benchmark subdirectory exists under the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> you chose, with files written by NeMo Evaluator inside it.</p></li>
 </ul>
 <p>If the probe fails, the agent should report the failure verbatim and ask which field to correct.
 It should not retry with different values it invented.</p>

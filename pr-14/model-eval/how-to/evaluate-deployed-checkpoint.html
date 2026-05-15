@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -713,8 +714,8 @@ Second, you point <code class="docutils literal notranslate"><span class="pre">e
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A trained checkpoint in one of the supported formats.  Hugging Face safetensors or a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory both work.</p></li>
-<li><p>A host or workspace that can serve the checkpoint.  This may be your workstation, a Slurm cluster, a vLLM container, or a managed <em>NVIDIA DGX Cloud Lepton</em> endpoint.</p></li>
+<li><p>A trained checkpoint in one of the supported formats.  Hugging Face safetensors or a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory both work.</p></li>
+<li><p>A host or workspace that can serve the checkpoint.  This may be your workstation, a Slurm cluster, a vLLM container, or a managed NVIDIA DGX Cloud Lepton endpoint.</p></li>
 <li><p>A reachable network path from the machine that runs <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span></code> to the host that serves the model.</p></li>
 <li><p>A tokenizer that matches the served model.</p></li>
 </ul>
@@ -757,7 +758,7 @@ Choose the path that matches your environment and the level of orchestration you
 </div>
 <div class="tip admonition">
 <p class="admonition-title">Lepton Mini-Recipe</p>
-<p>Deploy the model by using the <em>NVIDIA DGX Cloud Lepton</em> dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
+<p>Deploy the model by using the NVIDIA DGX Cloud Lepton dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
 Export the key under that variable name, then point <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> at the endpoint.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LEPTON_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-lepton-api-key&gt;&quot;</span>
 
@@ -767,7 +768,7 @@ uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> <
 <span class="w">  </span>deployment.url<span class="o">=</span><span class="s2">&quot;https://&lt;your-endpoint&gt;.lepton.run/v1/completions/&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>deployment.model_id<span class="o">=</span><span class="s2">&quot;&lt;served-model-name&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>deployment.api_key_name<span class="o">=</span>LEPTON_API_KEY<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>params.extra.tokenizer<span class="o">=</span><span class="s2">&quot;&lt;hf-handle-or-path&gt;&quot;</span>
+<span class="w">  </span>params.extra.tokenizer<span class="o">=</span><span class="s2">&quot;&lt;hf-model-id-or-path&gt;&quot;</span>
 </pre></div>
 </div>
 <p>For Lepton endpoint setup, refer to <a class="reference external" href="https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/">https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/</a>.</p>
@@ -798,8 +799,8 @@ For the matching rule and the recovery from a mismatch, refer to <a class="refer
 </section>
 <section id="configure-a-megatron-bridge-checkpoint">
 <h2>Configure A Megatron Bridge Checkpoint<a class="headerlink" href="#configure-a-megatron-bridge-checkpoint" title="Link to this heading">#</a></h2>
-<p>For the tokenizer field shapes and the <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> convention, refer to <a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a>.</p>
-<p>For a <em>Megatron Bridge</em> <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, the same fields apply, with the tokenizer pointing at the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of the specific iteration.</p>
+<p>For the tokenizer field shapes and the Megatron Bridge <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> convention, refer to <a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a>.</p>
+<p>For a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, the same fields apply, with the tokenizer pointing at the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of the specific iteration.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">deployment</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-megatron-checkpoint</span>
 <span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://0.0.0.0:8080/v1/completions/</span>

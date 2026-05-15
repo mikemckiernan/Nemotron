@@ -6,7 +6,7 @@
 (model-eval-index)=
 # About Model Evaluation
 
-The `eval/model_eval` Nemotron step is a thin wrapper around *NeMo Evaluator*.
+The `eval/model_eval` Nemotron step is a thin wrapper around NeMo Evaluator.
 It points at an OpenAI-compatible *endpoint*, or assumes someone has deployed one, and runs one or more benchmark suites against it.
 The step does not deploy checkpoints; it consumes an existing endpoint and produces an `eval_results` artifact on disk.
 
@@ -18,7 +18,7 @@ New to model evaluation or new to running benchmarks from the Nemotron CLI? Read
 
 Use `eval/model_eval` when the work matches one of the following.
 
-- Score a trained checkpoint on standard benchmarks served by *NeMo Evaluator*, after the checkpoint is deployed behind a chat or completions endpoint.
+- Score a trained checkpoint on standard benchmarks served by NeMo Evaluator, after the checkpoint is deployed behind a chat or completions endpoint.
 - Compare a new training run against a baseline by running the same benchmark set against both, with the generation parameters and the endpoint type held constant.
 - Perform a sample run against a hosted endpoint, to confirm the URL, the credential, and the tokenizer configuration before scaling up.
 - Pair this step with a baseline evaluation before training to capture before-and-after measurements around a training change, by following {ref}`model-eval-comparing-runs`.
@@ -85,9 +85,9 @@ Discover the step, run a hosted evaluation, and evaluate a deployed checkpoint.
 :::{grid-item-card} {octicon}`list-unordered;1.5em;sd-mr-1` Reference
 :link: reference/index
 :link-type: doc
-YAML schema, command-line flags, output artifact layout, and benchmark catalog.
+YAML schema, command-line flags, output artifact layout, benchmark catalog, and troubleshooting.
 +++
-{bdg-success}`4 references` {bdg-secondary}`lookup`
+{bdg-success}`5 references` {bdg-secondary}`lookup`
 :::
 
 :::{grid-item-card} {octicon}`book;1.5em;sd-mr-1` Concepts
@@ -131,6 +131,7 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 | {doc}`reference/cli-reference` | Flags and Hydra overrides for `nemotron steps run eval/model_eval` |
 | {doc}`reference/output-artifacts` | `eval_results` contract and on-disk layout |
 | {doc}`reference/benchmarks-catalog` | Benchmark identifiers grouped by family |
+| {doc}`reference/troubleshooting` | Named error modes from `step.toml`, with cause and recovery |
 
 ```
 
@@ -152,7 +153,7 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 - The Nemotron repository is synced and `uv sync` is complete.
 - A bearer token is exported as the environment variable named in `deployment.api_key_name`.  The sample files name `NGC_API_KEY`; the NVIDIA-hosted endpoint uses `NVIDIA_API_KEY`.
 - A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
-- A tokenizer that matches the served model.  Accept a Hugging Face handle, a filesystem path, or the `tokenizer/` subdirectory of a *Megatron Bridge* `iter_*` checkpoint.
+- A tokenizer that matches the served model.  Accept a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 
 ## Limitations And Considerations
 
@@ -165,5 +166,5 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 
 - The full `step.toml` contract: `src/nemotron/steps/eval/model_eval/step.toml` in the repository.
 - The before-and-after evaluation framing: {ref}`model-eval-comparing-runs`.
-- Upstream *NeMo Evaluator* quick-start: <https://docs.nvidia.com/nemo/evaluator/latest/get-started/quickstart/launcher.html>.
+- Upstream NeMo Evaluator quick-start: <https://docs.nvidia.com/nemo/evaluator/latest/get-started/quickstart/launcher.html>.
 

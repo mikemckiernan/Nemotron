@@ -52,7 +52,7 @@ The fields documented here are the ones operators override most often.
 | `params.top_p=<float>` | Top-p nucleus sampling. |
 | `params.parallelism=<int>` | Concurrent requests issued by the runner. |
 | `params.request_timeout=<int>` | Per-request timeout in seconds. |
-| `params.extra.tokenizer=<handle-or-path>` | Hugging Face handle, filesystem path, or *Megatron Bridge* `tokenizer/` subdirectory. |
+| `params.extra.tokenizer=<model-id-or-path>` | Hugging Face model ID, filesystem path, or Megatron Bridge `tokenizer/` subdirectory. |
 | `params.extra.tokenizer_backend=huggingface` | Documented tokenizer backend for this step. |
 
 ## Discovery Commands

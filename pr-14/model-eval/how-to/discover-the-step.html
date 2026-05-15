@@ -558,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -706,8 +707,7 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="discover-the-model-evaluation-step">
 <span id="model-eval-discover-the-step"></span><h1>Discover The Model Evaluation Step<a class="headerlink" href="#discover-the-model-evaluation-step" title="Link to this heading">#</a></h1>
-<p>This guide shows how to find <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> in the step catalog, how to read its contract, and how to decide whether it applies to a given task.
-The commands here mirror EVAL-002 from the customization quality-assurance plan.</p>
+<p>This guide shows how to find <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> in the step catalog, how to read its contract, and how to decide whether it applies to a given task.</p>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -723,7 +723,7 @@ The <code class="docutils literal notranslate"><span class="pre">--category</spa
 </pre></div>
 </div>
 <p>The response includes one entry per evaluation step.
-<code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> is the entry that wraps <em>NeMo Evaluator</em>.</p>
+<code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> is the entry that wraps NeMo Evaluator.</p>
 </section>
 <section id="inspect-the-step-contract">
 <h2>Inspect The Step Contract<a class="headerlink" href="#inspect-the-step-contract" title="Link to this heading">#</a></h2>
@@ -765,8 +765,6 @@ The <code class="docutils literal notranslate"><span class="pre">--category</spa
 <section id="read-the-sample-files">
 <h2>Read The Sample Files<a class="headerlink" href="#read-the-sample-files" title="Link to this heading">#</a></h2>
 <p>The step provides two sample configuration files under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/config/</span></code>.</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">config/tiny.yaml</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tiny smoke-test config for NeMo Evaluator</span>
 
 <span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results-tiny</span>
@@ -791,11 +789,8 @@ The <code class="docutils literal notranslate"><span class="pre">--category</spa
 <span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
 </pre></div>
 </div>
-</div>
 <p>The sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file runs one <em>log-probability</em> benchmark, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, with <code class="docutils literal notranslate"><span class="pre">params.limit_samples</span></code> set to <code class="docutils literal notranslate"><span class="pre">20</span></code>.
 Use it to confirm the endpoint, the credential, and the tokenizer configuration before scaling up.</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">config/default.yaml</span><a class="headerlink" href="#id2" title="Link to this code">#</a></div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard NeMo Evaluator starter config for a deployed model</span>
 <span class="c1"># Uses completions-style evaluation for standard NLU benchmarks.</span>
 
@@ -823,7 +818,6 @@ Use it to confirm the endpoint, the credential, and the tokenizer configuration 
 <span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
 </pre></div>
 </div>
-</div>
 <p>The sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file runs <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, and <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code> with <code class="docutils literal notranslate"><span class="pre">params.limit_samples</span></code> set to <code class="docutils literal notranslate"><span class="pre">null</span></code>, which means no cap.</p>
 <p>The <a class="reference internal" href="../reference/config-schema.html"><span class="doc">Configuration Reference</span></a> reference documents every field.</p>
 </section>
@@ -832,10 +826,10 @@ Use it to confirm the endpoint, the credential, and the tokenizer configuration 
 <p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> applies when the following statements are true.</p>
 <ul class="simple">
 <li><p>The model is already deployed behind an OpenAI-compatible <em>endpoint</em>, or you are prepared to deploy it as part of the run.  This step does not deploy checkpoints.</p></li>
-<li><p>The benchmarks you need are implemented by <em>NeMo Evaluator</em> or one of the harnesses it integrates with.</p></li>
+<li><p>The benchmarks you need are implemented by NeMo Evaluator or one of the harnesses it integrates with.</p></li>
 <li><p>The endpoint type matches the benchmark family.  Chat benchmarks need a chat endpoint, and <em>log-probability</em> benchmarks need a completions endpoint with <code class="docutils literal notranslate"><span class="pre">logprobs</span></code> support.</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> is not the right step when the evaluation needs a custom scorer that <em>NeMo Evaluator</em> does not implement.
+<p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> is not the right step when the evaluation needs a custom scorer that NeMo Evaluator does not implement.
 Write a dedicated evaluation step in that case, modeled on the contract layout under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/</span></code>.</p>
 </section>
 <section id="related">

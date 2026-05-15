@@ -14,7 +14,8 @@ content:
 # Endpoint Types And Benchmark Families
 
 The step reads two coupled fields from the `deployment` block: the `endpoint_type` and the URL path inside `url`.
-Both fields must agree with the benchmark family for the benchmarks named in the `benchmarks` list, otherwise the run halts during validation.
+Both fields must agree with the benchmark family for the benchmarks named in the `benchmarks` list.
+The step itself does not validate the match; a mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.
 
 ## Two Endpoint Types
 
@@ -38,9 +39,13 @@ Benchmarks split into two families based on how they score the model.
 
 ## Why The Match Matters
 
-The matching rule is enforced by the `wrong_endpoint_type` named error in `src/nemotron/steps/eval/model_eval/step.toml`.
-When the endpoint type does not match the family of every benchmark in the list, the `check_endpoint` probe fails, no benchmark is dispatched, and the runner reports the named error.
-The recovery is symmetric: change the endpoint type to match the benchmark family, or change the benchmark family to match the endpoint type.
+The step does not enforce the matching rule itself.
+The `check_endpoint` probe in `src/nemotron/steps/eval/model_eval/step.py` calls NeMo Evaluator with the URL, the endpoint type, and the model identifier only, so it reports reachability and authentication failures but does not see the benchmark list.
+When the endpoint type does not match the benchmark family, the failure surfaces later, inside the per-benchmark `evaluate` call from NeMo Evaluator.
+
+The `wrong_endpoint_type` entry in `src/nemotron/steps/eval/model_eval/step.toml` documents this class of mistake and points to the recovery guidance.
+That entry is documentation rather than an enforcement check.
+For the recovery, refer to {doc}`../reference/troubleshooting`.
 
 ## Decision Table
 
@@ -62,3 +67,4 @@ Outside of reasoning models, the recommendation is to keep generation determinis
 - {doc}`pipeline-overview` for where the endpoint sits in the artifact flow.
 - {doc}`../how-to/evaluate-deployed-checkpoint` for choosing an endpoint type in context.
 - {doc}`../reference/benchmarks-catalog` for the benchmark identifiers in each family.
+- {doc}`../reference/troubleshooting` for the named error modes and their recovery guidance.
