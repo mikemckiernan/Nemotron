@@ -37,7 +37,6 @@ The sample contains about one hundred lines.
 
 ## Prerequisites
 
-- Nemotron repository synced and `uv sync` completed at the repository root.
 - Network access to `https://integrate.api.nvidia.com/v1`.
 - `NVIDIA_API_KEY` exported in your shell.
 
@@ -52,25 +51,40 @@ This translation tutorial uses `train_sample.jsonl` as a compact multi-turn chat
 
 ## Procedure
 
+1. Clone the repository, if you haven't already:
+
+   ```console
+   $ git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
+
+1. Synchronize the dependencies:
+
+   ```console
+   $ uv sync --extra translation
+   ```
+
 1. Download `train_sample.jsonl` from the [sample file](_snippets/input/train_sample.jsonl).
 
    Save the file in the repository root if you want to match the `input_path` below exactly. If you save it elsewhere, change `input_path` in the commands that follow.
 
-2. Run the translation stage.
+1. Run the translation stage.
 
    From the repository root, specify the `default.yaml` config and overrides by using CLI arguments.
    Set `server.model` to a model your endpoint serves.
    Replace `<api-key>` with your NVIDIA API key value, or set `NVIDIA_API_KEY` in your environment before running the command.
 
-   ```bash
-   export NVIDIA_API_KEY="<api-key>"
+   ```console
+   $ export NVIDIA_API_KEY="<api-key>"
 
-   uv run nemotron steps translation -c default \
-     input_path=./train_sample.jsonl \
-     output_dir=./output/translation-getting-started \
-     source_language=en \
-     target_language=hi \
-     server.model=mistralai/mistral-small-3.1-24b-instruct-2503
+   $ uv run --extra translation nemotron steps translation -c default \
+       input_path="${PWD}/train_sample.jsonl" \
+       output_dir=./output/translation-getting-started \
+       source_language=en \
+       target_language=hi \
+       server.model=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning \
+       faith_eval.enabled=false \
+       faith_eval.filter_enabled=false \
+       max_concurrent_requests=4
    ```
 
    - `input_path` and `output_dir` replace the placeholders in `default.yaml`.
@@ -79,32 +93,35 @@ This translation tutorial uses `train_sample.jsonl` as a compact multi-turn chat
      The starter file leaves them empty on purpose so you choose the pair at run time.
    - `server.model` is required when `backend` is `llm`.
 
-     It becomes the FAITH scorer model unless `faith_eval.model_name` overrides it.
+   The default `server.url` in `default.yaml` is `https://integrate.api.nvidia.com/v1`.
 
-   The default `server.url` in `default.yaml` is `https://integrate.api.nvidia.com/v1` until you override it.
-
-3. Inspect the output.
+1. Inspect the output.
 
    The `output_dir` path holds the Curator writer output when `output_format` is `jsonl`, usually several shard files instead of one consolidated JSONL file.
    Spot-check one line.
 
-   ```bash
-   find ./output/translation-getting-started -name '*.jsonl' | head -n 1 | xargs head -n 1 | python3 -m json.tool --no-ensure-ascii
+   ```console
+   $ find ./output/translation-getting-started -name '*.jsonl' | head -n 1 | xargs head -n 1 | python3 -m json.tool --no-ensure-ascii
    ```
 
    Translated chat payloads match `text_field` set to `messages.*.content`, `output_mode` set to `both`, and `reconstruct_messages` set to `true` in `default.yaml`.
 
-4. Optional: Print the merged configuration without running the stage.
+   ```{literalinclude} _snippets/output/translated.jsonl
+   :language: json
+   :class: scrollable
+   ```
+
+1. Optional: Print the merged configuration without running the stage.
 
    Pass `--dry-run` or `-d` so Curator does not execute the pipeline.
 
-   ```bash
-   uv run nemotron steps translation -d -c default \
-     input_path=./train_sample.jsonl \
-     output_dir=./output/translation-getting-started \
-     source_language=en \
-     target_language=hi \
-     server.model=mistralai/mistral-small-3.1-24b-instruct-2503
+   ```console
+   $ uv run nemotron steps translation -d -c default \
+       input_path=./train_sample.jsonl \
+       output_dir=./output/translation-getting-started \
+       source_language=en \
+       target_language=hi \
+       server.model=mistralai/mistral-small-3.1-24b-instruct-2503
    ```
 
 ## Next Steps
