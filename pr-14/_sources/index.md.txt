@@ -193,17 +193,7 @@ Tasks <build-benchmarks/how-to/index.md>
 Reference <build-benchmarks/reference/index.md>
 ```
 
-<!--
 ```{toctree}
-:caption: Customization
-:hidden:
-
-customize/index.md
-```
--->
-
-```{toctree}
-<<<<<<< Updated upstream
 :caption: Model Training
 :hidden:
 
@@ -214,6 +204,18 @@ Concepts <train-models/explanation/index.md>
 Tutorials <train-models/tutorials/index.md>
 Tasks <train-models/how-to/index.md>
 Reference <train-models/reference/index.md>
+```
+
+```
+:caption: Model Evaluation
+:hidden:
+
+About <model-eval/index.md>
+Getting Started <model-eval/getting-started.md>
+Tips for Using Agents <model-eval/using-skills.md>
+Concepts <model-eval/explanation/index.md>
+Tasks <model-eval/how-to/index.md>
+Reference <model-eval/reference/index.md>
 ```
 
 ```{toctree}
@@ -253,18 +255,8 @@ nemotron/super3/rl/rlhf.md
 nemotron/super3/rl/data-prep.md
 nemotron/super3/evaluate.md
 nemotron/super3/quantization.md
-=======
-:caption: Evaluate Models
-:hidden:
-
-About <model-eval/index.md>
-Getting Started <model-eval/getting-started.md>
-Tips for Using Agents <model-eval/using-skills.md>
-Concepts <model-eval/explanation/index.md>
-Tasks <model-eval/how-to/index.md>
-Reference <model-eval/reference/index.md>
->>>>>>> Stashed changes
 ```
+
 
 ```{toctree}
 :caption: Nemotron Kit
