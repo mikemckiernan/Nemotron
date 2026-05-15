@@ -70,13 +70,13 @@ Default: `8`.
 Example: `grpo.num_generations_per_prompt=16`
 ```
 
-```{option} env.nemo_gym.genrm_model.responses_api_models.genrm_model.model=<id-or-path>
+```{option} env.nemo_gym.genrm_model.responses_api_models.vllm_model.model=<id-or-path>
 
 The Hugging Face identifier or local path for the generative reward model that NeMo-Gym serves through its responses application programming interface (API).
 
 Default: `meta-llama/Llama-3.2-1B-Instruct` (or the value of `RL_REWARD_MODEL` when that variable is set).
 
-Example: `env.nemo_gym.genrm_model.responses_api_models.genrm_model.model=nvidia/Nemotron-Reward-Model`
+Example: `env.nemo_gym.genrm_model.responses_api_models.vllm_model.model=nvidia/Nemotron-Reward-Model`
 ```
 
 Frequently used dotlist overrides drawn from the NeMo-RL GRPO recipe include the following.
