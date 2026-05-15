@@ -15,13 +15,13 @@ This tutorial walks through supervised fine tuning (SFT) by using the `sft/autom
 
 ## Run on Lepton
 
-This repository’s getting started path assumes DGX Cloud Lepton and the `lepton-sft` profile from root `env.toml`. See [Getting Started with Training Steps](../getting-started.md) for the environment snippet and prerequisites.
+This repository’s getting started path assumes DGX Cloud Lepton and the `lepton_sft_automodel` profile from root `env.toml`. See [Getting Started with Training Steps](../getting-started.md) for the environment snippet and prerequisites.
 
 ```console
-$ uv run nemotron step run sft/automodel -c tiny -r lepton-sft
+$ uv run nemotron steps run sft/automodel -c tiny -r lepton_sft_automodel
 ```
 
-See [Execution through NeMo Run](../../nemo_runspec/nemo-run.md) for profile setup and scheduler behavior. Replace `lepton-sft` with another profile name from your `env.toml` when your team uses a different table key.
+See [Execution through NeMo Run](../../nemo_runspec/nemo-run.md) for profile setup and scheduler behavior. Replace `lepton_sft_automodel` with another profile name from your `env.toml` when your team uses a different table key.
 
 ## Verify Output
 

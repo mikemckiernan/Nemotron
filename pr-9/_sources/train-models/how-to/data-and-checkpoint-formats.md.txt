@@ -26,7 +26,7 @@ Each step directory contains the following files:
 
 - `step.toml` holds the identifier, human title, tags, `[[consumes]]`, `[[produces]]`, `[[parameters]]`, optional `[[strategies]]`, `[[errors]]`, and `[[models]]` blocks.
 - `config/default.yaml` holds primary configuration tuned for real workloads.
-- `config/tiny.yaml` holds reduced settings for short sample runs and plumbing validation.
+- `config/tiny.yaml` holds reduced settings for short sample runs and end-to-end execution validation.
 - Extra files such as `config/nemo_gym.yaml` appear only on steps that need alternate method profiles.
 
 ## Related Reading

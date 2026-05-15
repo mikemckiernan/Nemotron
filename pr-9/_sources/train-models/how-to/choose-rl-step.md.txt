@@ -21,14 +21,14 @@ All three steps consume a warm-start policy in `checkpoint_megatron` format prod
 
 ## Data Preparation
 
-When preference JSONL still contains Hugging Face placeholders or needs sharding resolution, run the RL prep step upstream. Inspect `prep/rl_prep` in the step tree. Read the manifest for your chosen `rl/nemo_rl/...` step for required `consumes` types.
+When preference JSONL still contains Hugging Face placeholders or needs sharding resolution, run the RL prep step upstream. Inspect `data_prep/rl_prep` in the step tree. Read the manifest for your chosen `rl/nemo_rl/...` step for required `consumes` types.
 
 ## Sample Commands
 
 ```console
-$ uv run nemotron step run rl/nemo_rl/dpo -c tiny
-$ uv run nemotron step run rl/nemo_rl/rlvr -c tiny
-$ uv run nemotron step run rl/nemo_rl/rlhf -c tiny
+$ uv run nemotron steps run rl/nemo_rl/dpo -c tiny
+$ uv run nemotron steps run rl/nemo_rl/rlvr -c tiny
+$ uv run nemotron steps run rl/nemo_rl/rlhf -c tiny
 ```
 
 ## Success Criteria
@@ -39,4 +39,4 @@ $ uv run nemotron step run rl/nemo_rl/rlhf -c tiny
 ## Related Reading
 
 - [Execution through NeMo Run](../../nemo_runspec/nemo-run.md) describes Ray-backed RL workloads on supported executors.
-- [Training Stacks](../explanation/training-stacks.md) places NeMo RL in the wider stack picture.
+- [Training Libraries](../explanation/training-libraries.md) places NeMo RL in the wider library ecosystem.

@@ -1,6 +1,8 @@
 # Model Training with Nemotron Steps
 
-This section documents how to run supervised fine tuning (SFT), parameter-efficient fine tuning (PEFT), reinforcement learning (RL) alignment, and post-training optimization with Nemotron *steps*. Each step packages manifests in `step.toml`, YAML under its directory, and entry logic you invoke through the `nemotron step` command line interface (CLI).
+This section documents how to run supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL) alignment, and post-training optimization with Nemotron *steps*.
+Each step packages a training approach, configuration files, and entry logic that you invoke through the `nemotron steps` command-line interface (CLI).
+If you are new to fine-tuning, start with [Training Basics](explanation/basics.md), which defines every term the rest of this section uses.
 
 ## What a Step Is
 
@@ -21,6 +23,14 @@ Remote execution uses an environment profile and NeMo Run, as described in [Exec
 
 ::::{grid} 1 2 2 2
 :gutter: 1 1 1 2
+
+:::{grid-item-card} Training Basics
+:link: explanation/basics
+:link-type: doc
+This page defines supervised fine-tuning, parameter-efficient fine-tuning, reinforcement learning alignment, quantization, tokenizers, the chat dataset format, checkpoints, and the relationship between a step, a configuration, and an environment profile.
++++
+`Beginner Level`
+:::
 
 :::{grid-item-card} Getting Started
 :link: getting-started
@@ -49,7 +59,7 @@ These guides are task-focused. They explain how to pick a backend, wire data, an
 :::{grid-item-card} Explanation
 :link: explanation/index
 :link-type: doc
-This material explains artifacts, training stacks, and how steps differ from recipes.
+This material explains the basics, the artifact graph, and how the training libraries differ.
 +++
 `Concepts`
 :::

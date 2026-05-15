@@ -59,15 +59,15 @@ The skill uses an _orient phase_ so that you and the agent can tighten these tog
 
 - How your data layout lines up with what a chosen step expects, using [Data and Checkpoint Formats](how-to/data-and-checkpoint-formats.md) and the step’s `step.toml` as you go.
 - Backend choice inside a family, using [Choose an SFT Backend](how-to/choose-sft-backend.md), [Choose a PEFT Backend](how-to/choose-peft-backend.md), or [Choose an RL Alignment Step](how-to/choose-rl-step.md) when you want a human-readable decision before configs land.
-- Whether the first execution should prove wiring with a short sample run or target production-scale training, so defaults match intent.
+- Whether the first execution should validate end-to-end execution with a short sample run or target production-scale training, so defaults match intent.
 - Tokenizer, template, and sequence-length consistency across prep and train when the pipeline touches more than one stage.
 
 ### Where to Look When You Are Unsure
 
 Use the [How-To Guides](how-to/index.md) for task-level procedures.
 Use [Reference](reference/index.md) for naming and configuration conventions.
-Use [Explanation](explanation/index.md) for how artifacts and stacks fit together.
-You can also ask the agent to walk a specific step with `nemotron step show` once you know its name.
+Use [Explanation](explanation/index.md) for how artifacts and libraries fit together.
+You can also ask the agent to walk a specific step with `nemotron steps show` once you know its name.
 
 ## Your Role in the Loop
 

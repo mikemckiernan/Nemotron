@@ -24,12 +24,12 @@ Distillation after pruning is the usual recovery order when both apply. Quantiza
 ## Sample Commands
 
 ```console
-$ uv run nemotron step run optimize/modelopt/quantize -c tiny
-$ uv run nemotron step run optimize/modelopt/prune -c tiny
-$ uv run nemotron step run optimize/modelopt/distill -c tiny
+$ uv run nemotron steps run optimize/modelopt/quantize -c tiny
+$ uv run nemotron steps run optimize/modelopt/prune -c tiny
+$ uv run nemotron steps run optimize/modelopt/distill -c tiny
 ```
 
-Tiny runs and mock-style runs prove wiring only. Judge final quality on full calibration or distillation data.
+Tiny runs and mock-data runs validate end-to-end execution only. Judge final quality on full calibration or distillation data.
 
 ## Success Criteria
 
@@ -38,5 +38,5 @@ Tiny runs and mock-style runs prove wiring only. Judge final quality on full cal
 
 ## Related Reading
 
-- [Model Optimization Steps Reference](../reference/optimize-steps.md)
+- [Optimization Steps Reference](../reference/optimize/index.md)
 - [Artifact Graph](../explanation/artifact-graph.md)

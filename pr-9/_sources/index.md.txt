@@ -97,6 +97,12 @@ Nemotron keeps **data-producing recipes** separate from **model-family training 
 | `src/nemotron/recipes/data/sdg/` | Generate synthetic datasets that can feed multiple families | [Long-document SDG](nemotron/data/sdg/long-document.md) feeding [Omni3 SFT](nemotron/omni3/sft.md) |
 | `src/nemotron/recipes/<family>/` | Family-specific training, RL, evaluation, and model lifecycle commands | [Nano3](nemotron/nano3/README.md), [Omni3](nemotron/omni3/README.md) |
 
+## Domain MCQ benchmarks
+
+Generate a custom multiple-choice benchmark from your documents with [`nemotron steps run byob`](build-benchmarks/index.md).
+The tutorial and reference material live under [Build MCQ benchmarks](build-benchmarks/index.md).
+The command also supports translation for the benchmark.
+
 ## Training Pipeline
 
 Each recipe family has its own stage layout, and all of them can be tracked through [artifact lineage](nemotron/artifacts.md):
@@ -174,6 +180,17 @@ Tips for Using Agents <translation/using-skills.md>
 translation/explanation/index.md
 Tasks <translation/how-to/index.md>
 translation/reference/index.md
+```
+
+```{toctree}
+:caption: Build MCQ Benchmarks
+:hidden:
+
+About <build-benchmarks/index.md>
+Getting Started <build-benchmarks/getting-started.md>
+Concepts <build-benchmarks/explanation/index.md>
+Tasks <build-benchmarks/how-to/index.md>
+Reference <build-benchmarks/reference/index.md>
 ```
 
 <!--
