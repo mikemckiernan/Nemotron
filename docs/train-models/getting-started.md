@@ -31,7 +31,7 @@ The goal is to validate end-to-end execution, NeMo Run, and your environment pro
 1. Create an `env.toml` at the root of the repository like the following example:
 
    ```{literalinclude} _snippets/input/env.tmpl
-   :language: toml
+   :language: text
    ```
 
    ```{dropdown} Summary of the Config File
