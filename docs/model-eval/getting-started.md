@@ -11,7 +11,7 @@
 :::{grid-item-card}
 :columns: 8
 
-**What You'll Build**: A one benchmark result for a single sample of *HellaSwag*, written under a writable `output_dir` by `eval/model_eval` against an OpenAI-compatible hosted endpoint.
+**What You'll Build**: A one benchmark result for a single sample of HellaSwag, written under a writable `output_dir` by `eval/model_eval` against an OpenAI-compatible hosted endpoint.
 
 ^^^
 
@@ -51,7 +51,7 @@ Run a one-sample HellaSwag evaluation against my hosted endpoint by using `eval/
 - The Nemotron repository synced and `uv sync` complete.  Refer to the {doc}`../index` page if you have not done this yet.
 - A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
 - A bearer token exported as the environment variable referenced by `deployment.api_key_name`.
-- A tokenizer that matches the served model.  This can be a Hugging Face handle, a filesystem path, or the `tokenizer/` subdirectory of a *Megatron Bridge* `iter_*` checkpoint.
+- A tokenizer that matches the served model.  This can be a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 
 ## Procedure
 
@@ -62,7 +62,7 @@ Run a one-sample HellaSwag evaluation against my hosted endpoint by using `eval/
    $ export NVIDIA_API_KEY="<your-api-key>"
    $ export EVAL_URL="<full-endpoint-url-with-path>"
    $ export EVAL_MODEL_ID="<model-identifier-from-the-endpoint>"
-   $ export EVAL_TOKENIZER="<hf-handle-or-tokenizer-path>"
+   $ export EVAL_TOKENIZER="<hf-dataset-or-tokenizer-path>"
    $ export EVAL_ROOT="$(pwd)/output/eval-getting-started"
    ```
 

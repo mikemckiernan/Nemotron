@@ -6,16 +6,15 @@
 (model-eval-run-hosted-evaluation)=
 # Run A Hosted Evaluation
 
-This guide runs `eval/model_eval` against an already-running, OpenAI-compatible hypertext transfer protocol (HTTP) endpoint.
-You do not deploy anything in this guide.
-For deployment paths, refer to {doc}`evaluate-deployed-checkpoint`.
+This guide runs `eval/model_eval` against an already-running, OpenAI-compatible endpoint.
 
 ## Prerequisites
 
 - The Nemotron repository synced with `uv sync` complete.
 - A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
-- A credential exported as an environment variable.  The sample files name `NGC_API_KEY`; the NVIDIA-hosted endpoint uses `NVIDIA_API_KEY`.
-- A tokenizer that matches the served model.  Accept a Hugging Face handle, a filesystem path, or the `tokenizer/` subdirectory of a *Megatron Bridge* `iter_*` checkpoint.
+- A credential exported as an environment variable.
+- A tokenizer that matches the served model.
+  Accept a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 
 ## Choose A Starting Sample File
 
@@ -23,11 +22,11 @@ Two sample files cover most hosted-evaluation runs.
 
 | Sample file | Use |
 | --- | --- |
-| `tiny.yaml` | Sample run with `limit_samples: 20` on one *log-probability* benchmark, `hellaswag`.  Confirms endpoint, credential, and tokenizer configuration. |
+| `tiny.yaml` | Sample run with `limit_samples: 20` on the `hellaswag` benchmar.  Confirms endpoint, credential, and tokenizer configuration. |
 | `default.yaml` | Production run with `mmlu`, `hellaswag`, and `arc_challenge`, with no sample cap. |
 
-Pass the sample file name with `-c`.
-You may also point `-c` at an explicit YAML file path if you keep a custom configuration outside the step's `config/` directory.
+Pass the configuration file name with `--config`.
+You can also specify `--config` with a path to a YAML configuration file outside the step's `config/` directory.
 
 ## Override Endpoint, Credential, And Model
 
@@ -39,28 +38,19 @@ Three deployment fields almost always need to be overridden on the command line.
 | `deployment.model_id` | Model identifier as the endpoint advertises it. |
 | `deployment.api_key_name` | Name of the environment variable that holds the bearer token.  This is the variable name, not the secret. |
 
-The runner reads `api_key_name`, then looks up the current shell value of that variable at request time.
-Export the variable before launching the step.
-
-```bash
-export NVIDIA_API_KEY="<your-api-key>"
-```
-
 ## Choose Benchmarks
 
 The sample files include benchmark lists that match the file's intent.
 Override the list when you want a different selection.
 
-```bash
-benchmarks='[mmlu,hellaswag]'
+```yaml
+benchmarks:
+  - mmlu
+  - hellaswag
 ```
 
-Quote the value so the shell does not interpret the brackets.
-The benchmark identifiers come from *NeMo Evaluator*.
-See {doc}`../reference/benchmarks-catalog` for families and endpoint-type guidance.
-
-The `[[parameters]] benchmarks` entry in `step.toml` is metadata, not a recommended set.
-Use the sample files as the source of truth for the recommended starting points.
+The benchmark identifiers come from NeMo Evaluator.
+Refer to {doc}`../reference/benchmarks-catalog` for families and endpoint-type guidance.
 
 ## Set Generation Parameters
 
@@ -77,14 +67,13 @@ The sample files set deterministic generation, which is the right choice for *lo
 The tokenizer fields under `params.extra` are required for *log-probability* benchmarks.
 
 ```bash
-params.extra.tokenizer=<hf-handle-or-path>
+params.extra.tokenizer=<hf-model-id-or-path>
 params.extra.tokenizer_backend=huggingface
 ```
 
 ## Run And Stream Output
 
 The following command runs the sample `tiny.yaml` file against a hosted endpoint and limits to one sample.
-The shell variables match the names documented in EVAL-003 of the customization quality-assurance plan.
 
 ```bash
 : "${NVIDIA_API_KEY:?Set NVIDIA_API_KEY for the hosted eval}"
@@ -124,7 +113,7 @@ The runner writes one subdirectory per benchmark.
 For the sample `tiny.yaml` file, the only subdirectory is `hellaswag/`.
 For the sample `default.yaml` file, three subdirectories are written: `mmlu/`, `hellaswag/`, and `arc_challenge/`.
 
-The file set inside each subdirectory comes from *NeMo Evaluator*.
+The file set inside each subdirectory comes from NeMo Evaluator.
 A typical run produces a summary file with aggregate metrics, a per-sample predictions file, and a configuration record.
 For the contract and the on-disk layout, refer to {doc}`../reference/output-artifacts`.
 

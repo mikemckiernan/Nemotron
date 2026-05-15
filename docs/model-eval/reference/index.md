@@ -45,6 +45,14 @@ Benchmark identifiers grouped by family, with endpoint-type guidance.
 {bdg-secondary}`benchmarks`
 :::
 
+:::{grid-item-card} {octicon}`alert;1.5em;sd-mr-1` Troubleshooting
+:link: troubleshooting
+:link-type: doc
+Named error modes from `step.toml`, with the most common cause and the recovery for each.
++++
+{bdg-secondary}`errors`
+:::
+
 ::::
 
 ```{toctree}
@@ -55,4 +63,5 @@ config-schema
 cli-reference
 output-artifacts
 benchmarks-catalog
+troubleshooting
 ```

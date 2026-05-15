@@ -9,18 +9,16 @@
 This page is for newcomers who plan to drive `eval/model_eval` from a coding agent.
 The goal is to make the chat productive: less back-and-forth, fewer clarifying questions, and a clear handoff between what you decide and what the agent edits or runs in the repository.
 
-The page aligns with the EVAL-004 agent-driven flow from the customization quality-assurance plan.
 Use an agent to translate your intent about endpoints, benchmarks, and tokenizers into the right `nemotron steps run eval/model_eval` invocation and YAML overrides.
 
 ## Keeping An Agent Session Productive
 
-Provide a short brief you write yourself, not something the agent drafts for you.
 The agent needs four pieces of information to make progress without guessing.
 
 - The evaluation endpoint URL.
 - The model identifier the endpoint advertises.
 - The name of the environment variable that holds the bearer token.  Not the secret value.
-- A tokenizer location, either as a Hugging Face handle, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+- A tokenizer location, either as a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 
 Until the agent has these four, ask it to wait rather than to invent values.
 
@@ -44,7 +42,7 @@ Goal for this session: [one outcome, for example a one-sample HellaSwag run that
 Endpoint URL: [full URL with path segment, or "I do not have this yet, please ask"]
 Model identifier: [as the endpoint advertises it]
 API key environment variable: [name only, for example NVIDIA_API_KEY]
-Tokenizer: [HF handle, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
+Tokenizer: [Hugging Face model ID, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
 Hard limits: [for example, do not change endpoint type, do not invent values]
 Please: [one request]. Use Nemotron eval/model_eval defaults from the repo unless something blocks that.
 ```
@@ -58,7 +56,7 @@ The session reaches that point when three things have happened.
 
 - The agent has issued one `nemotron steps run eval/model_eval -c tiny ...` command with overrides built from the brief.
 - The runner's `check_endpoint` probe has succeeded, which means the URL, endpoint type, and model identifier are aligned.
-- A per-benchmark subdirectory exists under the `output_dir` you chose, with files written by *NeMo Evaluator* inside it.
+- A per-benchmark subdirectory exists under the `output_dir` you chose, with files written by NeMo Evaluator inside it.
 
 If the probe fails, the agent should report the failure verbatim and ask which field to correct.
 It should not retry with different values it invented.

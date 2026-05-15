@@ -16,7 +16,7 @@ The step loads a single OmegaConf document and reads four top-level keys.
 
 ```{literalinclude} ../../../src/nemotron/steps/eval/model_eval/config/default.yaml
 :language: yaml
-:caption: config/default.yaml
+:class: scrollable
 ```
 
 | Key | Type | Required | Purpose |
@@ -26,7 +26,7 @@ The step loads a single OmegaConf document and reads four top-level keys.
 | `benchmarks` | list of strings | yes | NeMo Evaluator task identifiers to run, one after the other. |
 | `params` | mapping | yes | Generation parameters passed to `nemo_evaluator.api.api_dataclasses.ConfigParams`. |
 
-The runner loads the document, applies Hydra-style dotlist overrides, and resolves OmegaConf interpolations before constructing the *NeMo Evaluator* request objects.
+The runner loads the document, applies Hydra-style dotlist overrides, and resolves OmegaConf interpolations before constructing the NeMo Evaluator request objects.
 
 ## Output Directory
 
@@ -46,9 +46,8 @@ The `deployment` block describes the hypertext transfer protocol (HTTP) endpoint
 | `endpoint_type` | string | no | Either `completions` or `chat`.  Defaults to `completions` when omitted.  Pair this with the benchmark family. |
 | `api_key_name` | string | no | Name of the environment variable that holds the bearer token.  This is the variable name, not the secret value. |
 
-The runner reads `api_key_name` and passes its current shell value through to NeMo Evaluator at request time.
-Set the variable in your shell before launching the step.
-The sample `default.yaml` file names `NGC_API_KEY`; the *Getting Started* tutorial uses `NVIDIA_API_KEY` for the NVIDIA-hosted endpoint.
+Set the value for the `api_key_name` variable in your shell before launching the step.
+The sample `default.yaml` file names `NGC_API_KEY`; the getting started tutorial uses `NVIDIA_API_KEY` for the NVIDIA-hosted endpoint.
 
 ## Benchmarks
 
@@ -88,7 +87,7 @@ The two fields exercised by the sample files are the tokenizer location and its 
 
 | Field | Type | Purpose |
 | --- | --- | --- |
-| `tokenizer` | string | Tokenizer to load.  Accepts a Hugging Face handle, a filesystem path, or the `tokenizer/` subdirectory of a *Megatron Bridge* `iter_*` checkpoint. |
+| `tokenizer` | string | Tokenizer to load.  Accepts a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint. |
 | `tokenizer_backend` | string | The tokenizer loader to use.  This step documents `huggingface`.  Other values exist upstream and are not exercised here. |
 
 For why *log-probability* benchmarks require a tokenizer that matches the served model, refer to {doc}`../explanation/tokenizer-alignment`.
@@ -100,13 +99,14 @@ It calls `nemo_evaluator.api.check_endpoint` with the configured `url`, `endpoin
 A failing probe stops the run before any benchmark is dispatched, which protects against typos in the endpoint URL and against an endpoint that does not advertise the configured `model_id`.
 
 Misconfigurations beyond the endpoint probe surface as the named error modes in `step.toml`.
-The three most common are `missing_tokenizer_for_logprobs`, `wrong_endpoint_type`, and `bad_megatron_checkpoint_path`.
-Read `src/nemotron/steps/eval/model_eval/step.toml` in the repository for the full list of error names and their recovery guidance.
+For each named error, the most common cause, and the recovery, refer to {doc}`troubleshooting`.
+Read `src/nemotron/steps/eval/model_eval/step.toml` in the repository for the full list of error names.
 
 ## Related
 
 - {doc}`cli-reference` for command-line flags and Hydra override syntax.
 - {doc}`benchmarks-catalog` for benchmark identifiers grouped by family.
 - {doc}`output-artifacts` for the `eval_results` contract and the on-disk layout.
+- {doc}`troubleshooting` for the named error modes and their recovery guidance.
 - {doc}`../explanation/index` for the concept set behind tokenizer alignment and endpoint families.
 - `src/nemotron/steps/eval/model_eval/step.toml` for the full step contract.
