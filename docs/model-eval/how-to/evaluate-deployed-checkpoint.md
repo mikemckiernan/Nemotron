@@ -13,8 +13,10 @@ Second, you point `eval/model_eval` at that endpoint, exactly the way {doc}`run-
 
 ## Prerequisites
 
-- A trained checkpoint in one of the supported formats.  Hugging Face safetensors or a Megatron Bridge `iter_*` directory both work.
-- A host or workspace that can serve the checkpoint.  This may be your workstation, a Slurm cluster, a vLLM container, or a managed NVIDIA DGX Cloud Lepton endpoint.
+- A trained checkpoint in one of the supported formats.
+  Hugging Face safetensors and Megatron Bridge `iter_*` directories both work.
+- A host or workspace that can serve the checkpoint.
+  Supported environments include your workstation, a Slurm cluster, a vLLM container, and a managed NVIDIA DGX Cloud Lepton endpoint.
 - A reachable network path from the machine that runs `nemotron steps run` to the host that serves the model.
 - A tokenizer that matches the served model.
 
@@ -30,7 +32,7 @@ Choose the path that matches your environment and the level of orchestration you
 | DGX Cloud Lepton managed endpoint | Lepton workspace | Lepton dashboard or command-line interface | <https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/> |
 | NeMo Evaluator Launcher orchestration | Local, Slurm, or Lepton | One launcher command deploys and evaluates | `Evaluator/docs/deployment/launcher-orchestrated/` |
 
-:::{admonition} Lepton Mini-Recipe
+:::{admonition} Lepton Example
 :class: tip
 
 Deploy the model by using the NVIDIA DGX Cloud Lepton dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
@@ -110,7 +112,7 @@ For the rationale and the only common reason to deviate from the deterministic d
 
 ## Run The Evaluation
 
-Once the endpoint is up, the run command is the same as the one in {doc}`run-hosted-evaluation`.
+After the endpoint is running, the run command is the same as the one in {doc}`run-hosted-evaluation`.
 A sample run with the sample `tiny.yaml` file is the right first step against any new deployment.
 
 ```bash
@@ -124,7 +126,7 @@ uv run --no-sync nemotron steps run eval/model_eval \
   params.extra.tokenizer="$EVAL_TOKENIZER"
 ```
 
-Once the sample run succeeds, replace `-c tiny` with `-c default` and remove `params.limit_samples=1` to run the production benchmark set.
+After the sample run succeeds, replace `-c tiny` with `-c default` and remove `params.limit_samples=1` to run the production benchmark set.
 
 ## Related
 

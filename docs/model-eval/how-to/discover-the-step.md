@@ -11,7 +11,8 @@ This guide shows how to find `eval/model_eval` in the step catalog, how to read 
 ## Prerequisites
 
 - The Nemotron repository synced with `uv sync` complete.
-- Network access is optional for this guide.  The discovery commands read the local step catalog only.
+- A local checkout is sufficient for this guide.
+  The discovery commands read the local step catalog only, so no network access is required.
 
 ## List Eval-Category Steps
 

@@ -70,9 +70,9 @@ For benchmark-specific file layouts, refer to the upstream NeMo Evaluator docume
 (model-eval-comparing-runs)=
 ## Comparing Runs
 
-Most evaluations only have meaning when paired with another evaluation.
-A trained checkpoint is scored against a baseline, a new prompt format is scored against an older one, a quantized export is scored against the unquantized weights.
-The comparison is only honest when the surrounding configuration is held constant.
+Evaluation results carry meaning when paired with another evaluation.
+A trained checkpoint is scored against a baseline, a new prompt format is scored against an older one, and a quantized export is scored against the unquantized weights.
+The comparison is honest when the surrounding configuration is held constant.
 
 Apply the following practices before treating any single evaluation as a result.
 

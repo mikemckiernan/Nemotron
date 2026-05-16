@@ -22,7 +22,7 @@ Pass the configuration name with `-c`, the per-step overrides as `key=value` dot
 ## Flags
 
 These flags are accepted by `nemotron steps run` for every step.
-The implementation lives in `src/nemotron/cli/commands/steps/run_cmd.py`.
+The implementation is in `src/nemotron/cli/commands/steps/run_cmd.py`.
 
 | Flag | Long form | Purpose |
 | --- | --- | --- |
