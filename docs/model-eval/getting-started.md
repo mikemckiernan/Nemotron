@@ -11,49 +11,59 @@
 :::{grid-item-card}
 :columns: 8
 
-**What You'll Build**: A one benchmark result for a single sample of HellaSwag, written under a writable `output_dir` by `eval/model_eval` against an OpenAI-compatible hosted endpoint.
+**What You'll Build**: one benchmark result for a single sample of HellaSwag, written under a writable `output_dir` by `eval/model_eval` against an OpenAI-compatible hosted endpoint.
 
 ^^^
 
 **In this tutorial, you will**:
 
 1. Discover the `eval/model_eval` step from the local catalog.
-2. Inspect the sample `tiny.yaml` file.
-3. Run a one-sample evaluation against a hosted endpoint.
-4. List the result files on disk and locate the per-benchmark subdirectory.
+1. Inspect the sample `tiny.yaml` file.
+1. Run a one-sample evaluation against a hosted endpoint.
+1. List the result files on disk and locate the per-benchmark subdirectory.
 
-{octicon}`clock;1.5em;sd-mr-1` This tutorial requires between fifteen and thirty minutes to complete, depending on endpoint latency.
+{octicon}`clock;1.5em;sd-mr-1` This tutorial requires between 15 and 30 minutes to complete, depending on endpoint latency.
 :::
 
-:::{grid-item-card}
+:::{grid-item-card} {octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
 :columns: 4
-
-{octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
-
-^^^
 
 Run a one-sample HellaSwag evaluation against my hosted endpoint by using `eval/model_eval` with `tiny.yaml`, then show me the result files.
 :::
 ::::
 
-## Start Here
-
-- Run all commands from the repository root so paths in the procedure resolve correctly.
-- The sample `tiny.yaml` file is at `src/nemotron/steps/eval/model_eval/config/tiny.yaml`.
-  Two fields control this tutorial: `params.limit_samples` caps samples per benchmark (the file sets `20`; this tutorial overrides to `1`), and `params.extra.tokenizer` identifies the tokenizer for the served model.
-
-  ```{literalinclude} ../../src/nemotron/steps/eval/model_eval/config/tiny.yaml
-  :language: yaml
-  ```
-
 ## Prerequisites
 
-- The Nemotron repository synced and `uv sync` complete.  Refer to the {doc}`../index` page if you have not done this yet.
+- Run all commands from the repository root so paths in the procedure resolve correctly.
 - A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
 - A bearer token exported as the environment variable referenced by `deployment.api_key_name`.
-- A tokenizer that matches the served model.  This can be a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+- A tokenizer that matches the served model.
+  Accepted shapes are a Hugging Face model identifier, a filesystem path, and the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+
+## About The Sample Configuration
+
+The sample `tiny.yaml` file is at `src/nemotron/steps/eval/model_eval/config/tiny.yaml`.
+Two fields control this tutorial.
+`params.limit_samples` caps samples per benchmark; the file sets `20` and this tutorial overrides the value to `1`.
+`params.extra.tokenizer` identifies the tokenizer for the served model.
+
+```{literalinclude} ../../src/nemotron/steps/eval/model_eval/config/tiny.yaml
+:language: yaml
+```
 
 ## Procedure
+
+1. Clone the repository, if you haven't already:
+
+   ```console
+   $ git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
+
+1. Synchronize dependencies:
+
+   ```console
+   $ uv sync
+   ```
 
 1. Export the environment variables used throughout this tutorial.
    `EVAL_ROOT` is a directory you choose; it is the parent of the per-run `output_dir`.

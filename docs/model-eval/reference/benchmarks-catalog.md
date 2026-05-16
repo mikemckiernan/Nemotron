@@ -15,8 +15,10 @@ Refer to the upstream NeMo Evaluator documentation at <https://docs.nvidia.com/n
 
 Benchmark identifiers come in two shapes.
 
-- A short bare name, such as `mmlu`, `hellaswag`, or `arc_challenge`.  Bare names are common for established benchmarks provided by NeMo Evaluator by default.
-- A dotted, harness-qualified name, such as `lm-evaluation-harness.ifeval` or `simple_evals.gpqa_diamond`.  The prefix names the harness that hosts the task, and the suffix names the task within it.
+- A short bare name, such as `mmlu`, `hellaswag`, or `arc_challenge`.
+  Bare names are common for established benchmarks provided by NeMo Evaluator by default.
+- A dotted, harness-qualified name, such as `lm-evaluation-harness.ifeval` or `simple_evals.gpqa_diamond`.
+  The prefix names the harness that hosts the task, and the suffix names the task within it.
 
 Both types are valid in the `benchmarks` field.
 Use the exact identifier published by the harness, because the runner passes it through to NeMo Evaluator unchanged.

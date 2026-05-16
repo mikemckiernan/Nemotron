@@ -6,7 +6,7 @@
 (model-eval-troubleshooting)=
 # Troubleshooting
 
-This page is the canonical place to recognize a failed `eval/model_eval` run and decide what to change before rerunning.
+This page is the canonical reference for recognizing a failed `eval/model_eval` run and deciding what to change before rerunning.
 A *named error* is an entry in the `[[errors]]` table of `src/nemotron/steps/eval/model_eval/step.toml`.
 The runner uses these names to identify common misconfigurations and reports them with their recovery guidance.
 

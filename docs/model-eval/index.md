@@ -6,12 +6,13 @@
 (model-eval-index)=
 # About Model Evaluation
 
-The `eval/model_eval` Nemotron step is a thin wrapper around NeMo Evaluator.
-It points at an OpenAI-compatible *endpoint*, or assumes someone has deployed one, and runs one or more benchmark suites against it.
-The step does not deploy checkpoints; it consumes an existing endpoint and produces an `eval_results` artifact on disk.
+The `eval/model_eval` Nemotron step is a wrapper around NeMo Evaluator that runs one or more benchmark suites against an OpenAI-compatible *endpoint*.
+The step targets an existing endpoint and writes an `eval_results` artifact to disk.
+To deploy a checkpoint before evaluation, refer to {doc}`how-to/evaluate-deployed-checkpoint`.
 
 :::{tip}
-New to model evaluation or new to running benchmarks from the Nemotron CLI? Read {doc}`using-skills` for a short guide to productive agent sessions, then start the {doc}`getting-started` tutorial to run one benchmark on one sample against a hosted endpoint.
+New to model evaluation or the Nemotron CLI?
+Read {doc}`using-skills` for a short guide to productive agent sessions, then start the {doc}`getting-started` tutorial to run one benchmark on one sample against a hosted endpoint.
 :::
 
 ## When To Use
@@ -151,16 +152,20 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 ## Before You Start
 
 - The Nemotron repository is synced and `uv sync` is complete.
-- A bearer token is exported as the environment variable named in `deployment.api_key_name`.  The sample files name `NGC_API_KEY`; the NVIDIA-hosted endpoint uses `NVIDIA_API_KEY`.
-- A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
-- A tokenizer that matches the served model.  Accept a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+- A bearer token is exported as the environment variable named in `deployment.api_key_name`.
+  The sample files name `NGC_API_KEY`, and the NVIDIA-hosted endpoint uses `NVIDIA_API_KEY`.
+- A reachable evaluation endpoint uniform resource locator (URL) and a model identifier the endpoint advertises.
+- A tokenizer that matches the served model.
+  Accepted shapes are a Hugging Face model identifier, a filesystem path, and the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 
 ## Limitations And Considerations
 
-- Cost: Every benchmark sample issues at least one request to the endpoint.  Hosted endpoints incur per-token cost.
-- Rate limits: Hosted endpoints throttle concurrent requests.  Set `params.parallelism` to a value the endpoint can serve.
-- Deployment: This step does not deploy the checkpoint.  Deploy the model by using one of the paths in {doc}`how-to/evaluate-deployed-checkpoint`, or by using the broader catalog in {doc}`../deployment-guides`.
-- Comparability: Scores are comparable only when the endpoint type, the benchmark version, and the generation parameters are held constant across runs.  The {ref}`model-eval-comparing-runs` section explains the framing.
+- Cost: every benchmark sample issues at least one request to the endpoint, and hosted endpoints incur per-token cost.
+- Rate limits: hosted endpoints throttle concurrent requests, so set `params.parallelism` to a value the endpoint can serve.
+- Deployment: this step targets an already-deployed endpoint.
+  To deploy the model, follow one of the paths in {doc}`how-to/evaluate-deployed-checkpoint` or the broader catalog in {doc}`../deployment-guides`.
+- Comparability: scores are comparable when the endpoint type, the benchmark version, and the generation parameters are held constant across runs.
+  The {ref}`model-eval-comparing-runs` section explains the framing.
 
 ## Related Documentation
 

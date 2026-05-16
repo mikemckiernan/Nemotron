@@ -15,7 +15,8 @@ content:
 
 The step reads two coupled fields from the `deployment` block: the `endpoint_type` and the URL path inside `url`.
 Both fields must agree with the benchmark family for the benchmarks named in the `benchmarks` list.
-The step itself does not validate the match; a mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.
+The step itself does not validate the match.
+A mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.
 
 ## Two Endpoint Types
 
