@@ -23,55 +23,44 @@ limitations under the License.
 :::{grid-item-card}
 :columns: 8
 
-**What You'll Build**: A small synthetic SFT chat dataset in OpenAI format--five records grounded in the bundled `sft_topic_seeds.jsonl` seed file, generated through Data Designer against an NVIDIA-hosted LLM endpoint.
+**What You'll Build**: a small supervised fine-tuning (SFT) chat dataset in OpenAI message format.
+The dataset contains five records grounded in the `sft_topic_seeds.jsonl` seed file in the repository.
+Data Designer generates the records against an NVIDIA-hosted large language model (LLM) endpoint.
 
 ^^^
 
 **In this tutorial, you will**:
 
-1. Set up prerequisites: the repository and an NVIDIA API key.
-2. Read the bundled pipeline configuration.
-3. Run a preview to verify the pipeline and model.
-4. Generate a small dataset of five records.
-5. Locate and inspect the output JSONL.
+1. Set up prerequisites: the repository and an NVIDIA application programming interface (API) key.
+1. Read the default pipeline configuration.
+1. Run a preview to verify the pipeline and model.
+1. Generate a small dataset of five records.
+1. Locate and inspect the output JSON Lines (JSONL) file.
 
 {octicon}`clock;1.5em;sd-mr-1` This tutorial requires between 5 and 10 minutes to complete.
 :::
 
-:::{grid-item-card}
+:::{grid-item-card} {octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
 :columns: 4
 
-{octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
-
-^^^
-
-Run a 2-record preview of the default SDG pipeline, then generate 5 records and show me the first output record.
+Run a 2-record preview of the default synthetic data generation (SDG) pipeline, then generate 5 records and show me the first output record.
 
 :::
 ::::
 
-## Start Here
-
-- Run all commands from the repository root.
-- Data generation uses an NVIDIA-hosted endpoint, so the step needs no local GPUs.
-  However, you must set the `NVIDIA_API_KEY` environment variable and you must have network access.
-
 ## Prerequisites
 
-- ✅ Repository cloned and `uv sync` complete. Refer to [Quick Start](../index.md) if you have not done this yet.
-- ✅ `NVIDIA_API_KEY` for the default model, `nvidia/nemotron-3-nano-30b-a3b`.
+- Run all commands from the repository root.
+- An `NVIDIA_API_KEY` for the default model, `nvidia/nemotron-3-nano-30b-a3b`.
+  Data generation runs against an NVIDIA-hosted endpoint, so you can complete this tutorial on any machine with network access.
 
 ## How the Default Pipeline Works
 
-The `src/nemotron/steps/sdg/data_designer/config/default.yaml` combines two sources of variation to generate each record.
-A seed topic, such as "safe deployment of AI assistants in enterprise support workflows" or
-"ways to monitor data drift in production machine learning systems", is drawn from `.../data/sft_topic_seeds.jsonl`.
-A persona category, such as teacher or engineer, is sampled from a fixed category.
-Together they anchor the user prompt: a researcher might ask a concise technical question about RAG and a student might ask the same topic more tentatively.
-
-The pipeline generates a matching assistant response and then projects the result into OpenAI chat-format messages.
-
-The full configuration is stored at `src/nemotron/steps/sdg/data_designer/config/default.yaml`.
+The default pipeline at `src/nemotron/steps/sdg/data_designer/config/default.yaml` combines two sources of variation for each record.
+A *seed topic* is sampled from `sft_topic_seeds.jsonl`, for example a topic on safe deployment of AI assistants in enterprise support workflows.
+A *persona category*, such as teacher or engineer, is sampled from a fixed category set.
+Together they anchor a user prompt.
+The pipeline generates a matching assistant response and projects the result into OpenAI chat-format messages.
 
 ```{literalinclude} ../../src/nemotron/steps/sdg/data_designer/config/default.yaml
 :language: yaml
@@ -81,20 +70,31 @@ The full configuration is stored at `src/nemotron/steps/sdg/data_designer/config
 
 ## Procedure
 
-1. Set your API key:
+1. Clone the repository, if you have not already done so:
+
+   ```console
+   $ git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
+
+1. Install the dependencies for synthetic data generation:
+
+   ```console
+   $ uv sync --extra data-sdg
+   ```
+
+1. Set your NVIDIA API key:
 
    ```console
    $ export NVIDIA_API_KEY="<your-api-key>"
    ```
 
-1. Run a two-record preview.
-   Preview mode runs the same pipeline against a tiny record count so you can verify the model alias, prompts, and column wiring cheaply before generating at scale.
+1. Run a 2-record preview to verify the model alias, prompts, and column mappings before generating at scale.
 
    ```console
    $ uv run nemotron steps run sdg/data_designer -c default preview=true num_records=2
    ```
 
-   The pipeline registers the model alias, generate two rows, and prints a summary:
+   The pipeline registers the model alias, generates two rows, and prints a summary:
 
    ````{dropdown} Example Output
    :icon: code-square
@@ -104,13 +104,19 @@ The full configuration is stored at `src/nemotron/steps/sdg/data_designer/config
    ```
    ````
 
-   The default output path is `./output/sdg/sft.jsonl`.
-   You can override by setting `SDG_OUTPUT_DIR` or specifying `output_path=...` on the command line.
+1. Generate the five-record dataset:
 
-   Inspect the output.
-   Each line is one chat record.
-   The `openai_messages` projection emits a `messages` array plus the seed `topic` and sampled `persona` as metadata for traceability.
-   The following shows one sample record from the `sft.jsonl` file.
+   ```console
+   $ uv run nemotron steps run sdg/data_designer -c default num_records=5
+   ```
+
+   The default output path is `./output/sdg/sft.jsonl`.
+   To change the path, set the `SDG_OUTPUT_DIR` environment variable or pass `output_path=...` on the command line.
+
+1. Inspect the output.
+   Each line of `sft.jsonl` is one chat record.
+   The `openai_messages` projection emits a `messages` array along with the seed `topic` and sampled `persona` as metadata for traceability.
+   The following sample shows one record from the `sft.jsonl` file.
 
    ```{literalinclude} _snippets/output/sft_first_record.jsonl
    :language: json
@@ -118,21 +124,23 @@ The full configuration is stored at `src/nemotron/steps/sdg/data_designer/config
 
 ## Summary
 
-What you learned:
+In this tutorial, you completed the following tasks:
 
-- ✅ Ran a two-record preview to verify the pipeline and model.
-- ✅ Generated a five-record SFT chat dataset with `default.yaml`.
-- ✅ Located the OpenAI-format JSONL output.
+- Ran a 2-record preview to verify the pipeline and model.
+- Generated a 5-record SFT chat dataset with `default.yaml`.
+- Located the OpenAI-format JSONL output.
 
-Key takeaways:
+As you scale this workflow up, keep two principles in mind:
 
-- **Preview first.** `preview=true num_records=N` runs the same pipeline against a tiny record count. Use it to iterate on column specs and prompts before scaling `num_records` up.
-- **Output format matches the trainer.** The `openai_messages` projection emits records ready for `prep/sft_packing` or AutoModel SFT.
+- Run a preview first.
+  The `preview=true num_records=N` form runs the same pipeline against a small record count, so you can iterate on column specifications and prompts before scaling `num_records` up.
+- The output format matches the trainer.
+  The `openai_messages` projection emits records ready for `prep/sft_packing` or AutoModel SFT.
 
 ## Next Steps
 
-- **Adapt the pipeline to a domain you care about**: {doc}`how-to/create-domain-dataset`.
-- **Preview, generate, and customize output**: {doc}`how-to/run`.
-- **Generate preference pairs for DPO**: {doc}`how-to/preference-data`.
-- **Dispatch to a cluster**: {doc}`how-to/dispatch-to-cluster` learn about env.toml profiles and container images.
-- **Look up flags and config fields**: {doc}`reference/cli-reference`, {doc}`reference/config-schema`.
+- Adapt the pipeline to a specific domain: {doc}`how-to/create-domain-dataset`.
+- Preview, generate, and customize output: {doc}`how-to/run`.
+- Generate preference pairs for direct preference optimization (DPO): {doc}`how-to/preference-data`.
+- Dispatch to a cluster: {doc}`how-to/dispatch-to-cluster` describes env.toml profiles and container images.
+- Look up flags and config fields: {doc}`reference/cli-reference`, {doc}`reference/config-schema`.
