@@ -772,9 +772,9 @@ A typical run produces three kinds of files.</p>
 </section>
 <section id="comparing-runs">
 <span id="model-eval-comparing-runs"></span><h2>Comparing Runs<a class="headerlink" href="#comparing-runs" title="Link to this heading">#</a></h2>
-<p>Most evaluations only have meaning when paired with another evaluation.
-A trained checkpoint is scored against a baseline, a new prompt format is scored against an older one, a quantized export is scored against the unquantized weights.
-The comparison is only honest when the surrounding configuration is held constant.</p>
+<p>Evaluation results carry meaning when paired with another evaluation.
+A trained checkpoint is scored against a baseline, a new prompt format is scored against an older one, and a quantized export is scored against the unquantized weights.
+The comparison is honest when the surrounding configuration is held constant.</p>
 <p>Apply the following practices before treating any single evaluation as a result.</p>
 <ul class="simple">
 <li><p>Run a lightweight baseline against the starting checkpoint <em>before</em> the training, conversion, or quantization step you are measuring.

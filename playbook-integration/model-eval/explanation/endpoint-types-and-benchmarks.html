@@ -705,7 +705,8 @@
 <span id="model-eval-endpoint-types-and-benchmarks"></span><h1>Endpoint Types And Benchmark Families<a class="headerlink" href="#endpoint-types-and-benchmark-families" title="Link to this heading">#</a></h1>
 <p>The step reads two coupled fields from the <code class="docutils literal notranslate"><span class="pre">deployment</span></code> block: the <code class="docutils literal notranslate"><span class="pre">endpoint_type</span></code> and the URL path inside <code class="docutils literal notranslate"><span class="pre">url</span></code>.
 Both fields must agree with the benchmark family for the benchmarks named in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> list.
-The step itself does not validate the match; a mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.</p>
+The step itself does not validate the match.
+A mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.</p>
 <section id="two-endpoint-types">
 <h2>Two Endpoint Types<a class="headerlink" href="#two-endpoint-types" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> supports two endpoint shapes.</p>

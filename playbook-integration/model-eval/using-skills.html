@@ -705,7 +705,7 @@
 <section class="tex2jax_ignore mathjax_ignore" id="use-the-model-evaluation-skill-with-confidence">
 <span id="model-eval-using-skills"></span><h1>Use The Model Evaluation Skill With Confidence<a class="headerlink" href="#use-the-model-evaluation-skill-with-confidence" title="Link to this heading">#</a></h1>
 <p>This page is for newcomers who plan to drive <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> from a coding agent.
-The goal is to make the chat productive: less back-and-forth, fewer clarifying questions, and a clear handoff between what you decide and what the agent edits or runs in the repository.</p>
+The goal is a productive chat session with fewer iterations, fewer clarifying questions, and a clear handoff between what you decide and what the agent edits or runs in the repository.</p>
 <p>Use an agent to translate your intent about endpoints, benchmarks, and tokenizers into the right <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span></code> invocation and YAML overrides.</p>
 <section id="keeping-an-agent-session-productive">
 <h2>Keeping An Agent Session Productive<a class="headerlink" href="#keeping-an-agent-session-productive" title="Link to this heading">#</a></h2>
@@ -713,19 +713,21 @@ The goal is to make the chat productive: less back-and-forth, fewer clarifying q
 <ul class="simple">
 <li><p>The evaluation endpoint URL.</p></li>
 <li><p>The model identifier the endpoint advertises.</p></li>
-<li><p>The name of the environment variable that holds the bearer token.  Not the secret value.</p></li>
-<li><p>A tokenizer location, either as a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>The name of the environment variable that holds the bearer token, not the secret value itself.</p></li>
+<li><p>A tokenizer location, given as a Hugging Face model identifier, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
-<p>Until the agent has these four, ask it to wait rather than to invent values.</p>
+<p>Until the agent has these four pieces of information, ask it to wait rather than fabricate values.</p>
 </section>
 <section id="what-the-agent-needs-from-you">
 <h2>What The Agent Needs From You<a class="headerlink" href="#what-the-agent-needs-from-you" title="Link to this heading">#</a></h2>
 <p>Tell the agent the kind of run you want, then let it select the sample file that matches.</p>
 <ul class="simple">
-<li><p>A sample run, to confirm the endpoint, credential, and tokenizer configuration.  The agent should select the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file and add <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code>.</p></li>
-<li><p>A production benchmark run, to compare against a baseline.  The agent should select the sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file and include a date or run identifier in the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> override.</p></li>
+<li><p>A sample run, to confirm the endpoint, credential, and tokenizer configuration.
+The agent should select the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file and add <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code>.</p></li>
+<li><p>A production benchmark run, to compare against a baseline.
+The agent should select the sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file and include a date or run identifier in the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> override.</p></li>
 </ul>
-<p>Ask the agent to start from the sample files and the <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a> flow unless there is a strong reason to invent a new configuration.
+<p>Ask the agent to start from the sample files and the <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a> flow unless there is a strong reason to author a new configuration.
 Reasoning models, custom benchmark families, and chat-only benchmarks are the common reasons to deviate.</p>
 </section>
 <section id="a-reusable-opening-brief">
@@ -737,7 +739,7 @@ Endpoint URL: [full URL with path segment, or &quot;I do not have this yet, plea
 Model identifier: [as the endpoint advertises it]
 API key environment variable: [name only, for example NVIDIA_API_KEY]
 Tokenizer: [Hugging Face model ID, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
-Hard limits: [for example, do not change endpoint type, do not invent values]
+Hard limits: [for example, do not change endpoint type, do not fabricate values]
 Please: [one request]. Use Nemotron eval/model_eval defaults from the repo unless something blocks that.
 </pre></div>
 </div>
@@ -753,7 +755,7 @@ The session reaches that point when three things have happened.</p>
 <li><p>A per-benchmark subdirectory exists under the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> you chose, with files written by NeMo Evaluator inside it.</p></li>
 </ul>
 <p>If the probe fails, the agent should report the failure verbatim and ask which field to correct.
-It should not retry with different values it invented.</p>
+The agent should not retry with fabricated values.</p>
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>

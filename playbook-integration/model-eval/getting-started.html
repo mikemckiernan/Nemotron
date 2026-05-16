@@ -709,7 +709,7 @@
 <div class="sd-col sd-d-flex-row sd-col-8 sd-col-xs-8 sd-col-sm-8 sd-col-md-8 sd-col-lg-8 docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
 <div class="sd-card-header docutils">
-<p class="sd-card-text"><strong>What You’ll Build</strong>: A one benchmark result for a single sample of HellaSwag, written under a writable <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> by <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an OpenAI-compatible hosted endpoint.</p>
+<p class="sd-card-text"><strong>What You’ll Build</strong>: one benchmark result for a single sample of HellaSwag, written under a writable <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> by <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an OpenAI-compatible hosted endpoint.</p>
 </div>
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><strong>In this tutorial, you will</strong>:</p>
@@ -719,28 +719,37 @@
 <li><p class="sd-card-text">Run a one-sample evaluation against a hosted endpoint.</p></li>
 <li><p class="sd-card-text">List the result files on disk and locate the per-benchmark subdirectory.</p></li>
 </ol>
-<p class="sd-card-text"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-clock sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 7.25a.75.75 0 0 0-1.5 0v5.5c0 .27.144.518.378.651l3.5 2a.75.75 0 0 0 .744-1.302L12.5 12.315V7.25Z"></path><path d="M12 1c6.075 0 11 4.925 11 11s-4.925 11-11 11S1 18.075 1 12 5.925 1 12 1ZM2.5 12a9.5 9.5 0 0 0 9.5 9.5 9.5 9.5 0 0 0 9.5-9.5A9.5 9.5 0 0 0 12 2.5 9.5 9.5 0 0 0 2.5 12Z"></path></svg> This tutorial requires between fifteen and thirty minutes to complete, depending on endpoint latency.</p>
+<p class="sd-card-text"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-clock sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 7.25a.75.75 0 0 0-1.5 0v5.5c0 .27.144.518.378.651l3.5 2a.75.75 0 0 0 .744-1.302L12.5 12.315V7.25Z"></path><path d="M12 1c6.075 0 11 4.925 11 11s-4.925 11-11 11S1 18.075 1 12 5.925 1 12 1ZM2.5 12a9.5 9.5 0 0 0 9.5 9.5 9.5 9.5 0 0 0 9.5-9.5A9.5 9.5 0 0 0 12 2.5 9.5 9.5 0 0 0 2.5 12Z"></path></svg> This tutorial requires between 15 and 30 minutes to complete, depending on endpoint latency.</p>
 </div>
 </div>
 </div>
 <div class="sd-col sd-d-flex-row sd-col-4 sd-col-xs-4 sd-col-sm-4 sd-col-md-4 sd-col-lg-4 docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
-<div class="sd-card-header docutils">
-<p class="sd-card-text"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-flame sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.265 1.627c0 3.545 1.869 5.327 3.479 7.021 1.54 1.62 3.006 3.163 3.006 6.102 0 4.812-3.753 8.25-8.565 8.25-4.813 0-8.935-3.421-8.935-8.25 0-2.039.962-4.011 2.509-4.899.305-.175.672.007.803.334C7.563 12.684 8.797 12.64 9.437 12c.388-.387.47-1.116-.004-2.062-2.405-4.812 1.863-8.279 4.2-8.854.336-.082.615.198.632.543ZM12.185 21.5c4.059 0 7.065-2.84 7.065-6.75 0-2.337-1.093-3.489-2.678-5.158l-.021-.023c-1.44-1.517-3.139-3.351-3.649-6.557a6.148 6.148 0 0 0-1.911 1.76c-.787 1.144-1.147 2.633-.216 4.495.603 1.205.777 2.74-.277 3.794-.657.657-1.762 1.1-2.956.586-.752-.324-1.353-.955-1.838-1.79-.567.706-.954 1.74-.954 2.893 0 3.847 3.288 6.75 7.435 6.75Z"></path></svg> <strong>Sample Prompt</strong></p>
-</div>
 <div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-flame sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.265 1.627c0 3.545 1.869 5.327 3.479 7.021 1.54 1.62 3.006 3.163 3.006 6.102 0 4.812-3.753 8.25-8.565 8.25-4.813 0-8.935-3.421-8.935-8.25 0-2.039.962-4.011 2.509-4.899.305-.175.672.007.803.334C7.563 12.684 8.797 12.64 9.437 12c.388-.387.47-1.116-.004-2.062-2.405-4.812 1.863-8.279 4.2-8.854.336-.082.615.198.632.543ZM12.185 21.5c4.059 0 7.065-2.84 7.065-6.75 0-2.337-1.093-3.489-2.678-5.158l-.021-.023c-1.44-1.517-3.139-3.351-3.649-6.557a6.148 6.148 0 0 0-1.911 1.76c-.787 1.144-1.147 2.633-.216 4.495.603 1.205.777 2.74-.277 3.794-.657.657-1.762 1.1-2.956.586-.752-.324-1.353-.955-1.838-1.79-.567.706-.954 1.74-.954 2.893 0 3.847 3.288 6.75 7.435 6.75Z"></path></svg> <strong>Sample Prompt</strong></div>
 <p class="sd-card-text">Run a one-sample HellaSwag evaluation against my hosted endpoint by using <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> with <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code>, then show me the result files.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<section id="start-here">
-<h2>Start Here<a class="headerlink" href="#start-here" title="Link to this heading">#</a></h2>
-<ul>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<ul class="simple">
 <li><p>Run all commands from the repository root so paths in the procedure resolve correctly.</p></li>
-<li><p>The sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file is at <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/config/tiny.yaml</span></code>.
-Two fields control this tutorial: <code class="docutils literal notranslate"><span class="pre">params.limit_samples</span></code> caps samples per benchmark (the file sets <code class="docutils literal notranslate"><span class="pre">20</span></code>; this tutorial overrides to <code class="docutils literal notranslate"><span class="pre">1</span></code>), and <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> identifies the tokenizer for the served model.</p>
+<li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
+<li><p>A bearer token exported as the environment variable referenced by <code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code>.</p></li>
+<li><p>A tokenizer that matches the served model.
+Accepted shapes are a Hugging Face model identifier, a filesystem path, and the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+</ul>
+</section>
+<section id="about-the-sample-configuration">
+<h2>About The Sample Configuration<a class="headerlink" href="#about-the-sample-configuration" title="Link to this heading">#</a></h2>
+<p>The sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file is at <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/config/tiny.yaml</span></code>.
+Two fields control this tutorial.
+<code class="docutils literal notranslate"><span class="pre">params.limit_samples</span></code> caps samples per benchmark; the file sets <code class="docutils literal notranslate"><span class="pre">20</span></code> and this tutorial overrides the value to <code class="docutils literal notranslate"><span class="pre">1</span></code>.
+<code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> identifies the tokenizer for the served model.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tiny smoke-test config for NeMo Evaluator</span>
 
 <span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results-tiny</span>
@@ -765,21 +774,20 @@ Two fields control this tutorial: <code class="docutils literal notranslate"><sp
 <span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
 </pre></div>
 </div>
-</li>
-</ul>
-</section>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>The Nemotron repository synced and <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> complete.  Refer to the <a class="reference internal" href="../index.html"><span class="doc">Nemotron Training Recipes</span></a> page if you have not done this yet.</p></li>
-<li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
-<li><p>A bearer token exported as the environment variable referenced by <code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code>.</p></li>
-<li><p>A tokenizer that matches the served model.  This can be a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
-</ul>
 </section>
 <section id="procedure">
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
 <ol class="arabic">
+<li><p>Clone the repository, if you haven’t already:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA-NeMo/Nemotron<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>Nemotron
+</pre></div>
+</div>
+</li>
+<li><p>Synchronize dependencies:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync
+</pre></div>
+</div>
+</li>
 <li><p>Export the environment variables used throughout this tutorial.
 <code class="docutils literal notranslate"><span class="pre">EVAL_ROOT</span></code> is a directory you choose; it is the parent of the per-run <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
@@ -884,8 +892,8 @@ For the contract and the on-disk layout, refer to <a class="reference internal" 
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#start-here">Start Here</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#about-the-sample-configuration">About The Sample Configuration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#procedure">Procedure</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
 </ul>

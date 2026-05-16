@@ -715,8 +715,10 @@ Refer to the upstream NeMo Evaluator documentation at <a class="reference extern
 <h2>Naming Convention<a class="headerlink" href="#naming-convention" title="Link to this heading">#</a></h2>
 <p>Benchmark identifiers come in two shapes.</p>
 <ul class="simple">
-<li><p>A short bare name, such as <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, or <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>.  Bare names are common for established benchmarks provided by NeMo Evaluator by default.</p></li>
-<li><p>A dotted, harness-qualified name, such as <code class="docutils literal notranslate"><span class="pre">lm-evaluation-harness.ifeval</span></code> or <code class="docutils literal notranslate"><span class="pre">simple_evals.gpqa_diamond</span></code>.  The prefix names the harness that hosts the task, and the suffix names the task within it.</p></li>
+<li><p>A short bare name, such as <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, or <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>.
+Bare names are common for established benchmarks provided by NeMo Evaluator by default.</p></li>
+<li><p>A dotted, harness-qualified name, such as <code class="docutils literal notranslate"><span class="pre">lm-evaluation-harness.ifeval</span></code> or <code class="docutils literal notranslate"><span class="pre">simple_evals.gpqa_diamond</span></code>.
+The prefix names the harness that hosts the task, and the suffix names the task within it.</p></li>
 </ul>
 <p>Both types are valid in the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> field.
 Use the exact identifier published by the harness, because the runner passes it through to NeMo Evaluator unchanged.</p>

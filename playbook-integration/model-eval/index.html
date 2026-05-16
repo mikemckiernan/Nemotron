@@ -1069,12 +1069,13 @@ window.addEventListener("load", load);
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="about-model-evaluation">
 <span id="model-eval-index"></span><h1>About Model Evaluation<a class="headerlink" href="#about-model-evaluation" title="Link to this heading">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> Nemotron step is a thin wrapper around NeMo Evaluator.
-It points at an OpenAI-compatible <em>endpoint</em>, or assumes someone has deployed one, and runs one or more benchmark suites against it.
-The step does not deploy checkpoints; it consumes an existing endpoint and produces an <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> artifact on disk.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> Nemotron step is a wrapper around NeMo Evaluator that runs one or more benchmark suites against an OpenAI-compatible <em>endpoint</em>.
+The step targets an existing endpoint and writes an <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> artifact to disk.
+To deploy a checkpoint before evaluation, refer to <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>New to model evaluation or new to running benchmarks from the Nemotron CLI? Read <a class="reference internal" href="using-skills.html"><span class="doc">Use The Model Evaluation Skill With Confidence</span></a> for a short guide to productive agent sessions, then start the <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a> tutorial to run one benchmark on one sample against a hosted endpoint.</p>
+<p>New to model evaluation or the Nemotron CLI?
+Read <a class="reference internal" href="using-skills.html"><span class="doc">Use The Model Evaluation Skill With Confidence</span></a> for a short guide to productive agent sessions, then start the <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a> tutorial to run one benchmark on one sample against a hosted endpoint.</p>
 </div>
 <section id="when-to-use">
 <h2>When To Use<a class="headerlink" href="#when-to-use" title="Link to this heading">#</a></h2>
@@ -1288,18 +1289,22 @@ Concepts</label><div class="sd-tab-content docutils">
 <h2>Before You Start<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The Nemotron repository is synced and <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> is complete.</p></li>
-<li><p>A bearer token is exported as the environment variable named in <code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code>.  The sample files name <code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code>; the NVIDIA-hosted endpoint uses <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
-<li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
-<li><p>A tokenizer that matches the served model.  Accept a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>A bearer token is exported as the environment variable named in <code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code>.
+The sample files name <code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code>, and the NVIDIA-hosted endpoint uses <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
+<li><p>A reachable evaluation endpoint uniform resource locator (URL) and a model identifier the endpoint advertises.</p></li>
+<li><p>A tokenizer that matches the served model.
+Accepted shapes are a Hugging Face model identifier, a filesystem path, and the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
 </section>
 <section id="limitations-and-considerations">
 <h2>Limitations And Considerations<a class="headerlink" href="#limitations-and-considerations" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Cost: Every benchmark sample issues at least one request to the endpoint.  Hosted endpoints incur per-token cost.</p></li>
-<li><p>Rate limits: Hosted endpoints throttle concurrent requests.  Set <code class="docutils literal notranslate"><span class="pre">params.parallelism</span></code> to a value the endpoint can serve.</p></li>
-<li><p>Deployment: This step does not deploy the checkpoint.  Deploy the model by using one of the paths in <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a>, or by using the broader catalog in <a class="reference internal" href="../deployment-guides.html"><span class="doc">Deployment Guides</span></a>.</p></li>
-<li><p>Comparability: Scores are comparable only when the endpoint type, the benchmark version, and the generation parameters are held constant across runs.  The <a class="reference internal" href="reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> section explains the framing.</p></li>
+<li><p>Cost: every benchmark sample issues at least one request to the endpoint, and hosted endpoints incur per-token cost.</p></li>
+<li><p>Rate limits: hosted endpoints throttle concurrent requests, so set <code class="docutils literal notranslate"><span class="pre">params.parallelism</span></code> to a value the endpoint can serve.</p></li>
+<li><p>Deployment: this step targets an already-deployed endpoint.
+To deploy the model, follow one of the paths in <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> or the broader catalog in <a class="reference internal" href="../deployment-guides.html"><span class="doc">Deployment Guides</span></a>.</p></li>
+<li><p>Comparability: scores are comparable when the endpoint type, the benchmark version, and the generation parameters are held constant across runs.
+The <a class="reference internal" href="reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> section explains the framing.</p></li>
 </ul>
 </section>
 <section id="related-documentation">

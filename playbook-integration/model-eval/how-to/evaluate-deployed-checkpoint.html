@@ -714,8 +714,10 @@ Second, you point <code class="docutils literal notranslate"><span class="pre">e
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A trained checkpoint in one of the supported formats.  Hugging Face safetensors or a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory both work.</p></li>
-<li><p>A host or workspace that can serve the checkpoint.  This may be your workstation, a Slurm cluster, a vLLM container, or a managed NVIDIA DGX Cloud Lepton endpoint.</p></li>
+<li><p>A trained checkpoint in one of the supported formats.
+Hugging Face safetensors and Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directories both work.</p></li>
+<li><p>A host or workspace that can serve the checkpoint.
+Supported environments include your workstation, a Slurm cluster, a vLLM container, and a managed NVIDIA DGX Cloud Lepton endpoint.</p></li>
 <li><p>A reachable network path from the machine that runs <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span></code> to the host that serves the model.</p></li>
 <li><p>A tokenizer that matches the served model.</p></li>
 </ul>
@@ -757,7 +759,7 @@ Choose the path that matches your environment and the level of orchestration you
 </table>
 </div>
 <div class="tip admonition">
-<p class="admonition-title">Lepton Mini-Recipe</p>
+<p class="admonition-title">Lepton Example</p>
 <p>Deploy the model by using the NVIDIA DGX Cloud Lepton dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
 Export the key under that variable name, then point <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> at the endpoint.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LEPTON_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-lepton-api-key&gt;&quot;</span>
@@ -827,7 +829,7 @@ For the matching rule and the recovery from a mismatch, refer to <a class="refer
 </section>
 <section id="run-the-evaluation">
 <h2>Run The Evaluation<a class="headerlink" href="#run-the-evaluation" title="Link to this heading">#</a></h2>
-<p>Once the endpoint is up, the run command is the same as the one in <a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a>.
+<p>After the endpoint is running, the run command is the same as the one in <a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a>.
 A sample run with the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file is the right first step against any new deployment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-c<span class="w"> </span>tiny<span class="w"> </span><span class="se">\</span>
@@ -839,7 +841,7 @@ A sample run with the sample <code class="docutils literal notranslate"><span cl
 <span class="w">  </span>params.extra.tokenizer<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_TOKENIZER</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
-<p>Once the sample run succeeds, replace <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">tiny</span></code> with <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">default</span></code> and remove <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code> to run the production benchmark set.</p>
+<p>After the sample run succeeds, replace <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">tiny</span></code> with <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">default</span></code> and remove <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code> to run the production benchmark set.</p>
 </section>
 <section id="related">
 <h2>Related<a class="headerlink" href="#related" title="Link to this heading">#</a></h2>
