@@ -2,13 +2,8 @@
 
 This section documents how to run supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL) alignment, and post-training optimization with Nemotron *steps*.
 Each step packages a training approach, configuration files, and entry logic that you invoke through the `nemotron steps` command-line interface (CLI).
-If you are new to fine-tuning, start with [Training Basics](explanation/basics.md), which defines every term the rest of this section uses.
-
-## What a Step Is
-
-A *step* is a packaged unit with a stable identifier, such as `sft/automodel`, NeMo Run job metadata, and configuration files.
-You run steps with the Nemotron CLI.
-Remote execution uses an environment profile and NeMo Run, as described in [Execution through NeMo Run](../nemo_runspec/nemo-run.md).
+For the definitions of *step*, *configuration*, and *environment profile* that apply across every domain, see [Nemotron Steps Basics](../steps/basics.md).
+If you are new to fine-tuning, start with [Training Basics](explanation/basics.md), which defines the training-specific terms the rest of this section uses.
 
 ## Capabilities at a Glance
 
@@ -27,7 +22,7 @@ Remote execution uses an environment profile and NeMo Run, as described in [Exec
 :::{grid-item-card} Training Basics
 :link: explanation/basics
 :link-type: doc
-This page defines supervised fine-tuning, parameter-efficient fine-tuning, reinforcement learning alignment, quantization, tokenizers, the chat dataset format, checkpoints, and the relationship between a step, a configuration, and an environment profile.
+This page defines supervised fine-tuning, parameter-efficient fine-tuning, reinforcement learning alignment, quantization, tokenizers, the chat dataset format, and checkpoints.
 +++
 `Beginner Level`
 :::
