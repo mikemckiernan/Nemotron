@@ -363,6 +363,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../application-examples.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment-guides.html">Deployment Guides</a></li>
 </ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Steps</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../steps/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../steps/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../steps/getting-started.html">Getting Started</a></li>
+</ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../nemotron/nano3/README.html">Nemotron 3 Nano</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -702,13 +708,8 @@
 <h1>Model Training with Nemotron Steps<a class="headerlink" href="#model-training-with-nemotron-steps" title="Link to this heading">#</a></h1>
 <p>This section documents how to run supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL) alignment, and post-training optimization with Nemotron <em>steps</em>.
 Each step packages a training approach, configuration files, and entry logic that you invoke through the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span></code> command-line interface (CLI).
-If you are new to fine-tuning, start with <a class="reference internal" href="explanation/basics.html"><span class="std std-doc">Training Basics</span></a>, which defines every term the rest of this section uses.</p>
-<section id="what-a-step-is">
-<h2>What a Step Is<a class="headerlink" href="#what-a-step-is" title="Link to this heading">#</a></h2>
-<p>A <em>step</em> is a packaged unit with a stable identifier, such as <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code>, NeMo Run job metadata, and configuration files.
-You run steps with the Nemotron CLI.
-Remote execution uses an environment profile and NeMo Run, as described in <a class="reference internal" href="../nemo_runspec/nemo-run.html"><span class="std std-doc">Execution through NeMo Run</span></a>.</p>
-</section>
+For the definitions of <em>step</em>, <em>configuration</em>, and <em>environment profile</em> that apply across every domain, see <a class="reference internal" href="../steps/basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a>.
+If you are new to fine-tuning, start with <a class="reference internal" href="explanation/basics.html"><span class="std std-doc">Training Basics</span></a>, which defines the training-specific terms the rest of this section uses.</p>
 <section id="capabilities-at-a-glance">
 <h2>Capabilities at a Glance<a class="headerlink" href="#capabilities-at-a-glance" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -748,7 +749,7 @@ Remote execution uses an environment profile and NeMo Run, as described in <a cl
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Training Basics</div>
-<p class="sd-card-text">This page defines supervised fine-tuning, parameter-efficient fine-tuning, reinforcement learning alignment, quantization, tokenizers, the chat dataset format, checkpoints, and the relationship between a step, a configuration, and an environment profile.</p>
+<p class="sd-card-text">This page defines supervised fine-tuning, parameter-efficient fine-tuning, reinforcement learning alignment, quantization, tokenizers, the chat dataset format, and checkpoints.</p>
 </div>
 <div class="sd-card-footer docutils">
 <p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">Beginner</span> <span class="pre">Level</span></code></p>
@@ -890,7 +891,6 @@ Model Training with Agents</div>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-a-step-is">What a Step Is</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#capabilities-at-a-glance">Capabilities at a Glance</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-path">Learning Path</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-links">Quick Links</a></li>

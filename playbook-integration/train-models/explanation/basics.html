@@ -363,6 +363,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../application-examples.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment-guides.html">Deployment Guides</a></li>
 </ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Nemotron Steps</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../steps/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../steps/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../steps/getting-started.html">Getting Started</a></li>
+</ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../nemotron/nano3/README.html">Nemotron 3 Nano</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -703,8 +709,9 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="training-basics">
 <h1>Training Basics<a class="headerlink" href="#training-basics" title="Link to this heading">#</a></h1>
-<p>This page defines the terms that the rest of the training documentation uses.
-You do not need to read it to run a command, but every other page in this section assumes that you already understand these basics.</p>
+<p>This page defines the training-specific terms that the rest of the training documentation uses.
+You do not need to read it to run a command, but every other page in this section assumes that you already understand these basics.
+For the step, configuration, and environment profile model that every Nemotron command shares, see <a class="reference internal" href="../../steps/basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a>.</p>
 <section id="training-approaches">
 <h2>Training Approaches<a class="headerlink" href="#training-approaches" title="Link to this heading">#</a></h2>
 <p>The Nemotron training pipeline packages four common training approaches.
@@ -811,32 +818,10 @@ Most training steps in the Nemotron pipeline produce one of the following three 
 Always keep the original base checkpoint together with any adapter you train against it.
 Always record the tokenizer version that produced the data so the inference runtime picks up the same tokenizer at serving time.</p>
 </section>
-<section id="steps-configurations-and-environment-profiles">
-<h2>Steps, Configurations, and Environment Profiles<a class="headerlink" href="#steps-configurations-and-environment-profiles" title="Link to this heading">#</a></h2>
-<p>The Nemotron command-line interface (CLI) composes three named concepts into every training job.</p>
-<p>A <em>step</em> is a named unit of work, such as <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> or <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/quantize</span></code>.
-The step describes which training approach it implements, what kind of input data it expects, and what kind of checkpoint it produces.
-The step identifier is the only piece of information you must know to invoke a job.</p>
-<p>A <em>configuration</em> is a named set of parameter values for a step, such as <code class="docutils literal notranslate"><span class="pre">tiny</span></code> or <code class="docutils literal notranslate"><span class="pre">default</span></code>.
-The configuration sets the dataset path, the base model identifier, the batch size, the number of training steps, and the parallelism strategy.
-Every step ships at least a <code class="docutils literal notranslate"><span class="pre">default</span></code> configuration for production-shape runs and a <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration for short validation runs.
-You select the configuration with the <code class="docutils literal notranslate"><span class="pre">-c</span></code> option on the command line.</p>
-<p>An <em>environment profile</em> is a named description of a cluster, such as <code class="docutils literal notranslate"><span class="pre">lepton_sft_automodel</span></code> or <code class="docutils literal notranslate"><span class="pre">slurm_prod</span></code>.
-The profile sets the container image, the node count, the mount points, and any cluster-specific startup commands.
-You select the profile with the <code class="docutils literal notranslate"><span class="pre">-r</span></code> option for attached execution, or with the <code class="docutils literal notranslate"><span class="pre">-b</span></code> option for detached execution.
-You can omit the profile to run on the local machine.</p>
-<p>The following command composes the three concepts.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sft/automodel<span class="w"> </span>-c<span class="w"> </span>tiny<span class="w"> </span>-r<span class="w"> </span>lepton_sft_automodel
-</pre></div>
-</div>
-<p>The CLI reads the <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> step, applies the <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration, and submits the job to the cluster the <code class="docutils literal notranslate"><span class="pre">lepton_sft_automodel</span></code> profile describes.
-Change the step to choose a different training approach.
-Change the configuration to change parameters.
-Change the profile to move to a different cluster.</p>
-</section>
 <section id="where-to-go-next">
 <h2>Where To Go Next<a class="headerlink" href="#where-to-go-next" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="../../steps/basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a> defines the <em>step</em>, <em>configuration</em>, and <em>environment profile</em> model that every training command uses.</p></li>
 <li><p><a class="reference internal" href="../getting-started.html"><span class="std std-doc">Getting Started With Training Steps</span></a> walks through a first run.</p></li>
 <li><p><a class="reference internal" href="../reference/index.html"><span class="std std-doc">Reference</span></a> lists every step, configuration, and command-line option.</p></li>
 </ul>
@@ -902,7 +887,6 @@ Change the profile to move to a different cluster.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tokenizers-and-chat-templates">Tokenizers and Chat Templates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-messages-json-lines-format">The Messages JSON Lines Format</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checkpoints">Checkpoints</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#steps-configurations-and-environment-profiles">Steps, Configurations, and Environment Profiles</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-go-next">Where To Go Next</a></li>
 </ul>
   </nav></div>

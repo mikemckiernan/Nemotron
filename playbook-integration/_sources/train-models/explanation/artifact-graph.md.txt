@@ -59,6 +59,7 @@ A mismatch often appears as a plausible training loss curve with poor downstream
 
 ## Related Reading
 
-- [Training Basics](basics.md) defines the concepts of step, configuration, environment profile, tokenizer, and chat template.
+- [Nemotron Steps Basics](../../steps/basics.md) defines the concepts of *step*, *configuration*, *environment profile*, and *artifact*.
+- [Training Basics](basics.md) defines the training-specific terms, including tokenizers and chat templates.
 - [Data and Checkpoint Formats](../how-to/data-and-checkpoint-formats.md) describes the on-disk layouts of each artifact type.
 - [Training Libraries](training-libraries.md) describes the ecosystem of libraries that back the steps.

@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Plain-language introduction to fine-tuning approaches, tokenizers, datasets, checkpoints, and the relationship between a step, a configuration, and an environment profile."
+description: "Plain-language introduction to fine-tuning approaches, tokenizers, datasets, and checkpoints. For the step, configuration, and environment profile model, see Nemotron Steps Basics."
 topics: ["Training", "Explanation", "Concepts"]
 tags: ["Beginner", "Explanation", "SFT", "PEFT", "RL", "Quantization", "Tokenizer", "Chat Template", "JSONL", "Checkpoint"]
 content:
@@ -12,8 +12,9 @@ content:
 
 # Training Basics
 
-This page defines the terms that the rest of the training documentation uses.
+This page defines the training-specific terms that the rest of the training documentation uses.
 You do not need to read it to run a command, but every other page in this section assumes that you already understand these basics.
+For the step, configuration, and environment profile model that every Nemotron command shares, see [Nemotron Steps Basics](../../steps/basics.md).
 
 ## Training Approaches
 
@@ -94,36 +95,8 @@ Two ground rules help avoid trouble.
 Always keep the original base checkpoint together with any adapter you train against it.
 Always record the tokenizer version that produced the data so the inference runtime picks up the same tokenizer at serving time.
 
-## Steps, Configurations, and Environment Profiles
-
-The Nemotron command-line interface (CLI) composes three named concepts into every training job.
-
-A *step* is a named unit of work, such as `sft/automodel` or `optimize/modelopt/quantize`.
-The step describes which training approach it implements, what kind of input data it expects, and what kind of checkpoint it produces.
-The step identifier is the only piece of information you must know to invoke a job.
-
-A *configuration* is a named set of parameter values for a step, such as `tiny` or `default`.
-The configuration sets the dataset path, the base model identifier, the batch size, the number of training steps, and the parallelism strategy.
-Every step ships at least a `default` configuration for production-shape runs and a `tiny` configuration for short validation runs.
-You select the configuration with the `-c` option on the command line.
-
-An *environment profile* is a named description of a cluster, such as `lepton_sft_automodel` or `slurm_prod`.
-The profile sets the container image, the node count, the mount points, and any cluster-specific startup commands.
-You select the profile with the `-r` option for attached execution, or with the `-b` option for detached execution.
-You can omit the profile to run on the local machine.
-
-The following command composes the three concepts.
-
-```console
-$ nemotron steps run sft/automodel -c tiny -r lepton_sft_automodel
-```
-
-The CLI reads the `sft/automodel` step, applies the `tiny` configuration, and submits the job to the cluster the `lepton_sft_automodel` profile describes.
-Change the step to choose a different training approach.
-Change the configuration to change parameters.
-Change the profile to move to a different cluster.
-
 ## Where To Go Next
 
+- [Nemotron Steps Basics](../../steps/basics.md) defines the *step*, *configuration*, and *environment profile* model that every training command uses.
 - [Getting Started With Training Steps](../getting-started.md) walks through a first run.
 - [Reference](../reference/index.md) lists every step, configuration, and command-line option.
