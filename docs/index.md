@@ -149,6 +149,15 @@ deployment-guides.md
 ```
 
 ```{toctree}
+:caption: Nemotron Steps
+:hidden:
+
+About <steps/index.md>
+Basics <steps/basics.md>
+Getting Started <steps/getting-started.md>
+```
+
+```{toctree}
 :caption: Training Recipes
 :hidden:
 
