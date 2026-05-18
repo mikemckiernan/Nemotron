@@ -49,19 +49,19 @@ If you would rather not edit the file, leave `workflow.stages` as is and specify
        --config deploy/nemotron-customizer/airgap/airgap.yaml
    ```
 
-  Review the `[airgap]` section at the end of the output.
-  Confirm the images and steps match the steps you specified.
-  The following example is for the `translate/translation` and `sft/megatron_bridge` steps.
-  The `data_pre/sft_packing` is a dependency.
+   Review the `[airgap]` section at the end of the output.
+   Confirm the images and steps match the steps you specified.
+   The following example is for the `translate/translation` and `sft/megatron_bridge` steps.
+   The `data_pre/sft_packing` is a dependency.
 
-  ```text
-  ...
-  [airgap] wrote /home/user/nemotron/deploy/nemotron-customizer/airgap/out/airgap-manifest.yaml
-  [airgap] selected execution images:
-    - translate/translation: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
-    - data_prep/sft_packing: nemotron-customizer-nemo-megatron-airgap-55d08ccf:latest
-    - sft/megatron_bridge: nemotron-customizer-nemo-megatron-airgap-2fea0796:latest
-  ```
+   ```text
+   ...
+   [airgap] wrote /home/user/nemotron/deploy/nemotron-customizer/airgap/out/airgap-manifest.yaml
+   [airgap] selected execution images:
+     - translate/translation: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
+     - data_prep/sft_packing: nemotron-customizer-nemo-megatron-airgap-55d08ccf:latest
+     - sft/megatron_bridge: nemotron-customizer-nemo-megatron-airgap-2fea0796:latest
+   ```
 
 ### Networked Host: Build and Export Images
 
