@@ -27,7 +27,7 @@ Use `nemotron steps translation` when you need:
 
 - Localized training or synthetic corpora from translating natural-language fields while preserving structured payloads such as chat turns, tool payloads, and fenced code blocks.
   Field paths, `output_mode`, and segmentation interact with that behavior; see {doc}`how-to/configure-fields-and-output` and {doc}`explanation/segmentation`.
-- Optional FAITH evaluation with configurable thresholds and filtering, without a separate evaluation command-line interface (CLI).
+- Optional FAITH evaluation with configurable thresholds and filtering, without a separate evaluation CLI.
 - Repeatable configuration by using the checked-in `default.yaml` plus CLI overrides.
 
 ## Pipeline Summary

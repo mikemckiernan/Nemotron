@@ -154,7 +154,7 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 - The Nemotron repository is synced and `uv sync` is complete.
 - A bearer token is exported as the environment variable named in `deployment.api_key_name`.
   The sample files name `NGC_API_KEY`, and the NVIDIA-hosted endpoint uses `NVIDIA_API_KEY`.
-- A reachable evaluation endpoint uniform resource locator (URL) and a model identifier the endpoint advertises.
+- A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
 - A tokenizer that matches the served model.
   Accepted shapes are a Hugging Face model identifier, a filesystem path, and the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
 

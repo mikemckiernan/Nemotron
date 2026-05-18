@@ -29,7 +29,7 @@ Start with `segmentation_mode: coarse` when records contain JSON-like strings, t
 
 Move to `segmentation_mode: fine` when you observe clipped sentences, missing trailing punctuation, or uneven translations inside long paragraphs, and you have confirmed the issue disappears after finer segmentation.
 
-Fine mode increases application programming interface (API) calls or neural machine translation (NMT) batches. Budget concurrency by using `max_concurrent_requests` or backend-specific knobs.
+Fine mode increases API calls or neural machine translation (NMT) batches. Budget concurrency by using `max_concurrent_requests` or backend-specific knobs.
 
 ## Interaction With FAITH
 

@@ -76,7 +76,7 @@ Used whenever `backend=llm` or FAITH needs an OpenAI-compatible judge.
 
 | Block | When needed |
 |-------|-------------|
-| `nmt` | Hypertext transfer protocol (HTTP) microservice URL, batching, timeouts. |
+| `nmt` | HTTP microservice URL, batching, timeouts. |
 | `google` | Project metadata and API version. Version `v3` requires `project_id`. |
 | `aws` | Region plus concurrency limits. |
 

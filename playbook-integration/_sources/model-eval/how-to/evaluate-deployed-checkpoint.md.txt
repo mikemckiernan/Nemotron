@@ -29,7 +29,7 @@ Choose the path that matches your environment and the level of orchestration you
 | --- | --- | --- | --- |
 | Self-hosted vLLM Docker container | Local workstation or remote host | You start `vllm serve`, you stop it | <https://docs.vllm.ai/> and the launcher example at `Evaluator/packages/nemo-evaluator-launcher/examples/local_vllm_logprobs.yaml` |
 | NeMo Export-Deploy with Ray Serve or PyTriton | Local or Slurm host with NeMo Framework container | You run the Export-Deploy scripts | <https://github.com/NVIDIA-NeMo/Export-Deploy> and `Evaluator/docs/deployment/nemo-fw/` |
-| DGX Cloud Lepton managed endpoint | Lepton workspace | Lepton dashboard or command-line interface | <https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/> |
+| DGX Cloud Lepton managed endpoint | Lepton workspace | Lepton dashboard or CLI | <https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/> |
 | NeMo Evaluator Launcher orchestration | Local, Slurm, or Lepton | One launcher command deploys and evaluates | `Evaluator/docs/deployment/launcher-orchestrated/` |
 
 :::{admonition} Lepton Example

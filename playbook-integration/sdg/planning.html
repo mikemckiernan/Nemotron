@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tips for Model Training with Agents &#8212; Nemotron</title>
+    <title>Planning a Synthetic Data Generation Run &#8212; Nemotron</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=18b33a23"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'train-models/using-skill';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'sdg/planning';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
@@ -67,8 +67,6 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Explanation" href="explanation/index.html" />
-    <link rel="prev" title="Getting Started with Training Steps" href="getting-started.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -372,22 +370,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../sdg/index.html">About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sdg/getting-started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sdg/using-skills.html">Tips for Using Agents</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/preference-data.html">Generate Preference Data for DPO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/dispatch-to-cluster.html">Dispatch SDG to a Cluster</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/run.html">Tips for the Data Generation Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/preference-data.html">Generate Preference Data for DPO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/dispatch-to-cluster.html">Dispatch SDG to a Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/run.html">Tips for the Data Generation Pipeline</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../sdg/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/reference/config-schema.html">Config Schema</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/reference/cli-reference.html">CLI Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/reference/output-projections.html">Output Projections</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sdg/reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/config-schema.html">Config Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli-reference.html">CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/output-projections.html">Output Projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -451,54 +449,54 @@
 </details></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="index.html">About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Tips for Using Agents</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="explanation/basics.html">Training Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/artifact-graph.html">Artifact Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/training-libraries.html">Training Libraries</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../train-models/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../train-models/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../train-models/using-skill.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/explanation/basics.html">Training Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/explanation/artifact-graph.html">Artifact Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/explanation/training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how-to/run-optimization.html">Run Post-Training Optimization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/run-optimization.html">Run Post-Training Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/cli-reference.html">Nemotron Steps CLI Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/env-profile-generator.html">Env Profile Generator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/step-catalog.html">Step Catalog</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/config-conventions.html">Configuration Conventions</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/sft/index.html">SFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference/sft/automodel.html">sft/automodel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/sft/megatron-bridge.html">sft/megatron_bridge</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/reference/cli-reference.html">Nemotron Steps CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/reference/env-profile-generator.html">Env Profile Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/reference/step-catalog.html">Step Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/reference/config-conventions.html">Configuration Conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/sft/index.html">SFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/sft/automodel.html">sft/automodel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/sft/megatron-bridge.html">sft/megatron_bridge</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/peft/index.html">PEFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference/peft/automodel.html">peft/automodel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/peft/megatron-bridge.html">peft/megatron_bridge</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/peft/index.html">PEFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/peft/automodel.html">peft/automodel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/peft/megatron-bridge.html">peft/megatron_bridge</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/rl/index.html">RL Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference/rl/dpo.html">rl/nemo_rl/dpo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/rl/rlvr.html">rl/nemo_rl/rlvr</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/rl/index.html">RL Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/rl/dpo.html">rl/nemo_rl/dpo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/rl/rlvr.html">rl/nemo_rl/rlvr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/optimize/prune.html">optimize/modelopt/prune</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/optimize/distill.html">optimize/modelopt/distill</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/prune.html">optimize/modelopt/prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/distill.html">optimize/modelopt/distill</a></li>
 </ul>
 </details></li>
 </ul>
@@ -688,7 +686,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Tips for Model Training with Agents</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Planning a Synthetic Data Generation Run</span></li>
   </ul>
 </nav>
 </div>
@@ -705,86 +703,48 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="tips-for-model-training-with-agents">
-<h1>Tips for Model Training with Agents<a class="headerlink" href="#tips-for-model-training-with-agents" title="Link to this heading">#</a></h1>
-<section id="have-a-goal-in-mind">
-<h2>Have a Goal in Mind<a class="headerlink" href="#have-a-goal-in-mind" title="Link to this heading">#</a></h2>
-<p>You might want to add instruction following, specialize a model on your domain or product voice, align behavior with preferences after supervised fine tuning, or land on a smaller or faster model through distillation, pruning, or quantization.
-Those are concrete outcomes to name before you reach for an agent.</p>
-<p>This page helps you get that plan and work efficiently with your agent.
-You steer an agent through the <em>nemotron-customize</em> skill (<code class="docutils literal notranslate"><span class="pre">/nemotron-customize</span></code>).
-The agent can use the skill to produce an explicit series of steps and commands before anything executes.
-The full skill contract lives in <code class="docutils literal notranslate"><span class="pre">skills/nemotron-customize/SKILL.md</span></code> at the repository root.</p>
-<p>Use the skill when you have a general direction, but you are unsure how to proceed inside this repository: which steps apply, how artifacts connect, or what YAML shape the runners expect.</p>
+  <!--
+SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="planning-a-synthetic-data-generation-run">
+<span id="sdg-planning"></span><h1>Planning a Synthetic Data Generation Run<a class="headerlink" href="#planning-a-synthetic-data-generation-run" title="Link to this heading">#</a></h1>
+<p>Synthetic data generation involves a sequence of decisions that determine whether the resulting data is useful for training.</p>
+<section id="what-does-good-source-data-look-like-for-your-domain">
+<h2>What Does Good Source Data Look Like for Your Domain?<a class="headerlink" href="#what-does-good-source-data-look-like-for-your-domain" title="Link to this heading">#</a></h2>
+<p>The seed file and prompts are where your domain knowledge enters the pipeline.
+The scenarios, constraints, and vocabulary you bring to the seed scenarios shape everything the generation produces.
+A pipeline run without domain knowledge produces generic output from the model’s own training data regardless of how well the column specs are written.</p>
+<p>The quality of your seed material is the strongest lever you have on the quality of what the pipeline produces.</p>
 </section>
-<section id="what-to-tell-the-agent">
-<h2>What to Tell the Agent<a class="headerlink" href="#what-to-tell-the-agent" title="Link to this heading">#</a></h2>
-<p>The agent maps your goal to a plan: an ordered set of steps, configs, and commands.
-The more grounded the context you give it, the less it has to guess—and the less rework you do later.
-The lists below use progressive disclosure: start with the short block, then add detail as the session develops.</p>
-<section id="have-ready-early">
-<h3>Have Ready Early<a class="headerlink" href="#have-ready-early" title="Link to this heading">#</a></h3>
-<p>These items keep the first prompts grounded and cut down rework.
-The nested lines are example sentences you can paste or adapt; they are not the only valid wording.</p>
-<ul>
-<li><p>Desired outcome in plain language, so the agent can narrow the stage chain and success checks.</p>
-<div class="sd-font-italic sd-font-weight-lighter docutils">
-<ul class="simple">
-<li><p>“We want the model to follow our runbook-style instructions on support tickets without drifting into free-form guesses when the ticket is incomplete.”</p></li>
-<li><p>“After training, reviewers should see fewer policy violations on a fixed red-team prompt set we already use in evaluation.”</p></li>
-</ul>
-</div>
-</li>
-<li><p>Rough stage story when you already know it (for example SFT then alignment), or an explicit note that you want a recommendation, so the agent does not guess your pipeline shape.</p>
-<div class="sd-font-italic sd-font-weight-lighter docutils">
-<ul class="simple">
-<li><p>“We already ran SFT in another team’s repo; from here we only need alignment on preference data against that checkpoint.”</p></li>
-<li><p>“We do not know the right order; recommend a minimal path from the catalog given our data and hardware.”</p></li>
-</ul>
-</div>
-</li>
-<li><p>Where inputs live, paths or Hugging Face Hub datasets, and what you call the starting weights, so manifests and <code class="docutils literal notranslate"><span class="pre">consumes</span></code> edges can line up without invented paths.</p>
-<div class="sd-font-italic sd-font-weight-lighter docutils">
-<ul class="simple">
-<li><p>“Training chat lives at <code class="docutils literal notranslate"><span class="pre">/data/support/train.jsonl</span></code> on the shared file system. The evaluation JSONL is next to it under <code class="docutils literal notranslate"><span class="pre">eval.jsonl</span></code>.”</p></li>
-<li><p>“Base weights are <code class="docutils literal notranslate"><span class="pre">organization/model-name</span></code> on the Hugging Face Hub. We have a local cache under <code class="docutils literal notranslate"><span class="pre">/scratch/hf-cache</span></code>.”</p></li>
-</ul>
-</div>
-</li>
-<li><p>Hardware you schedule against at least at nodes, GPUs per node, and GPU family, so scale and parallelism assumptions stay realistic.</p>
-<div class="sd-font-italic sd-font-weight-lighter docutils">
-<ul class="simple">
-<li><p>“We can schedule up to four nodes with eight H100 GPUs per node in Lepton for training; prefer fewer nodes if the step supports it cleanly.”</p></li>
-<li><p>“Slurm jobs must write checkpoints under <code class="docutils literal notranslate"><span class="pre">/project/checkpoints/$USER/run-id</span></code> so retention policies pick them up.”</p></li>
-</ul>
-</div>
-</li>
-</ul>
-<p>You do not need step identifiers or perfect file formats before you start if you are willing to discover those with the agent in the next block.</p>
+<section id="what-makes-a-generated-record-good-enough-to-train-on">
+<h2>What Makes a Generated Record Good Enough to Train on?<a class="headerlink" href="#what-makes-a-generated-record-good-enough-to-train-on" title="Link to this heading">#</a></h2>
+<p>Before scaling, be able to evaluate the quality of a generated record for your domain.</p>
+<p>If you were building a hand-curated training dataset, would you include this record?
+If yes, it belongs.</p>
+<p>If you would hesitate because the response sounds evasive, the scenario is implausible, or the assistant fabricated a detail, that is a signal to revise the prompt or seed before generating at scale.</p>
+<p>Preview records before you commit to generating thousands of records.</p>
 </section>
-<section id="fine-to-clarify-during-the-session">
-<h3>Fine to Clarify During the Session<a class="headerlink" href="#fine-to-clarify-during-the-session" title="Link to this heading">#</a></h3>
-<p>The skill uses an <em>orient phase</em> so that you and the agent can tighten these together.</p>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>How your data layout lines up with what a chosen step expects, using <a class="reference internal" href="how-to/data-and-checkpoint-formats.html"><span class="std std-doc">Data and Checkpoint Formats</span></a> and the step’s <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> as you go.</p></li>
-<li><p>Backend choice inside a family, using <a class="reference internal" href="how-to/choose-sft-backend.html"><span class="std std-doc">Choose an SFT Backend</span></a>, <a class="reference internal" href="how-to/choose-peft-backend.html"><span class="std std-doc">Choose a PEFT Backend</span></a>, or <a class="reference internal" href="how-to/choose-rl-step.html"><span class="std std-doc">Choose an RL Alignment Step</span></a> when you want a human-readable decision before configs land.</p></li>
-<li><p>Whether the first execution should validate end-to-end execution with a short sample run or target production-scale training, so defaults match intent.</p></li>
-<li><p>Tokenizer, template, and sequence-length consistency across prep and train when the pipeline touches more than one stage.</p></li>
+<li><p>First run: <span class="xref std std-doc">../getting-started</span></p></li>
+<li><p>Adapt the pipeline to your domain: <span class="xref std std-doc">../how-to/create-greenteme-airlines-dataset</span></p></li>
+<li><p>Preview and iterate on a config: <span class="xref std std-doc">../how-to/run</span></p></li>
+<li><p>Config field reference: <span class="xref std std-doc">../reference/config-schema</span></p></li>
 </ul>
-</section>
-<section id="where-to-look-when-you-are-unsure">
-<h3>Where to Look When You Are Unsure<a class="headerlink" href="#where-to-look-when-you-are-unsure" title="Link to this heading">#</a></h3>
-<p>Use the <a class="reference internal" href="how-to/index.html"><span class="std std-doc">How-To Guides</span></a> for task-level procedures.
-Use <a class="reference internal" href="reference/index.html"><span class="std std-doc">Reference</span></a> for naming and configuration conventions.
-Use <a class="reference internal" href="explanation/index.html"><span class="std std-doc">Explanation</span></a> for how artifacts and libraries fit together.
-You can also ask the agent to walk a specific step with <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">show</span></code> once you know its name.</p>
-</section>
-</section>
-<section id="your-role-in-the-loop">
-<h2>Your Role in the Loop<a class="headerlink" href="#your-role-in-the-loop" title="Link to this heading">#</a></h2>
-<p>The skill follows <em>orient</em>, <em>plan</em>, <em>act</em>, and then <em>verify</em>.
-You answer missing constraints, approve the plan before files change, and check that stage outputs line up with the next stage’s inputs.
-<code class="docutils literal notranslate"><span class="pre">SKILL.md</span></code> spells out each phase, file naming, and verification expectations for the whole catalog, not only training.</p>
 </section>
 </section>
 
@@ -798,24 +758,6 @@ You answer missing constraints, approve the plan before files change, and check 
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="getting-started.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Getting Started with Training Steps</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="explanation/index.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Explanation</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -837,14 +779,9 @@ You answer missing constraints, approve the plan before files change, and check 
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#have-a-goal-in-mind">Have a Goal in Mind</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-tell-the-agent">What to Tell the Agent</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#have-ready-early">Have Ready Early</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fine-to-clarify-during-the-session">Fine to Clarify During the Session</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-look-when-you-are-unsure">Where to Look When You Are Unsure</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#your-role-in-the-loop">Your Role in the Loop</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-does-good-source-data-look-like-for-your-domain">What Does Good Source Data Look Like for Your Domain?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-makes-a-generated-record-good-enough-to-train-on">What Makes a Generated Record Good Enough to Train on?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
 </ul>
   </nav></div>
 

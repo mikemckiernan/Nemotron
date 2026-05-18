@@ -48,7 +48,7 @@ For stage flow and design rationale, see the explanation pages linked from {doc}
 
 | Symptom | What to do |
 | --- | --- |
-| Timeouts, hypertext transfer protocol (HTTP) responses in the 429 range, or bursty failures when calling remote endpoints | Reduce `max_parallel_requests` and related batch settings in your YAML, rerun on a smaller slice of data, and confirm application programming interface (API) keys and quotas. See {doc}`../explanation/question-generation` and {doc}`../how-to/custom-model-endpoints`. |
+| Timeouts, HTTP responses in the 429 range, or bursty failures when calling remote endpoints | Reduce `max_parallel_requests` and related batch settings in your YAML, rerun on a smaller slice of data, and confirm API keys and quotas. See {doc}`../explanation/question-generation` and {doc}`../how-to/custom-model-endpoints`. |
 
 ## Related Reference
 
