@@ -1,7 +1,7 @@
 # Model Training with Nemotron Steps
 
 This section documents how to run supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL) alignment, and post-training optimization with Nemotron *steps*.
-Each step packages a training approach, configuration files, and entry logic that you invoke through the `nemotron steps` command-line interface (CLI).
+Each step packages a training approach, configuration files, and entry logic that you invoke through the `nemotron steps` CLI.
 For the definitions of *step*, *configuration*, and *environment profile* that apply across every domain, see [Nemotron Steps Basics](../steps/basics.md).
 If you are new to fine-tuning, start with [Training Basics](explanation/basics.md), which defines the training-specific terms the rest of this section uses.
 

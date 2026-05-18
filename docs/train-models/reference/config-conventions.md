@@ -12,7 +12,7 @@ content:
 
 # Configuration Conventions
 
-This page describes the per-step configuration layout, the rules the command-line interface (CLI) uses to resolve a configuration name, and the rules it uses to merge command-line overrides.
+This page describes the per-step configuration layout, the rules the CLI uses to resolve a configuration name, and the rules it uses to merge command-line overrides.
 The conventions apply to every step registered under `src/nemotron/steps/`.
 
 Each step ships its manifest, configuration files, and entry script next to each other on disk.

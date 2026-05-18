@@ -71,6 +71,9 @@ myst_fence_as_directive = ["mermaid"]
 # Configure mermaid diagrams
 mermaid_version = "latest"  # Use the latest version of mermaid
 
+copybutton_prompt_text = ">>> |$ |# "
+copybutton_exclude = ".linenos, .gp, .go"
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
@@ -117,4 +120,3 @@ if os.environ.get("CI", False):
         ".*github\\.com.*",
         ".*githubusercontent\\.com.*",
     ]
-

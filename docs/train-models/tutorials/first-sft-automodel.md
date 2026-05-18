@@ -6,7 +6,7 @@ This tutorial walks through supervised fine tuning (SFT) by using the `sft/autom
 
 - If you override the defaults in `tiny.yaml`, you need instruction data in JSON Lines (JSONL) form where each record includes a `messages` field in chat format.
 - A Hugging Face access token if the base model is gated or must be downloaded from the Hugging Face Hub.
-- Enough graphics processing unit (GPU) memory for the model you select in YAML. Tiny configurations often use a small model. You should still verify memory before you scale the run.
+- Enough GPU memory for the model you select in YAML. Tiny configurations often use a small model. You should still verify memory before you scale the run.
 
 ## Configure Paths
 

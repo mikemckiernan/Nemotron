@@ -78,7 +78,7 @@ The probe checks three things.
 - The configured `endpoint_type` agrees with the URL path inside `deployment.url`.
 - The endpoint advertises the configured `deployment.model_id` as a model identifier.
 
-A failure in the first check surfaces as a connection error or a hypertext transfer protocol (HTTP) status error from `check_endpoint`.
+A failure in the first check surfaces as a connection error or an HTTP status error from `check_endpoint`.
 A failure in the second check surfaces as the `wrong_endpoint_type` named error.
 A failure in the third check surfaces as a model-not-found error from `check_endpoint`, with the configured `model_id` named in the message.
 

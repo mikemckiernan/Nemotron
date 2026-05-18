@@ -18,7 +18,7 @@ The command `nemotron steps run` resolves a step identifier to `step.py`, loads 
 
 1. Confirm `uv run nemotron steps show <step_id>` prints the run specification you expect.
 2. Run with `--dry-run` once per new profile to catch mount and image issues early.
-3. For reinforcement learning (RL) steps that require Ray, align node count, graphics processing unit (GPU) count, and Ray settings with what NeMo RL expects for your cluster. Long-form details stay in NeMo Run and NeMo RL documentation linked from each step `step.toml` reference block.
+3. For reinforcement learning (RL) steps that require Ray, align node count, GPU count, and Ray settings with what NeMo RL expects for your cluster. Long-form details stay in NeMo Run and NeMo RL documentation linked from each step `step.toml` reference block.
 
 ## Related Reading
 

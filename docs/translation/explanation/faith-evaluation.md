@@ -15,7 +15,7 @@ content:
 This page explains how optional FAITH scoring behaves when `faith_eval.enabled` is `true` inside `nemotron steps translation`.
 FAITH stands for the five quality dimensions the judge scores against each translated segment: *Fluency*, *Accuracy*, *Idiomaticity*, *Terminology*, and *Handling of Format*.
 
-FAITH runs in the same `TranslationStage` invocation as translation. There is no separate command-line interface only for FAITH scoring.
+FAITH runs in the same `TranslationStage` invocation as translation. There is no separate CLI only for FAITH scoring.
 
 ## What FAITH Adds
 

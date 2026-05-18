@@ -12,7 +12,7 @@ content:
 
 # Run NMT Translation
 
-Use this guide when translation should run against `backend: nmt` and your own hypertext transfer protocol (HTTP) microservice that performs *neural machine translation (NMT)*.
+Use this guide when translation should run against `backend: nmt` and your own HTTP microservice that performs *neural machine translation (NMT)*.
 
 ## Prerequisites
 

@@ -1,0 +1,14 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "How does retrieval‑augmented generation help language models give more factual answers? I’m curious about how pulling in external information changes the way the model responds."
+    },
+    {
+      "role": "assistant",
+      "content": "Retrieval‑augmented generation (RAG) gives a language model a way to look up up‑to‑date, external sources before it creates a response. When the model is asked a factual question, it first retrieves relevant documents or passages from a database, indexes, or the web. Those retrieved snippets are then fed back into the model as part of its context, allowing it to base its answer on concrete evidence rather than only on patterns learned during training. This external grounding:\n\n* Reduces hallucinations, because the model can verify claims against retrieved facts.  \n* Expands the knowledge base beyond the static training cut‑off, so the model can answer about recent events or niche topics.  \n* Improves precision by letting the model cite or paraphrase the exact retrieved passages, making the answer more traceable and verifiable.  \n\nIn short, RAG changes the workflow from “generate based on internal memory” to “generate based on a blend of internal reasoning and freshly fetched external data,” producing more accurate, current, and source‑backed answers."
+    }
+  ],
+  "persona": "student",
+  "topic": "how retrieval-augmented generation improves factual answers"
+}

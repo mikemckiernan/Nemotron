@@ -149,24 +149,13 @@ deployment-guides.md
 ```
 
 ```{toctree}
-:caption: Nemotron Steps
+:caption: Nemotron Step Basics
 :hidden:
 
 About <steps/index.md>
 Basics <steps/basics.md>
 Getting Started <steps/getting-started.md>
 Airgap Environment <steps/airgap.md>
-```
-
-```{toctree}
-:caption: Training Recipes
-:hidden:
-
-Nemotron 3 Nano <nemotron/nano3/README.md>
-Nemotron 3 Omni <nemotron/omni3/README.md>
-Nemotron 3 Super <nemotron/super3/README.md>
-Llama Nemotron Embed <nemotron/embed/README.md>
-nemotron/artifacts.md
 ```
 
 ```{toctree}
@@ -229,6 +218,17 @@ Reference <model-eval/reference/index.md>
 ```
 
 ```{toctree}
+:caption: Training Recipes
+:hidden:
+
+Nemotron 3 Nano <nemotron/nano3/README.md>
+Nemotron 3 Omni <nemotron/omni3/README.md>
+Nemotron 3 Super <nemotron/super3/README.md>
+Llama Nemotron Embed <nemotron/embed/README.md>
+nemotron/artifacts.md
+```
+
+```{toctree}
 :caption: Nano3 Stages
 :hidden:
 
@@ -266,7 +266,6 @@ nemotron/super3/rl/data-prep.md
 nemotron/super3/evaluate.md
 nemotron/super3/quantization.md
 ```
-
 
 ```{toctree}
 :caption: Nemotron Kit
