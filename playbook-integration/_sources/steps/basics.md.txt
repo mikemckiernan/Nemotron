@@ -6,7 +6,7 @@
 (steps-basics)=
 # Nemotron Steps Basics
 
-This page defines the building blocks of the `nemotron steps` command-line interface (CLI).
+This page defines the building blocks of the `nemotron steps` CLI.
 You do not need to read it to invoke a single command, but every domain section in the documentation assumes that you already understand these definitions.
 
 ## What a Step Is

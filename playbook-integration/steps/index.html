@@ -368,6 +368,7 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="airgap.html">Airgap Environment</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training Recipes</span></p>
 <ul class="nav bd-sidenav">
@@ -710,7 +711,7 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="about-nemotron-steps">
 <span id="steps-index"></span><h1>About Nemotron Steps<a class="headerlink" href="#about-nemotron-steps" title="Link to this heading">#</a></h1>
-<p>A Nemotron <em>step</em> is a named, reusable unit of work that you invoke with the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span></code> command-line interface (CLI).
+<p>A Nemotron <em>step</em> is a named, reusable unit of work that you invoke with the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span></code> CLI.
 Each step declares the artifacts it consumes, the artifacts it produces, and a set of named configurations that you can run on your laptop, on a single node, or on a cluster.
 Steps are the building blocks of every Nemotron pipeline.</p>
 <p>This section is the entry point for the step model itself.
@@ -865,22 +866,25 @@ The Basics page covers profiles and the <code class="docutils literal notranslat
 <tr class="row-odd"><td><p>List the available steps from the CLI</p></td>
 <td><p><a class="reference internal" href="getting-started.html"><span class="std std-doc">Getting Started With Steps</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Generate synthetic training data</p></td>
+<tr class="row-even"><td><p>Run steps in an airgap environment</p></td>
+<td><p><a class="reference internal" href="airgap.html"><span class="std std-doc">Airgap</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Generate synthetic training data</p></td>
 <td><p><a class="reference internal" href="../sdg/index.html"><span class="std std-doc">Synthetic Data Generation</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Translate a corpus</p></td>
+<tr class="row-even"><td><p>Translate a corpus</p></td>
 <td><p><a class="reference internal" href="../translation/index.html"><span class="std std-doc">Translation</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Build an MCQ benchmark</p></td>
+<tr class="row-odd"><td><p>Build an MCQ benchmark</p></td>
 <td><p><a class="reference internal" href="../build-benchmarks/index.html"><span class="std std-doc">Build MCQ Benchmarks</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Fine-tune or align a model</p></td>
+<tr class="row-even"><td><p>Fine-tune or align a model</p></td>
 <td><p><a class="reference internal" href="../train-models/index.html"><span class="std std-doc">Model Training</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Evaluate a model</p></td>
+<tr class="row-odd"><td><p>Evaluate a model</p></td>
 <td><p><a class="reference internal" href="../model-eval/index.html"><span class="std std-doc">Model Evaluation</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Set up a Lepton or Slurm environment profile</p></td>
+<tr class="row-even"><td><p>Set up a Lepton or Slurm environment profile</p></td>
 <td><p><a class="reference internal" href="basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a></p></td>
 </tr>
 </tbody>

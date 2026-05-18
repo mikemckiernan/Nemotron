@@ -155,6 +155,7 @@ deployment-guides.md
 About <steps/index.md>
 Basics <steps/basics.md>
 Getting Started <steps/getting-started.md>
+Airgap Environment <steps/airgap.md>
 ```
 
 ```{toctree}

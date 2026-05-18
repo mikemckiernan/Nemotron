@@ -6,15 +6,15 @@
 (steps-getting-started)=
 # Getting Started With Steps
 
-This guide walks through the basic command-line interface (CLI) operations that you use to discover steps, inspect their inputs and outputs, and chain them into pipelines.
-You do not need a cluster or a graphics processing unit (GPU) to follow along.
+This guide walks through the basic CLI operations that you use to discover steps, inspect their inputs and outputs, and chain them into pipelines.
+You do not need a cluster or a GPU to follow along.
 Every command in this guide reads metadata only.
 
 If you have not read [Nemotron Steps Basics](basics.md), start there for the definitions of *step*, *configuration*, *environment profile*, and *artifact*.
 
 ## Prerequisites
 
-You need the Nemotron command-line interface installed and on your `PATH`.
+You need the Nemotron CLI installed and on your `PATH`.
 Confirm the install with the following command.
 
 ```console
@@ -48,7 +48,7 @@ Common categories include `sft`, `peft`, `rl`, `pretrain`, `optimize`, `convert`
 
 ### Emit Machine-Readable JSON
 
-Pass `--json` to emit a JavaScript Object Notation (JSON) array instead of a table.
+Pass `--json` to emit a JSON array instead of a table.
 The JSON output is the same data the table renders, with no formatting noise, so it works well with `jq` and with agent tooling.
 
 ```console
