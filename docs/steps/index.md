@@ -6,7 +6,7 @@
 (steps-index)=
 # About Nemotron Steps
 
-A Nemotron *step* is a named, reusable unit of work that you invoke with the `nemotron steps` command-line interface (CLI).
+A Nemotron *step* is a named, reusable unit of work that you invoke with the `nemotron steps` CLI.
 Each step declares the artifacts it consumes, the artifacts it produces, and a set of named configurations that you can run on your laptop, on a single node, or on a cluster.
 Steps are the building blocks of every Nemotron pipeline.
 
@@ -146,6 +146,7 @@ The Basics page covers profiles and the `env/env_toml` step in detail.
 | --- | --- |
 | Learn what a step, configuration, and profile are | [Nemotron Steps Basics](basics.md) |
 | List the available steps from the CLI | [Getting Started With Steps](getting-started.md) |
+| Run steps in an airgap environment | [Airgap](airgap.md) |
 | Generate synthetic training data | [Synthetic Data Generation](../sdg/index.md) |
 | Translate a corpus | [Translation](../translation/index.md) |
 | Build an MCQ benchmark | [Build MCQ Benchmarks](../build-benchmarks/index.md) |
