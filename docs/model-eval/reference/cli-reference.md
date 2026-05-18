@@ -6,7 +6,7 @@
 (model-eval-cli-reference)=
 # CLI Reference
 
-This page documents the command-line interface (CLI) surface for `nemotron steps run eval/model_eval`.
+This page documents the CLI surface for `nemotron steps run eval/model_eval`.
 The flags listed here are shared by every step.
 The Hydra override examples are specific to this step's YAML schema.
 

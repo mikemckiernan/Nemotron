@@ -72,7 +72,7 @@ Example: `grpo.num_generations_per_prompt=16`
 
 ```{option} env.nemo_gym.genrm_model.responses_api_models.vllm_model.model=<id-or-path>
 
-The Hugging Face identifier or local path for the generative reward model that NeMo-Gym serves through its responses application programming interface (API).
+The Hugging Face identifier or local path for the generative reward model that NeMo-Gym serves through its responses API.
 
 Default: `meta-llama/Llama-3.2-1B-Instruct` (or the value of `RL_REWARD_MODEL` when that variable is set).
 

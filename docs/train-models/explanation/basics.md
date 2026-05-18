@@ -33,7 +33,7 @@ SFT is the usual first step after base pretraining when you adapt a model to a n
 
 *Parameter-efficient fine-tuning* (PEFT) is fine-tuning that updates only a small number of new weights, called *adapter weights*, while keeping the base model weights frozen.
 The most common form in the Nemotron pipeline is *low-rank adaptation* (LoRA), which inserts small matrices alongside the existing weight matrices and trains only those small matrices.
-PEFT runs cost a fraction of full SFT in graphics processing unit (GPU) memory and produce a small adapter artifact instead of a full model.
+PEFT runs cost a fraction of full SFT in GPU memory and produce a small adapter artifact instead of a full model.
 You can serve a PEFT adapter on top of the base model at inference time, or you can merge the adapter with the base model after training to produce a single deployable checkpoint.
 
 ### Reinforcement Learning Alignment

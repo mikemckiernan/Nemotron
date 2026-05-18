@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Reference index for Nemotron training steps, configuration conventions, and the command-line interface."
+description: "Reference index for Nemotron training steps, configuration conventions, and the CLI."
 topics: ["Training", "Reference"]
 tags: ["Reference", "CLI", "Configuration", "Steps"]
 content:
@@ -13,7 +13,7 @@ content:
 # Training Reference
 
 This section provides lookup material for every supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL), and optimization step packaged under `src/nemotron/steps/`.
-Use these pages to find the exact command-line interface (CLI) syntax, configuration file layout, parameters, and configuration overrides for each step.
+Use these pages to find the exact CLI syntax, configuration file layout, parameters, and configuration overrides for each step.
 
 ## Reference Sections
 

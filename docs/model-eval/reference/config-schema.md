@@ -37,7 +37,7 @@ Include a run identifier in the override you pass on the command line if you wan
 
 ## Deployment
 
-The `deployment` block describes the hypertext transfer protocol (HTTP) endpoint that NeMo Evaluator calls.
+The `deployment` block describes the HTTP endpoint that NeMo Evaluator calls.
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |

@@ -61,7 +61,7 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
 1. Clone the repository:
 
    ```console
-   git clonehttps://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
    ```
 
 1. From the repository root, add the dependencies for building benchmarks:

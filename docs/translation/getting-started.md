@@ -15,7 +15,7 @@ content:
 
 You will produce translated JSON Lines (JSONL) shards under an `output_dir` you choose, with FAITH quality scoring applied in the same run. FAITH is the translation-quality scorer name used in NVIDIA NeMo Curator documentation.
 
-This tutorial runs `nemotron steps translation` end to end on a small sample file. You use `src/nemotron/steps/translate/translation/config/default.yaml` and command-line interface (CLI) dotlist overrides.
+This tutorial runs `nemotron steps translation` end to end on a small sample file. You use `src/nemotron/steps/translate/translation/config/default.yaml` and CLI dotlist overrides.
 
 :::{card}
 What You Will Produce

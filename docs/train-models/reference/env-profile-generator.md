@@ -22,7 +22,7 @@ You typically run this step once, before you submit your first training job to a
 nemotron steps run env/env_toml -c <config-name> [<key>=<value> ...]
 ```
 
-The command-line interface (CLI) accepts the same dotlist override syntax used by every other step.
+The CLI accepts the same dotlist override syntax used by every other step.
 Refer to the [Nemotron Steps CLI Reference](cli-reference.md) for the shared flag set.
 
 ## Configuration Files
@@ -32,7 +32,7 @@ The step ships three configuration files under `src/nemotron/steps/env/env_toml/
 | File | Cluster Shape |
 | --- | --- |
 | `lepton.yaml` | Targets a DGX Cloud Lepton workspace with node-group, fileset mount, and resource-shape placeholders that you override at the command line. |
-| `slurm.yaml` | Targets a Slurm cluster reached over Secure Shell (SSH), with host, account, partition, and Lustre mount placeholders. |
+| `slurm.yaml` | Targets a Slurm cluster reached over SSH, with host, account, partition, and Lustre mount placeholders. |
 | `dgxcloud.yaml` | Targets a DGX Cloud Run:AI installation with project, department, and image-pull credential placeholders. |
 
 The default configuration is `lepton`.

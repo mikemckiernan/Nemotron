@@ -6,7 +6,7 @@ Parameter-efficient fine tuning (PEFT) in Nemotron is implemented as dedicated s
 
 | Step id | Best when | Primary inputs | Primary output artifact |
 |---------|------------|------------------|---------------------------|
-| `peft/automodel` | You have a Hugging Face base, chat-formatted JSON Lines (JSONL), and a small graphics processing unit (GPU) count | `training_jsonl` | `checkpoint_lora` |
+| `peft/automodel` | You have a Hugging Face base, chat-formatted JSON Lines (JSONL), and a small GPU count | `training_jsonl` | `checkpoint_lora` |
 | `peft/megatron_bridge` | You have a Megatron base checkpoint and packed Apache Parquet at scale | `packed_parquet`, `checkpoint_megatron` | `checkpoint_lora` |
 
 ## Decision Flow

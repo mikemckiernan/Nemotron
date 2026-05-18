@@ -14,7 +14,7 @@ content:
 
 This page documents the `nemotron steps` command group, the entry point for discovering, inspecting, and running every supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL), and optimization step packaged under `src/nemotron/steps/`.
 
-The command group is registered by the Nemotron command-line interface (CLI) and exposes three subcommands:
+The command group is registered by the Nemotron CLI and exposes three subcommands:
 
 - `nemotron steps list` enumerates discovered steps with optional filters.
 - `nemotron steps show <step-id>` prints the manifest, runspec, and parameters for one step.

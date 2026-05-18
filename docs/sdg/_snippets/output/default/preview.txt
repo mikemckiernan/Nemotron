@@ -1,0 +1,15 @@
+...
+[14:12:50] [INFO]   |-- inference parameters:
+[14:12:50] [INFO]   |  |-- generation_type=chat-completion
+[14:12:50] [INFO]   |  |-- max_parallel_requests=4                                                                                                              [14:12:50] [INFO]   |  |-- temperature=0.80
+[14:12:50] [INFO]   |  |-- top_p=1.00
+[14:12:50] [INFO]   |  |-- max_tokens=1024
+[14:12:50] [INFO] ⚡️ Processing llm-text column 'assistant_response' with 4 concurrent workers
+[14:12:50] [INFO] ⏱️  llm-text column 'assistant_response' will report progress after each record                                                               [14:12:51] [INFO]   |-- ⛅ llm-text column 'assistant_response' progress: 1/2 (50%) complete, 1 ok, 0 failed, 0.90 rec/s, eta 1.1s                              [14:12:54] [INFO]   |-- ☀️  llm-text column 'assistant_response' progress: 2/2 (100%) complete, 2 ok, 0 failed, 0.55 rec/s, eta 0.0s                            [14:12:54] [INFO] 📊 Model usage summary:                                                                                                                       [14:12:54] [INFO]   |-- model: nvidia/nemotron-3-nano-30b-a3b
+[14:12:54] [INFO]   |-- tokens: input=222, output=1170, total=1392, tps=256
+[14:12:54] [INFO]   |-- requests: success=4, failed=0, total=4, rpm=44
+[14:12:54] [INFO] 📐 Measuring dataset column statistics:
+[14:12:54] [INFO]   |-- 🎲 column: 'persona'
+[14:12:54] [INFO]   |-- 📝 column: 'user_query'
+[14:12:55] [INFO]   |-- 📝 column: 'assistant_response'
+[14:12:55] [INFO] 🎆 Preview complete!

@@ -31,7 +31,7 @@ Data Designer generates the records against an NVIDIA-hosted large language mode
 
 **In this tutorial, you will**:
 
-1. Set up prerequisites: the repository and an NVIDIA application programming interface (API) key.
+1. Set up prerequisites: the repository and an NVIDIA API key.
 1. Read the default pipeline configuration.
 1. Run a preview to verify the pipeline and model.
 1. Generate a small dataset of five records.
