@@ -21,6 +21,7 @@ Confirm two things before you start the build process.
 - Docker is installed and can pull `nvcr.io` and Docker Hub images on the networked host.
 - The networked host has disk space under `deploy/nemotron-customizer/airgap/out/` for the image TAR files you plan to produce.
   Each image TAR file is several gigabytes.
+- You [explored the Nemotron CLI](./getting-started.md).
 
 ## Procedure: Build and Run the Airgap Bundle
 
@@ -32,10 +33,10 @@ You decide which steps the build process covers by editing the `workflow.stages`
 The default value targets a small supervised fine-tuning workflow.
 
 1. Edit `deploy/nemotron-customizer/airgap/airgap.yaml`.
-2. In `workflow.stages`, add the `<step_id:config>` steps to run and remove the rest.
+2. In `workflow.stages`, add the `<step_id:config>` steps to run, such as `translate/translation:default`, and remove the rest.
 
-   Any step prerequisites are automatically added from the `dependencies` map.
-   For example, an `sft/megatron_bridge:tiny` entry also produces an image that covers `data_prep/sft_packing`.
+   Prerequisites steps are automatically added from the `dependencies` map.
+   For example, an `sft/megatron_bridge:tiny` step also produces an image that covers `data_prep/sft_packing`.
 
 If you would rather not edit the file, leave `workflow.stages` as is and specify `--target <step_id>:<config>` one or more times in the next phase to override the file.
 
@@ -48,7 +49,19 @@ If you would rather not edit the file, leave `workflow.stages` as is and specify
        --config deploy/nemotron-customizer/airgap/airgap.yaml
    ```
 
-2. Review the printed execution image groups and tags to confirm they match the steps you specified.
+  Review the `[airgap]` section at the end of the output.
+  Confirm the images and steps match the steps you specified.
+  The following example is for the `translate/translation` and `sft/megatron_bridge` steps.
+  The `data_pre/sft_packing` is a dependency.
+
+  ```text
+  ...
+  [airgap] wrote /home/user/nemotron/deploy/nemotron-customizer/airgap/out/airgap-manifest.yaml
+  [airgap] selected execution images:
+    - translate/translation: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
+    - data_prep/sft_packing: nemotron-customizer-nemo-megatron-airgap-55d08ccf:latest
+    - sft/megatron_bridge: nemotron-customizer-nemo-megatron-airgap-2fea0796:latest
+  ```
 
 ### Networked Host: Build and Export Images
 
@@ -74,7 +87,7 @@ This build process embeds those repositories in the relevant execution image so 
        --execute
    ```
 
-3. If a run stops halfway, rerun the same command.
+3. If a run stops halfway, rerun the command.
 
    If you change the workflow or image plan, delete `airgap-build-state.yaml` before rerunning.
    Otherwise, the build process reuses the stale state.
@@ -83,7 +96,7 @@ This build process embeds those repositories in the relevant execution image so 
 
 ### Transfer and Load Inside the Airgap Environment
 
-1. Transfer the image TAR files and the manifest into the airgap environment by using a tool, such as `scp` or  `rsync`.
+1. Transfer the image TAR files and the manifest into the airgap environment by using a tool, such as `scp` or `rsync`.
 2. Load images into the cluster container runtime or private registry your executor uses.
 3. Stage large artifacts on executor-visible persistent storage.
    They were not embedded in the images at build time.
@@ -115,7 +128,7 @@ This build process embeds those repositories in the relevant execution image so 
 
 :::{note}
 The execution Dockerfiles set `HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1`, `HF_DATASETS_OFFLINE=1`, and `WANDB_MODE=offline` so airgap runs do not reach out to public services by default.
-Those are upstream environment variable names from the Hugging Face and Weights & Biases stacks.
+Those are upstream environment variable names from Hugging Face and Weights & Biases.
 :::
 
 ## Cluster Checklist
