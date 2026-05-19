@@ -33,7 +33,7 @@ You decide which steps the build process covers by editing the `workflow.stages`
 The default value targets a small supervised fine-tuning workflow.
 
 1. Edit `deploy/nemotron-customizer/airgap/airgap.yaml`.
-2. In `workflow.stages`, add the `<step_id:config>` steps to run, such as `translate/translation:default`, and remove the rest.
+2. In `workflow.stages`, add the `<step_id:config>` steps to run, such as `translate/nemo_curator:default`, and remove the rest.
 
    Prerequisites steps are automatically added from the `dependencies` map.
    For example, an `sft/megatron_bridge:tiny` step also produces an image that covers `data_prep/sft_packing`.
@@ -51,22 +51,23 @@ If you would rather not edit the file, leave `workflow.stages` as is and specify
 
    Review the `[airgap]` section at the end of the output.
    Confirm the images and steps match the steps you specified.
-   The following example is for the `translate/translation` and `sft/megatron_bridge` steps.
-   The `data_pre/sft_packing` is a dependency.
+   The following example is for the `translate/nemo_curator` and `sft/megatron_bridge` steps.
+   The `data_prep/sft_packing` step is a dependency.
 
    ```text
    ...
    [airgap] wrote /home/user/nemotron/deploy/nemotron-customizer/airgap/out/airgap-manifest.yaml
    [airgap] selected execution images:
-     - translate/translation: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
+     - translate/nemo_curator: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
      - data_prep/sft_packing: nemotron-customizer-nemo-megatron-airgap-55d08ccf:latest
      - sft/megatron_bridge: nemotron-customizer-nemo-megatron-airgap-2fea0796:latest
    ```
 
 ### Networked Host: Build and Export Images
 
-Some steps clone a repository at runtime by default, namely `sft/megatron_bridge`, `peft/megatron_bridge`, `byob`, and `translate/translation`.
-This build process embeds those repositories in the relevant execution image so that running the steps in the airgap environment does not fail.
+Some steps clone or expect a repository checkout at runtime by default.
+The `sft/megatron_bridge`, `peft/megatron_bridge`, `byob/mcq`, and `translate/nemo_curator` configs use `auto_mount` entries that the build process embeds in the relevant execution image so airgapped jobs do not clone from GitHub.
+The `optimize/modelopt/prune` and `optimize/modelopt/distill` steps expect ModelOpt examples under `/opt/Model-Optimizer` and will try to clone `https://github.com/NVIDIA/Model-Optimizer.git` if the checkout is absent; in an airgap, use an execution image or mount that already contains that checkout.
 
 1. Confirm the target CPU architecture matches what you build on the networked host, or set `platform` on the relevant entry in `airgap.yaml` when they differ.
 

@@ -52,7 +52,7 @@ flowchart TB
     om --> jsonl["JSONL"]
     dpo --> jsonl
     sm --> jsonl
-    jsonl --> train["prep/sft_packing or AutoModel SFT"]
+    jsonl --> train["data_prep/sft_packing or AutoModel SFT"]
 ```
 
 Each run is reproducible: the seed file, column specs, model alias, inference parameters, and projection rules are all version-controlled in a single YAML file.
@@ -126,7 +126,7 @@ YAML config schema, CLI flags, output projection shapes, and troubleshooting.
 | Reference | What You'll Find |
 |---|---|
 | {doc}`reference/config-schema` | Full YAML column types, sampler parameters, and projection fields |
-| {doc}`reference/cli-reference` | `nemotron step run sdg/data_designer` flags and hydra overrides |
+| {doc}`reference/cli-reference` | `nemotron steps run sdg/data_designer` flags and hydra overrides |
 | {doc}`reference/output-projections` | The three projection shapes with annotated JSONL examples |
 | {doc}`reference/troubleshooting` | Dispatch failures, image pull errors, API key issues, schema drift |
 

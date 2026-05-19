@@ -34,7 +34,7 @@ All YAML fields: top-level settings, seed dataset, model aliases, column types, 
 :::{grid-item-card} {octicon}`terminal;1.5em;sd-mr-1` CLI Reference
 :link: cli-reference
 :link-type: doc
-`nemotron step run sdg/data_designer` flags and hydra override syntax.
+`nemotron steps run sdg/data_designer` flags and hydra override syntax.
 +++
 {bdg-secondary}`lookup`
 :::

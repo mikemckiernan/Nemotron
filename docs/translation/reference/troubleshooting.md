@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Symptom-to-remedy tables for nemotron steps translation across the LLM, NMT, Google, and AWS backends."
+description: "Symptom-to-remedy tables for nemotron steps run translate/nemo_curator across the LLM, NMT, Google, and AWS backends."
 topics: ["Translation", "Reference"]
 tags: ["Reference", "Translation", "Troubleshooting"]
 content:
@@ -10,11 +10,11 @@ content:
   audience: ["ML Engineer", "Data Scientist"]
 ---
 
-<!-- Reference: symptom-to-remedy tables for nemotron steps translation runs across all four backends and FAITH evaluation. -->
+<!-- Reference: symptom-to-remedy tables for nemotron steps run translate/nemo_curator runs across all four backends and FAITH evaluation. -->
 
 # Troubleshooting
 
-This page lists common symptoms when you run `nemotron steps translation` and shows the field, flag, or environment variable to inspect first.
+This page lists common symptoms when you run `nemotron steps run translate/nemo_curator` and shows the field, flag, or environment variable to inspect first.
 Each table pairs a symptom with a concrete remedy.
 For stage flow and design rationale, see the explanation pages linked from {doc}`../explanation/index`.
 
@@ -46,6 +46,8 @@ For stage flow and design rationale, see the explanation pages linked from {doc}
 | Symptom | What to do |
 | --- | --- |
 | Reader errors about mixed file types when `input_path` points at a directory containing both JSONL and Parquet files | Curator readers expect one record format per directory. Split the inputs into separate directories for JSON Lines (JSONL) and Parquet, or set `input_path` to a single file. See {doc}`io-format`. |
+| Ray worker logs show `Creating virtual environment at: .venv` followed by `ModuleNotFoundError: No module named 'ray'` | Export `RAY_ENABLE_UV_RUN_RUNTIME_ENV=0` before running local `uv run --no-sync nemotron steps run translate/nemo_curator ...`. This keeps Ray workers in the synchronized Nemotron environment. |
+| Empty JSONL input fails with `No data read from files in task file_group_0` | The reader found no records. Treat the run as an empty-input validation failure, confirm the input path is correct, and rerun with a non-empty file or directory. |
 | Output shards do not appear under `output_dir` after the run reports success | The writer emits partitioned files, not a single merged file. Inspect the shard pattern under `output_dir` and confirm `output_format` matches what downstream consumers expect. See {doc}`io-format`. |
 
 ## FAITH Evaluation

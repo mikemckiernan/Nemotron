@@ -171,9 +171,9 @@ Refer to {doc}`output-projections` for full field tables and annotated JSONL exa
 
 | `type` | Use for | Downstream |
 |---|---|---|
-| `openai_messages` | Single-turn SFT chat | `prep/sft_packing`, AutoModel SFT |
-| `dpo_preference` | Preference pairs | `prep/rl_prep`, `rl/nemo_rl/dpo` |
-| `structured_messages` | Multi-turn with tool calls | `prep/sft_packing`, AutoModel SFT |
+| `openai_messages` | Single-turn SFT chat | `data_prep/sft_packing`, AutoModel SFT |
+| `dpo_preference` | Preference pairs | `data_prep/rl_prep`, `rl/nemo_rl/dpo` |
+| `structured_messages` | Multi-turn with tool calls | `data_prep/sft_packing`, AutoModel SFT |
 
 ## Extending the Schema: `person` and `datetime` Samplers
 

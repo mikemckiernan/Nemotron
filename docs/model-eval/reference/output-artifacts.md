@@ -6,7 +6,7 @@
 (model-eval-output-artifacts)=
 # Output Artifacts
 
-This page describes the artifact produced by `eval/model_eval`, both as a contract and as a directory on disk.
+This page describes the artifact produced by `eval/model_eval`.
 
 ## The `eval_results` Contract
 
@@ -18,54 +18,43 @@ This page describes the artifact produced by `eval/model_eval`, both as a contra
 | `description` | Benchmark metrics, artifacts, and evaluation summaries produced by NeMo Evaluator. |
 
 The contract is intentionally loose.
-The step does not constrain the file set inside each benchmark subdirectory.
-NeMo Evaluator writes whatever the benchmark implementation chooses, which keeps the step a thin wrapper.
+Nemotron does not normalize evaluator outputs.
+NeMo Evaluator Launcher owns the exact file set and directory shape under the configured `output_dir`.
+
+## Launcher Config
+
+Before calling the launcher, the step saves the resolved launcher config and prints:
+
+```text
+launcher_config: <path>
+```
+
+If the launcher returns an invocation id, the step also prints:
+
+```text
+launcher_invocation_id: <id>
+status_command: nemo-evaluator-launcher status <id>
+logs_command: nemo-evaluator-launcher logs <id>
+```
+
+Those commands are the source of truth for job state and logs after submission.
 
 ## Directory Layout
 
-The runner writes one subdirectory per benchmark under `output_dir`.
-The subdirectory name matches the benchmark identifier from the `benchmarks` list verbatim.
+The base output directory is `output_dir`, copied into `execution.output_dir`.
+The exact files inside that directory depend on the configured launcher tasks.
 
-For a run with the sample `default.yaml` file, the layout looks like the following.
-
-```text
-${output_dir}/
-  mmlu/
-    <files written by nemo-evaluator for mmlu>
-  hellaswag/
-    <files written by nemo-evaluator for hellaswag>
-  arc_challenge/
-    <files written by nemo-evaluator for arc_challenge>
-```
-
-For the sample `tiny.yaml` file, only one benchmark subdirectory exists.
-
-```text
-${output_dir}/
-  hellaswag/
-    <files written by nemo-evaluator for hellaswag>
-```
-
-The runner does not stamp a date, run identifier, or experiment name into the path.
-Include a run identifier in the `output_dir` override you pass on the command line if you want multiple runs to coexist on disk.
-
-## Per-Benchmark Files
-
-The file set inside each benchmark subdirectory comes from NeMo Evaluator.
-The exact names and structure can vary across benchmark versions.
-A typical run produces three kinds of files.
-
-- A summary file with aggregate metrics, such as accuracy and confidence intervals.
-- A per-sample predictions file with the prompt, the model response, and the score for each sample.
-- A configuration record that captures the benchmark version, the endpoint metadata, and the generation parameters used for the run.
-
-List the directory after a run completes to see the exact file set for the benchmark and version you ran.
+For the hosted chat smoke test, inspect:
 
 ```bash
-find "$EVAL_ROOT/results-tiny" -maxdepth 5 -type f | sort
+find ./output/eval-tiny-chat -maxdepth 5 -type f | sort
 ```
 
-For benchmark-specific file layouts, refer to the upstream NeMo Evaluator documentation at <https://docs.nvidia.com/nemo/evaluator/latest/>.
+For checkpoint evaluation, inspect the output directory you supplied:
+
+```bash
+find ./output/eval-megatron -maxdepth 5 -type f | sort
+```
 
 (model-eval-comparing-runs)=
 ## Comparing Runs
@@ -76,21 +65,14 @@ The comparison is honest when the surrounding configuration is held constant.
 
 Apply the following practices before treating any single evaluation as a result.
 
-- Run a lightweight baseline against the starting checkpoint *before* the training, conversion, or quantization step you are measuring.
-  Use the same benchmark set, endpoint type, tokenizer, and generation parameters you plan to use afterward.
-- Snapshot the exact evaluation configuration: the sample file name, the `output_dir`, every `deployment` and `params` override, and the benchmark version.
-  The simplest snapshot is the merged YAML produced by `nemotron steps run eval/model_eval -d`.
-- Place a date or run identifier in `output_dir` so the before-and-after directories live side by side.
-  For example, `output_dir=./output/eval-2026-05-14-baseline` and `output_dir=./output/eval-2026-05-14-postsft`.
-- Keep `params.temperature`, `params.top_p`, `params.extra.tokenizer`, and the benchmark version identical between the two runs.
-  A benchmark version bump, a tokenizer replacement, or a chat-template change can make the comparison misleading.
-- Rerun the baseline benchmark set first before exploring new benchmarks.
-  Keeping the first comparison tightly controlled is more valuable than adding breadth.
-
-The cross-cutting pattern that informs this guidance is recorded at `src/nemotron/steps/patterns/eval-bookends.md` in the repository.
+- Run a lightweight baseline before the training, conversion, or quantization step you are measuring.
+- Snapshot the exact evaluation config, including config file name, `output_dir`, endpoint fields, task list, tokenizer, and generation parameters.
+- Place a date or run identifier in `output_dir` so baseline and post-change directories live side by side.
+- Keep endpoint type, task versions, tokenizer, and generation parameters identical between runs.
+- Rerun the baseline task set first before exploring new tasks.
 
 ## Related
 
 - {doc}`config-schema` for the YAML keys that influence what is written.
-- {doc}`benchmarks-catalog` for the benchmark identifiers that become subdirectory names.
-- `src/nemotron/steps/eval/model_eval/step.toml` for the full step contract, including the named error modes.
+- {doc}`benchmarks-catalog` for task identifiers.
+- `src/nemotron/steps/eval/model_eval/step.toml` for the full step contract.

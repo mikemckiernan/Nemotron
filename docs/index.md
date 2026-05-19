@@ -53,6 +53,42 @@ End-to-end applications: RAG agents, ML agents, and multi-agent systems.
 
 ::::
 
+## Customization Workflows with Nemotron Steps
+
+::::{grid} 1 2 2 2
+:gutter: 3
+
+:::{grid-item-card} Translation
+:link: translation/index
+:link-type: doc
+
+Translate JSONL or Parquet corpora with `translate/nemo_curator`, NeMo Curator
+backends, and optional FAITH quality scoring.
+:::
+
+:::{grid-item-card} Build MCQ Benchmarks
+:link: build-benchmarks/index
+:link-type: doc
+
+Generate and translate custom multiple-choice benchmarks with `byob/mcq`.
+:::
+
+:::{grid-item-card} Synthetic Data Generation
+:link: sdg/index
+:link-type: doc
+
+Use `sdg/data_designer` to produce SFT, tool-use, and preference datasets.
+:::
+
+:::{grid-item-card} Model Evaluation
+:link: model-eval/index
+:link-type: doc
+
+Evaluate hosted endpoints or checkpoints with `eval/model_eval`.
+:::
+
+::::
+
 ## Training Recipes
 
 ::::{grid} 1 2 2 2
@@ -96,12 +132,6 @@ Nemotron keeps **data-producing recipes** separate from **model-family training 
 | `src/nemotron/recipes/data/curation/` | Filter, dedup, and curate existing corpora | [Nemotron-CC](nemotron/data/curation/nemotron-cc.md) |
 | `src/nemotron/recipes/data/sdg/` | Generate synthetic datasets that can feed multiple families | [Long-document SDG](nemotron/data/sdg/long-document.md) feeding [Omni3 SFT](nemotron/omni3/sft.md) |
 | `src/nemotron/recipes/<family>/` | Family-specific training, RL, evaluation, and model lifecycle commands | [Nano3](nemotron/nano3/README.md), [Omni3](nemotron/omni3/README.md) |
-
-## Domain MCQ benchmarks
-
-Generate a custom multiple-choice benchmark from your documents with [`nemotron steps run byob`](build-benchmarks/index.md).
-The tutorial and reference material live under [Build MCQ benchmarks](build-benchmarks/index.md).
-The command also supports translation for the benchmark.
 
 ## Training Pipeline
 

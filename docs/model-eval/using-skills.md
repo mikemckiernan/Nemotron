@@ -6,66 +6,69 @@
 (model-eval-using-skills)=
 # Use The Model Evaluation Skill With Confidence
 
-This page is for newcomers who plan to drive `eval/model_eval` from a coding agent.
-The goal is a productive chat session with fewer iterations, fewer clarifying questions, and a clear handoff between what you decide and what the agent edits or runs in the repository.
+This page is for users who plan to drive `eval/model_eval` from a coding agent.
+The goal is a clear handoff between what you decide and what the agent edits or runs.
 
-Use an agent to translate your intent about endpoints, benchmarks, and tokenizers into the right `nemotron steps run eval/model_eval` invocation and YAML overrides.
+## What The Agent Needs
 
-## Keeping An Agent Session Productive
+For the hosted chat smoke test, provide:
 
-The agent needs four pieces of information to make progress without guessing.
+- The endpoint URL, including the `/v1/chat/completions` path.
+- The model id advertised by the endpoint.
+- The API key environment variable name, usually `NVIDIA_API_KEY`.
+- The output directory to use.
 
-- The evaluation endpoint URL.
-- The model identifier the endpoint advertises.
-- The name of the environment variable that holds the bearer token, not the secret value itself.
-- A tokenizer location, given as a Hugging Face model identifier, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+For checkpoint evaluation with `default.yaml`, also provide:
 
-Until the agent has these four pieces of information, ask it to wait rather than fabricate values.
+- The concrete Megatron Bridge `iter_*` checkpoint path.
+- The tokenizer path or Hugging Face tokenizer id if the selected task needs logprobs.
 
-## What The Agent Needs From You
+## Recommended First Run
 
-Tell the agent the kind of run you want, then let it select the sample file that matches.
+Ask the agent to start with `tiny_chat.yaml` unless you explicitly need launcher-managed checkpoint deployment.
+The first command should look like:
 
-- A sample run, to confirm the endpoint, credential, and tokenizer configuration.
-  The agent should select the sample `tiny.yaml` file and add `params.limit_samples=1`.
-- A production benchmark run, to compare against a baseline.
-  The agent should select the sample `default.yaml` file and include a date or run identifier in the `output_dir` override.
-
-Ask the agent to start from the sample files and the {doc}`getting-started` flow unless there is a strong reason to author a new configuration.
-Reasoning models, custom benchmark families, and chat-only benchmarks are the common reasons to deviate.
+```bash
+uv run --no-sync nemotron steps run eval/model_eval \
+  -c tiny_chat \
+  output_dir=./output/eval-tiny-chat \
+  target.api_endpoint.url="$NEMO_EVALUATOR_MODEL_URL" \
+  target.api_endpoint.model_id="$NEMO_EVALUATOR_MODEL_ID" \
+  target.api_endpoint.api_key_name=NVIDIA_API_KEY \
+  target.api_endpoint.type=chat
+```
 
 ## A Reusable Opening Brief
 
-Copy the following block into the chat and fill in the bracketed lines before sending.
-
 ```text
 Context: [one sentence on the model and what you want to score]
-Goal for this session: [one outcome, for example a one-sample HellaSwag run that finishes with files on disk]
-Endpoint URL: [full URL with path segment, or "I do not have this yet, please ask"]
+Goal for this session: [for example, a hosted chat smoke test that writes files on disk]
+Endpoint URL: [full URL with path, or "I do not have this yet, please ask"]
 Model identifier: [as the endpoint advertises it]
 API key environment variable: [name only, for example NVIDIA_API_KEY]
-Tokenizer: [Hugging Face model ID, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
+Checkpoint path: [only if using default.yaml launcher deployment]
+Tokenizer: [only if using log-probability tasks]
 Hard limits: [for example, do not change endpoint type, do not fabricate values]
-Please: [one request]. Use Nemotron eval/model_eval defaults from the repo unless something blocks that.
+Please: Use `eval/model_eval` defaults from the repo unless something blocks that.
 ```
 
-The agent should ask for any field you marked as missing rather than guess.
+The agent should ask for missing fields instead of guessing.
 
 ## What Success Looks Like
 
-A reasonable first success is the one-sample evaluation described in {doc}`getting-started`.
-The session reaches that point when three things have happened.
+A reasonable first success is the hosted chat smoke test described in {doc}`getting-started`.
+The session reaches that point when:
 
-- The agent has issued one `nemotron steps run eval/model_eval -c tiny ...` command with overrides built from the brief.
-- The runner's `check_endpoint` probe has succeeded, which means the URL, endpoint type, and model identifier are aligned.
-- A per-benchmark subdirectory exists under the `output_dir` you chose, with files written by NeMo Evaluator inside it.
+- The agent issues one `nemotron steps run eval/model_eval -c tiny_chat ...` command.
+- The command prints a `launcher_config` path.
+- The output directory contains files after NeMo Evaluator Launcher completes.
 
-If the probe fails, the agent should report the failure verbatim and ask which field to correct.
-The agent should not retry with fabricated values.
+If the launcher fails, the agent should report the error and the relevant config fields.
+It should not retry with fabricated endpoint, model, or credential values.
 
 ## Next Steps
 
 - Run the tutorial: {doc}`getting-started`.
-- Pick a deployment path and configure the endpoint: {doc}`how-to/evaluate-deployed-checkpoint`.
-- Run a hosted evaluation with custom benchmarks: {doc}`how-to/run-hosted-evaluation`.
-- Look up flags and YAML fields when the agent names them: {doc}`reference/cli-reference` and {doc}`reference/config-schema`.
+- Pick a deployment path: {doc}`how-to/evaluate-deployed-checkpoint`.
+- Run a hosted evaluation: {doc}`how-to/run-hosted-evaluation`.
+- Look up flags and YAML fields: {doc}`reference/cli-reference` and {doc}`reference/config-schema`.

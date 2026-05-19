@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Segmentation modes for nemotron steps translation: coarse and fine modes, plus min_segment_chars."
+description: "Segmentation modes for nemotron steps run translate/nemo_curator: coarse and fine modes, plus min_segment_chars."
 topics: ["Translation", "Segmentation"]
 tags: ["Explanation", "Translation"]
 content:
@@ -33,7 +33,7 @@ Fine mode increases API calls or neural machine translation (NMT) batches. Budge
 
 ## Interaction With FAITH
 
-When `faith_eval.segment_level` is true, FAITH scores align with the same segmentation boundaries used for translation, which keeps thresholds interpretable on long documents.
+FAITH scoring is part of Curator's translation stage and follows the translated segment pairs produced by the stage, which keeps thresholds interpretable on long documents.
 
 ## Practical Workflow
 

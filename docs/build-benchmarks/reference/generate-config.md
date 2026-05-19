@@ -71,5 +71,5 @@ Remote profiles must preserve the same mount contract your environment expects.
 
 ## Stage dispatch for `nemotron steps run`
 
-The step script reads optional CLI flags `--family`, `--stage`, and `--skip-until`, but you can also place `family`, `stage`, and `skip_until` keys directly in YAML.
+The generic steps CLI accepts `family`, `stage`, and `skip_until` as dotlist overrides, and you can also place those keys directly in YAML.
 `family` defaults to `mcq` when omitted.

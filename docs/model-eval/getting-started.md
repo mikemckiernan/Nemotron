@@ -11,16 +11,16 @@
 :::{grid-item-card}
 :columns: 8
 
-**What You'll Build**: one benchmark result for a single sample of HellaSwag, written under a writable `output_dir` by `eval/model_eval` against an OpenAI-compatible hosted endpoint.
+**What You'll Build**: one NeMo Evaluator Launcher result directory for a single hosted chat smoke-test task, written by the `eval/model_eval` step.
 
 ^^^
 
 **In this tutorial, you will**:
 
 1. Discover the `eval/model_eval` step from the local catalog.
-1. Inspect the sample `tiny.yaml` file.
-1. Run a one-sample evaluation against a hosted endpoint.
-1. List the result files on disk and locate the per-benchmark subdirectory.
+1. Inspect the hosted-endpoint sample config, `tiny_chat.yaml`.
+1. Run a one-sample hosted chat evaluation.
+1. List the result files on disk.
 
 {octicon}`clock;1.5em;sd-mr-1` This tutorial requires between 15 and 30 minutes to complete, depending on endpoint latency.
 :::
@@ -28,26 +28,29 @@
 :::{grid-item-card} {octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
 :columns: 4
 
-Run a one-sample HellaSwag evaluation against my hosted endpoint by using `eval/model_eval` with `tiny.yaml`, then show me the result files.
+Run a one-sample hosted chat evaluation with `eval/model_eval` and `tiny_chat.yaml`, then show me the launcher config and result files.
 :::
 ::::
 
 ## Prerequisites
 
-- Run all commands from the repository root so paths in the procedure resolve correctly.
-- A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
-- A bearer token exported as the environment variable referenced by `deployment.api_key_name`.
-- A tokenizer that matches the served model.
-  Accepted shapes are a Hugging Face model identifier, a filesystem path, and the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+- Run all commands from the repository root.
+- Install the evaluator extra:
+
+  ```console
+  $ uv sync --extra evaluator
+  ```
+
+- A reachable OpenAI-compatible chat-completions endpoint.
+- A model identifier advertised by that endpoint.
+- A bearer token exported as the environment variable referenced by `target.api_endpoint.api_key_name`.
 
 ## About The Sample Configuration
 
-The sample `tiny.yaml` file is at `src/nemotron/steps/eval/model_eval/config/tiny.yaml`.
-Two fields control this tutorial.
-`params.limit_samples` caps samples per benchmark; the file sets `20` and this tutorial overrides the value to `1`.
-`params.extra.tokenizer` identifies the tokenizer for the served model.
+The hosted chat sample file is at `src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml`.
+It sets `deployment.type: none`, points NeMo Evaluator Launcher at `target.api_endpoint`, and runs the chat-compatible `mmlu_instruct` task with `limit_samples: 1`.
 
-```{literalinclude} ../../src/nemotron/steps/eval/model_eval/config/tiny.yaml
+```{literalinclude} ../../src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml
 :language: yaml
 ```
 
@@ -62,63 +65,59 @@ Two fields control this tutorial.
 1. Synchronize dependencies:
 
    ```console
-   $ uv sync
+   $ uv sync --extra evaluator
    ```
 
-1. Export the environment variables used throughout this tutorial.
+1. Export the endpoint values.
    `EVAL_ROOT` is a directory you choose; it is the parent of the per-run `output_dir`.
 
    ```console
    $ export NVIDIA_API_KEY="<your-api-key>"
-   $ export EVAL_URL="<full-endpoint-url-with-path>"
-   $ export EVAL_MODEL_ID="<model-identifier-from-the-endpoint>"
-   $ export EVAL_TOKENIZER="<hf-dataset-or-tokenizer-path>"
+   $ export NEMO_EVALUATOR_MODEL_URL="<full-chat-completions-url>"
+   $ export NEMO_EVALUATOR_MODEL_ID="<model-identifier-from-the-endpoint>"
+   $ export NEMO_EVALUATOR_ENDPOINT_TYPE=chat
    $ export EVAL_ROOT="$(pwd)/output/eval-getting-started"
    ```
 
-1. Confirm that the local catalog exposes `eval/model_eval` before running it.
+1. Confirm that the local catalog exposes `eval/model_eval`.
 
    ```console
-   $ uv run nemotron steps show eval/model_eval
+   $ uv run --no-sync nemotron steps show eval/model_eval
    ```
 
-   The command prints the step contract, including the input artifact types, the output artifact type, the documented parameters, the strategies for endpoint and tokenizer choices, and the named error modes.
-   For a walk-through of the contract, refer to {doc}`how-to/discover-the-step`.
-
-1. Run the sample `tiny.yaml` file with five overrides: the output directory, the three endpoint fields, the sample cap, and the tokenizer.
+1. Run the hosted chat smoke test.
 
    ```console
    $ uv run --no-sync nemotron steps run eval/model_eval \
-       -c tiny \
-       output_dir="$EVAL_ROOT/results-tiny" \
-       deployment.url="$EVAL_URL" \
-       deployment.model_id="$EVAL_MODEL_ID" \
-       deployment.api_key_name=NVIDIA_API_KEY \
-       params.limit_samples=1 \
-       params.extra.tokenizer="$EVAL_TOKENIZER"
+       -c tiny_chat \
+       output_dir="$EVAL_ROOT/results-tiny-chat" \
+       target.api_endpoint.url="$NEMO_EVALUATOR_MODEL_URL" \
+       target.api_endpoint.model_id="$NEMO_EVALUATOR_MODEL_ID" \
+       target.api_endpoint.api_key_name=NVIDIA_API_KEY \
+       target.api_endpoint.type=chat \
+       evaluation.nemo_evaluator_config.config.params.limit_samples=1
    ```
 
-   The runner validates the endpoint first by calling `check_endpoint` with the configured URL, endpoint type, and model identifier.
-   A typo or an unreachable endpoint surfaces immediately, before any benchmark runs.
+   The step writes the launcher config path to stdout.
+   If NeMo Evaluator Launcher returns an invocation id, the step also prints `status_command` and `logs_command` values that you can run to inspect the job.
+   Treat those commands as part of the run: wait until the launcher reports a
+   terminal status before expecting final metric artifacts.
 
-   If you want to inspect the merged configuration without dispatching the run, add `--dry-run`.
+   To inspect the merged Nemotron job config without invoking the launcher, add `--dry-run`.
+   To pass NeMo Evaluator Launcher's own dry-run flag, use the config override `dry_run=true`.
 
-1. List the files written under `EVAL_ROOT/results-tiny`.
+1. List the files written under the output directory after the launcher job
+   reaches a terminal status.
 
    ```console
-   $ find "$EVAL_ROOT/results-tiny" -maxdepth 5 -type f | sort
+   $ find "$EVAL_ROOT/results-tiny-chat" -maxdepth 5 -type f | sort
    ```
 
-   The runner writes one subdirectory per benchmark.
-   For the sample `tiny.yaml` file, the only subdirectory is `hellaswag/`, because `tiny.yaml` sets `benchmarks: [hellaswag]`.
-
-   The file set inside the subdirectory is written by NeMo Evaluator and varies with the benchmark version.
-   A typical run produces a summary file with aggregate metrics, a per-sample predictions file, and a configuration record.
-   For the contract and the on-disk layout, refer to {doc}`reference/output-artifacts`.
+   The exact file names are owned by NeMo Evaluator Launcher and can vary by task version.
 
 ## Next Steps
 
-- Run the standard benchmark set against a deployed checkpoint: {doc}`how-to/evaluate-deployed-checkpoint`.
+- Run the standard checkpoint-evaluation config: {doc}`how-to/evaluate-deployed-checkpoint`.
 - Look up the full YAML schema: {doc}`reference/config-schema`.
 - Drive the step from a coding agent: {doc}`using-skills`.
-- Run hosted evaluations with a custom benchmark list and generation parameters: {doc}`how-to/run-hosted-evaluation`.
+- Run hosted evaluations with custom task settings: {doc}`how-to/run-hosted-evaluation`.

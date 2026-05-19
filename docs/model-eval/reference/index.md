@@ -16,7 +16,7 @@ For procedural walk-throughs, refer to {doc}`../how-to/index`.
 :::{grid-item-card} {octicon}`file-code;1.5em;sd-mr-1` Configuration Reference
 :link: config-schema
 :link-type: doc
-YAML schema for `default.yaml` and `tiny.yaml`, field by field.
+YAML schema for `default.yaml` and `tiny_chat.yaml`, field by field.
 +++
 {bdg-secondary}`yaml`
 :::
@@ -42,7 +42,7 @@ The `eval_results` contract and the on-disk directory layout.
 :link-type: doc
 Benchmark identifiers grouped by family, with endpoint-type guidance.
 +++
-{bdg-secondary}`benchmarks`
+{bdg-secondary}`tasks`
 :::
 
 :::{grid-item-card} {octicon}`alert;1.5em;sd-mr-1` Troubleshooting

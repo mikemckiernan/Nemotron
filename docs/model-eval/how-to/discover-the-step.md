@@ -6,75 +6,65 @@
 (model-eval-discover-the-step)=
 # Discover The Model Evaluation Step
 
-This guide shows how to find `eval/model_eval` in the step catalog, how to read its contract, and how to decide whether it applies to a given task.
+This guide shows how to find `eval/model_eval` in the step catalog, how to read its contract, and how to decide whether it applies.
 
 ## Prerequisites
 
-- The Nemotron repository synced with `uv sync` complete.
-- A local checkout is sufficient for this guide.
-  The discovery commands read the local step catalog only, so no network access is required.
+- The Nemotron repository is synced.
+- A local checkout is sufficient; discovery reads local `step.toml` files only.
 
 ## List Eval-Category Steps
-
-Use `nemotron steps list` to enumerate the available steps.
-The `--category eval` flag filters the catalog to evaluation steps, and the `--json` flag returns a machine-readable response.
 
 ```bash
 uv run --no-sync nemotron steps list --category eval --json
 ```
 
-The response includes one entry per evaluation step.
-`eval/model_eval` is the entry that wraps NeMo Evaluator.
+The response includes `eval/model_eval`, the step that wraps NeMo Evaluator Launcher.
 
 ## Inspect The Step Contract
-
-Use `nemotron steps show` to print the full step contract from `step.toml`.
 
 ```bash
 uv run --no-sync nemotron steps show eval/model_eval --json
 ```
 
-The response contains the fields the contract declares.
+The response contains the fields declared in `src/nemotron/steps/eval/model_eval/step.toml`.
 
 | Field | What It Tells You |
 | --- | --- |
-| `consumes` | Input artifact types the step accepts.  This step accepts `checkpoint_megatron` or `checkpoint_hf`, both optional. |
-| `produces` | Output artifact type.  This step produces `eval_results`. |
-| `parameters` | Documented parameters.  `benchmarks` is the only parameter, with a metadata default. |
-| `strategies` | When-then rules for endpoint type, tokenizer, and reasoning models. |
-| `errors` | Named failure modes with recovery guidance, such as `missing_tokenizer_for_logprobs`. |
-| `reference` | Upstream documentation and reference example URLs. |
-
-Read `src/nemotron/steps/eval/model_eval/step.toml` in the repository when you need the contract verbatim, including the strategies and error recoveries.
+| `consumes` | Optional input artifact type. This step accepts `checkpoint_megatron`. |
+| `produces` | Output artifact type. This step produces `eval_results`. |
+| `parameters` | Documented knobs such as `target.api_endpoint.*`, `deployment.checkpoint_path`, `task_filters`, and launcher params. |
+| `strategies` | Rules for hosted smoke tests, checkpoint evaluation, endpoint/task pairing, and task-name selection. |
+| `errors` | Named failure modes and recovery guidance. |
+| `reference` | Upstream NeMo Evaluator Launcher references. |
 
 ## Read The Sample Files
 
-The step provides two sample configuration files under `src/nemotron/steps/eval/model_eval/config/`.
+The step provides two config files under `src/nemotron/steps/eval/model_eval/config/`.
 
-```{literalinclude} ../../../src/nemotron/steps/eval/model_eval/config/tiny.yaml
+```{literalinclude} ../../../src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml
 :language: yaml
 ```
 
-The sample `tiny.yaml` file runs one *log-probability* benchmark, `hellaswag`, with `params.limit_samples` set to `20`.
-Use it to confirm the endpoint, the credential, and the tokenizer configuration before scaling up.
+`tiny_chat.yaml` is the hosted chat smoke-test config.
+It sets `deployment.type: none`, reads `target.api_endpoint.*` from environment variables, and runs `mmlu_instruct` with `limit_samples: 1`.
 
 ```{literalinclude} ../../../src/nemotron/steps/eval/model_eval/config/default.yaml
 :language: yaml
 ```
 
-The sample `default.yaml` file runs `mmlu`, `hellaswag`, and `arc_challenge` with `params.limit_samples` set to `null`, which means no cap.
-
-The {doc}`../reference/config-schema` reference documents every field.
+`default.yaml` is the Megatron Bridge checkpoint evaluation config.
+It uses NeMo Evaluator Launcher deployment and evaluates the configured `tasks` entries.
 
 ## Decide Whether It Applies
 
 `eval/model_eval` applies when the following statements are true.
 
-- The model is already deployed behind an OpenAI-compatible *endpoint*, or you are prepared to deploy it as part of the run.  This step does not deploy checkpoints.
-- The benchmarks you need are implemented by NeMo Evaluator or one of the harnesses it integrates with.
-- The endpoint type matches the benchmark family.  Chat benchmarks need a chat endpoint, and *log-probability* benchmarks need a completions endpoint with `logprobs` support.
+- The model is already available as an OpenAI-compatible endpoint, or NeMo Evaluator Launcher can deploy the checkpoint from the selected config.
+- The tasks you need are implemented by the installed NeMo Evaluator Launcher stack.
+- The endpoint type matches the selected task family.
 
-`eval/model_eval` is not the right step when the evaluation needs a custom scorer that NeMo Evaluator does not implement.
+`eval/model_eval` is not the right step when the evaluation needs a custom scorer that NeMo Evaluator Launcher does not implement.
 Write a dedicated evaluation step in that case, modeled on the contract layout under `src/nemotron/steps/`.
 
 ## Related

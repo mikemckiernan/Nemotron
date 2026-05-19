@@ -24,13 +24,15 @@ You will use the sample config `customer_support_tools.yaml`, which produces eco
 
 ## Outcomes
 
-- Understand how one `llm_structured` column can emit a full multi-turn trace in a single model call.
+- Understand how the shipped config asks one `llm_text` column to emit a full JSON multi-turn trace in a single model call.
 - Preview, generate, and validate records before training.
 - Know how to retarget seeds, prompts, and schema for your own domain.
 
 ## How It Works
 
-Compared with single-turn configs such as `default.yaml`, this setup drives the whole conversation from one `llm_structured` column. That column’s `output_format` is a JSON schema that fixes roles, tool-call shape, and approximate turn count so the model cannot drift into invalid shapes.
+Compared with single-turn configs such as `default.yaml`, this setup drives the whole conversation from one `llm_text` column.
+The prompt tells the model to return a JSON object with `tools` and `messages` keys.
+The `structured_messages` output projection parses that JSON object, extracts `messages` and `tools`, adds metadata, and serializes nested tool payload objects into OpenAI-compatible string fields.
 
 ```{literalinclude} ../../../src/nemotron/steps/sdg/data_designer/config/customer_support_tools.yaml
 :language: yaml
@@ -51,21 +53,21 @@ Each seed row supplies five anchor fields the prompt interpolates: `customer_nam
 1. Preview two records so structured output matches the schema:
 
    ```console
-   $ nemotron step run sdg/data_designer -c customer_support_tools preview=true num_records=2
+   $ nemotron steps run sdg/data_designer -c customer_support_tools preview=true num_records=2
    ```
 
    In the preview, confirm:
 
    - Exactly one assistant message with `tool_calls`.
    - Exactly one `tool` message whose `tool_call_id` matches the call.
-   - `function.arguments` is a JSON string, not a nested object.
+   - `function.arguments` and tool-message `content` are JSON strings after projection.
    - The assistant’s closing turn references the tool result (not a generic reply).
    - No markdown in message `content` if your trainer expects plain text.
 
 2. Generate the dataset:
 
    ```console
-   $ nemotron step run sdg/data_designer -c customer_support_tools num_records=200
+   $ nemotron steps run sdg/data_designer -c customer_support_tools num_records=200
    ```
 
    Output path: `./output/sdg/customer_support_tool_sft.jsonl`.
@@ -92,7 +94,7 @@ Each seed row supplies five anchor fields the prompt interpolates: `customer_nam
 1. Replace or extend the seed file so rows cover your entities. You may rename the five anchor fields as long as the prompt and YAML refer to the same names.
 2. Update `seed_dataset.fields` in the YAML to match those names.
 3. Rewrite the `prompt` for your scenario and tool surface.
-4. Adjust `output_format` if the message layout changes (for example, multiple tool calls per conversation).
+4. Adjust the JSON schema described in the prompt if the message layout changes, for example multiple tool calls per conversation.
 
 Keep `output_projection` as `structured_messages` so the step extracts `messages` and `tools` from the structured column and merges category metadata onto each record.
 
@@ -101,7 +103,7 @@ Keep `output_projection` as `structured_messages` so the step extracts `messages
 Before training, sample at least 50 records and verify:
 
 - [ ] Every `tool_calls` block has a matching `tool` message with the same `tool_call_id`.
-- [ ] `function.arguments` values are JSON strings, not nested objects.
+- [ ] `function.arguments` and tool-message `content` values are JSON strings in the projected JSONL.
 - [ ] The assistant’s final reply uses the tool result (not a canned answer that ignores it).
 - [ ] No unexpected markdown in `content` if the trainer assumes plain text.
 - [ ] `tools` is present and non-empty on every record.
@@ -109,12 +111,12 @@ Before training, sample at least 50 records and verify:
 ## Downstream Use
 
 ```text
-customer_support_tool_sft.jsonl  →  prep/sft_packing  →  SFT training
+customer_support_tool_sft.jsonl  →  data_prep/sft_packing  →  SFT training
 ```
 
-The `structured_messages` projection writes `messages` and `tools` at the top level, matching formats common to AutoModel-style SFT and Megatron-Bridge-style workflows. Run `prep/sft_packing` in dry-run mode before a large training job to confirm the packer accepts your file.
+The `structured_messages` projection writes `messages` and `tools` at the top level, matching formats common to AutoModel-style SFT and Megatron-Bridge-style workflows. Run `data_prep/sft_packing` in dry-run mode before a large training job to confirm the packer accepts your file.
 
 ## Next Steps
 
 - Output projection reference: {doc}`../reference/output-projections` to learn the `structured_messages` schema.
-- Config schema: {doc}`../reference/config-schema` for information about the `llm_structured` column type and `output_format`.
+- Config schema: {doc}`../reference/config-schema` for column types and output projections.

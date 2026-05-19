@@ -4,100 +4,67 @@
 -->
 
 (model-eval-benchmarks-catalog)=
-# Benchmarks Catalog
+# Tasks Catalog
 
-This page catalogs the benchmark identifiers accepted by the `benchmarks` field, grouped by family.
-The step does not own these benchmarks.
-NeMo Evaluator owns the implementations, and this page is a curated map into the upstream catalog.
-Refer to the upstream NeMo Evaluator documentation at <https://docs.nvidia.com/nemo/evaluator/latest/> for the authoritative, version-specific list.
+This page catalogs task identifiers used by `eval/model_eval`.
+NeMo Evaluator Launcher owns the authoritative task list.
+Use this page as a quick map, then verify exact names with the installed launcher.
 
-## Naming Convention
+```bash
+nemo-evaluator-launcher ls tasks
+nemo-evaluator-launcher ls task <task-id>
+```
 
-Benchmark identifiers come in two shapes.
+## Naming Rule
 
-- A short bare name, such as `mmlu`, `hellaswag`, or `arc_challenge`.
-  Bare names are common for established benchmarks provided by NeMo Evaluator by default.
-- A dotted, harness-qualified name, such as `lm-evaluation-harness.ifeval` or `simple_evals.gpqa_diamond`.
-  The prefix names the harness that hosts the task, and the suffix names the task within it.
+Use the exact task id listed by NeMo Evaluator Launcher.
+Do not prepend a harness name unless the launcher lists that exact dotted id.
 
-Both types are valid in the `benchmarks` field.
-Use the exact identifier published by the harness, because the runner passes it through to NeMo Evaluator unchanged.
+## Repository Starting Points
 
-## Recommended Starting Sets
-
-The recommended starting sets come from the sample YAML files, which are the source of truth for this step.
-
-| Sample file | `benchmarks` value | When to use |
+| Config | Task entries | When to use |
 | --- | --- | --- |
-| `default.yaml` | `[mmlu, hellaswag, arc_challenge]` | Initial pass against a deployed checkpoint where you want a mix of multiple-choice knowledge and commonsense reasoning. |
-| `tiny.yaml` | `[hellaswag]` | Sample run that exercises the endpoint, tokenizer configuration, and result-writing path with one *log-probability* benchmark. |
+| `tiny_chat.yaml` | `mmlu_instruct` | Hosted chat smoke test. |
+| `default.yaml` | `adlr_mmlu`, `hellaswag` | Launcher-managed Megatron checkpoint evaluation. |
 
-## Chat And Instruction Benchmarks
+## Chat And Instruction Tasks
 
-These benchmarks need a *chat* endpoint; for the matching rule, refer to {doc}`../explanation/endpoint-types-and-benchmarks`.
+These tasks use a chat endpoint.
+The hosted smoke-test config uses this family.
 
-Representative identifiers provided through NeMo Evaluator harnesses.
+| Identifier | Notes |
+| --- | --- |
+| `mmlu_instruct` | Chat/instruction smoke task used by `tiny_chat.yaml`. |
+| `adlr_mmlu` | Configured by `default.yaml`; verify endpoint requirements in the installed launcher. |
 
-| Identifier | Family | Notes |
-| --- | --- | --- |
-| `lm-evaluation-harness.ifeval` | Instruction following | Verifiable instruction-following tasks. |
-| `simple_evals.mmlu_pro` | Multi-task knowledge | Chat-mode evaluation of MMLU Pro. |
-| `simple_evals.humaneval` | Code generation | Pass-rate evaluation of HumanEval. |
+## Log-Probability Tasks
 
-## Log-Probability Benchmarks
+These tasks generally need a completions endpoint with logprobs support and a tokenizer that matches the served model.
 
-These benchmarks need a *completions* endpoint with `logprobs` support and a matching tokenizer; for the matching rule, refer to {doc}`../explanation/endpoint-types-and-benchmarks`.
+| Identifier | Notes |
+| --- | --- |
+| `hellaswag` | Configured by `default.yaml`; requires endpoint/tokenizer compatibility for meaningful scores. |
 
-Representative identifiers.
+Configure tokenizer values under:
 
-| Identifier | Family | Notes |
-| --- | --- | --- |
-| `mmlu` | Multi-task knowledge | Multiple-choice questions across 57 subjects. |
-| `hellaswag` | Commonsense completion | Sentence-completion task used by the sample `tiny.yaml` file. |
-| `arc_challenge` | Reasoning | Grade-school science questions, challenge split. |
-| `piqa` | Physical reasoning | Physical-interaction commonsense. |
+```text
+evaluation.nemo_evaluator_config.config.params.extra.tokenizer
+evaluation.nemo_evaluator_config.config.params.extra.tokenizer_backend
+```
 
-Configure `params.extra.tokenizer` to a Hugging Face model ID, a filesystem path, or the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
-Set `params.extra.tokenizer_backend` to `huggingface`.
+## Choosing Tasks
 
-## Reasoning And Math
+Ask three questions before changing the task list.
 
-Reasoning and math benchmarks expect long generations, frequently with a chain-of-thought trace.
-For the reasoning-model strategy and the only common reason to deviate from the deterministic defaults, refer to {doc}`../explanation/endpoint-types-and-benchmarks`.
+1. Does the installed launcher list the task id exactly?
+1. Does the endpoint type match the task family?
+1. Is this a smoke test or a production comparison?
 
-Representative identifiers.
-
-| Identifier | Family | Notes |
-| --- | --- | --- |
-| `simple_evals.gpqa_diamond` | Graduate-level science | Diamond split of GPQA. |
-| `simple_evals.math` | Math word problems | MATH benchmark. |
-| `simple_evals.aime` | Competition math | American Invitational Mathematics Examination. |
-
-## Tool Calling And Function Calling
-
-Tool-calling benchmarks score whether the model emits structured tool calls in OpenAI format and whether the calls match the expected schema.
-These require a chat endpoint that supports tool-calling responses.
-
-Representative identifiers.
-
-| Identifier | Family | Notes |
-| --- | --- | --- |
-| `lm-evaluation-harness.bfcl_v3` | Tool calling | Berkeley function-calling leaderboard, version 3. |
-
-## Choosing A Benchmark
-
-Three questions decide the benchmark choice.
-
-1. What endpoint type does the deployment expose?  Chat benchmarks need a chat endpoint, log-probability benchmarks need a completions endpoint with `logprobs`.
-2. What behavior do you need to score?  Instruction following, multi-task knowledge, commonsense reasoning, math, code, or tool use each map to different families above.
-3. Is this a sample run or a production comparison?  Sample runs should stay on the sample `tiny.yaml` file.  Production comparisons should run the same benchmark set across the baseline and the post-training checkpoint, by following {ref}`model-eval-comparing-runs`.
-
-For benchmark-specific configuration parameters, refer to the NeMo Evaluator [documentation](https://docs.nvidia.com/nemo/evaluator/latest/).
+For production comparisons, keep the same task list, endpoint type, tokenizer, and generation parameters across baseline and post-training runs.
 
 ## Related
 
-- {doc}`config-schema` for the `benchmarks` field and the `params.extra` mapping.
-- {doc}`output-artifacts` for the per-benchmark subdirectory layout.
-- {doc}`../explanation/index` for the concept set behind endpoint and benchmark families.
-- {doc}`../how-to/evaluate-deployed-checkpoint` for endpoint-type selection in context.
+- {doc}`config-schema` for the `tasks` section and evaluator params.
+- {doc}`output-artifacts` for result layout expectations.
+- {doc}`../explanation/endpoint-types-and-benchmarks` for endpoint/task pairing.
 - {ref}`model-eval-comparing-runs` for before-and-after evaluation framing.

@@ -28,11 +28,11 @@ Translation relies on backtranslation metrics instead of FAITH.
 
 ## Running the Translate Stage
 
-Pass `--stage translate` unless your YAML sets a top-level `stage` key.
+Pass `stage=translate` unless your YAML sets a top-level `stage` key.
 The CLI requires an explicit stage when that key is absent.
 
 ```console
-uv run nemotron steps run byob -c translate -- --stage translate
+uv run nemotron steps run byob/mcq -c translate stage=translate
 ```
 
 ## Tune Quality Gates
@@ -56,7 +56,7 @@ After a run, open `quality_metrics.parquet` under `output_dir`/`expt_name`/`stag
 
 ## Reference Layout
 
-The sample `src/nemotron/steps/byob/config/translate.yaml` file shows a complete `translation_model_config` with `backend_type: llm`, NVIDIA provider parameters, and `stage` / `segment_stage` tuning.
+The sample `src/nemotron/steps/byob/mcq/config/translate.yaml` file shows a complete `translation_model_config` with `backend_type: llm`, NVIDIA provider parameters, and `stage` / `segment_stage` tuning.
 Copy that structure, then swap model IDs, concurrency, and language tags for your workload.
 
 The YAML below mirrors the sample configu, including `remove_low_quality: false` so rows that fail the aggregate quality gate remain in `benchmark.parquet` and you can inspect `stage_cache/quality_metrics.parquet` while you tune thresholds.

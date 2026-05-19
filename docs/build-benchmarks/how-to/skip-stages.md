@@ -22,14 +22,14 @@ From `McqTranslationStage`:
 
 ## CLI usage
 
-Pass the flag through to the step entrypoint after `--`:
+Pass the resume point as a dotlist override:
 
 ```console
-uv run nemotron steps run byob -c /path/to/generate.yaml -- --skip-until JUDGEMENT
+uv run nemotron steps run byob/mcq -c /path/to/generate.yaml skip_until=JUDGEMENT
 ```
 
 ```console
-uv run nemotron steps run byob -c translate -- --stage translate --skip-until BACKTRANSLATION
+uv run nemotron steps run byob/mcq -c translate stage=translate skip_until=BACKTRANSLATION
 ```
 
 ## Preconditions

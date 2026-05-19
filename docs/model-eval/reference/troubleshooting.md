@@ -6,99 +6,89 @@
 (model-eval-troubleshooting)=
 # Troubleshooting
 
-This page is the canonical reference for recognizing a failed `eval/model_eval` run and deciding what to change before rerunning.
-A *named error* is an entry in the `[[errors]]` table of `src/nemotron/steps/eval/model_eval/step.toml`.
-The runner uses these names to identify common misconfigurations and reports them with their recovery guidance.
+This page maps common `eval/model_eval` failures to the config fields that usually need correction.
+Nemotron builds a launcher config and calls NeMo Evaluator Launcher; task execution, endpoint checks, and result writing are owned by the launcher.
 
-## How A Failed Run Surfaces
+## Evaluator Extra Missing
 
-A failure in `eval/model_eval` arrives in one of two shapes.
+Symptom:
 
-- The `check_endpoint` probe fails before the benchmark loop starts.
-  This catches a typo in `deployment.url`, a mismatch between the URL path and `deployment.endpoint_type`, and an endpoint that does not advertise the configured `deployment.model_id`.
-  For where the probe sits in the pipeline, refer to {doc}`../explanation/pipeline-overview`.
-- A configuration that the probe cannot detect surfaces as a named error from `step.toml`.
-  Each named error is keyed to a specific misconfiguration and ships with a recovery string that the runner reports alongside the name.
+```text
+Error: nemo-evaluator-launcher is required for evaluation
+Install with: uv sync --extra evaluator
+```
 
-The Validation Behavior section of {doc}`config-schema` summarizes both shapes from the configuration side.
+Recovery:
 
-## Named Errors
+```bash
+uv sync --extra evaluator
+```
 
-The three errors in `step.toml` today are listed below in the order they appear in the contract.
-The recovery prose is quoted verbatim from the `[[errors]]` table, so that the reference page and the contract cannot drift.
-If the contract changes, update the matching subsection here.
+Then rerun the same `nemotron steps run eval/model_eval` command with `uv run --no-sync`.
 
-### Missing Tokenizer For Log-Probability Benchmarks
+## Hosted Endpoint Fails
 
-The runner reports the `missing_tokenizer_for_logprobs` named error when a log-probability benchmark is requested without a tokenizer the run can resolve.
-The most common cause is a `params.extra` block that omits `tokenizer` or `tokenizer_backend`, or a `tokenizer` value that points at a placeholder path.
-The recovery, from `step.toml`:
+Most hosted failures come from one of these fields:
 
-> Provide tokenizer and tokenizer_backend for log-probability tasks, using checkpoint/tokenizer for Megatron Bridge or the Hugging Face model ID or path for checkpoint_hf.
+| Field | What To Check |
+| --- | --- |
+| `target.api_endpoint.url` | Full endpoint URL, including `/v1/chat/completions` or `/v1/completions`. |
+| `target.api_endpoint.model_id` | Exact model id returned by the endpoint's models API or UI. |
+| `target.api_endpoint.api_key_name` | Environment variable name, not the secret value. |
+| `target.api_endpoint.type` | `chat` for chat tasks, `completions` for completions/logprob tasks. |
 
-For why log-probability benchmarks require a matching tokenizer and the three accepted shapes for `params.extra.tokenizer`, refer to {doc}`../explanation/tokenizer-alignment`.
+For hosted smoke tests, start with `tiny_chat.yaml` and `target.api_endpoint.type=chat`.
 
-### Mismatched Endpoint Type And Benchmark Family
+## Wrong Task For Endpoint Type
 
-The runner reports the `wrong_endpoint_type` named error when `deployment.endpoint_type` does not match the family of every benchmark in the `benchmarks` list.
-The most common cause is a chat endpoint paired with a log-probability benchmark such as `mmlu`, `hellaswag`, `arc_challenge`, or `piqa`, or a completions endpoint paired with an instruction benchmark.
-The recovery, from `step.toml`:
+Chat tasks need a chat endpoint.
+Log-probability tasks generally need a completions endpoint with logprobs support and a tokenizer.
 
-> Use chat endpoints for instruction/chat benchmarks and completions endpoints with logprobs for multiple-choice log-probability tasks.
+If the launcher fails after endpoint setup, check:
 
-For the chat versus completions decision and the per-family endpoint requirements, refer to {doc}`../explanation/endpoint-types-and-benchmarks`.
+```text
+tasks
+target.api_endpoint.type
+evaluation.nemo_evaluator_config.config.params.extra.tokenizer
+```
 
-### Bad Megatron Bridge Checkpoint Path
+Use exact task IDs from:
 
-The runner reports the `bad_megatron_checkpoint_path` named error when the evaluation deployment is pointed at the parent run output folder rather than at a specific `iter_*` checkpoint directory.
-The most common cause is reusing the training output path without descending into the iteration directory that holds the weights and the `tokenizer/` subdirectory.
-The recovery, from `step.toml`:
+```bash
+nemo-evaluator-launcher ls tasks
+```
 
-> Point evaluation deployment at the specific iter_* checkpoint directory rather than only the parent output folder.
+## Bad Checkpoint Path
 
-For the Megatron Bridge tokenizer convention that goes with this path shape, refer to {doc}`../explanation/tokenizer-alignment`.
+When using `default.yaml`, point `deployment.checkpoint_path` at a concrete Megatron Bridge `iter_*` directory.
+Do not point it only at the parent training output directory.
 
-## Quick Lookup Table
+```bash
+deployment.checkpoint_path=/path/to/run/iter_0001000
+```
 
-| Error Name | Most Common Cause | Read More |
-| --- | --- | --- |
-| `missing_tokenizer_for_logprobs` | A log-probability benchmark is requested with no resolvable `params.extra.tokenizer`. | {doc}`../explanation/tokenizer-alignment` |
-| `wrong_endpoint_type` | The `deployment.endpoint_type` value does not match the family of every benchmark in the list. | {doc}`../explanation/endpoint-types-and-benchmarks` |
-| `bad_megatron_checkpoint_path` | The deployment path stops at the parent output folder instead of descending into an `iter_*` directory. | {doc}`../explanation/tokenizer-alignment` |
+For log-probability tasks, also verify:
 
-`step.toml` is the source of truth for this table.
-If a new `[[errors]]` block is added to the contract, add the matching subsection above and a row here.
+```bash
+evaluation.nemo_evaluator_config.config.params.extra.tokenizer=/path/to/run/iter_0001000/tokenizer
+```
 
-## Endpoint Probe Failures
+## Launcher Job State
 
-The `check_endpoint` probe is not itself a named error, but it is the most common reason a run halts before any benchmark dispatches.
-The probe checks three things.
+The step prints launcher follow-up commands when the launcher returns an invocation id.
 
-- The URL is reachable and returns a successful response from the configured path.
-- The configured `endpoint_type` agrees with the URL path inside `deployment.url`.
-- The endpoint advertises the configured `deployment.model_id` as a model identifier.
+```text
+status_command: nemo-evaluator-launcher status <id>
+logs_command: nemo-evaluator-launcher logs <id>
+```
 
-A failure in the first check surfaces as a connection error or an HTTP status error from `check_endpoint`.
-A failure in the second check surfaces as the `wrong_endpoint_type` named error.
-A failure in the third check surfaces as a model-not-found error from `check_endpoint`, with the configured `model_id` named in the message.
-
-For the configuration side, refer to the Validation Behavior section of {doc}`config-schema`.
-For the endpoint and benchmark pairing rule, refer to {doc}`../explanation/endpoint-types-and-benchmarks`.
-
-## When Scores Look Wrong After A Successful Run
-
-A run can complete successfully and still produce scores that are not meaningful.
-The case the docs already name is a tokenizer that resolves but does not match the served model.
-The `check_endpoint` probe does not detect this case, because the probe only inspects the endpoint and not the local tokenization output.
-Symptoms are unstable scores across reruns, or implausibly poor scores on a benchmark where the model is known to do well.
-
-Detect this case by comparing scores against a known baseline rather than reading a single run in isolation.
-The {ref}`model-eval-comparing-runs` framing in {doc}`output-artifacts` describes the comparison pattern.
+Run those commands before changing config.
+The launcher logs usually distinguish endpoint/authentication failures from task-schema failures.
 
 ## Related Pages
 
-- {doc}`config-schema` for the field-by-field schema and the Validation Behavior section.
-- {doc}`output-artifacts` for the on-disk layout and the {ref}`model-eval-comparing-runs` framing.
-- {doc}`../explanation/tokenizer-alignment` for why log-probability benchmarks need a matching tokenizer.
-- {doc}`../explanation/endpoint-types-and-benchmarks` for the chat versus completions decision.
-- `src/nemotron/steps/eval/model_eval/step.toml` for the full step contract, including the `[[errors]]` table that this page mirrors.
+- {doc}`config-schema` for field names and config shape.
+- {doc}`output-artifacts` for launcher config and result paths.
+- {doc}`../explanation/tokenizer-alignment` for tokenizer alignment.
+- {doc}`../explanation/endpoint-types-and-benchmarks` for endpoint/task pairing.
+- `src/nemotron/steps/eval/model_eval/step.toml` for the documented error names.
