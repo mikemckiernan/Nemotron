@@ -728,6 +728,24 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="steps/getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="steps/airgap.html">Airgap Environment</a></li>
 </ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Curation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="curate/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curate/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="curate/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="curate/how-to/run-local-jsonl.html">Run Curation on Local JSONL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/how-to/use-huggingface-snapshot.html">Use a Hugging Face Snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/how-to/enable-filters.html">Enable Curation Filters</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="curate/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/cli-curate.html">curate/nemo_curator CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/curate-config.html">curate/nemo_curator Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/io-format.html">Curation Input and Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/troubleshooting.html">Curation Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="sdg/index.html">About</a></li>
@@ -1057,10 +1075,12 @@ window.addEventListener("load", load);
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -1454,11 +1474,15 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/rl/rlhf.html#cmdoption-arg-data.validation.data_path">data.validation.data_path</a>, <a href="train-models/reference/rl/rlvr.html#cmdoption-arg-data.validation.data_path">[1]</a>
 </li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-dataset">dataset</a>
+</li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-dataset.nano3_packed_sft_dir">dataset.nano3_packed_sft_dir</a>
 </li>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-dataset.path_or_dataset_id">dataset.path_or_dataset_id</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-dataset.path_or_dataset_id">[1]</a>
 </li>
         <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-device_map">device_map</a>
+</li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-domains">domains</a>
 </li>
         <li><a href="train-models/reference/rl/dpo.html#cmdoption-arg-dpo.max_num_steps">dpo.max_num_steps</a>
 </li>
@@ -1492,13 +1516,21 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-hf_path">hf_path</a>
 </li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-input_glob">input_glob</a>
+</li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-language_codes">language_codes</a>
+</li>
         <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-lora_checkpoint">lora_checkpoint</a>
 </li>
         <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-megatron_path">megatron_path</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-megatron_path">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-missing_packed_data">missing_packed_data</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-missing_packed_data">[1]</a>
 </li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-models">models</a>
+</li>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-oom">oom</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-oom">[1]</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-oom">[2]</a>
+</li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-output_dir">output_dir</a>
 </li>
         <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-output_hf_path">output_hf_path</a>
 </li>
@@ -1524,6 +1556,10 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-pp">pp</a>
 </li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-quality_filters">quality_filters</a>
+</li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-ray.num_cpus">ray.num_cpus</a>
+</li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-recipe.pipeline_model_parallel_size">recipe.pipeline_model_parallel_size</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-recipe.pipeline_model_parallel_size">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-recipe.seq_length">recipe.seq_length</a>
@@ -1541,6 +1577,8 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-step_scheduler.max_steps">step_scheduler.max_steps</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-step_scheduler.max_steps">[1]</a>
 </li>
         <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-strict">strict</a>
+</li>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-text_field">text_field</a>
 </li>
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-tokenizer_mismatch">tokenizer_mismatch</a>
 </li>
@@ -1583,6 +1621,13 @@ window.addEventListener("load", load);
 </li>
       </ul></li>
       <li>
+    dataset
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-dataset">command line option</a>
+</li>
+      </ul></li>
+      <li>
     dataset.nano3_packed_sft_dir
 
       <ul>
@@ -1603,6 +1648,13 @@ window.addEventListener("load", load);
 
       <ul>
         <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-device_map">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    domains
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-domains">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1750,8 +1802,30 @@ window.addEventListener("load", load);
   </ul></td>
 </tr></table>
 
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    input_glob
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-input_glob">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    language_codes
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-language_codes">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     lora_checkpoint
@@ -1773,13 +1847,20 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-megatron_path">command line option</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-megatron_path">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     missing_packed_data
 
       <ul>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-missing_packed_data">command line option</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-missing_packed_data">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    models
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-models">command line option</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1793,6 +1874,13 @@ window.addEventListener("load", load);
 
       <ul>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-oom">command line option</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-oom">[1]</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-oom">[2]</a>
+</li>
+      </ul></li>
+      <li>
+    output_dir
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-output_dir">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1892,9 +1980,29 @@ window.addEventListener("load", load);
   </ul></td>
 </tr></table>
 
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    quality_filters
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-quality_filters">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    ray.num_cpus
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-ray.num_cpus">command line option</a>
+</li>
+      </ul></li>
       <li>
     recipe.pipeline_model_parallel_size
 
@@ -1902,6 +2010,8 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-recipe.pipeline_model_parallel_size">command line option</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-recipe.pipeline_model_parallel_size">[1]</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     recipe.seq_length
 
@@ -1909,8 +2019,6 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-recipe.seq_length">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     recipe.tensor_model_parallel_size
 
@@ -1975,6 +2083,13 @@ window.addEventListener("load", load);
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
+    text_field
+
+      <ul>
+        <li><a href="curate/reference/curate-config.html#cmdoption-arg-text_field">command line option</a>
+</li>
+      </ul></li>
+      <li>
     tokenizer_mismatch
 
       <ul>
@@ -1988,6 +2103,8 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-tp">command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     train.global_batch_size
 
@@ -1995,8 +2112,6 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-train.global_batch_size">command line option</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-train.global_batch_size">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     train.train_iters
 

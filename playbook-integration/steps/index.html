@@ -370,6 +370,24 @@
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="airgap.html">Airgap Environment</a></li>
 </ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Curation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../curate/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../curate/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../curate/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../curate/how-to/run-local-jsonl.html">Run Curation on Local JSONL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curate/how-to/use-huggingface-snapshot.html">Use a Hugging Face Snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curate/how-to/enable-filters.html">Enable Curation Filters</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../curate/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../curate/reference/cli-curate.html">curate/nemo_curator CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curate/reference/curate-config.html">curate/nemo_curator Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curate/reference/io-format.html">Curation Input and Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curate/reference/troubleshooting.html">Curation Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../sdg/index.html">About</a></li>
@@ -793,9 +811,9 @@ Backed by the <code class="docutils literal notranslate"><span class="pre">trans
 <div class="sd-card-title sd-font-weight-bold docutils">
 Data Curation and Preparation</div>
 <p class="sd-card-text">Filter raw text with <code class="docutils literal notranslate"><span class="pre">curate/nemo_curator</span></code>, then tokenize and shard it with the <code class="docutils literal notranslate"><span class="pre">data_prep/pretrain_prep</span></code>, <code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code>, and <code class="docutils literal notranslate"><span class="pre">data_prep/rl_prep</span></code> steps.
-See the Basics page for how these steps feed the training steps.</p>
+Use the curation docs for JSONL filtering and the training docs for data preparation.</p>
 </div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="basics.html"><span class="doc">Nemotron Steps Basics</span></a></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../curate/index.html"><span class="doc">About Data Curation With NeMo Curator</span></a></div>
 </div>
 </div>
 </div>
@@ -874,22 +892,25 @@ The Basics page covers profiles and the <code class="docutils literal notranslat
 <tr class="row-even"><td><p>Run steps in an airgap environment</p></td>
 <td><p><a class="reference internal" href="airgap.html"><span class="std std-doc">Airgap</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Generate synthetic training data</p></td>
+<tr class="row-odd"><td><p>Curate JSONL text</p></td>
+<td><p><a class="reference internal" href="../curate/index.html"><span class="std std-doc">Data Curation</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Generate synthetic training data</p></td>
 <td><p><a class="reference internal" href="../sdg/index.html"><span class="std std-doc">Synthetic Data Generation</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Translate a corpus</p></td>
+<tr class="row-odd"><td><p>Translate a corpus</p></td>
 <td><p><a class="reference internal" href="../translation/index.html"><span class="std std-doc">Translation</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Build an MCQ benchmark</p></td>
+<tr class="row-even"><td><p>Build an MCQ benchmark</p></td>
 <td><p><a class="reference internal" href="../build-benchmarks/index.html"><span class="std std-doc">Build MCQ Benchmarks</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Fine-tune or align a model</p></td>
+<tr class="row-odd"><td><p>Fine-tune or align a model</p></td>
 <td><p><a class="reference internal" href="../train-models/index.html"><span class="std std-doc">Model Training</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Evaluate a model</p></td>
+<tr class="row-even"><td><p>Evaluate a model</p></td>
 <td><p><a class="reference internal" href="../model-eval/index.html"><span class="std std-doc">Model Evaluation</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Set up a Lepton or Slurm environment profile</p></td>
+<tr class="row-odd"><td><p>Set up a Lepton or Slurm environment profile</p></td>
 <td><p><a class="reference internal" href="basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a></p></td>
 </tr>
 </tbody>

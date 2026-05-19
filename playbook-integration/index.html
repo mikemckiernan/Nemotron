@@ -369,6 +369,24 @@
 <li class="toctree-l1"><a class="reference internal" href="steps/getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="steps/airgap.html">Airgap Environment</a></li>
 </ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Curation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="curate/index.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curate/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="curate/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="curate/how-to/run-local-jsonl.html">Run Curation on Local JSONL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/how-to/use-huggingface-snapshot.html">Use a Hugging Face Snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/how-to/enable-filters.html">Enable Curation Filters</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="curate/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/cli-curate.html">curate/nemo_curator CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/curate-config.html">curate/nemo_curator Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/io-format.html">Curation Input and Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curate/reference/troubleshooting.html">Curation Troubleshooting</a></li>
+</ul>
+</details></li>
+</ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="sdg/index.html">About</a></li>
@@ -768,6 +786,15 @@ Build MCQ Benchmarks</div>
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
+Data Curation</div>
+<p class="sd-card-text">Filter JSONL text with <code class="docutils literal notranslate"><span class="pre">curate/nemo_curator</span></code> before translation or training data preparation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="curate/index.html"><span class="doc">About Data Curation With NeMo Curator</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
 Synthetic Data Generation</div>
 <p class="sd-card-text">Use <code class="docutils literal notranslate"><span class="pre">sdg/data_designer</span></code> to produce SFT, tool-use, and preference datasets.</p>
 </div>
@@ -919,6 +946,8 @@ Embedding Fine-Tuning</div>
 <li><p><a class="reference internal" href="nemotron/artifacts.html"><span class="std std-doc">Artifact Lineage</span></a> – W&amp;B integration guide</p></li>
 <li><p><a class="reference internal" href="train-models/index.html"><span class="std std-doc">Model training steps</span></a> – SFT, PEFT, RL, and optimization with <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">step</span> <span class="pre">run</span></code></p></li>
 </ul>
+<div class="toctree-wrapper compound">
+</div>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
