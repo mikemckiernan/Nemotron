@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -783,7 +783,7 @@ limitations under the License.
 <p class="sd-card-text"><strong>Cause</strong>: The NeMo container image does not pre-install <code class="docutils literal notranslate"><span class="pre">data-designer</span></code>.</p>
 <p class="sd-card-text"><strong>Solution</strong>: Add to <code class="docutils literal notranslate"><span class="pre">startup_commands</span></code>:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">startup_commands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer&gt;=0.5.6&#39;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer==0.5.5&#39;&quot;</span>
 <span class="p">]</span>
 </pre></div>
 </div>
@@ -799,7 +799,7 @@ limitations under the License.
 <span class="sd-summary-text"><code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> not available inside the container</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <p class="sd-card-text"><strong>Cause</strong>: <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> is not automatically forwarded to the job environment the way <code class="docutils literal notranslate"><span class="pre">HF_TOKEN</span></code> and <code class="docutils literal notranslate"><span class="pre">WANDB_API_KEY</span></code> are.</p>
 <p class="sd-card-text"><strong>Solution</strong>: Declare it explicitly in the env.toml profile:</p>
-<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[lepton-sdg.env_vars]</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[lepton_sdg_data_designer.env_vars]</span>
 <span class="n">NVIDIA_API_KEY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${oc.env:NVIDIA_API_KEY}&quot;</span>
 </pre></div>
 </div>

@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -753,9 +753,9 @@ Translation relies on backtranslation metrics instead of FAITH.</p>
 </section>
 <section id="running-the-translate-stage">
 <h2>Running the Translate Stage<a class="headerlink" href="#running-the-translate-stage" title="Link to this heading">#</a></h2>
-<p>Pass <code class="docutils literal notranslate"><span class="pre">--stage</span> <span class="pre">translate</span></code> unless your YAML sets a top-level <code class="docutils literal notranslate"><span class="pre">stage</span></code> key.
+<p>Pass <code class="docutils literal notranslate"><span class="pre">stage=translate</span></code> unless your YAML sets a top-level <code class="docutils literal notranslate"><span class="pre">stage</span></code> key.
 The CLI requires an explicit stage when that key is absent.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob -c translate -- --stage translate</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob/mcq -c translate stage=translate</span>
 </pre></div>
 </div>
 </section>
@@ -780,7 +780,7 @@ Add or remove list entries to change which scores are computed, and adjust <code
 </section>
 <section id="reference-layout">
 <h2>Reference Layout<a class="headerlink" href="#reference-layout" title="Link to this heading">#</a></h2>
-<p>The sample <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/translate.yaml</span></code> file shows a complete <code class="docutils literal notranslate"><span class="pre">translation_model_config</span></code> with <code class="docutils literal notranslate"><span class="pre">backend_type:</span> <span class="pre">llm</span></code>, NVIDIA provider parameters, and <code class="docutils literal notranslate"><span class="pre">stage</span></code> / <code class="docutils literal notranslate"><span class="pre">segment_stage</span></code> tuning.
+<p>The sample <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/mcq/config/translate.yaml</span></code> file shows a complete <code class="docutils literal notranslate"><span class="pre">translation_model_config</span></code> with <code class="docutils literal notranslate"><span class="pre">backend_type:</span> <span class="pre">llm</span></code>, NVIDIA provider parameters, and <code class="docutils literal notranslate"><span class="pre">stage</span></code> / <code class="docutils literal notranslate"><span class="pre">segment_stage</span></code> tuning.
 Copy that structure, then swap model IDs, concurrency, and language tags for your workload.</p>
 <p>The YAML below mirrors the sample configu, including <code class="docutils literal notranslate"><span class="pre">remove_low_quality:</span> <span class="pre">false</span></code> so rows that fail the aggregate quality gate remain in <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> and you can inspect <code class="docutils literal notranslate"><span class="pre">stage_cache/quality_metrics.parquet</span></code> while you tune thresholds.</p>
 <p>When you omit <code class="docutils literal notranslate"><span class="pre">remove_low_quality</span></code> or set it to <code class="docutils literal notranslate"><span class="pre">true</span></code>, failing rows are dropped before export.</p>

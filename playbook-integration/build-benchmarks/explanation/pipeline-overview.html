@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -738,7 +738,7 @@
 </tbody>
 </table>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> executes <code class="docutils literal notranslate"><span class="pre">step.py</span></code>, which forwards to the same argparse entrypoint used by the Typer command.</p>
+<p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> executes <code class="docutils literal notranslate"><span class="pre">mcq/step.py</span></code>, which forwards to the BYOB argparse dispatcher in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/scripts/run.py</span></code>.</p>
 <section id="generate-stage-order">
 <h2>Generate stage order<a class="headerlink" href="#generate-stage-order" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">generate_mcq</span></code> in <code class="docutils literal notranslate"><span class="pre">runtime/benchmark_families/mcq/pipeline.py</span></code> writes Parquet files under <code class="docutils literal notranslate"><span class="pre">output_dir/expt_name/stage_cache/</span></code> in this order:</p>

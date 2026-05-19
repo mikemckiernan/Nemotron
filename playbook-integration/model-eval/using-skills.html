@@ -511,7 +511,7 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -711,66 +711,71 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="use-the-model-evaluation-skill-with-confidence">
 <span id="model-eval-using-skills"></span><h1>Use The Model Evaluation Skill With Confidence<a class="headerlink" href="#use-the-model-evaluation-skill-with-confidence" title="Link to this heading">#</a></h1>
-<p>This page is for newcomers who plan to drive <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> from a coding agent.
-The goal is a productive chat session with fewer iterations, fewer clarifying questions, and a clear handoff between what you decide and what the agent edits or runs in the repository.</p>
-<p>Use an agent to translate your intent about endpoints, benchmarks, and tokenizers into the right <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span></code> invocation and YAML overrides.</p>
-<section id="keeping-an-agent-session-productive">
-<h2>Keeping An Agent Session Productive<a class="headerlink" href="#keeping-an-agent-session-productive" title="Link to this heading">#</a></h2>
-<p>The agent needs four pieces of information to make progress without guessing.</p>
+<p>This page is for users who plan to drive <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> from a coding agent.
+The goal is a clear handoff between what you decide and what the agent edits or runs.</p>
+<section id="what-the-agent-needs">
+<h2>What The Agent Needs<a class="headerlink" href="#what-the-agent-needs" title="Link to this heading">#</a></h2>
+<p>For the hosted chat smoke test, provide:</p>
 <ul class="simple">
-<li><p>The evaluation endpoint URL.</p></li>
-<li><p>The model identifier the endpoint advertises.</p></li>
-<li><p>The name of the environment variable that holds the bearer token, not the secret value itself.</p></li>
-<li><p>A tokenizer location, given as a Hugging Face model identifier, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>The endpoint URL, including the <code class="docutils literal notranslate"><span class="pre">/v1/chat/completions</span></code> path.</p></li>
+<li><p>The model id advertised by the endpoint.</p></li>
+<li><p>The API key environment variable name, usually <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
+<li><p>The output directory to use.</p></li>
 </ul>
-<p>Until the agent has these four pieces of information, ask it to wait rather than fabricate values.</p>
+<p>For checkpoint evaluation with <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>, also provide:</p>
+<ul class="simple">
+<li><p>The concrete Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint path.</p></li>
+<li><p>The tokenizer path or Hugging Face tokenizer id if the selected task needs logprobs.</p></li>
+</ul>
 </section>
-<section id="what-the-agent-needs-from-you">
-<h2>What The Agent Needs From You<a class="headerlink" href="#what-the-agent-needs-from-you" title="Link to this heading">#</a></h2>
-<p>Tell the agent the kind of run you want, then let it select the sample file that matches.</p>
-<ul class="simple">
-<li><p>A sample run, to confirm the endpoint, credential, and tokenizer configuration.
-The agent should select the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file and add <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code>.</p></li>
-<li><p>A production benchmark run, to compare against a baseline.
-The agent should select the sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file and include a date or run identifier in the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> override.</p></li>
-</ul>
-<p>Ask the agent to start from the sample files and the <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a> flow unless there is a strong reason to author a new configuration.
-Reasoning models, custom benchmark families, and chat-only benchmarks are the common reasons to deviate.</p>
+<section id="recommended-first-run">
+<h2>Recommended First Run<a class="headerlink" href="#recommended-first-run" title="Link to this heading">#</a></h2>
+<p>Ask the agent to start with <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code> unless you explicitly need launcher-managed checkpoint deployment.
+The first command should look like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-c<span class="w"> </span>tiny_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-tiny-chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.api_key_name<span class="o">=</span>NVIDIA_API_KEY<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.type<span class="o">=</span>chat
+</pre></div>
+</div>
 </section>
 <section id="a-reusable-opening-brief">
 <h2>A Reusable Opening Brief<a class="headerlink" href="#a-reusable-opening-brief" title="Link to this heading">#</a></h2>
-<p>Copy the following block into the chat and fill in the bracketed lines before sending.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Context: [one sentence on the model and what you want to score]
-Goal for this session: [one outcome, for example a one-sample HellaSwag run that finishes with files on disk]
-Endpoint URL: [full URL with path segment, or &quot;I do not have this yet, please ask&quot;]
+Goal for this session: [for example, a hosted chat smoke test that writes files on disk]
+Endpoint URL: [full URL with path, or &quot;I do not have this yet, please ask&quot;]
 Model identifier: [as the endpoint advertises it]
 API key environment variable: [name only, for example NVIDIA_API_KEY]
-Tokenizer: [Hugging Face model ID, filesystem path, or Megatron Bridge tokenizer/ subdirectory]
+Checkpoint path: [only if using default.yaml launcher deployment]
+Tokenizer: [only if using log-probability tasks]
 Hard limits: [for example, do not change endpoint type, do not fabricate values]
-Please: [one request]. Use Nemotron eval/model_eval defaults from the repo unless something blocks that.
+Please: Use `eval/model_eval` defaults from the repo unless something blocks that.
 </pre></div>
 </div>
-<p>The agent should ask for any field you marked as missing rather than guess.</p>
+<p>The agent should ask for missing fields instead of guessing.</p>
 </section>
 <section id="what-success-looks-like">
 <h2>What Success Looks Like<a class="headerlink" href="#what-success-looks-like" title="Link to this heading">#</a></h2>
-<p>A reasonable first success is the one-sample evaluation described in <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a>.
-The session reaches that point when three things have happened.</p>
+<p>A reasonable first success is the hosted chat smoke test described in <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a>.
+The session reaches that point when:</p>
 <ul class="simple">
-<li><p>The agent has issued one <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span> <span class="pre">-c</span> <span class="pre">tiny</span> <span class="pre">...</span></code> command with overrides built from the brief.</p></li>
-<li><p>The runner’s <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe has succeeded, which means the URL, endpoint type, and model identifier are aligned.</p></li>
-<li><p>A per-benchmark subdirectory exists under the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> you chose, with files written by NeMo Evaluator inside it.</p></li>
+<li><p>The agent issues one <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span> <span class="pre">-c</span> <span class="pre">tiny_chat</span> <span class="pre">...</span></code> command.</p></li>
+<li><p>The command prints a <code class="docutils literal notranslate"><span class="pre">launcher_config</span></code> path.</p></li>
+<li><p>The output directory contains files after NeMo Evaluator Launcher completes.</p></li>
 </ul>
-<p>If the probe fails, the agent should report the failure verbatim and ask which field to correct.
-The agent should not retry with fabricated values.</p>
+<p>If the launcher fails, the agent should report the error and the relevant config fields.
+It should not retry with fabricated endpoint, model, or credential values.</p>
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Run the tutorial: <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Model Evaluation</span></a>.</p></li>
-<li><p>Pick a deployment path and configure the endpoint: <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a>.</p></li>
-<li><p>Run a hosted evaluation with custom benchmarks: <a class="reference internal" href="how-to/run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a>.</p></li>
-<li><p>Look up flags and YAML fields when the agent names them: <a class="reference internal" href="reference/cli-reference.html"><span class="doc">CLI Reference</span></a> and <a class="reference internal" href="reference/config-schema.html"><span class="doc">Configuration Reference</span></a>.</p></li>
+<li><p>Pick a deployment path: <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a>.</p></li>
+<li><p>Run a hosted evaluation: <a class="reference internal" href="how-to/run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a>.</p></li>
+<li><p>Look up flags and YAML fields: <a class="reference internal" href="reference/cli-reference.html"><span class="doc">CLI Reference</span></a> and <a class="reference internal" href="reference/config-schema.html"><span class="doc">Configuration Reference</span></a>.</p></li>
 </ul>
 </section>
 </section>
@@ -824,8 +829,8 @@ The agent should not retry with fabricated values.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keeping-an-agent-session-productive">Keeping An Agent Session Productive</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-agent-needs-from-you">What The Agent Needs From You</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-agent-needs">What The Agent Needs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recommended-first-run">Recommended First Run</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-reusable-opening-brief">A Reusable Opening Brief</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-success-looks-like">What Success Looks Like</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>

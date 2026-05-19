@@ -869,7 +869,7 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -883,7 +883,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -1045,12 +1045,14 @@ window.addEventListener("load", load);
 <div class="genindex-jumpbox">
  <a href="#Symbols"><strong>Symbols</strong></a>
  | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -1306,6 +1308,35 @@ window.addEventListener("load", load);
   </ul></td>
 </tr></table>
 
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    backend
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-backend">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    base_hf_path
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-base_hf_path">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    base_megatron_path
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-base_megatron_path">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1400,11 +1431,19 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/optimize/distill.html#cmdoption-arg-args.use_mock_data">args.use_mock_data</a>
 </li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-backend">backend</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-base_hf_path">base_hf_path</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-base_megatron_path">base_megatron_path</a>
+</li>
         <li><a href="train-models/reference/sft/automodel.html#cmdoption-arg-chat_template_missing">chat_template_missing</a>
 </li>
         <li><a href="train-models/reference/sft/automodel.html#cmdoption-arg-checkpoint.checkpoint_dir">checkpoint.checkpoint_dir</a>
 </li>
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-checkpoint.save">checkpoint.save</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-cpu">cpu</a>
 </li>
         <li><a href="train-models/reference/rl/rlhf.html#cmdoption-arg-data.train.data_path">data.train.data_path</a>, <a href="train-models/reference/rl/rlvr.html#cmdoption-arg-data.train.data_path">[1]</a>
 </li>
@@ -1414,13 +1453,19 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-dataset.path_or_dataset_id">dataset.path_or_dataset_id</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-dataset.path_or_dataset_id">[1]</a>
 </li>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-device_map">device_map</a>
+</li>
         <li><a href="train-models/reference/rl/dpo.html#cmdoption-arg-dpo.max_num_steps">dpo.max_num_steps</a>
 </li>
         <li><a href="train-models/reference/rl/dpo.html#cmdoption-arg-dpo.reference_policy_kl_penalty">dpo.reference_policy_kl_penalty</a>
 </li>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-dtype">dtype</a>
+</li>
         <li><a href="train-models/reference/rl/rlhf.html#cmdoption-arg-env.nemo_gym.genrm_model.responses_api_models.vllm_model.model">env.nemo_gym.genrm_model.responses_api_models.vllm_model.model</a>
 </li>
         <li><a href="train-models/reference/rl/rlvr.html#cmdoption-arg-env.should_use_nemo_gym">env.should_use_nemo_gym</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-ep">ep</a>
 </li>
         <li><a href="train-models/reference/optimize/distill.html#cmdoption-arg-extra_args">extra_args</a>, <a href="train-models/reference/optimize/prune.html#cmdoption-arg-extra_args">[1]</a>, <a href="train-models/reference/optimize/quantize.html#cmdoption-arg-extra_args">[2]</a>
 </li>
@@ -1436,11 +1481,23 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/rl/rlvr.html#cmdoption-arg-grpo.use_leave_one_out_baseline">grpo.use_leave_one_out_baseline</a>
 </li>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-hf_model_id">hf_model_id</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-hf_model_id">[1]</a>, <a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-hf_model_id">[2]</a>
+</li>
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-hf_model_path">hf_model_path</a>
+</li>
+        <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-hf_path">hf_path</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-lora_checkpoint">lora_checkpoint</a>
+</li>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-megatron_path">megatron_path</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-megatron_path">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-missing_packed_data">missing_packed_data</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-missing_packed_data">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-oom">oom</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-oom">[1]</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-oom">[2]</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-output_hf_path">output_hf_path</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-output_megatron_path">output_megatron_path</a>
 </li>
         <li><a href="train-models/reference/env-profile-generator.html#cmdoption-arg-output_path">output_path</a>
 </li>
@@ -1460,6 +1517,8 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/rl/dpo.html#cmdoption-arg-policy.train_global_batch_size">policy.train_global_batch_size</a>
 </li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-pp">pp</a>
+</li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-recipe.pipeline_model_parallel_size">recipe.pipeline_model_parallel_size</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-recipe.pipeline_model_parallel_size">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-recipe.seq_length">recipe.seq_length</a>
@@ -1470,15 +1529,32 @@ window.addEventListener("load", load);
 </li>
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-seq_length">seq_length</a>
 </li>
+        <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-show_progress">show_progress</a>
+</li>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-step_scheduler.global_batch_size">step_scheduler.global_batch_size</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-step_scheduler.global_batch_size">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-step_scheduler.max_steps">step_scheduler.max_steps</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-step_scheduler.max_steps">[1]</a>
 </li>
+        <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-strict">strict</a>
+</li>
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-tokenizer_mismatch">tokenizer_mismatch</a>
+</li>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-tp">tp</a>
 </li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-train.global_batch_size">train.global_batch_size</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-train.global_batch_size">[1]</a>
 </li>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-train.train_iters">train.train_iters</a>
+</li>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-trust_remote_code">trust_remote_code</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-trust_remote_code">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    cpu
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-cpu">command line option</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1508,13 +1584,20 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-dataset.nano3_packed_sft_dir">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     dataset.path_or_dataset_id
 
       <ul>
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-dataset.path_or_dataset_id">command line option</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-dataset.path_or_dataset_id">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    device_map
+
+      <ul>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-device_map">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1529,6 +1612,13 @@ window.addEventListener("load", load);
 
       <ul>
         <li><a href="train-models/reference/rl/dpo.html#cmdoption-arg-dpo.reference_policy_kl_penalty">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    dtype
+
+      <ul>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-dtype">command line option</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1553,6 +1643,13 @@ window.addEventListener("load", load);
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    ep
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-ep">command line option</a>
+</li>
+      </ul></li>
       <li>
     extra_args
 
@@ -1623,6 +1720,13 @@ window.addEventListener("load", load);
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
+    hf_model_id
+
+      <ul>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-hf_model_id">command line option</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-hf_model_id">[1]</a>, <a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-hf_model_id">[2]</a>
+</li>
+      </ul></li>
+      <li>
     hf_model_path
 
       <ul>
@@ -1630,10 +1734,41 @@ window.addEventListener("load", load);
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    hf_path
+
+      <ul>
+        <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-hf_path">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    lora_checkpoint
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-lora_checkpoint">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    megatron_path
+
+      <ul>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-megatron_path">command line option</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-megatron_path">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     missing_packed_data
@@ -1655,8 +1790,22 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-oom">command line option</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-oom">[1]</a>, <a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-oom">[2]</a>
 </li>
       </ul></li>
+      <li>
+    output_hf_path
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-output_hf_path">command line option</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    output_megatron_path
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-output_megatron_path">command line option</a>
+</li>
+      </ul></li>
       <li>
     output_path
 
@@ -1698,8 +1847,6 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-peft.dropout">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     peft.type
 
@@ -1707,6 +1854,8 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-peft.type">command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     policy.model_name
 
@@ -1726,6 +1875,13 @@ window.addEventListener("load", load);
 
       <ul>
         <li><a href="train-models/reference/rl/dpo.html#cmdoption-arg-policy.train_global_batch_size">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    pp
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-pp">command line option</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1777,6 +1933,13 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-seq_length">command line option</a>
 </li>
       </ul></li>
+      <li>
+    show_progress
+
+      <ul>
+        <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-show_progress">command line option</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
@@ -1793,6 +1956,13 @@ window.addEventListener("load", load);
         <li><a href="train-models/reference/peft/automodel.html#cmdoption-arg-step_scheduler.max_steps">command line option</a>, <a href="train-models/reference/sft/automodel.html#cmdoption-arg-step_scheduler.max_steps">[1]</a>
 </li>
       </ul></li>
+      <li>
+    strict
+
+      <ul>
+        <li><a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-strict">command line option</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1804,6 +1974,13 @@ window.addEventListener("load", load);
 
       <ul>
         <li><a href="train-models/reference/sft/megatron-bridge.html#cmdoption-arg-tokenizer_mismatch">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    tp
+
+      <ul>
+        <li><a href="train-models/reference/convert/merge-lora.html#cmdoption-arg-tp">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1820,6 +1997,13 @@ window.addEventListener("load", load);
 
       <ul>
         <li><a href="train-models/reference/peft/megatron-bridge.html#cmdoption-arg-train.train_iters">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    trust_remote_code
+
+      <ul>
+        <li><a href="train-models/reference/convert/hf-to-megatron.html#cmdoption-arg-trust_remote_code">command line option</a>, <a href="train-models/reference/convert/megatron-to-hf.html#cmdoption-arg-trust_remote_code">[1]</a>
 </li>
       </ul></li>
   </ul></td>

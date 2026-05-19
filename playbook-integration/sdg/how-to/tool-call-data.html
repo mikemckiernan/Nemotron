@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -731,14 +731,16 @@ limitations under the License.
 <section id="outcomes">
 <h2>Outcomes<a class="headerlink" href="#outcomes" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Understand how one <code class="docutils literal notranslate"><span class="pre">llm_structured</span></code> column can emit a full multi-turn trace in a single model call.</p></li>
+<li><p>Understand how the shipped config asks one <code class="docutils literal notranslate"><span class="pre">llm_text</span></code> column to emit a full JSON multi-turn trace in a single model call.</p></li>
 <li><p>Preview, generate, and validate records before training.</p></li>
 <li><p>Know how to retarget seeds, prompts, and schema for your own domain.</p></li>
 </ul>
 </section>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
-<p>Compared with single-turn configs such as <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>, this setup drives the whole conversation from one <code class="docutils literal notranslate"><span class="pre">llm_structured</span></code> column. That column’s <code class="docutils literal notranslate"><span class="pre">output_format</span></code> is a JSON schema that fixes roles, tool-call shape, and approximate turn count so the model cannot drift into invalid shapes.</p>
+<p>Compared with single-turn configs such as <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>, this setup drives the whole conversation from one <code class="docutils literal notranslate"><span class="pre">llm_text</span></code> column.
+The prompt tells the model to return a JSON object with <code class="docutils literal notranslate"><span class="pre">tools</span></code> and <code class="docutils literal notranslate"><span class="pre">messages</span></code> keys.
+The <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code> output projection parses that JSON object, extracts <code class="docutils literal notranslate"><span class="pre">messages</span></code> and <code class="docutils literal notranslate"><span class="pre">tools</span></code>, adds metadata, and serializes nested tool payload objects into OpenAI-compatible string fields.</p>
 <div class="scrollable highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multi-turn customer-support SFT data with OpenAI-style tool calls.</span>
 <span class="c1">#</span>
 <span class="c1"># Output records are training-ready JSONL:</span>
@@ -927,20 +929,20 @@ limitations under the License.
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
 <ol class="arabic">
 <li><p>Preview two records so structured output matches the schema:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>customer_support_tools<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>customer_support_tools<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 <p>In the preview, confirm:</p>
 <ul class="simple">
 <li><p>Exactly one assistant message with <code class="docutils literal notranslate"><span class="pre">tool_calls</span></code>.</p></li>
 <li><p>Exactly one <code class="docutils literal notranslate"><span class="pre">tool</span></code> message whose <code class="docutils literal notranslate"><span class="pre">tool_call_id</span></code> matches the call.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">function.arguments</span></code> is a JSON string, not a nested object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">function.arguments</span></code> and tool-message <code class="docutils literal notranslate"><span class="pre">content</span></code> are JSON strings after projection.</p></li>
 <li><p>The assistant’s closing turn references the tool result (not a generic reply).</p></li>
 <li><p>No markdown in message <code class="docutils literal notranslate"><span class="pre">content</span></code> if your trainer expects plain text.</p></li>
 </ul>
 </li>
 <li><p>Generate the dataset:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>customer_support_tools<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">200</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>customer_support_tools<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">200</span>
 </pre></div>
 </div>
 <p>Output path: <code class="docutils literal notranslate"><span class="pre">./output/sdg/customer_support_tool_sft.jsonl</span></code>.
@@ -969,7 +971,7 @@ Spot-check a few lines. Each record exposes top-level <code class="docutils lite
 <li><p>Replace or extend the seed file so rows cover your entities. You may rename the five anchor fields as long as the prompt and YAML refer to the same names.</p></li>
 <li><p>Update <code class="docutils literal notranslate"><span class="pre">seed_dataset.fields</span></code> in the YAML to match those names.</p></li>
 <li><p>Rewrite the <code class="docutils literal notranslate"><span class="pre">prompt</span></code> for your scenario and tool surface.</p></li>
-<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">output_format</span></code> if the message layout changes (for example, multiple tool calls per conversation).</p></li>
+<li><p>Adjust the JSON schema described in the prompt if the message layout changes, for example multiple tool calls per conversation.</p></li>
 </ol>
 <p>Keep <code class="docutils literal notranslate"><span class="pre">output_projection</span></code> as <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code> so the step extracts <code class="docutils literal notranslate"><span class="pre">messages</span></code> and <code class="docutils literal notranslate"><span class="pre">tools</span></code> from the structured column and merges category metadata onto each record.</p>
 </section>
@@ -978,7 +980,7 @@ Spot-check a few lines. Each record exposes top-level <code class="docutils lite
 <p>Before training, sample at least 50 records and verify:</p>
 <ul class="contains-task-list simple">
 <li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Every <code class="docutils literal notranslate"><span class="pre">tool_calls</span></code> block has a matching <code class="docutils literal notranslate"><span class="pre">tool</span></code> message with the same <code class="docutils literal notranslate"><span class="pre">tool_call_id</span></code>.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">function.arguments</span></code> values are JSON strings, not nested objects.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">function.arguments</span></code> and tool-message <code class="docutils literal notranslate"><span class="pre">content</span></code> values are JSON strings in the projected JSONL.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> The assistant’s final reply uses the tool result (not a canned answer that ignores it).</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> No unexpected markdown in <code class="docutils literal notranslate"><span class="pre">content</span></code> if the trainer assumes plain text.</p></li>
 <li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">tools</span></code> is present and non-empty on every record.</p></li>
@@ -986,16 +988,16 @@ Spot-check a few lines. Each record exposes top-level <code class="docutils lite
 </section>
 <section id="downstream-use">
 <h2>Downstream Use<a class="headerlink" href="#downstream-use" title="Link to this heading">#</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>customer_support_tool_sft.jsonl  →  prep/sft_packing  →  SFT training
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>customer_support_tool_sft.jsonl  →  data_prep/sft_packing  →  SFT training
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code> projection writes <code class="docutils literal notranslate"><span class="pre">messages</span></code> and <code class="docutils literal notranslate"><span class="pre">tools</span></code> at the top level, matching formats common to AutoModel-style SFT and Megatron-Bridge-style workflows. Run <code class="docutils literal notranslate"><span class="pre">prep/sft_packing</span></code> in dry-run mode before a large training job to confirm the packer accepts your file.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code> projection writes <code class="docutils literal notranslate"><span class="pre">messages</span></code> and <code class="docutils literal notranslate"><span class="pre">tools</span></code> at the top level, matching formats common to AutoModel-style SFT and Megatron-Bridge-style workflows. Run <code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code> in dry-run mode before a large training job to confirm the packer accepts your file.</p>
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Output projection reference: <a class="reference internal" href="../reference/output-projections.html"><span class="doc">Output Projections</span></a> to learn the <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code> schema.</p></li>
-<li><p>Config schema: <a class="reference internal" href="../reference/config-schema.html"><span class="doc">Config Schema</span></a> for information about the <code class="docutils literal notranslate"><span class="pre">llm_structured</span></code> column type and <code class="docutils literal notranslate"><span class="pre">output_format</span></code>.</p></li>
+<li><p>Config schema: <a class="reference internal" href="../reference/config-schema.html"><span class="doc">Config Schema</span></a> for column types and output projections.</p></li>
 </ul>
 </section>
 </section>

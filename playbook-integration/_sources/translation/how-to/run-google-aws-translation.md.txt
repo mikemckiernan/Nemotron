@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Use backend=google or backend=aws with nemotron steps translation."
+description: "Use backend=google or backend=aws with nemotron steps run translate/nemo_curator."
 topics: ["Translation", "Cloud"]
 tags: ["How-To", "Translation"]
 content:
@@ -23,7 +23,7 @@ Use this guide when `backend` is `google` or `aws` and you want managed cloud tr
 ## Google Example Skeleton
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   backend=google \
   google.project_id=YOUR_PROJECT \
   google.api_version=v3 \
@@ -37,7 +37,7 @@ uv run nemotron steps translation -c default \
 ## AWS Example Skeleton
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   backend=aws \
   aws.region=us-west-2 \
   input_path=/path/to/chat.jsonl \

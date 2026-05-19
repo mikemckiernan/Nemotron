@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -712,7 +712,7 @@
 <section class="tex2jax_ignore mathjax_ignore" id="about-building-multiple-choice-question-benchmarks">
 <span id="build-benchmarks-index"></span><h1>About Building Multiple-Choice Question Benchmarks<a class="headerlink" href="#about-building-multiple-choice-question-benchmarks" title="Link to this heading">#</a></h1>
 <!-- Explanation and navigation hub for the bring your own benchmark (BYOB) MCQ series. -->
-<p>This section describes how to build a custom multiple-choice question (MCQ) benchmark as Apache Parquet files with the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> command.
+<p>This section describes how to build a custom multiple-choice question (MCQ) benchmark as Apache Parquet files with the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> command.
 You supply domain text files under <code class="docutils literal notranslate"><span class="pre">input_dir</span></code>, and the pipeline samples few-shot exemplars from a Hugging Face benchmark named in your configuration, such as <code class="docutils literal notranslate"><span class="pre">cais/mmlu</span></code>.
 The configuration specifies subject filters such as <code class="docutils literal notranslate"><span class="pre">high_school_mathematics</span></code>.</p>
 <p>The benchmark step prepares seed rows, generates and judges questions, runs optional deduplication and distractor stages, and writes <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code>.
@@ -723,7 +723,7 @@ An optional translation stage reads an existing benchmark and writes another <co
 </div>
 <section id="when-to-use">
 <h2>When to Use<a class="headerlink" href="#when-to-use" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> command enables the following outcomes.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> command enables the following outcomes.</p>
 <ul class="simple">
 <li><p>Questions grounded in your own documents, paired with few-shot items from a public benchmark subject you declare in configuration.</p></li>
 <li><p>A repeatable Parquet artifact, one experiment folder under your configured <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>, plus intermediate caches when you iterate.</p></li>
@@ -809,7 +809,7 @@ Tutorial</label><div class="sd-tab-content docutils">
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="getting-started.html"><span class="doc">Getting Started with Building MCQ Benchmarks</span></a></p></td>
-<td><p>Run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> with <code class="docutils literal notranslate"><span class="pre">tiny</span></code> and inspect outputs</p></td>
+<td><p>Run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> with <code class="docutils literal notranslate"><span class="pre">tiny</span></code> and inspect outputs</p></td>
 </tr>
 </tbody>
 </table>

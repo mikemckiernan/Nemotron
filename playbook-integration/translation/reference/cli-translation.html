@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -710,10 +710,10 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="cli-reference-for-translation">
 <h1>CLI Reference for Translation<a class="headerlink" href="#cli-reference-for-translation" title="Link to this heading">#</a></h1>
-<p>Syntax, global flags, and merge rules for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code>. Pair this page with <a class="reference internal" href="translate-config.html"><span class="doc">Translation YAML Reference</span></a> for YAML field meanings.</p>
+<p>Syntax, global flags, and merge rules for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code>. Pair this page with <a class="reference internal" href="translate-config.html"><span class="doc">Translation YAML Reference</span></a> for YAML field meanings.</p>
 <section id="synopsis">
 <h2>Synopsis<a class="headerlink" href="#synopsis" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>translation<span class="w"> </span><span class="o">[</span>GLOBAL<span class="w"> </span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>-c<span class="w"> </span>CONFIG<span class="o">]</span><span class="w"> </span><span class="o">[</span>DOTLIST_OVERRIDES...<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>translate/nemo_curator<span class="w"> </span><span class="o">[</span>GLOBAL<span class="w"> </span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>-c<span class="w"> </span>CONFIG<span class="o">]</span><span class="w"> </span><span class="o">[</span>DOTLIST_OVERRIDES...<span class="o">]</span>
 </pre></div>
 </div>
 </section>
@@ -728,26 +728,32 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">--config</span> <span class="pre">NAME</span></code></p></td>
-<td><p>Select <code class="docutils literal notranslate"><span class="pre">NAME.yaml</span></code> inside <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/translate/translation/config/</span></code> or pass an explicit <code class="docutils literal notranslate"><span class="pre">*.yaml</span></code> path.</p></td>
+<td><p>Select <code class="docutils literal notranslate"><span class="pre">NAME.yaml</span></code> inside <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/translate/nemo_curator/config/</span></code> or pass an explicit <code class="docutils literal notranslate"><span class="pre">*.yaml</span></code> path.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span></code>, <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code></p></td>
 <td><p>Print the merged OmegaConf YAML without executing <code class="docutils literal notranslate"><span class="pre">TranslationStage</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-r</span></code>, <code class="docutils literal notranslate"><span class="pre">--run</span> <span class="pre">PROFILE</span></code></p></td>
-<td><p>Not supported for translation. The command exits unless mode stays local.</p></td>
+<td><p>Run attached through an environment profile such as <code class="docutils literal notranslate"><span class="pre">lepton_translate</span></code> or a Slurm profile.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-b</span></code>, <code class="docutils literal notranslate"><span class="pre">--batch</span> <span class="pre">PROFILE</span></code></p></td>
-<td><p>Not supported for translation under the same restriction.</p></td>
+<td><p>Submit detached through an environment profile such as <code class="docutils literal notranslate"><span class="pre">lepton_translate</span></code> or a Slurm profile.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>Invocation without <code class="docutils literal notranslate"><span class="pre">-c</span></code> loads <code class="docutils literal notranslate"><span class="pre">default</span></code> automatically through <code class="docutils literal notranslate"><span class="pre">parse_config</span></code>.</p>
+<p>For local Curator execution through <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span></code>, set:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">RAY_ENABLE_UV_RUN_RUNTIME_ENV</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+<p>This keeps Ray workers on the synchronized project environment instead of
+letting Ray ask uv to create a separate worker environment.</p>
 </section>
 <section id="dotlist-overrides">
 <h2>Dotlist Overrides<a class="headerlink" href="#dotlist-overrides" title="Link to this heading">#</a></h2>
 <p>Anything after the global flags that matches <code class="docutils literal notranslate"><span class="pre">key=value</span></code> merges into the YAML dictionary loaded from <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>. Nested keys use dotted paths:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>translation<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>translate/nemo_curator<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>faith_eval.threshold<span class="o">=</span><span class="m">3</span>.1<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>server.model<span class="o">=</span>YOUR_MODEL<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">input_path</span><span class="o">=</span>/data/text.jsonl<span class="w"> </span><span class="se">\</span>
@@ -761,12 +767,12 @@
 <h2>Restrictions Specific to Translation<a class="headerlink" href="#restrictions-specific-to-translation" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Passthrough arguments are not supported.</p></li>
-<li><p>Remote and cluster submission is disabled.</p></li>
+<li><p>For remote execution, use a normal Nemotron env profile with <code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">-b</span></code>, such as <code class="docutils literal notranslate"><span class="pre">lepton_translate</span></code>.</p></li>
 </ul>
 </section>
 <section id="artifact-overrides">
 <h2>Artifact Overrides<a class="headerlink" href="#artifact-overrides" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">META.input_artifacts</span></code> documents <code class="docutils literal notranslate"><span class="pre">run.data</span></code> overrides for future lineage-aware launches. The current translation CLI reads <code class="docutils literal notranslate"><span class="pre">input_path</span></code> directly from YAML and dotlists instead.</p>
+<p>The current translation step reads <code class="docutils literal notranslate"><span class="pre">input_path</span></code> directly from YAML and dotlist overrides.</p>
 </section>
 <section id="exit-codes">
 <h2>Exit Codes<a class="headerlink" href="#exit-codes" title="Link to this heading">#</a></h2>

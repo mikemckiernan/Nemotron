@@ -7,7 +7,7 @@
 
 # Data Preparation for Multiple-Choice Question Benchmarks
 
-The prepare stage builds the seed dataset that backs multiple-choice question (MCQ) generation in `nemotron steps run byob`.
+The prepare stage builds the seed dataset that backs multiple-choice question (MCQ) generation in `nemotron steps run byob/mcq`.
 
 The data preparation stage pairs few-shot rows from your configured Hugging Face benchmark with domain-specific text you place under `input_dir`.
 

@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -721,7 +721,7 @@
 <ul class="simple">
 <li><p>Each directory name directly under <code class="docutils literal notranslate"><span class="pre">input_dir</span></code> must match a key in <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code>, for example <code class="docutils literal notranslate"><span class="pre">banking</span></code>, <code class="docutils literal notranslate"><span class="pre">police</span></code>, or <code class="docutils literal notranslate"><span class="pre">maths</span></code>.</p></li>
 <li><p>Split long material across several <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files when you want different documents to drive different queries.</p></li>
-<li><p>Set <code class="docutils literal notranslate"><span class="pre">input_dir</span></code> in YAML to the parent directory so <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> resolves relative paths from the shell working directory, or use an absolute path for a fixed location.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">input_dir</span></code> in YAML to the parent directory so <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> resolves relative paths from the shell working directory, or use an absolute path for a fixed location.</p></li>
 </ul>
 <section id="step-1-create-target-directories">
 <h2>Step 1: Create Target Directories<a class="headerlink" href="#step-1-create-target-directories" title="Link to this heading">#</a></h2>
@@ -735,7 +735,7 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>./data/byob/maths
 <p>Path tips:</p>
 <ul class="simple">
 <li><p>Prefer absolute paths in YAML when several people reuse the same file from different working directories.</p></li>
-<li><p>Relative paths resolve from the shell working directory where you invoke <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code>.</p></li>
+<li><p>Relative paths resolve from the shell working directory where you invoke <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code>.</p></li>
 </ul>
 <p>The pipeline resolves <code class="docutils literal notranslate"><span class="pre">input_dir</span></code> relative to that working directory.
 If you need a fixed location regardless of where people run the command, set <code class="docutils literal notranslate"><span class="pre">input_dir</span></code> to an absolute path in YAML.</p>

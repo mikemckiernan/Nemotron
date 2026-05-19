@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -710,7 +710,7 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="faith-evaluation-inside-translation">
 <h1>FAITH Evaluation Inside Translation<a class="headerlink" href="#faith-evaluation-inside-translation" title="Link to this heading">#</a></h1>
-<p>This page explains how optional FAITH scoring behaves when <code class="docutils literal notranslate"><span class="pre">faith_eval.enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code> inside <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code>.
+<p>This page explains how optional FAITH scoring behaves when <code class="docutils literal notranslate"><span class="pre">faith_eval.enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code> inside <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code>.
 FAITH stands for the five quality dimensions the judge scores against each translated segment: <em>Fluency</em>, <em>Accuracy</em>, <em>Idiomaticity</em>, <em>Terminology</em>, and <em>Handling of Format</em>.</p>
 <p>FAITH runs in the same <code class="docutils literal notranslate"><span class="pre">TranslationStage</span></code> invocation as translation. There is no separate CLI only for FAITH scoring.</p>
 <section id="what-faith-adds">
@@ -718,7 +718,7 @@ FAITH stands for the five quality dimensions the judge scores against each trans
 <p>FAITH scores translation quality segment-by-segment using a large language model (LLM) judge configured alongside your translation backend:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">faith_eval.threshold</span></code> defines the minimum acceptable average score. The starter default is <code class="docutils literal notranslate"><span class="pre">2.5</span></code>, which you should tune per model. See the next section for what the scale means.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">faith_eval.segment_level</span></code> aligns scoring granularity with translation segmentation for long inputs.</p></li>
+<li><p>FAITH scoring follows the translated segment pairs produced by Curator’s translation stage for long inputs.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">faith_eval.filter_enabled</span></code> drops failing rows when <code class="docutils literal notranslate"><span class="pre">true</span></code>, which lets you keep high-confidence shards only.</p></li>
 </ul>
 </section>

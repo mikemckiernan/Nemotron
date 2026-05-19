@@ -79,7 +79,7 @@ Failure modes for local runs and cluster dispatch. For cluster-specific setup, s
 
 ```toml
 startup_commands = [
-    "python -m pip install --quiet --break-system-packages 'data-designer>=0.5.6'"
+    "python -m pip install --quiet --break-system-packages 'data-designer==0.5.5'"
 ]
 ```
 ::::
@@ -98,7 +98,7 @@ startup_commands = [
 **Solution**: Declare it explicitly in the env.toml profile:
 
 ```toml
-[lepton-sdg.env_vars]
+[lepton_sdg_data_designer.env_vars]
 NVIDIA_API_KEY = "${oc.env:NVIDIA_API_KEY}"
 ```
 

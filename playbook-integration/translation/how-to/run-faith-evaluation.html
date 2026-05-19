@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -710,7 +710,7 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="run-faith-evaluation">
 <h1>Run FAITH Evaluation<a class="headerlink" href="#run-faith-evaluation" title="Link to this heading">#</a></h1>
-<p>Use this guide when you need to tune thresholds, filtering, or scorer models for FAITH inside <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> without a separate evaluation command.</p>
+<p>Use this guide when you need to tune thresholds, filtering, or scorer models for FAITH inside <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> without a separate evaluation command.</p>
 <p>FAITH runs inside <code class="docutils literal notranslate"><span class="pre">TranslationStage</span></code> whenever <code class="docutils literal notranslate"><span class="pre">faith_eval.enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>. The <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> starter profile ships with FAITH enabled. For how FAITH couples to non-LLM backends, see <a class="reference internal" href="../explanation/faith-evaluation.html"><span class="doc">FAITH Evaluation Inside Translation</span></a>.</p>
 <section id="essential-knobs">
 <h2>Essential Knobs<a class="headerlink" href="#essential-knobs" title="Link to this heading">#</a></h2>
@@ -727,14 +727,17 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.threshold</span></code></p></td>
 <td><p>Average score floor. Rows failing the threshold are dropped when <code class="docutils literal notranslate"><span class="pre">filter_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.segment_level</span></code></p></td>
-<td><p>Keeps FAITH aligned with translation segmentation. Recommended for long documents.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.filter_enabled</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.filter_enabled</span></code></p></td>
 <td><p>Enables or disables removing low-scoring rows.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.model_name</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.model_name</span></code></p></td>
 <td><p>Overrides <code class="docutils literal notranslate"><span class="pre">server.model</span></code> for scoring-only workloads.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.generation_config</span></code></p></td>
+<td><p>Optional OpenAI-compatible generation settings for the FAITH scorer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">faith_eval.max_concurrent_requests</span></code></p></td>
+<td><p>Optional scorer-side concurrency limit.</p></td>
 </tr>
 </tbody>
 </table>
@@ -744,10 +747,9 @@
 <h2>LLM Credentials<a class="headerlink" href="#llm-credentials" title="Link to this heading">#</a></h2>
 <p>FAITH always requires the OpenAI-compatible <code class="docutils literal notranslate"><span class="pre">server</span></code> configuration. Set <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> first, for example by replacing <code class="docutils literal notranslate"><span class="pre">&lt;api-key&gt;</span></code> below.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;api-key&gt;&quot;</span>
-uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>translation<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>translate/nemo_curator<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>faith_eval.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>faith_eval.threshold<span class="o">=</span><span class="m">3</span>.0<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>faith_eval.segment_level<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>faith_eval.filter_enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>server.model<span class="o">=</span>YOUR_LLM_MODEL_ID<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">input_path</span><span class="o">=</span>/path/to/chat.jsonl<span class="w"> </span><span class="se">\</span>
@@ -756,10 +758,11 @@ uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </
 <span class="w">  </span><span class="nv">target_language</span><span class="o">=</span>hi
 </pre></div>
 </div>
+<p>FAITH scoring is part of Curator’s translation stage and is aligned to the translated segments produced by the stage. There is no separate <code class="docutils literal notranslate"><span class="pre">faith_eval.segment_level</span></code> switch in this Nemotron config.</p>
 </section>
 <section id="disable-faith-temporarily">
 <h2>Disable FAITH Temporarily<a class="headerlink" href="#disable-faith-temporarily" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>translation<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>translate/nemo_curator<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>faith_eval.enabled<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">input_path</span><span class="o">=</span>/path/to/chat.jsonl<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>/path/to/out<span class="w"> </span><span class="se">\</span>

@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -708,10 +708,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <!-- Reference: symptom-to-remedy tables for nemotron steps translation runs across all four backends and FAITH evaluation. -->
+  <!-- Reference: symptom-to-remedy tables for nemotron steps run translate/nemo_curator runs across all four backends and FAITH evaluation. -->
 <section class="tex2jax_ignore mathjax_ignore" id="troubleshooting">
 <h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h1>
-<p>This page lists common symptoms when you run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> and shows the field, flag, or environment variable to inspect first.
+<p>This page lists common symptoms when you run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> and shows the field, flag, or environment variable to inspect first.
 Each table pairs a symptom with a concrete remedy.
 For stage flow and design rationale, see the explanation pages linked from <a class="reference internal" href="../explanation/index.html"><span class="doc">Concepts</span></a>.</p>
 <section id="authentication-and-credentials">
@@ -788,6 +788,12 @@ For stage flow and design rationale, see the explanation pages linked from <a cl
 <tbody>
 <tr class="row-even"><td><p>Reader errors about mixed file types when <code class="docutils literal notranslate"><span class="pre">input_path</span></code> points at a directory containing both JSONL and Parquet files</p></td>
 <td><p>Curator readers expect one record format per directory. Split the inputs into separate directories for JSON Lines (JSONL) and Parquet, or set <code class="docutils literal notranslate"><span class="pre">input_path</span></code> to a single file. See <a class="reference internal" href="io-format.html"><span class="doc">Input and Output Format</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ray worker logs show <code class="docutils literal notranslate"><span class="pre">Creating</span> <span class="pre">virtual</span> <span class="pre">environment</span> <span class="pre">at:</span> <span class="pre">.venv</span></code> followed by <code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'ray'</span></code></p></td>
+<td><p>Export <code class="docutils literal notranslate"><span class="pre">RAY_ENABLE_UV_RUN_RUNTIME_ENV=0</span></code> before running local <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">--no-sync</span> <span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span> <span class="pre">...</span></code>. This keeps Ray workers in the synchronized Nemotron environment.</p></td>
+</tr>
+<tr class="row-even"><td><p>Empty JSONL input fails with <code class="docutils literal notranslate"><span class="pre">No</span> <span class="pre">data</span> <span class="pre">read</span> <span class="pre">from</span> <span class="pre">files</span> <span class="pre">in</span> <span class="pre">task</span> <span class="pre">file_group_0</span></code></p></td>
+<td><p>The reader found no records. Treat the run as an empty-input validation failure, confirm the input path is correct, and rerun with a non-empty file or directory.</p></td>
 </tr>
 <tr class="row-odd"><td><p>Output shards do not appear under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> after the run reports success</p></td>
 <td><p>The writer emits partitioned files, not a single merged file. Inspect the shard pattern under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> and confirm <code class="docutils literal notranslate"><span class="pre">output_format</span></code> matches what downstream consumers expect. See <a class="reference internal" href="io-format.html"><span class="doc">Input and Output Format</span></a>.</p></td>

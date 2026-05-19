@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -708,7 +708,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="getting-started-with-translation">
 <span id="getting-started-translation"></span><h1>Getting Started With Translation<a class="headerlink" href="#getting-started-with-translation" title="Link to this heading">#</a></h1>
 <p>You will produce translated JSON Lines (JSONL) shards under an <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> you choose, with FAITH quality scoring applied in the same run. FAITH is the translation-quality scorer name used in NVIDIA NeMo Curator documentation.</p>
-<p>This tutorial runs <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> end to end on a small sample file. You use <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/translate/translation/config/default.yaml</span></code> and CLI dotlist overrides.</p>
+<p>This tutorial runs <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> end to end on a small sample file. You use <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/translate/nemo_curator/config/default.yaml</span></code> and CLI dotlist overrides.</p>
 <div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
 <div class="sd-card-header docutils">
 <p class="sd-card-text">What You Will Produce</p>
@@ -719,7 +719,7 @@
 <ol class="arabic simple">
 <li><p class="sd-card-text">Export <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
 <li><p class="sd-card-text">Download the sample <code class="docutils literal notranslate"><span class="pre">train_sample.jsonl</span></code> chat file.</p></li>
-<li><p class="sd-card-text">Run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span> <span class="pre">-c</span> <span class="pre">default</span></code> with CLI overrides for paths, languages, and <code class="docutils literal notranslate"><span class="pre">server.model</span></code>.</p></li>
+<li><p class="sd-card-text">Run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span> <span class="pre">-c</span> <span class="pre">default</span></code> with CLI overrides for paths, languages, and <code class="docutils literal notranslate"><span class="pre">server.model</span></code>.</p></li>
 <li><p class="sd-card-text">Inspect <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> for translated records.</p></li>
 </ol>
 <p class="sd-card-text"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-clock sd-mr-1" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z"></path></svg> Budget roughly five to fifteen minutes depending on network latency and response time from your provider and on corpus size.
@@ -731,6 +731,8 @@ The sample contains about one hundred lines.</p>
 <ul class="simple">
 <li><p>Network access to <code class="docutils literal notranslate"><span class="pre">https://integrate.api.nvidia.com/v1</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> exported in your shell.</p></li>
+<li><p>For local <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span></code> execution with Curator/Ray, export <code class="docutils literal notranslate"><span class="pre">RAY_ENABLE_UV_RUN_RUNTIME_ENV=0</span></code>
+so Ray workers reuse the synchronized project environment.</p></li>
 </ul>
 </section>
 <section id="sample-input-file">
@@ -753,7 +755,7 @@ The sample contains about one hundred lines.</p>
 </div>
 </li>
 <li><p>Synchronize the dependencies:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>translation
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>translate
 </pre></div>
 </div>
 </li>
@@ -765,8 +767,9 @@ The sample contains about one hundred lines.</p>
 Set <code class="docutils literal notranslate"><span class="pre">server.model</span></code> to a model your endpoint serves.
 Replace <code class="docutils literal notranslate"><span class="pre">&lt;api-key&gt;</span></code> with your NVIDIA API key value, or set <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> in your environment before running the command.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;api-key&gt;&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">RAY_ENABLE_UV_RUN_RUNTIME_ENV</span><span class="o">=</span><span class="m">0</span>
 
-<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--extra<span class="w"> </span>translation<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>translation<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>translate/nemo_curator<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">input_path</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/train_sample.jsonl&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">output_dir</span><span class="o">=</span>./output/translation-getting-started<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">source_language</span><span class="o">=</span>en<span class="w"> </span><span class="se">\</span>
@@ -1264,12 +1267,14 @@ Spot-check one line.</p>
 </li>
 <li><p>Optional: Print the merged configuration without running the stage.</p>
 <p>Pass <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> or <code class="docutils literal notranslate"><span class="pre">-d</span></code> so Curator does not execute the pipeline.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>translation<span class="w"> </span>-d<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">RAY_ENABLE_UV_RUN_RUNTIME_ENV</span><span class="o">=</span><span class="m">0</span>
+
+<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>translate/nemo_curator<span class="w"> </span>-d<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">input_path</span><span class="o">=</span>./train_sample.jsonl<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">output_dir</span><span class="o">=</span>./output/translation-getting-started<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">source_language</span><span class="o">=</span>en<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">target_language</span><span class="o">=</span>hi<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>server.model<span class="o">=</span>mistralai/mistral-small-3.1-24b-instruct-2503
+<span class="w">    </span>server.model<span class="o">=</span>nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
 </pre></div>
 </div>
 </li>

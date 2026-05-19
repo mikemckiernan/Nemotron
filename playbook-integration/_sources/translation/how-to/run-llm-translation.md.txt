@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Use backend=llm with nemotron steps translation and NVIDIA_API_KEY."
+description: "Use backend=llm with nemotron steps run translate/nemo_curator and NVIDIA_API_KEY."
 topics: ["Translation", "LLM"]
 tags: ["How-To", "Translation"]
 content:
@@ -12,7 +12,7 @@ content:
 
 # Run LLM Translation
 
-Use this guide when `backend` must stay `llm` and you need to point `nemotron steps translation` at an OpenAI-compatible chat-completions endpoint and model.
+Use this guide when `backend` must stay `llm` and you need to point `nemotron steps run translate/nemo_curator` at an OpenAI-compatible chat-completions endpoint and model.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ Use this guide when `backend` must stay `llm` and you need to point `nemotron st
 2. Override model and languages:
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   backend=llm \
   input_path=/path/to/chat.jsonl \
   output_dir=/path/to/out \

@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -708,14 +708,14 @@
   <section class="tex2jax_ignore mathjax_ignore" id="tips-for-translation-with-agents">
 <span id="translation-using-skills"></span><h1>Tips for Translation With Agents<a class="headerlink" href="#tips-for-translation-with-agents" title="Link to this heading">#</a></h1>
 <p>This page is for you if you want a productive session with a coding agent without a long back-and-forth.
-The mechanics of the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> are shown in <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Translation</span></a> and the how-to guides.</p>
+The mechanics of the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> are shown in <a class="reference internal" href="getting-started.html"><span class="doc">Getting Started With Translation</span></a> and the how-to guides.</p>
 <section id="sample-prompts-you-can-paste">
 <h2>Sample Prompts You Can Paste<a class="headerlink" href="#sample-prompts-you-can-paste" title="Link to this heading">#</a></h2>
 <p>Paste one block as the first message in a new session.
 Fill in bracketed parts or paths before you send.</p>
 <section id="example-small-bilingual-for-sft-and-faith-filtering">
 <h3>Example: Small Bilingual for SFT and FAITH Filtering<a class="headerlink" href="#example-small-bilingual-for-sft-and-faith-filtering" title="Link to this heading">#</a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>I need help running nemotron steps translation for a multilingual supervised fine-tuning experiment.
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>I need help running nemotron steps run translate/nemo_curator for a multilingual supervised fine-tuning experiment.
 
 Context:
 - Repo: Nemotron at the machine root where I run commands.
@@ -724,12 +724,12 @@ Context:
 - I want translated shards I can inspect before scaling up.
 
 Constraints:
-- Use the checked-in config at src/nemotron/steps/translate/translation/config/default.yaml with -c default and CLI dotlist overrides only.
+- Use the checked-in config at src/nemotron/steps/translate/nemo_curator/config/default.yaml with -c default and CLI dotlist overrides only.
 - Keep FAITH enabled with sensible training defaults from that tutorial unless you see a conflict; I want low-quality rows filtered, not every row kept.
 - output_dir: [MY_OUTPUT_DIR] under the repo, for example ./output/translation-agent-1.
 
 Please:
-- Give me the exact uv run nemotron steps translation command with input_path, output_dir, source_language=en, target_language=[TARGET], and server.model filled in.
+- Give me the exact uv run nemotron steps run translate/nemo_curator command with input_path, output_dir, source_language=en, target_language=[TARGET], and server.model filled in.
 - Point me to the next doc page if I need to change text_field, output_mode, or segmentation.
 </pre></div>
 </div>

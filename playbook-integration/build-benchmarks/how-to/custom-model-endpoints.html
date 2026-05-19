@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -719,7 +719,7 @@ Instead, YAML blocks describe OpenAI-compatible clients for each stage that call
 <section id="generation-and-judgement">
 <h2>Generation and judgement<a class="headerlink" href="#generation-and-judgement" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">generation_model_config</span></code> and <code class="docutils literal notranslate"><span class="pre">judge_model_config</span></code> are required mappings.
-They follow the same structure you see in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/default.yaml</span></code>: <code class="docutils literal notranslate"><span class="pre">alias</span></code>, <code class="docutils literal notranslate"><span class="pre">model</span></code>, <code class="docutils literal notranslate"><span class="pre">provider</span></code>, and nested <code class="docutils literal notranslate"><span class="pre">inference_parameters</span></code> such as <code class="docutils literal notranslate"><span class="pre">max_tokens</span></code>, <code class="docutils literal notranslate"><span class="pre">max_parallel_requests</span></code>, <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, and <code class="docutils literal notranslate"><span class="pre">top_p</span></code>.</p>
+They follow the same structure you see in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/mcq/config/default.yaml</span></code>: <code class="docutils literal notranslate"><span class="pre">alias</span></code>, <code class="docutils literal notranslate"><span class="pre">model</span></code>, <code class="docutils literal notranslate"><span class="pre">provider</span></code>, and nested <code class="docutils literal notranslate"><span class="pre">inference_parameters</span></code> such as <code class="docutils literal notranslate"><span class="pre">max_tokens</span></code>, <code class="docutils literal notranslate"><span class="pre">max_parallel_requests</span></code>, <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, and <code class="docutils literal notranslate"><span class="pre">top_p</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">setup_model_config</span></code> in <code class="docutils literal notranslate"><span class="pre">runtime/data_designer_utils.py</span></code> reads these blocks when Data Designer runs batched stages.</p>
 </section>
 <section id="distractor-and-validity-stages">

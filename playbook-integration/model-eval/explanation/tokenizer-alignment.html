@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Model Evaluation How-To Guides" href="../how-to/index.html" />
-    <link rel="prev" title="Endpoint Types And Benchmark Families" href="endpoint-types-and-benchmarks.html" />
+    <link rel="prev" title="Endpoint Types And Task Families" href="endpoint-types-and-benchmarks.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -710,58 +710,39 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="tokenizer-alignment">
 <span id="model-eval-tokenizer-alignment"></span><h1>Tokenizer Alignment<a class="headerlink" href="#tokenizer-alignment" title="Link to this heading">#</a></h1>
-<p><em>Log-probability</em> benchmarks score candidate answers by token, so the run must tokenize the same strings the served model tokenizes, by using the same vocabulary and the same merge rules.
-This page explains why that requirement exists, the shapes the step accepts for the tokenizer, and how the failure surfaces when alignment breaks.</p>
-<section id="why-the-tokenizer-is-needed">
-<h2>Why The Tokenizer Is Needed<a class="headerlink" href="#why-the-tokenizer-is-needed" title="Link to this heading">#</a></h2>
-<p>Log-probability benchmarks request log-probabilities for specific candidate token sequences from the completions endpoint.
-The requesting client tokenizes each candidate locally before issuing the call, so the endpoint can score those exact token sequences in a single forward pass.
-The value of <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> is the loader the client uses to perform that local tokenization.</p>
-<p>Generation-based benchmarks do not need a tokenizer because they read produced text rather than candidate token probabilities.
-The tokenizer requirement is specific to the log-probability family.</p>
+<p>The hosted chat smoke path in <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code> does not require a tokenizer override.
+Tokenizer alignment becomes important when you run log-probability tasks such as HellaSwag or other tasks that score candidate continuations by token likelihood.</p>
+<section id="where-the-tokenizer-lives">
+<h2>Where The Tokenizer Lives<a class="headerlink" href="#where-the-tokenizer-lives" title="Link to this heading">#</a></h2>
+<p>Tokenizer settings live under:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>evaluation.nemo_evaluator_config.config.params.extra.tokenizer
+evaluation.nemo_evaluator_config.config.params.extra.tokenizer_backend
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> config sets the tokenizer to <code class="docutils literal notranslate"><span class="pre">${deployment.checkpoint_path}/tokenizer</span></code>, which matches the Megatron Bridge checkpoint path when that checkpoint contains a tokenizer subdirectory.</p>
 </section>
-<section id="why-it-must-match-the-served-model">
-<h2>Why It Must Match The Served Model<a class="headerlink" href="#why-it-must-match-the-served-model" title="Link to this heading">#</a></h2>
-<p>The tokenizer that the client uses must produce the same sequence of integer identifiers that the served model expects.
-When the two tokenizers diverge, the client sends one sequence of token identifiers and the model interprets a different sequence, which yields probabilities for the wrong tokens.
-Candidate scores computed under mismatched tokenizers are not meaningful, and small mismatches can produce small but persistent score errors that are easy to miss in aggregate.</p>
+<section id="why-it-must-match">
+<h2>Why It Must Match<a class="headerlink" href="#why-it-must-match" title="Link to this heading">#</a></h2>
+<p>Log-probability tasks ask the endpoint to score candidate token sequences.
+If the evaluator tokenizes candidates differently from the served model, the model scores the wrong token ids and the metric is not meaningful.</p>
 </section>
 <section id="accepted-shapes">
 <h2>Accepted Shapes<a class="headerlink" href="#accepted-shapes" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> field accepts three shapes.</p>
+<p>Use one of these tokenizer values when a selected task requires local tokenization:</p>
 <ul class="simple">
-<li><p>A Hugging Face model ID, for example <code class="docutils literal notranslate"><span class="pre">meta-llama/Llama-3.1-8B</span></code>, resolved through the Hugging Face Hub by the loader.</p></li>
-<li><p>A filesystem path that contains the tokenizer files, for use when the tokenizer is not published on the hub or when the run executes offline.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, for runs that evaluate a Megatron Bridge training output.</p></li>
+<li><p>A Hugging Face model id.</p></li>
+<li><p>A filesystem path containing tokenizer files.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory inside a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
-<p>The companion field <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer_backend</span></code> is documented for this step as <code class="docutils literal notranslate"><span class="pre">huggingface</span></code>.
-Other values exist upstream in NeMo Evaluator and are not exercised by this step by default.</p>
-</section>
-<section id="the-megatron-bridge-tokenizer-convention">
-<h2>The Megatron Bridge Tokenizer Convention<a class="headerlink" href="#the-megatron-bridge-tokenizer-convention" title="Link to this heading">#</a></h2>
-<p>Megatron Bridge writes a self-contained <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory inside each <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, alongside the model weights for that iteration.
-Pointing <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> at that subdirectory is the recommended pattern for Megatron Bridge deployments, because the tokenizer travels with the weights and matches them by construction.</p>
-<p>Pointing <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code> at the parent run output folder instead of at a specific <code class="docutils literal notranslate"><span class="pre">iter_*/tokenizer</span></code> subdirectory is a configuration error.
-That mistake surfaces as the <code class="docutils literal notranslate"><span class="pre">bad_megatron_checkpoint_path</span></code> named error in <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code>.
-For the recovery, refer to <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p>
-</section>
-<section id="failure-modes">
-<h2>Failure Modes<a class="headerlink" href="#failure-modes" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>An absent tokenizer for a log-probability benchmark surfaces as the <code class="docutils literal notranslate"><span class="pre">missing_tokenizer_for_logprobs</span></code> named error in <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>, raised before any benchmark dispatches.
-For the recovery, refer to <a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a>.</p></li>
-<li><p>A tokenizer that resolves but does not match the served model produces unstable or implausibly poor scores, and is not caught by the <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> probe.
-Detect this case by comparing scores against a known baseline; the <a class="reference internal" href="../reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> framing in the output-artifacts reference describes the comparison pattern.</p></li>
-</ul>
+<p>Use <code class="docutils literal notranslate"><span class="pre">huggingface</span></code> for <code class="docutils literal notranslate"><span class="pre">evaluation.nemo_evaluator_config.config.params.extra.tokenizer_backend</span></code> unless the selected launcher task explicitly requires another backend.</p>
 </section>
 <section id="related-pages">
 <h2>Related Pages<a class="headerlink" href="#related-pages" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a> for the endpoint side of the log-probability case.</p></li>
-<li><p><a class="reference internal" href="pipeline-overview.html"><span class="doc">Pipeline Overview</span></a> for where the tokenizer load sits in the run.</p></li>
-<li><p><a class="reference internal" href="../reference/config-schema.html"><span class="doc">Configuration Reference</span></a> for the field-by-field documentation of <code class="docutils literal notranslate"><span class="pre">params.extra</span></code>.</p></li>
-<li><p><a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a> for the named error modes and their recovery guidance.</p></li>
-<li><p><a class="reference internal" href="../how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> for choosing the tokenizer value in context.</p></li>
+<li><p><a class="reference internal" href="endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Task Families</span></a> for endpoint/task pairing.</p></li>
+<li><p><a class="reference internal" href="pipeline-overview.html"><span class="doc">Pipeline Overview</span></a> for runtime flow.</p></li>
+<li><p><a class="reference internal" href="../reference/config-schema.html"><span class="doc">Configuration Reference</span></a> for field-by-field documentation.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a> for common tokenizer and checkpoint-path failures.</p></li>
 </ul>
 </section>
 </section>
@@ -782,7 +763,7 @@ Detect this case by comparing scores against a known baseline; the <a class="ref
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Endpoint Types And Benchmark Families</p>
+        <p class="prev-next-title">Endpoint Types And Task Families</p>
       </div>
     </a>
     <a class="right-next"
@@ -815,11 +796,9 @@ Detect this case by comparing scores against a known baseline; the <a class="ref
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-tokenizer-is-needed">Why The Tokenizer Is Needed</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-it-must-match-the-served-model">Why It Must Match The Served Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-tokenizer-lives">Where The Tokenizer Lives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-it-must-match">Why It Must Match</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accepted-shapes">Accepted Shapes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-megatron-bridge-tokenizer-convention">The Megatron Bridge Tokenizer Convention</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#failure-modes">Failure Modes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-pages">Related Pages</a></li>
 </ul>
   </nav></div>

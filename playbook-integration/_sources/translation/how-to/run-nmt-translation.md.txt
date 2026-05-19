@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Use backend=nmt with nemotron steps translation and a local HTTP translation service."
+description: "Use backend=nmt with nemotron steps run translate/nemo_curator and a local HTTP translation service."
 topics: ["Translation", "NMT"]
 tags: ["How-To", "Translation"]
 content:
@@ -54,7 +54,7 @@ Tune `nmt.batch_size`, `nmt.timeout`, and `nmt.max_concurrent_requests` once you
 ## Procedure
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   backend=nmt \
   nmt.server_url=http://localhost:5000 \
   input_path=/path/to/chat.jsonl \

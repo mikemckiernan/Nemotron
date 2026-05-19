@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -995,7 +995,7 @@ The following sample shows one record from the <code class="docutils literal not
 <li><p>Run a preview first.
 The <code class="docutils literal notranslate"><span class="pre">preview=true</span> <span class="pre">num_records=N</span></code> form runs the same pipeline against a small record count, so you can iterate on column specifications and prompts before scaling <code class="docutils literal notranslate"><span class="pre">num_records</span></code> up.</p></li>
 <li><p>The output format matches the trainer.
-The <code class="docutils literal notranslate"><span class="pre">openai_messages</span></code> projection emits records ready for <code class="docutils literal notranslate"><span class="pre">prep/sft_packing</span></code> or AutoModel SFT.</p></li>
+The <code class="docutils literal notranslate"><span class="pre">openai_messages</span></code> projection emits records ready for <code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code> or AutoModel SFT.</p></li>
 </ul>
 </section>
 <section id="next-steps">

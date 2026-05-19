@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -881,7 +881,7 @@ Remote profiles must preserve the same mount contract your environment expects.<
 </section>
 <section id="stage-dispatch-for-nemotron-steps-run">
 <h2>Stage dispatch for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span></code><a class="headerlink" href="#stage-dispatch-for-nemotron-steps-run" title="Link to this heading">#</a></h2>
-<p>The step script reads optional CLI flags <code class="docutils literal notranslate"><span class="pre">--family</span></code>, <code class="docutils literal notranslate"><span class="pre">--stage</span></code>, and <code class="docutils literal notranslate"><span class="pre">--skip-until</span></code>, but you can also place <code class="docutils literal notranslate"><span class="pre">family</span></code>, <code class="docutils literal notranslate"><span class="pre">stage</span></code>, and <code class="docutils literal notranslate"><span class="pre">skip_until</span></code> keys directly in YAML.
+<p>The generic steps CLI accepts <code class="docutils literal notranslate"><span class="pre">family</span></code>, <code class="docutils literal notranslate"><span class="pre">stage</span></code>, and <code class="docutils literal notranslate"><span class="pre">skip_until</span></code> as dotlist overrides, and you can also place those keys directly in YAML.
 <code class="docutils literal notranslate"><span class="pre">family</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">mcq</span></code> when omitted.</p>
 </section>
 </section>

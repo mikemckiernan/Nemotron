@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "How nemotron steps translation flows through Curator readers, TranslationStage, writers, and FAITH."
+description: "How nemotron steps run translate/nemo_curator flows through Curator readers, TranslationStage, writers, and FAITH."
 topics: ["Translation", "Pipeline"]
 tags: ["Explanation", "Architecture"]
 content:
@@ -12,7 +12,7 @@ content:
 
 # Pipeline Overview
 
-This page describes how `nemotron steps translation` moves records from `input_path` into `output_dir` by using NVIDIA NeMo Curator staging primitives.
+This page describes how `nemotron steps run translate/nemo_curator` moves records from `input_path` into `output_dir` by using NVIDIA NeMo Curator staging primitives.
 
 ## Architecture
 

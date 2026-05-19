@@ -86,7 +86,7 @@ This example adds category dimensions, `traveler_segment`, `inquiry_type`, and `
 1. Run a preview by specifying `preview=true num_records=2` to verify the pipeline before scaling:
 
    ```console
-   $ nemotron step run sdg/data_designer -c greenteme preview=true num_records=2
+   $ nemotron steps run sdg/data_designer -c greenteme preview=true num_records=2
    ```
 
    ````{dropdown} Example Output
@@ -100,7 +100,7 @@ This example adds category dimensions, `traveler_segment`, `inquiry_type`, and `
 1. Generate the dataset by raising `num_records` after the preview output looks correct:
 
    ```console
-   $ nemotron step run sdg/data_designer -c greenteme num_records=100
+   $ nemotron steps run sdg/data_designer -c greenteme num_records=100
    ```
 
 ## Going Further
@@ -108,8 +108,7 @@ This example adds category dimensions, `traveler_segment`, `inquiry_type`, and `
 **Locale-aware persona profiles.** The current YAML schema supports category, seed, and LLM column types. To replace the static `traveler_segment` category with Census-grounded persona profiles using Data Designer's [person sampler](https://nvidia-nemo.github.io/DataDesigner/latest/concepts/person_sampling/), you can include locale, age range, and synthetic-personas integration.
 
 **Multi-turn conversations.** The example shows a single user and assistant exchange.
-For multi-turn dialogue, swap the two `llm_text` columns for one `llm_structured` column whose `output_format` is a Pydantic conversation schema.
-Refer to the `customer_support_tools.yaml` in the config directory for the structured-output pattern.
+For multi-turn dialogue, follow the `customer_support_tools.yaml` pattern: ask one `llm_text` column to return a JSON object with `messages` and optional `tools`, then use the `structured_messages` output projection to write training-ready JSONL.
 
 **Dispatch to a cluster.** Generation runs locally against the NVIDIA-hosted endpoint by default. To run on Lepton or Slurm, see {doc}`dispatch-to-cluster` — env.toml profiles, container images, and the gotchas that bite first-time cluster runs.
 
@@ -117,7 +116,7 @@ Refer to the `customer_support_tools.yaml` in the config directory for the struc
 
 The `openai_messages` projection emits records with a `messages` array plus the metadata fields you list. These flow directly into:
 
-- `prep/sft_packing` for Megatron-Bridge-style training, or
+- `data_prep/sft_packing` for Megatron-Bridge-style training, or
 - AutoModel SFT, which consumes the chat format directly.
 
 For a full reference of available projection shapes, see {doc}`../reference/output-projections`.
@@ -125,7 +124,7 @@ For a full reference of available projection shapes, see {doc}`../reference/outp
 ## Next Steps
 
 - **Generate preference pairs for DPO**: {doc}`preference-data` — the `rl_pref.yaml` pattern.
-- **Generate tool-calling SFT data**: {doc}`tool-call-data` — multi-turn with `output_format=Conversation`.
+- **Generate tool-calling SFT data**: {doc}`tool-call-data` — multi-turn `messages` and `tools` with `structured_messages`.
 - **CLI flags and overrides**: {doc}`../reference/cli-reference`.
 - **Config schema**: {doc}`../reference/config-schema` — full reference for column types, samplers, and projections.
 - **Pipeline overview**: {doc}`../index`.

@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "YAML reference for translate/translation aligned with config/default.yaml."
+description: "YAML reference for translate/nemo_curator aligned with config/default.yaml."
 topics: ["Translation", "Configuration"]
 tags: ["Reference", "YAML"]
 content:
@@ -12,11 +12,11 @@ content:
 
 # Translation YAML Reference
 
-The `translate/translation` step ships `src/nemotron/steps/translate/translation/config/default.yaml` as the canonical starter profile. This page lists top-level keys you can override with `nemotron steps translation key=value` dotlists, grouped by concern, with the full baseline file inlined below.
+The `translate/nemo_curator` step ships `src/nemotron/steps/translate/nemo_curator/config/default.yaml` as the canonical starter profile. This page lists top-level keys you can override with `nemotron steps run translate/nemo_curator key=value` dotlists, grouped by concern, with the full baseline file inlined below.
 
 ## Default Configuration File
 
-```{literalinclude} ../../../src/nemotron/steps/translate/translation/config/default.yaml
+```{literalinclude} ../../../src/nemotron/steps/translate/nemo_curator/config/default.yaml
 :language: yaml
 :class: scrollable
 ```
@@ -69,8 +69,9 @@ Used whenever `backend=llm` or FAITH needs an OpenAI-compatible judge.
 | `enabled` | Turns FAITH scoring on. The starter YAML sets this to `true`. |
 | `threshold` | Minimum acceptable `faith_avg` on a one-to-five scale. The starter default `2.5` is a permissive noisy-data floor. See {doc}`../explanation/faith-evaluation` for the full rubric. |
 | `model_name` | Optional scorer-only model. Defaults to `server.model`. |
-| `segment_level` | Align FAITH granularity with translation segmentation. |
 | `filter_enabled` | Drop failing rows when `true`. |
+| `max_concurrent_requests` | Optional scorer-side concurrency limit. |
+| `generation_config` | Optional OpenAI-compatible generation settings for the scorer. |
 
 ### Backend-Specific Blocks
 
@@ -85,7 +86,7 @@ Used whenever `backend=llm` or FAITH needs an OpenAI-compatible judge.
 OmegaConf dotlists merge last:
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   backend=nmt \
   nmt.server_url=http://localhost:5000 \
   faith_eval.enabled=false \

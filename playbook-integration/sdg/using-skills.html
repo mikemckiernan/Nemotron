@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -725,7 +725,7 @@ limitations under the License.
 <span id="sdg-using-skills"></span><h1>Use the SDG Skill With Confidence<a class="headerlink" href="#use-the-sdg-skill-with-confidence" title="Link to this heading">#</a></h1>
 <p>This page is for newcomers to model training and new to <em>synthetic data generation (SDG)</em>.
 The main goal is to help you run a productive, efficient session with a coding agent: less back-and-forth, fewer clarifying questions, and clearer handoffs between what you decide and what the agent edits in the repository.</p>
-<p>This page aligns with the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">step</span> <span class="pre">run</span> <span class="pre">sdg/data_designer</span></code> command.
+<p>This page aligns with the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">sdg/data_designer</span></code> command.
 Use an agent to translate your intent into the right YAML, seed files, and <code class="docutils literal notranslate"><span class="pre">nemotron</span></code> commands.</p>
 <section id="keeping-an-agent-session-productive">
 <h2>Keeping an Agent Session Productive<a class="headerlink" href="#keeping-an-agent-session-productive" title="Link to this heading">#</a></h2>
@@ -748,7 +748,7 @@ Please: [one request]. Use Nemotron SDG defaults from the repo unless something 
 </section>
 <section id="what-success-looks-like-on-day-one">
 <h2>What Success Looks Like on Day One<a class="headerlink" href="#what-success-looks-like-on-day-one" title="Link to this heading">#</a></h2>
-<p>A reasonable first success is a small preview run that prints plausible rows, plus a short list of seed ideas you believe are on-brand for your domain.
+<p>A reasonable first success is a small preview run that writes plausible rows to <code class="docutils literal notranslate"><span class="pre">output_path</span></code>, plus a short list of seed ideas you believe are on-brand for your domain.
 If you have that, you are already operating SDG: iterate small, then scale record counts.</p>
 <p>The hands-on path is <a class="reference internal" href="getting-started.html"><span class="doc">Generate Your First Synthetic Dataset</span></a>.
 When you are ready to attach your own domain, follow <a class="reference internal" href="how-to/create-domain-dataset.html"><span class="doc">Create a Domain Dataset for Airlines Customer Service</span></a>.</p>

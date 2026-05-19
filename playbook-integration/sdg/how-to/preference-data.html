@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -728,7 +728,7 @@ limitations under the License.
 <span id="sdg-preference-data"></span><h1>Generate Preference Data for DPO<a class="headerlink" href="#generate-preference-data-for-dpo" title="Link to this heading">#</a></h1>
 <p>This example shows how to use the <code class="docutils literal notranslate"><span class="pre">rl_pref.yaml</span></code> configuration file.
 The example generates <em>prompt</em>, <em>chosen</em>, and <em>rejected</em> triples for direct preference optimization (DPO) training.
-Output flows directly into <code class="docutils literal notranslate"><span class="pre">prep/rl_prep</span></code> and then <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code>.</p>
+Output flows directly into <code class="docutils literal notranslate"><span class="pre">data_prep/rl_prep</span></code> and then <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code>.</p>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">rl_pref.yaml</span></code> file registers two model aliases at different temperatures:
@@ -822,12 +822,12 @@ The goal is to produce two responses per prompt that are distinct:</p>
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
 <ol class="arabic">
 <li><p>Preview two records to verify the judge returns valid <code class="docutils literal notranslate"><span class="pre">winner</span></code> values:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>rl_pref<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>rl_pref<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 </li>
-<li><p>Generate the dataset. The default is 2000 records:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>rl_pref<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">500</span>
+<li><p>Generate the dataset. The checked-in <code class="docutils literal notranslate"><span class="pre">rl_pref.yaml</span></code> default is 100 records:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>rl_pref<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">500</span>
 </pre></div>
 </div>
 <p>Output is written to <code class="docutils literal notranslate"><span class="pre">./output/sdg/rl_pref.jsonl</span></code>.</p>
@@ -849,10 +849,10 @@ The judge performs better when the two responses have a clear quality difference
 </section>
 <section id="downstream-pipeline">
 <h2>Downstream Pipeline<a class="headerlink" href="#downstream-pipeline" title="Link to this heading">#</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rl_pref.jsonl  →  prep/rl_prep  →  rl/nemo_rl/dpo
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rl_pref.jsonl  →  data_prep/rl_prep  →  rl/nemo_rl/dpo
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">prep/rl_prep</span></code> tokenizes and packs preference pairs. <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code> consumes the packed dataset. Verify the <code class="docutils literal notranslate"><span class="pre">prompt</span></code>, <code class="docutils literal notranslate"><span class="pre">chosen</span></code>, and <code class="docutils literal notranslate"><span class="pre">rejected</span></code> fields are present in every record before handing off.</p>
+<p><code class="docutils literal notranslate"><span class="pre">data_prep/rl_prep</span></code> tokenizes and prepares preference pairs. <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code> consumes the prepared dataset. Verify the <code class="docutils literal notranslate"><span class="pre">prompt</span></code>, <code class="docutils literal notranslate"><span class="pre">chosen</span></code>, and <code class="docutils literal notranslate"><span class="pre">rejected</span></code> fields are present in every record before handing off.</p>
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>

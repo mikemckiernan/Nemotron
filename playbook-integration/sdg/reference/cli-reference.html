@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -726,10 +726,10 @@ limitations under the License.
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="cli-reference">
 <span id="sdg-cli-reference"></span><h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Link to this heading">#</a></h1>
-<p>Command-line reference for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">step</span> <span class="pre">run</span> <span class="pre">sdg/data_designer</span></code>. For pipeline overview, see <a class="reference internal" href="../index.html"><span class="doc">About Synthetic Data Generation</span></a>.</p>
+<p>Command-line reference for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">sdg/data_designer</span></code>. For pipeline overview, see <a class="reference internal" href="../index.html"><span class="doc">About Synthetic Data Generation</span></a>.</p>
 <section id="syntax">
 <h2>Syntax<a class="headerlink" href="#syntax" title="Link to this heading">#</a></h2>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>-c<span class="w"> </span>CONFIG<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>--run<span class="w"> </span>PROFILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>--batch<span class="w"> </span>PROFILE<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">[</span>--dry-run<span class="o">]</span><span class="w"> </span><span class="se">\</span>
@@ -805,25 +805,25 @@ limitations under the License.
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
 <p>Preview the default config with two records:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 <p>Generate 100 SFT records with a custom output path:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">num_records</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="nv">output_path</span><span class="o">=</span>/data/my-project/sft.jsonl
 </pre></div>
 </div>
 <p>Dry-run a cluster submission to check the resolved config:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-profile<span class="w"> </span>--dry-run
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-profile<span class="w"> </span>--dry-run
 </pre></div>
 </div>
 <p>Run attached on a Lepton profile with 500 records:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>lepton-sdg<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">500</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>lepton_sdg_data_designer<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">500</span>
 </pre></div>
 </div>
 <p>Use a config at an arbitrary path:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>/path/to/my-config.yaml<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>/path/to/my-config.yaml<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 </section>

@@ -876,7 +876,7 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -890,7 +890,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -1076,7 +1076,7 @@ window.addEventListener("load", load);
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="how-to-guides">
 <h1>How-To Guides<a class="headerlink" href="#how-to-guides" title="Link to this heading">#</a></h1>
-<p>Task-focused guides for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> with the <code class="docutils literal notranslate"><span class="pre">mcq</span></code> family.</p>
+<p>Task-focused guides for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> with the <code class="docutils literal notranslate"><span class="pre">mcq</span></code> family.</p>
 <p>Start with <a class="reference internal" href="../getting-started.html"><span class="doc">Getting Started with Building MCQ Benchmarks</span></a> if you have not produced <code class="docutils literal notranslate"><span class="pre">benchmark.parquet</span></code> yet.</p>
 <div class="toctree-wrapper compound">
 </div>
@@ -1144,7 +1144,7 @@ window.addEventListener("load", load);
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 <svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-sync sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.38 8A9.502 9.502 0 0 1 12 2.5a9.502 9.502 0 0 1 9.215 7.182.75.75 0 1 0 1.456-.364C21.473 4.539 17.15 1 12 1a10.995 10.995 0 0 0-9.5 5.452V4.75a.75.75 0 0 0-1.5 0V8.5a1 1 0 0 0 1 1h3.75a.75.75 0 0 0 0-1.5H3.38Zm-.595 6.318a.75.75 0 0 0-1.455.364C2.527 19.461 6.85 23 12 23c4.052 0 7.592-2.191 9.5-5.451v1.701a.75.75 0 0 0 1.5 0V15.5a1 1 0 0 0-1-1h-3.75a.75.75 0 0 0 0 1.5h2.37A9.502 9.502 0 0 1 12 21.5c-4.446 0-8.181-3.055-9.215-7.182Z"></path></svg> Skip stages</div>
-<p class="sd-card-text">Resume with <code class="docutils literal notranslate"><span class="pre">--skip-until</span></code> and cached Parquet files.</p>
+<p class="sd-card-text">Resume with <code class="docutils literal notranslate"><span class="pre">skip_until</span></code> and cached Parquet files.</p>
 </div>
 <div class="sd-card-footer docutils">
 <p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">iteration</span></p>
@@ -1159,7 +1159,7 @@ window.addEventListener("load", load);
 <pre  class="mermaid">
         flowchart LR
     A[Prepare data layout] --&gt; B[Edit YAML]
-    B --&gt; C[uv run nemotron steps run byob]
+    B --&gt; C[uv run nemotron steps run byob/mcq]
     C --&gt; D{Need translation?}
     D --&gt;|yes| E[translate config + passthrough]
     D --&gt;|no| F[Done]

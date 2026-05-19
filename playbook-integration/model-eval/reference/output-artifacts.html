@@ -67,7 +67,7 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Benchmarks Catalog" href="benchmarks-catalog.html" />
+    <link rel="next" title="Tasks Catalog" href="benchmarks-catalog.html" />
     <link rel="prev" title="CLI Reference" href="cli-reference.html" />
 
 
@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -714,7 +714,7 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="output-artifacts">
 <span id="model-eval-output-artifacts"></span><h1>Output Artifacts<a class="headerlink" href="#output-artifacts" title="Link to this heading">#</a></h1>
-<p>This page describes the artifact produced by <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code>, both as a contract and as a directory on disk.</p>
+<p>This page describes the artifact produced by <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code>.</p>
 <section id="the-eval-results-contract">
 <h2>The <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> Contract<a class="headerlink" href="#the-eval-results-contract" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">step.toml</span></code> declares a single produced artifact.</p>
@@ -735,47 +735,35 @@
 </table>
 </div>
 <p>The contract is intentionally loose.
-The step does not constrain the file set inside each benchmark subdirectory.
-NeMo Evaluator writes whatever the benchmark implementation chooses, which keeps the step a thin wrapper.</p>
+Nemotron does not normalize evaluator outputs.
+NeMo Evaluator Launcher owns the exact file set and directory shape under the configured <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
+</section>
+<section id="launcher-config">
+<h2>Launcher Config<a class="headerlink" href="#launcher-config" title="Link to this heading">#</a></h2>
+<p>Before calling the launcher, the step saves the resolved launcher config and prints:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>launcher_config: &lt;path&gt;
+</pre></div>
+</div>
+<p>If the launcher returns an invocation id, the step also prints:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>launcher_invocation_id: &lt;id&gt;
+status_command: nemo-evaluator-launcher status &lt;id&gt;
+logs_command: nemo-evaluator-launcher logs &lt;id&gt;
+</pre></div>
+</div>
+<p>Those commands are the source of truth for job state and logs after submission.</p>
 </section>
 <section id="directory-layout">
 <h2>Directory Layout<a class="headerlink" href="#directory-layout" title="Link to this heading">#</a></h2>
-<p>The runner writes one subdirectory per benchmark under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.
-The subdirectory name matches the benchmark identifier from the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> list verbatim.</p>
-<p>For a run with the sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file, the layout looks like the following.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>${output_dir}/
-  mmlu/
-    &lt;files written by nemo-evaluator for mmlu&gt;
-  hellaswag/
-    &lt;files written by nemo-evaluator for hellaswag&gt;
-  arc_challenge/
-    &lt;files written by nemo-evaluator for arc_challenge&gt;
+<p>The base output directory is <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>, copied into <code class="docutils literal notranslate"><span class="pre">execution.output_dir</span></code>.
+The exact files inside that directory depend on the configured launcher tasks.</p>
+<p>For the hosted chat smoke test, inspect:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span>./output/eval-tiny-chat<span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">5</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
 </pre></div>
 </div>
-<p>For the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file, only one benchmark subdirectory exists.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>${output_dir}/
-  hellaswag/
-    &lt;files written by nemo-evaluator for hellaswag&gt;
+<p>For checkpoint evaluation, inspect the output directory you supplied:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span>./output/eval-megatron<span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">5</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
 </pre></div>
 </div>
-<p>The runner does not stamp a date, run identifier, or experiment name into the path.
-Include a run identifier in the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> override you pass on the command line if you want multiple runs to coexist on disk.</p>
-</section>
-<section id="per-benchmark-files">
-<h2>Per-Benchmark Files<a class="headerlink" href="#per-benchmark-files" title="Link to this heading">#</a></h2>
-<p>The file set inside each benchmark subdirectory comes from NeMo Evaluator.
-The exact names and structure can vary across benchmark versions.
-A typical run produces three kinds of files.</p>
-<ul class="simple">
-<li><p>A summary file with aggregate metrics, such as accuracy and confidence intervals.</p></li>
-<li><p>A per-sample predictions file with the prompt, the model response, and the score for each sample.</p></li>
-<li><p>A configuration record that captures the benchmark version, the endpoint metadata, and the generation parameters used for the run.</p></li>
-</ul>
-<p>List the directory after a run completes to see the exact file set for the benchmark and version you ran.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EVAL_ROOT</span><span class="s2">/results-tiny&quot;</span><span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">5</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
-</pre></div>
-</div>
-<p>For benchmark-specific file layouts, refer to the upstream NeMo Evaluator documentation at <a class="reference external" href="https://docs.nvidia.com/nemo/evaluator/latest/">https://docs.nvidia.com/nemo/evaluator/latest/</a>.</p>
 </section>
 <section id="comparing-runs">
 <span id="model-eval-comparing-runs"></span><h2>Comparing Runs<a class="headerlink" href="#comparing-runs" title="Link to this heading">#</a></h2>
@@ -784,25 +772,19 @@ A trained checkpoint is scored against a baseline, a new prompt format is scored
 The comparison is honest when the surrounding configuration is held constant.</p>
 <p>Apply the following practices before treating any single evaluation as a result.</p>
 <ul class="simple">
-<li><p>Run a lightweight baseline against the starting checkpoint <em>before</em> the training, conversion, or quantization step you are measuring.
-Use the same benchmark set, endpoint type, tokenizer, and generation parameters you plan to use afterward.</p></li>
-<li><p>Snapshot the exact evaluation configuration: the sample file name, the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>, every <code class="docutils literal notranslate"><span class="pre">deployment</span></code> and <code class="docutils literal notranslate"><span class="pre">params</span></code> override, and the benchmark version.
-The simplest snapshot is the merged YAML produced by <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span> <span class="pre">-d</span></code>.</p></li>
-<li><p>Place a date or run identifier in <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> so the before-and-after directories live side by side.
-For example, <code class="docutils literal notranslate"><span class="pre">output_dir=./output/eval-2026-05-14-baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">output_dir=./output/eval-2026-05-14-postsft</span></code>.</p></li>
-<li><p>Keep <code class="docutils literal notranslate"><span class="pre">params.temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">params.top_p</span></code>, <code class="docutils literal notranslate"><span class="pre">params.extra.tokenizer</span></code>, and the benchmark version identical between the two runs.
-A benchmark version bump, a tokenizer replacement, or a chat-template change can make the comparison misleading.</p></li>
-<li><p>Rerun the baseline benchmark set first before exploring new benchmarks.
-Keeping the first comparison tightly controlled is more valuable than adding breadth.</p></li>
+<li><p>Run a lightweight baseline before the training, conversion, or quantization step you are measuring.</p></li>
+<li><p>Snapshot the exact evaluation config, including config file name, <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>, endpoint fields, task list, tokenizer, and generation parameters.</p></li>
+<li><p>Place a date or run identifier in <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> so baseline and post-change directories live side by side.</p></li>
+<li><p>Keep endpoint type, task versions, tokenizer, and generation parameters identical between runs.</p></li>
+<li><p>Rerun the baseline task set first before exploring new tasks.</p></li>
 </ul>
-<p>The cross-cutting pattern that informs this guidance is recorded at <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/patterns/eval-bookends.md</span></code> in the repository.</p>
 </section>
 <section id="related">
 <h2>Related<a class="headerlink" href="#related" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="config-schema.html"><span class="doc">Configuration Reference</span></a> for the YAML keys that influence what is written.</p></li>
-<li><p><a class="reference internal" href="benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for the benchmark identifiers that become subdirectory names.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> for the full step contract, including the named error modes.</p></li>
+<li><p><a class="reference internal" href="benchmarks-catalog.html"><span class="doc">Tasks Catalog</span></a> for task identifiers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/step.toml</span></code> for the full step contract.</p></li>
 </ul>
 </section>
 </section>
@@ -831,7 +813,7 @@ Keeping the first comparison tightly controlled is more valuable than adding bre
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Benchmarks Catalog</p>
+        <p class="prev-next-title">Tasks Catalog</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -857,8 +839,8 @@ Keeping the first comparison tightly controlled is more valuable than adding bre
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-eval-results-contract">The <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> Contract</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launcher-config">Launcher Config</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#directory-layout">Directory Layout</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#per-benchmark-files">Per-Benchmark Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-runs">Comparing Runs</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related">Related</a></li>
 </ul>

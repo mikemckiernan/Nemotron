@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -728,8 +728,8 @@ limitations under the License.
 <span id="sdg-run"></span><h1>Tips for the Data Generation Pipeline<a class="headerlink" href="#tips-for-the-data-generation-pipeline" title="Link to this heading">#</a></h1>
 <section id="preview-before-generating">
 <h2>Preview Before Generating<a class="headerlink" href="#preview-before-generating" title="Link to this heading">#</a></h2>
-<p>Always preview before running a full generation job. Preview mode calls the same pipeline but returns a small number of records without writing the final JSONL:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<p>Always preview before running a full generation job. Preview mode calls the same pipeline with a small record count, projects the records, and writes them to <code class="docutils literal notranslate"><span class="pre">output_path</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 <p>Use preview to verify:</p>
@@ -771,14 +771,14 @@ limitations under the License.
 </table>
 </div>
 <p>Specify the file in the <code class="docutils literal notranslate"><span class="pre">-c</span></code> argument:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>customer_support_tools<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>customer_support_tools<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 </section>
 <section id="run-attached-on-a-cluster-profile">
 <h2>Run Attached on a Cluster Profile<a class="headerlink" href="#run-attached-on-a-cluster-profile" title="Link to this heading">#</a></h2>
 <p>To dispatch to a Lepton or Slurm profile configured in <code class="docutils literal notranslate"><span class="pre">env.toml</span></code>, use <code class="docutils literal notranslate"><span class="pre">--run</span></code> (attached, streams logs) or <code class="docutils literal notranslate"><span class="pre">--batch</span></code> (detached):</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-lepton-profile<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">1000</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>my-lepton-profile<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">1000</span>
 </pre></div>
 </div>
 <p>For cluster setup, see <a class="reference internal" href="dispatch-to-cluster.html"><span class="doc">Dispatch SDG to a Cluster</span></a>.</p>

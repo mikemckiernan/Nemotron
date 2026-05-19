@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -714,151 +714,75 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="evaluate-a-deployed-checkpoint">
 <span id="model-eval-evaluate-deployed-checkpoint"></span><h1>Evaluate A Deployed Checkpoint<a class="headerlink" href="#evaluate-a-deployed-checkpoint" title="Link to this heading">#</a></h1>
-<p>This guide bridges between training output and benchmark scores.
-The work falls into two halves.
-First, you choose a deployment path and deploy an OpenAI-compatible <em>endpoint</em> to serve the checkpoint.
-Second, you point <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> at that endpoint, exactly the way <a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a> describes.</p>
+<p>This guide covers the two supported evaluation shapes in the current <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> step.</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code> when the model is already hosted behind an OpenAI-compatible chat endpoint.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> when NeMo Evaluator Launcher should deploy a Megatron Bridge checkpoint and run the configured tasks.</p></li>
+</ul>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A trained checkpoint in one of the supported formats.
-Hugging Face safetensors and Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directories both work.</p></li>
-<li><p>A host or workspace that can serve the checkpoint.
-Supported environments include your workstation, a Slurm cluster, a vLLM container, and a managed NVIDIA DGX Cloud Lepton endpoint.</p></li>
-<li><p>A reachable network path from the machine that runs <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span></code> to the host that serves the model.</p></li>
-<li><p>A tokenizer that matches the served model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--extra</span> <span class="pre">evaluator</span></code> has completed.</p></li>
+<li><p>For hosted evaluation, you have the endpoint URL, model id, and API key environment variable.</p></li>
+<li><p>For checkpoint evaluation, you have a concrete Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint path.</p></li>
 </ul>
 </section>
-<section id="choose-a-deployment-path">
-<h2>Choose A Deployment Path<a class="headerlink" href="#choose-a-deployment-path" title="Link to this heading">#</a></h2>
-<p>Four documented paths cover the common deployments.
-Choose the path that matches your environment and the level of orchestration you want.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Path</p></th>
-<th class="head"><p>Where It Runs</p></th>
-<th class="head"><p>Who Orchestrates</p></th>
-<th class="head"><p>Reference</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Self-hosted vLLM Docker container</p></td>
-<td><p>Local workstation or remote host</p></td>
-<td><p>You start <code class="docutils literal notranslate"><span class="pre">vllm</span> <span class="pre">serve</span></code>, you stop it</p></td>
-<td><p><a class="reference external" href="https://docs.vllm.ai/">https://docs.vllm.ai/</a> and the launcher example at <code class="docutils literal notranslate"><span class="pre">Evaluator/packages/nemo-evaluator-launcher/examples/local_vllm_logprobs.yaml</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>NeMo Export-Deploy with Ray Serve or PyTriton</p></td>
-<td><p>Local or Slurm host with NeMo Framework container</p></td>
-<td><p>You run the Export-Deploy scripts</p></td>
-<td><p><a class="github reference external" href="https://github.com/NVIDIA-NeMo/Export-Deploy">NVIDIA-NeMo/Export-Deploy</a> and <code class="docutils literal notranslate"><span class="pre">Evaluator/docs/deployment/nemo-fw/</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>DGX Cloud Lepton managed endpoint</p></td>
-<td><p>Lepton workspace</p></td>
-<td><p>Lepton dashboard or CLI</p></td>
-<td><p><a class="reference external" href="https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/">https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/</a></p></td>
-</tr>
-<tr class="row-odd"><td><p>NeMo Evaluator Launcher orchestration</p></td>
-<td><p>Local, Slurm, or Lepton</p></td>
-<td><p>One launcher command deploys and evaluates</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Evaluator/docs/deployment/launcher-orchestrated/</span></code></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tip admonition">
-<p class="admonition-title">Lepton Example</p>
-<p>Deploy the model by using the NVIDIA DGX Cloud Lepton dashboard, then collect three values: the endpoint URL, the served-model name, and the environment variable name that holds your Lepton API key.
-Export the key under that variable name, then point <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> at the endpoint.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LEPTON_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-lepton-api-key&gt;&quot;</span>
+<section id="hosted-endpoint-path">
+<h2>Hosted Endpoint Path<a class="headerlink" href="#hosted-endpoint-path" title="Link to this heading">#</a></h2>
+<p>For an existing endpoint, use the same command shape as <a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NEMO_EVALUATOR_MODEL_URL</span><span class="o">=</span><span class="s2">&quot;https://&lt;endpoint&gt;/v1/chat/completions&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NEMO_EVALUATOR_MODEL_ID</span><span class="o">=</span><span class="s2">&quot;&lt;served-model-name&gt;&quot;</span>
 
 uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span>tiny<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-lepton<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.url<span class="o">=</span><span class="s2">&quot;https://&lt;your-endpoint&gt;.lepton.run/v1/completions/&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.model_id<span class="o">=</span><span class="s2">&quot;&lt;served-model-name&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.api_key_name<span class="o">=</span>LEPTON_API_KEY<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>params.extra.tokenizer<span class="o">=</span><span class="s2">&quot;&lt;hf-model-id-or-path&gt;&quot;</span>
-</pre></div>
-</div>
-<p>For Lepton endpoint setup, refer to <a class="reference external" href="https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/">https://docs.nvidia.com/dgx-cloud/lepton/get-started/endpoint/</a>.</p>
-</div>
-</section>
-<section id="choose-the-endpoint-type">
-<h2>Choose The Endpoint Type<a class="headerlink" href="#choose-the-endpoint-type" title="Link to this heading">#</a></h2>
-<p>The endpoint type must match the benchmark family: a <em>chat</em> endpoint for chat and instruction-following benchmarks, and a <em>completions</em> endpoint with <code class="docutils literal notranslate"><span class="pre">logprobs</span></code> support for <em>log-probability</em> benchmarks such as <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>, and <code class="docutils literal notranslate"><span class="pre">piqa</span></code>.
-For the matching rule and the recovery from a mismatch, refer to <a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a>.</p>
-<p>Set <code class="docutils literal notranslate"><span class="pre">deployment.endpoint_type</span></code> to <code class="docutils literal notranslate"><span class="pre">chat</span></code> or <code class="docutils literal notranslate"><span class="pre">completions</span></code> to match the family, and point <code class="docutils literal notranslate"><span class="pre">deployment.url</span></code> at the chat-completions path or the completions path that the endpoint exposes.</p>
-</section>
-<section id="configure-a-hugging-face-checkpoint">
-<h2>Configure A Hugging Face Checkpoint<a class="headerlink" href="#configure-a-hugging-face-checkpoint" title="Link to this heading">#</a></h2>
-<p>For the tokenizer field shapes and why log-probability benchmarks require a matching tokenizer, refer to <a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a>.</p>
-<p>For a Hugging Face checkpoint, the deployment configuration looks like the following.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">deployment</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-hf-checkpoint</span>
-<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://0.0.0.0:8080/v1/completions/</span>
-<span class="w">  </span><span class="nt">endpoint_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">completions</span>
-<span class="w">  </span><span class="nt">api_key_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA_API_KEY</span>
-
-<span class="nt">params</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">extra</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">tokenizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">meta-llama/Llama-3.1-8B</span>
-<span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+<span class="w">  </span>-c<span class="w"> </span>tiny_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-hosted<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.api_key_name<span class="o">=</span>NVIDIA_API_KEY<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.type<span class="o">=</span>chat
 </pre></div>
 </div>
 </section>
-<section id="configure-a-megatron-bridge-checkpoint">
-<h2>Configure A Megatron Bridge Checkpoint<a class="headerlink" href="#configure-a-megatron-bridge-checkpoint" title="Link to this heading">#</a></h2>
-<p>For the tokenizer field shapes and the Megatron Bridge <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> convention, refer to <a class="reference internal" href="../explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a>.</p>
-<p>For a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint, the same fields apply, with the tokenizer pointing at the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of the specific iteration.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">deployment</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-megatron-checkpoint</span>
-<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://0.0.0.0:8080/v1/completions/</span>
-<span class="w">  </span><span class="nt">endpoint_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">completions</span>
-<span class="w">  </span><span class="nt">api_key_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA_API_KEY</span>
-
-<span class="nt">params</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">extra</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">tokenizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/run/iter_0010000/tokenizer</span>
-<span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
-</pre></div>
-</div>
-<p>Point the deployment script at the specific <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> directory, not at the parent run output folder.</p>
-</section>
-<section id="reasoning-models">
-<h2>Reasoning Models<a class="headerlink" href="#reasoning-models" title="Link to this heading">#</a></h2>
-<p>Reasoning models produce long chains of thought and need different generation parameters than the sample-file deterministic defaults.</p>
-<ul class="simple">
-<li><p>Raise <code class="docutils literal notranslate"><span class="pre">params.max_new_tokens</span></code> to fit the typical chain-of-thought trace.</p></li>
-<li><p>Enable reasoning-trace processing for benchmarks that score the final answer rather than the trace.</p></li>
-<li><p>Use the temperature and top-p values from the model card.  Many reasoning models recommend non-zero sampling.</p></li>
-</ul>
-<p>For the rationale and the only common reason to deviate from the deterministic defaults, refer to <a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a>.</p>
-</section>
-<section id="run-the-evaluation">
-<h2>Run The Evaluation<a class="headerlink" href="#run-the-evaluation" title="Link to this heading">#</a></h2>
-<p>After the endpoint is running, the run command is the same as the one in <a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a>.
-A sample run with the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file is the right first step against any new deployment.</p>
+<section id="launcher-managed-checkpoint-path">
+<h2>Launcher-Managed Checkpoint Path<a class="headerlink" href="#launcher-managed-checkpoint-path" title="Link to this heading">#</a></h2>
+<p>For Megatron Bridge checkpoints, use <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>.
+Point <code class="docutils literal notranslate"><span class="pre">deployment.checkpoint_path</span></code> at the concrete iteration directory.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span>tiny<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-deployed-sample<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_MODEL_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.api_key_name<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_API_KEY_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>params.limit_samples<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>params.extra.tokenizer<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_TOKENIZER</span><span class="s2">&quot;</span>
+<span class="w">  </span>-c<span class="w"> </span>default<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-megatron<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>deployment.checkpoint_path<span class="o">=</span>/path/to/run/iter_0001000<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>evaluation.nemo_evaluator_config.config.params.limit_samples<span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>After the sample run succeeds, replace <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">tiny</span></code> with <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">default</span></code> and remove <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code> to run the production benchmark set.</p>
+<p>The default config uses the launcher <code class="docutils literal notranslate"><span class="pre">deployment</span></code> block to serve the checkpoint and then runs the configured <code class="docutils literal notranslate"><span class="pre">tasks</span></code>.
+If you change tasks to a log-probability task, keep <code class="docutils literal notranslate"><span class="pre">evaluation.nemo_evaluator_config.config.params.extra.tokenizer</span></code> aligned with the deployed checkpoint.</p>
+</section>
+<section id="endpoint-and-task-pairing">
+<h2>Endpoint And Task Pairing<a class="headerlink" href="#endpoint-and-task-pairing" title="Link to this heading">#</a></h2>
+<p>The endpoint type must match the task family.
+Chat and instruction tasks need <code class="docutils literal notranslate"><span class="pre">target.api_endpoint.type=chat</span></code>.
+Log-probability tasks such as HellaSwag need a completions endpoint with logprobs support and a matching tokenizer.
+For the matching rule, refer to <a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Task Families</span></a>.</p>
+</section>
+<section id="what-to-check-after-submission">
+<h2>What To Check After Submission<a class="headerlink" href="#what-to-check-after-submission" title="Link to this heading">#</a></h2>
+<p>The step prints the launcher config path.
+When NeMo Evaluator Launcher returns an invocation id, it also prints:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>status_command: nemo-evaluator-launcher status &lt;invocation-id&gt;
+logs_command: nemo-evaluator-launcher logs &lt;invocation-id&gt;
+</pre></div>
+</div>
+<p>Run those commands to monitor the job, then inspect <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> after completion.</p>
 </section>
 <section id="related">
 <h2>Related<a class="headerlink" href="#related" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a> for the procedural walk-through this guide builds on.</p></li>
-<li><p><a class="reference internal" href="../explanation/index.html"><span class="doc">Concepts</span></a> for the concept set behind endpoint type, tokenizer alignment, and reasoning-model strategies.</p></li>
-<li><p><a class="reference internal" href="../reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> for the before-and-after framing this guide enables.</p></li>
-<li><p><a class="reference internal" href="../../deployment-guides.html"><span class="doc">Deployment Guides</span></a> for the broader catalog of Nemotron deployment options.</p></li>
+<li><p><a class="reference internal" href="run-hosted-evaluation.html"><span class="doc">Run A Hosted Evaluation</span></a> for the hosted endpoint walk-through.</p></li>
+<li><p><a class="reference internal" href="../explanation/index.html"><span class="doc">Concepts</span></a> for endpoint type, tokenizer alignment, and task-family concepts.</p></li>
+<li><p><a class="reference internal" href="../reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> for before-and-after evaluation framing.</p></li>
+<li><p><a class="reference internal" href="../../deployment-guides.html"><span class="doc">Deployment Guides</span></a> for broader deployment options.</p></li>
 <li><p><a class="reference internal" href="../reference/config-schema.html"><span class="doc">Configuration Reference</span></a> for the YAML field reference.</p></li>
-<li><p><a class="reference internal" href="../reference/benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for benchmark families and endpoint-type guidance.</p></li>
 </ul>
 </section>
 </section>
@@ -913,12 +837,10 @@ A sample run with the sample <code class="docutils literal notranslate"><span cl
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-a-deployment-path">Choose A Deployment Path</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-the-endpoint-type">Choose The Endpoint Type</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-a-hugging-face-checkpoint">Configure A Hugging Face Checkpoint</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-a-megatron-bridge-checkpoint">Configure A Megatron Bridge Checkpoint</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reasoning-models">Reasoning Models</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-evaluation">Run The Evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hosted-endpoint-path">Hosted Endpoint Path</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launcher-managed-checkpoint-path">Launcher-Managed Checkpoint Path</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#endpoint-and-task-pairing">Endpoint And Task Pairing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-check-after-submission">What To Check After Submission</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related">Related</a></li>
 </ul>
   </nav></div>

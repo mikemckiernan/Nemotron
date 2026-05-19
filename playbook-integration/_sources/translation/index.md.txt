@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Translate JSON Lines or Parquet corpora with nemotron steps translation, NeMo Curator backends, and optional FAITH scoring."
+description: "Translate JSON Lines or Parquet corpora with nemotron steps run translate/nemo_curator, NeMo Curator backends, and optional FAITH scoring."
 topics: ["Translation", "FAITH", "NeMo Curator"]
 tags: ["Translation", "Documentation"]
 content:
@@ -13,7 +13,7 @@ content:
 (translation-index)=
 # Translation With Nemotron
 
-The `nemotron steps translation` command translates selected fields in JSONL or Apache Parquet files.
+The `nemotron steps run translate/nemo_curator` command translates selected fields in JSONL or Apache Parquet files.
 You can use a large language model (LLM) with an OpenAI-compatible endpoint, a neural machine translation (NMT) HTTP server, Google Cloud Translation, or Amazon Translate.
 Optionally, you can also run *FAITH* evaluation with an LLM after translation to score translation quality.
 
@@ -23,7 +23,7 @@ New here? Read {doc}`using-skills` if you plan to drive the work from a coding a
 
 ## When to Use
 
-Use `nemotron steps translation` when you need:
+Use `nemotron steps run translate/nemo_curator` when you need:
 
 - Localized training or synthetic corpora from translating natural-language fields while preserving structured payloads such as chat turns, tool payloads, and fenced code blocks.
   Field paths, `output_mode`, and segmentation interact with that behavior; see {doc}`how-to/configure-fields-and-output` and {doc}`explanation/segmentation`.
@@ -52,7 +52,7 @@ flowchart LR
 :::{grid-item-card} {octicon}`book;1.5em;sd-mr-1` Tutorial
 :link: getting-started
 :link-type: doc
-Run `nemotron steps translation` end-to-end using `default.yaml` and a sample chat JSONL file.
+Run `nemotron steps run translate/nemo_curator` end-to-end using `default.yaml` and a sample chat JSONL file.
 +++
 {bdg-secondary}`hands-on`
 :::
@@ -84,7 +84,7 @@ Pipeline architecture, segmentation, FAITH behavior.
 :::{grid-item-card} {octicon}`list-unordered;1.5em;sd-mr-1` Reference
 :link: reference/index
 :link-type: doc
-YAML parameters and `nemotron steps translation` CLI.
+YAML parameters and `nemotron steps run translate/nemo_curator` CLI.
 +++
 {bdg-secondary}`lookup`
 :::
@@ -132,7 +132,7 @@ YAML parameters and `nemotron steps translation` CLI.
 | Guide | Content |
 |-------|---------|
 | {doc}`reference/translate-config` | `default.yaml` field reference |
-| {doc}`reference/cli-translation` | `nemotron steps translation` syntax |
+| {doc}`reference/cli-translation` | `nemotron steps run translate/nemo_curator` syntax |
 | {doc}`reference/io-format` | Input and output shapes |
 
 ```
@@ -142,7 +142,7 @@ YAML parameters and `nemotron steps translation` CLI.
 ## Limitations and Considerations
 
 - Cost and rate limits: Hosted and cloud LLM backends incur usage; throttle with `max_concurrent_requests` and your provider’s guidance.
-- Local execution only: `nemotron steps translation` rejects cluster `--run` and `--batch` modes today.
+- Remote execution: use `--run <profile>` or `--batch <profile>` with an environment profile such as `lepton_translate`.
 - Overrides: Use `key=value` dotlist syntax after global flags, not passthrough script arguments.
 - Mixed folders: Do not point `input_path` at one directory that contains both `.jsonl` and `.parquet` shards unless you split formats first.
 

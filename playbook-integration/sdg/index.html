@@ -876,7 +876,7 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -890,7 +890,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -1121,7 +1121,7 @@ flowchart TB
     om --&gt; jsonl[&quot;JSONL&quot;]
     dpo --&gt; jsonl
     sm --&gt; jsonl
-    jsonl --&gt; train[&quot;prep/sft_packing or AutoModel SFT&quot;]
+    jsonl --&gt; train[&quot;data_prep/sft_packing or AutoModel SFT&quot;]
     </pre><p>Each run is reproducible: the seed file, column specs, model alias, inference parameters, and projection rules are all version-controlled in a single YAML file.</p>
 </section>
 <section id="documentation">
@@ -1248,7 +1248,7 @@ Reference</label><div class="sd-tab-content docutils">
 <td><p>Full YAML column types, sampler parameters, and projection fields</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="reference/cli-reference.html"><span class="doc">CLI Reference</span></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">step</span> <span class="pre">run</span> <span class="pre">sdg/data_designer</span></code> flags and hydra overrides</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">sdg/data_designer</span></code> flags and hydra overrides</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="reference/output-projections.html"><span class="doc">Output Projections</span></a></p></td>
 <td><p>The three projection shapes with annotated JSONL examples</p></td>

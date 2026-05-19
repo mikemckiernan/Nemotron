@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Run nemotron steps translation end-to-end with config/default.yaml and sample chat JSONL."
+description: "Run nemotron steps run translate/nemo_curator end-to-end with config/default.yaml and sample chat JSONL."
 topics: ["Translation", "Tutorial"]
 tags: ["Tutorial", "Translation"]
 content:
@@ -15,7 +15,7 @@ content:
 
 You will produce translated JSON Lines (JSONL) shards under an `output_dir` you choose, with FAITH quality scoring applied in the same run. FAITH is the translation-quality scorer name used in NVIDIA NeMo Curator documentation.
 
-This tutorial runs `nemotron steps translation` end to end on a small sample file. You use `src/nemotron/steps/translate/translation/config/default.yaml` and CLI dotlist overrides.
+This tutorial runs `nemotron steps run translate/nemo_curator` end to end on a small sample file. You use `src/nemotron/steps/translate/nemo_curator/config/default.yaml` and CLI dotlist overrides.
 
 :::{card}
 What You Will Produce
@@ -28,7 +28,7 @@ Overview
 
 1. Export `NVIDIA_API_KEY`.
 2. Download the sample `train_sample.jsonl` chat file.
-3. Run `nemotron steps translation -c default` with CLI overrides for paths, languages, and `server.model`.
+3. Run `nemotron steps run translate/nemo_curator -c default` with CLI overrides for paths, languages, and `server.model`.
 4. Inspect `output_dir` for translated records.
 
 {octicon}`clock;1em;sd-mr-1` Budget roughly five to fifteen minutes depending on network latency and response time from your provider and on corpus size.
@@ -39,6 +39,8 @@ The sample contains about one hundred lines.
 
 - Network access to `https://integrate.api.nvidia.com/v1`.
 - `NVIDIA_API_KEY` exported in your shell.
+- For local `uv run` execution with Curator/Ray, export `RAY_ENABLE_UV_RUN_RUNTIME_ENV=0`
+  so Ray workers reuse the synchronized project environment.
 
 ## Sample Input File
 
@@ -60,7 +62,7 @@ This translation tutorial uses `train_sample.jsonl` as a compact multi-turn chat
 1. Synchronize the dependencies:
 
    ```console
-   $ uv sync --extra translation
+   $ uv sync --extra translate
    ```
 
 1. Download `train_sample.jsonl` from the [sample file](_snippets/input/train_sample.jsonl).
@@ -75,8 +77,9 @@ This translation tutorial uses `train_sample.jsonl` as a compact multi-turn chat
 
    ```console
    $ export NVIDIA_API_KEY="<api-key>"
+   $ export RAY_ENABLE_UV_RUN_RUNTIME_ENV=0
 
-   $ uv run --extra translation nemotron steps translation -c default \
+   $ uv run --no-sync nemotron steps run translate/nemo_curator -c default \
        input_path="${PWD}/train_sample.jsonl" \
        output_dir=./output/translation-getting-started \
        source_language=en \
@@ -116,12 +119,14 @@ This translation tutorial uses `train_sample.jsonl` as a compact multi-turn chat
    Pass `--dry-run` or `-d` so Curator does not execute the pipeline.
 
    ```console
-   $ uv run nemotron steps translation -d -c default \
+   $ export RAY_ENABLE_UV_RUN_RUNTIME_ENV=0
+
+   $ uv run --no-sync nemotron steps run translate/nemo_curator -d -c default \
        input_path=./train_sample.jsonl \
        output_dir=./output/translation-getting-started \
        source_language=en \
        target_language=hi \
-       server.model=mistralai/mistral-small-3.1-24b-instruct-2503
+       server.model=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
    ```
 
 ## Next Steps

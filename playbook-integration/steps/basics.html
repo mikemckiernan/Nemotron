@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -715,7 +715,7 @@
 You do not need to read it to invoke a single command, but every domain section in the documentation assumes that you already understand these definitions.</p>
 <section id="what-a-step-is">
 <h2>What a Step Is<a class="headerlink" href="#what-a-step-is" title="Link to this heading">#</a></h2>
-<p>A <em>step</em> is a named unit of work with a stable identifier, such as <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code>, <code class="docutils literal notranslate"><span class="pre">byob</span></code>, or <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/quantize</span></code>.
+<p>A <em>step</em> is a named unit of work with a stable identifier, such as <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code>, <code class="docutils literal notranslate"><span class="pre">byob/mcq</span></code>, or <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/quantize</span></code>.
 Each step packages four things:</p>
 <ul class="simple">
 <li><p>A description of the work the step performs.</p></li>
@@ -739,7 +739,7 @@ Use <code class="docutils literal notranslate"><span class="pre">tiny</span></co
 Use <code class="docutils literal notranslate"><span class="pre">default</span></code> as the starting point for real work, and override individual values from the command line when needed.</p></li>
 </ul>
 <p>You select the configuration with the <code class="docutils literal notranslate"><span class="pre">-c</span></code> option.
-You can supply ad hoc overrides with <code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">key=value</span></code> arguments on the same command line.</p>
+You can supply ad hoc overrides as trailing <code class="docutils literal notranslate"><span class="pre">key=value</span></code> dotlist arguments on the same command line.</p>
 </section>
 <section id="environment-profiles">
 <h2>Environment Profiles<a class="headerlink" href="#environment-profiles" title="Link to this heading">#</a></h2>
@@ -775,7 +775,7 @@ The following command generates an <code class="docutils literal notranslate"><s
 </div>
 <p>Substitute <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">slurm</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">dgxcloud</span></code> for the other targets.
 The step writes to <code class="docutils literal notranslate"><span class="pre">env.lepton.toml</span></code>, <code class="docutils literal notranslate"><span class="pre">env.slurm.toml</span></code>, or <code class="docutils literal notranslate"><span class="pre">env.dgxcloud.toml</span></code> by default, and it refuses to overwrite an existing file.
-If you intentionally want to regenerate, pass <code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">force=true</span></code> on the command line.</p>
+If you intentionally want to regenerate, pass <code class="docutils literal notranslate"><span class="pre">force=true</span></code> on the command line.</p>
 </li>
 <li><p>Open the generated TOML file and replace the site-specific values.
 At minimum, set the node group, the resource shape, the workspace path, and the mount points.
@@ -796,7 +796,7 @@ Pick a step that already has a generated profile and run it with the <code class
 <p>A successful submission proves that the CLI loaded the profile file, matched the named profile, and accepted the resource shape.</p>
 </li>
 </ol>
-<p>After the file passes step (5), you can add new profiles by editing the YAML template under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/env/env_toml/config/</span></code> and rerunning <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">env/env_toml</span></code> with <code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">force=true</span></code>.
+<p>After the file passes step (5), you can add new profiles by editing the YAML template under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/env/env_toml/config/</span></code> and rerunning <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">env/env_toml</span></code> with <code class="docutils literal notranslate"><span class="pre">force=true</span></code>.
 Child profiles can use <code class="docutils literal notranslate"><span class="pre">extends</span></code> to inherit from an existing profile and override only the image, the mounts, the environment variables, or the resource shape that differ.</p>
 </section>
 </section>

@@ -876,7 +876,7 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -890,7 +890,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -1077,7 +1077,7 @@ window.addEventListener("load", load);
 Start with <a class="reference internal" href="../getting-started.html"><span class="doc">Getting Started With Translation</span></a> if you have not run the step yet.</p>
 <div class="toctree-wrapper compound">
 </div>
-<p>Focused procedures for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code>.</p>
+<p>Focused procedures for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code>.</p>
 <section id="run-translation">
 <h2>Run Translation<a class="headerlink" href="#run-translation" title="Link to this heading">#</a></h2>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
@@ -1172,7 +1172,7 @@ Start with <a class="reference internal" href="../getting-started.html"><span cl
 </div>
 <pre  class="mermaid">
         graph LR
-    A[Prepare YAML + env] --&gt; B[nemotron steps translation]
+    A[Prepare YAML + env] --&gt; B[nemotron steps run translate/nemo_curator]
     B --&gt; C{Need FAITH?}
     C --&gt;|yes| D[Tune faith_eval]
     C --&gt;|no| E[Disable faith_eval]

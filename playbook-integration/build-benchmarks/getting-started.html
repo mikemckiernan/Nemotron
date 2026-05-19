@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -711,14 +711,14 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="getting-started-with-building-mcq-benchmarks">
 <span id="getting-started-byob-mcq"></span><h1>Getting Started with Building MCQ Benchmarks<a class="headerlink" href="#getting-started-with-building-mcq-benchmarks" title="Link to this heading">#</a></h1>
-<!-- Tutorial: end-to-end `tiny` BYOB run; about 10 to 15 minutes including model waits; requires Nemotron clone, uv, BYOB extra, and NGC_API_KEY. -->
+<!-- Tutorial: end-to-end `tiny` BYOB run; about 10 to 15 minutes including model waits; requires Nemotron clone, uv, BYOB extra, and NVIDIA_API_KEY. -->
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row sd-col-8 sd-col-xs-8 sd-col-sm-8 sd-col-md-8 sd-col-lg-8 docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
 <div class="sd-card-header docutils">
 <p class="sd-card-text"><strong>What You’ll Build</strong>: A small multiple-choice question (MCQ) benchmark for math questions from the sample <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration.
-You’ll run the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code> command and it will use an NVIDIA-hosted model endpoint for inference.</p>
+You’ll run the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code> command and it will use an NVIDIA-hosted model endpoint for inference.</p>
 </div>
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><strong>In this tutorial, you will</strong>:</p>
@@ -761,7 +761,7 @@ You’ll run the <code class="docutils literal notranslate"><span class="pre">ne
 <ul class="simple">
 <li><p>You have a host with access to https://integrate.api.nvidia.com.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">uv</span></code> tool available in your shell.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code> exported in the same shell session before you run the procedure.
+<li><p><code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> exported in the same shell session before you run the procedure.
 The default model for the configuration is <code class="docutils literal notranslate"><span class="pre">openai/gpt-oss-120b</span></code>.</p></li>
 </ul>
 </section>
@@ -781,16 +781,17 @@ The default model for the configuration is <code class="docutils literal notrans
 <li><p>Run generation with host paths.
 The <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration sets <code class="docutils literal notranslate"><span class="pre">stage:</span> <span class="pre">all</span></code>.
 This stage setting chains the data preparation and then generation for MCQ.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob \</span>
-<span class="go">  --family mcq \</span>
-<span class="go">  --config tiny \</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv run nemotron steps run byob/mcq \</span>
+<span class="go">  -c tiny \</span>
+<span class="go">  family=mcq \</span>
+<span class="go">  stage=all \</span>
 <span class="go">  input_dir=&quot;./src/nemotron/steps/byob/data/tiny_input&quot; \</span>
 <span class="go">  output_dir=./byob-output</span>
 </pre></div>
 </div>
-<p>When the <code class="docutils literal notranslate"><span class="pre">--config</span></code> argument is not a path, the command resolves the config file name in the <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/</span></code> directory.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">-c</span></code> / <code class="docutils literal notranslate"><span class="pre">--config</span></code> argument is not a path, the command resolves the config file name in the <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/mcq/config/</span></code> directory.</p>
 <p>When the command finishes, list the <code class="docutils literal notranslate"><span class="pre">./byob-output/byob_mcq_tiny/</span></code> directory.
-The <code class="docutils literal notranslate"><span class="pre">expt_name</span></code> field in the <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/config/tiny.yaml</span></code> file specifies that directory.
+The <code class="docutils literal notranslate"><span class="pre">expt_name</span></code> field in the <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/byob/mcq/config/tiny.yaml</span></code> file specifies that directory.
 Look for the following files:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">stage_cache/*.parquet</span></code>, one file per intermediate stage, described in <a class="reference internal" href="reference/output-files.html"><span class="doc">Output Files</span></a></p></li>

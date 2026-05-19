@@ -15,7 +15,7 @@ When you finish the steps below, the prepare stage can build stems from your cor
 
 - Each directory name directly under `input_dir` must match a key in `target_source_mapping`, for example `banking`, `police`, or `maths`.
 - Split long material across several `.txt` files when you want different documents to drive different queries.
-- Set `input_dir` in YAML to the parent directory so `uv run nemotron steps run byob` resolves relative paths from the shell working directory, or use an absolute path for a fixed location.
+- Set `input_dir` in YAML to the parent directory so `uv run nemotron steps run byob/mcq` resolves relative paths from the shell working directory, or use an absolute path for a fixed location.
 
 ## Step 1: Create Target Directories
 
@@ -31,7 +31,7 @@ mkdir -p ./data/byob/maths
 Path tips:
 
 - Prefer absolute paths in YAML when several people reuse the same file from different working directories.
-- Relative paths resolve from the shell working directory where you invoke `uv run nemotron steps run byob`.
+- Relative paths resolve from the shell working directory where you invoke `uv run nemotron steps run byob/mcq`.
 
 The pipeline resolves `input_dir` relative to that working directory.
 If you need a fixed location regardless of where people run the command, set `input_dir` to an absolute path in YAML.

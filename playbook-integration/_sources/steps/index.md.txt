@@ -70,7 +70,7 @@ Backed by the `sdg/data_designer` step.
 :link-type: doc
 
 Translate JSON Lines or Apache Parquet corpora with NeMo Curator, with optional faithfulness, accuracy, integrity, and translation-quality holistic (FAITH) scoring.
-Backed by the `translate/translation` step.
+Backed by the `translate/nemo_curator` step.
 :::
 
 :::{grid-item-card} Data Curation and Preparation

@@ -876,7 +876,7 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -890,7 +890,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -1076,9 +1076,8 @@ window.addEventListener("load", load);
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="about-model-evaluation">
 <span id="model-eval-index"></span><h1>About Model Evaluation<a class="headerlink" href="#about-model-evaluation" title="Link to this heading">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> Nemotron step is a wrapper around NeMo Evaluator that runs one or more benchmark suites against an OpenAI-compatible <em>endpoint</em>.
-The step targets an existing endpoint and writes an <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> artifact to disk.
-To deploy a checkpoint before evaluation, refer to <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> Nemotron step is a wrapper around NeMo Evaluator Launcher.
+It runs launcher tasks against either an existing OpenAI-compatible endpoint or a launcher-managed Megatron Bridge checkpoint deployment, then writes an <code class="docutils literal notranslate"><span class="pre">eval_results</span></code> artifact to disk.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>New to model evaluation or the Nemotron CLI?
@@ -1088,9 +1087,9 @@ Read <a class="reference internal" href="using-skills.html"><span class="doc">Us
 <h2>When To Use<a class="headerlink" href="#when-to-use" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> when the work matches one of the following.</p>
 <ul class="simple">
-<li><p>Score a trained checkpoint on standard benchmarks served by NeMo Evaluator, after the checkpoint is deployed behind a chat or completions endpoint.</p></li>
-<li><p>Compare a new training run against a baseline by running the same benchmark set against both, with the generation parameters and the endpoint type held constant.</p></li>
-<li><p>Perform a sample run against a hosted endpoint, to confirm the URL, the credential, and the tokenizer configuration before scaling up.</p></li>
+<li><p>Score a trained checkpoint with NeMo Evaluator Launcher tasks.</p></li>
+<li><p>Compare a new training run against a baseline by running the same task set against both, with generation parameters and endpoint type held constant.</p></li>
+<li><p>Perform a sample run against a hosted endpoint, to confirm the URL, credential, and model id before scaling up.</p></li>
 <li><p>Pair this step with a baseline evaluation before training to capture before-and-after measurements around a training change, by following <a class="reference internal" href="reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a>.</p></li>
 </ul>
 </section>
@@ -1103,20 +1102,18 @@ flowchart LR
     hosted[&quot;Hosted endpoint&quot;] --&gt; deploy
     deploy --&gt; step[&quot;eval/model_eval&lt;br/&gt;(NeMo Evaluator)&quot;]
     step --&gt; results[&quot;eval_results&lt;br/&gt;per-benchmark subdirs&quot;]
-    </pre><p>The step iterates the benchmark list in order and writes one subdirectory per benchmark under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.
+    </pre><p>NeMo Evaluator Launcher owns task execution and result files under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.
 For the contract and the on-disk layout, refer to <a class="reference internal" href="reference/output-artifacts.html"><span class="doc">Output Artifacts</span></a>.</p>
 </section>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
-<p>The runner reads a single YAML document, applies command-line overrides, and constructs three NeMo Evaluator objects: an <code class="docutils literal notranslate"><span class="pre">ApiEndpoint</span></code>, an <code class="docutils literal notranslate"><span class="pre">EvaluationTarget</span></code>, and a <code class="docutils literal notranslate"><span class="pre">ConfigParams</span></code>.
-It calls <code class="docutils literal notranslate"><span class="pre">check_endpoint</span></code> first to validate the URL, the endpoint type, and the model identifier.
-A failing probe stops the run before any benchmark is dispatched.</p>
+<p>The runner reads a single YAML document, applies command-line overrides, removes Nemotron-only keys, saves the resolved launcher config, and calls <code class="docutils literal notranslate"><span class="pre">nemo_evaluator_launcher.api.functional.run_eval</span></code>.</p>
 <p>The endpoint type must match the benchmark family.
 Chat and instruction benchmarks need a <em>chat</em> endpoint.
-<em>Log-probability</em> benchmarks, such as <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>, and <code class="docutils literal notranslate"><span class="pre">piqa</span></code>, need a <em>completions</em> endpoint with <code class="docutils literal notranslate"><span class="pre">logprobs</span></code> support and a tokenizer that matches the served model.</p>
-<p>Generation is deterministic by default.
-The sample files set <code class="docutils literal notranslate"><span class="pre">params.temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">params.top_p</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code>, which makes runs reproducible and comparable.
-Reasoning models need higher <code class="docutils literal notranslate"><span class="pre">params.max_new_tokens</span></code> and the temperature and top-p values from the model card.</p>
+<em>Log-probability</em> tasks, such as HellaSwag, need a <em>completions</em> endpoint with <code class="docutils literal notranslate"><span class="pre">logprobs</span></code> support and a tokenizer that matches the served model.</p>
+<p>The hosted smoke-test config is <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code>.
+The checkpoint-evaluation config is <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>.
+Generation settings live under <code class="docutils literal notranslate"><span class="pre">evaluation.nemo_evaluator_config.config.params</span></code>.</p>
 <p>For the full concept set behind these design rules, refer to <a class="reference internal" href="explanation/index.html"><span class="doc">Concepts</span></a>.</p>
 </section>
 <section id="documentation">
@@ -1246,7 +1243,7 @@ Reference</label><div class="sd-tab-content docutils">
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="reference/config-schema.html"><span class="doc">Configuration Reference</span></a></p></td>
-<td><p>YAML field reference for <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code></p></td>
+<td><p>YAML field reference for <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="reference/cli-reference.html"><span class="doc">CLI Reference</span></a></p></td>
 <td><p>Flags and Hydra overrides for <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">eval/model_eval</span></code></p></td>
@@ -1254,8 +1251,8 @@ Reference</label><div class="sd-tab-content docutils">
 <tr class="row-even"><td><p><a class="reference internal" href="reference/output-artifacts.html"><span class="doc">Output Artifacts</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">eval_results</span></code> contract and on-disk layout</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="reference/benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a></p></td>
-<td><p>Benchmark identifiers grouped by family</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="reference/benchmarks-catalog.html"><span class="doc">Tasks Catalog</span></a></p></td>
+<td><p>NeMo Evaluator Launcher task identifiers grouped by family</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="reference/troubleshooting.html"><span class="doc">Troubleshooting</span></a></p></td>
 <td><p>Named error modes from <code class="docutils literal notranslate"><span class="pre">step.toml</span></code>, with cause and recovery</p></td>
@@ -1280,7 +1277,7 @@ Concepts</label><div class="sd-tab-content docutils">
 <tr class="row-odd"><td><p><a class="reference internal" href="explanation/pipeline-overview.html"><span class="doc">Pipeline Overview</span></a></p></td>
 <td><p>Artifact flow from checkpoint through <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> into <code class="docutils literal notranslate"><span class="pre">eval_results</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Benchmark Families</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="explanation/endpoint-types-and-benchmarks.html"><span class="doc">Endpoint Types And Task Families</span></a></p></td>
 <td><p>Chat versus completions endpoints, and which benchmark families match each one</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="explanation/tokenizer-alignment.html"><span class="doc">Tokenizer Alignment</span></a></p></td>
@@ -1296,21 +1293,20 @@ Concepts</label><div class="sd-tab-content docutils">
 <h2>Before You Start<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The Nemotron repository is synced and <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> is complete.</p></li>
-<li><p>A bearer token is exported as the environment variable named in <code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code>.
-The sample files name <code class="docutils literal notranslate"><span class="pre">NGC_API_KEY</span></code>, and the NVIDIA-hosted endpoint uses <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
+<li><p>A bearer token is exported as the environment variable named in <code class="docutils literal notranslate"><span class="pre">target.api_endpoint.api_key_name</span></code>.
+Hosted smoke tests usually use <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code>.</p></li>
 <li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
-<li><p>A tokenizer that matches the served model.
-Accepted shapes are a Hugging Face model identifier, a filesystem path, and the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
+<li><p>A tokenizer that matches the served model when running log-probability tasks.
+The hosted chat smoke test does not require a tokenizer override.</p></li>
 </ul>
 </section>
 <section id="limitations-and-considerations">
 <h2>Limitations And Considerations<a class="headerlink" href="#limitations-and-considerations" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Cost: every benchmark sample issues at least one request to the endpoint, and hosted endpoints incur per-token cost.</p></li>
-<li><p>Rate limits: hosted endpoints throttle concurrent requests, so set <code class="docutils literal notranslate"><span class="pre">params.parallelism</span></code> to a value the endpoint can serve.</p></li>
-<li><p>Deployment: this step targets an already-deployed endpoint.
-To deploy the model, follow one of the paths in <a class="reference internal" href="how-to/evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> or the broader catalog in <a class="reference internal" href="../deployment-guides.html"><span class="doc">Deployment Guides</span></a>.</p></li>
-<li><p>Comparability: scores are comparable when the endpoint type, the benchmark version, and the generation parameters are held constant across runs.
+<li><p>Rate limits: hosted endpoints throttle concurrent requests, so set <code class="docutils literal notranslate"><span class="pre">evaluation.nemo_evaluator_config.config.params.parallelism</span></code> to a value the endpoint can serve.</p></li>
+<li><p>Deployment: <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code> targets an already-deployed endpoint; <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> uses launcher-managed deployment for a Megatron Bridge checkpoint.</p></li>
+<li><p>Comparability: scores are comparable when the endpoint type, task version, tokenizer, and generation parameters are held constant across runs.
 The <a class="reference internal" href="reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> section explains the framing.</p></li>
 </ul>
 </section>

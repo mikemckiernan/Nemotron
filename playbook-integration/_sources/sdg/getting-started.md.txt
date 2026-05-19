@@ -135,7 +135,7 @@ As you scale this workflow up, keep two principles in mind:
 - Run a preview first.
   The `preview=true num_records=N` form runs the same pipeline against a small record count, so you can iterate on column specifications and prompts before scaling `num_records` up.
 - The output format matches the trainer.
-  The `openai_messages` projection emits records ready for `prep/sft_packing` or AutoModel SFT.
+  The `openai_messages` projection emits records ready for `data_prep/sft_packing` or AutoModel SFT.
 
 ## Next Steps
 

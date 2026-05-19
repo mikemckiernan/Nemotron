@@ -10,7 +10,7 @@ Choose the best rows from the Hugging Face source benchmark, such as Massive Mul
 You control which source questions appear as few-shots by configuring coarse filters (`split`, `subset`, `hf_dataset`, `source_subjects`) and fine filters (`target_source_mapping`, and optional `tags` backed by `metadata_file`).
 The intent is to show the model exemplars that match the subject you are generating for.
 
-In `nemotron steps run byob`, each key in `target_source_mapping` must match a folder of `.txt` files or a `*.parquet` file under `input_dir`, not an abstract label on its own.
+In `nemotron steps run byob/mcq`, each key in `target_source_mapping` must match a folder of `.txt` files or a `*.parquet` file under `input_dir`, not an abstract label on its own.
 
 ## The Funnel: Coarse to Fine-Grained Control
 

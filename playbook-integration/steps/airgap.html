@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -735,7 +735,7 @@ Each image TAR file is several gigabytes.</p></li>
 The default value targets a small supervised fine-tuning workflow.</p>
 <ol class="arabic">
 <li><p>Edit <code class="docutils literal notranslate"><span class="pre">deploy/nemotron-customizer/airgap/airgap.yaml</span></code>.</p></li>
-<li><p>In <code class="docutils literal notranslate"><span class="pre">workflow.stages</span></code>, add the <code class="docutils literal notranslate"><span class="pre">&lt;step_id:config&gt;</span></code> steps to run, such as <code class="docutils literal notranslate"><span class="pre">translate/translation:default</span></code>, and remove the rest.</p>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">workflow.stages</span></code>, add the <code class="docutils literal notranslate"><span class="pre">&lt;step_id:config&gt;</span></code> steps to run, such as <code class="docutils literal notranslate"><span class="pre">translate/nemo_curator:default</span></code>, and remove the rest.</p>
 <p>Prerequisites steps are automatically added from the <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> map.
 For example, an <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge:tiny</span></code> step also produces an image that covers <code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code>.</p>
 </li>
@@ -752,12 +752,12 @@ For example, an <code class="docutils literal notranslate"><span class="pre">sft
 </div>
 <p>Review the <code class="docutils literal notranslate"><span class="pre">[airgap]</span></code> section at the end of the output.
 Confirm the images and steps match the steps you specified.
-The following example is for the <code class="docutils literal notranslate"><span class="pre">translate/translation</span></code> and <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code> steps.
-The <code class="docutils literal notranslate"><span class="pre">data_pre/sft_packing</span></code> is a dependency.</p>
+The following example is for the <code class="docutils literal notranslate"><span class="pre">translate/nemo_curator</span></code> and <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code> steps.
+The <code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code> step is a dependency.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>...
 [airgap] wrote /home/user/nemotron/deploy/nemotron-customizer/airgap/out/airgap-manifest.yaml
 [airgap] selected execution images:
-  - translate/translation: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
+  - translate/nemo_curator: nemotron-customizer-nemo-curator-airgap-4dd4fef4:latest
   - data_prep/sft_packing: nemotron-customizer-nemo-megatron-airgap-55d08ccf:latest
   - sft/megatron_bridge: nemotron-customizer-nemo-megatron-airgap-2fea0796:latest
 </pre></div>
@@ -767,8 +767,9 @@ The <code class="docutils literal notranslate"><span class="pre">data_pre/sft_pa
 </section>
 <section id="networked-host-build-and-export-images">
 <h3>Networked Host: Build and Export Images<a class="headerlink" href="#networked-host-build-and-export-images" title="Link to this heading">#</a></h3>
-<p>Some steps clone a repository at runtime by default, namely <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code>, <code class="docutils literal notranslate"><span class="pre">peft/megatron_bridge</span></code>, <code class="docutils literal notranslate"><span class="pre">byob</span></code>, and <code class="docutils literal notranslate"><span class="pre">translate/translation</span></code>.
-This build process embeds those repositories in the relevant execution image so that running the steps in the airgap environment does not fail.</p>
+<p>Some steps clone or expect a repository checkout at runtime by default.
+The <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code>, <code class="docutils literal notranslate"><span class="pre">peft/megatron_bridge</span></code>, <code class="docutils literal notranslate"><span class="pre">byob/mcq</span></code>, and <code class="docutils literal notranslate"><span class="pre">translate/nemo_curator</span></code> configs use <code class="docutils literal notranslate"><span class="pre">auto_mount</span></code> entries that the build process embeds in the relevant execution image so airgapped jobs do not clone from GitHub.
+The <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/prune</span></code> and <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/distill</span></code> steps expect ModelOpt examples under <code class="docutils literal notranslate"><span class="pre">/opt/Model-Optimizer</span></code> and will try to clone <code class="docutils literal notranslate"><span class="pre">https://github.com/NVIDIA/Model-Optimizer.git</span></code> if the checkout is absent; in an airgap, use an execution image or mount that already contains that checkout.</p>
 <ol class="arabic">
 <li><p>Confirm the target CPU architecture matches what you build on the networked host, or set <code class="docutils literal notranslate"><span class="pre">platform</span></code> on the relevant entry in <code class="docutils literal notranslate"><span class="pre">airgap.yaml</span></code> when they differ.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">launcher_image</span><span class="p">:</span>

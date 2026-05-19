@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -717,7 +717,7 @@
 <p>Choose the best rows from the Hugging Face source benchmark, such as Massive Multitask Language Understanding (MMLU), to use as few-shot examples for each target, from broad choices down to very specific tags.</p>
 <p>You control which source questions appear as few-shots by configuring coarse filters (<code class="docutils literal notranslate"><span class="pre">split</span></code>, <code class="docutils literal notranslate"><span class="pre">subset</span></code>, <code class="docutils literal notranslate"><span class="pre">hf_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">source_subjects</span></code>) and fine filters (<code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code>, and optional <code class="docutils literal notranslate"><span class="pre">tags</span></code> backed by <code class="docutils literal notranslate"><span class="pre">metadata_file</span></code>).
 The intent is to show the model exemplars that match the subject you are generating for.</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code>, each key in <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code> must match a folder of <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files or a <code class="docutils literal notranslate"><span class="pre">*.parquet</span></code> file under <code class="docutils literal notranslate"><span class="pre">input_dir</span></code>, not an abstract label on its own.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code>, each key in <code class="docutils literal notranslate"><span class="pre">target_source_mapping</span></code> must match a folder of <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files or a <code class="docutils literal notranslate"><span class="pre">*.parquet</span></code> file under <code class="docutils literal notranslate"><span class="pre">input_dir</span></code>, not an abstract label on its own.</p>
 <section id="the-funnel-coarse-to-fine-grained-control">
 <h2>The Funnel: Coarse to Fine-Grained Control<a class="headerlink" href="#the-funnel-coarse-to-fine-grained-control" title="Link to this heading">#</a></h2>
 <p>Most question-answer benchmark datasets expose many subjects, such as astronomy, econometrics, elementary mathematics, nutrition, and so on.

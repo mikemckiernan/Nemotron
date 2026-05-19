@@ -11,7 +11,7 @@ Instead, YAML blocks describe OpenAI-compatible clients for each stage that call
 ## Generation and judgement
 
 `generation_model_config` and `judge_model_config` are required mappings.
-They follow the same structure you see in `src/nemotron/steps/byob/config/default.yaml`: `alias`, `model`, `provider`, and nested `inference_parameters` such as `max_tokens`, `max_parallel_requests`, `temperature`, and `top_p`.
+They follow the same structure you see in `src/nemotron/steps/byob/mcq/config/default.yaml`: `alias`, `model`, `provider`, and nested `inference_parameters` such as `max_tokens`, `max_parallel_requests`, `temperature`, and `top_p`.
 
 `setup_model_config` in `runtime/data_designer_utils.py` reads these blocks when Data Designer runs batched stages.
 

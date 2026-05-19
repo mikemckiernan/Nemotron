@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -714,161 +714,87 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="run-a-hosted-evaluation">
 <span id="model-eval-run-hosted-evaluation"></span><h1>Run A Hosted Evaluation<a class="headerlink" href="#run-a-hosted-evaluation" title="Link to this heading">#</a></h1>
-<p>This guide runs <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an already-running, OpenAI-compatible endpoint.</p>
+<p>This guide runs <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code> against an already-running OpenAI-compatible endpoint.
+For the out-of-the-box hosted smoke test, use <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code>.</p>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>The Nemotron repository synced with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> complete.</p></li>
-<li><p>A reachable evaluation endpoint URL and a model identifier the endpoint advertises.</p></li>
+<li><p>The Nemotron repository is synced with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--extra</span> <span class="pre">evaluator</span></code>.</p></li>
+<li><p>A reachable endpoint URL.</p></li>
+<li><p>The endpoint’s advertised model id.</p></li>
 <li><p>A credential exported as an environment variable.</p></li>
-<li><p>A tokenizer that matches the served model.
-Accept a Hugging Face model ID, a filesystem path, or the <code class="docutils literal notranslate"><span class="pre">tokenizer/</span></code> subdirectory of a Megatron Bridge <code class="docutils literal notranslate"><span class="pre">iter_*</span></code> checkpoint.</p></li>
 </ul>
 </section>
-<section id="choose-a-starting-sample-file">
-<h2>Choose A Starting Sample File<a class="headerlink" href="#choose-a-starting-sample-file" title="Link to this heading">#</a></h2>
-<p>Two sample files cover most hosted-evaluation runs.</p>
+<section id="choose-the-starting-config">
+<h2>Choose The Starting Config<a class="headerlink" href="#choose-the-starting-config" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Sample file</p></th>
+<tr class="row-odd"><th class="head"><p>Config</p></th>
 <th class="head"><p>Use</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code></p></td>
-<td><p>Sample run with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">20</span></code> on the <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code> benchmar.  Confirms endpoint, credential, and tokenizer configuration.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code></p></td>
+<td><p>Hosted chat smoke test. Runs <code class="docutils literal notranslate"><span class="pre">mmlu_instruct</span></code> with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">1</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">default.yaml</span></code></p></td>
-<td><p>Production run with <code class="docutils literal notranslate"><span class="pre">mmlu</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag</span></code>, and <code class="docutils literal notranslate"><span class="pre">arc_challenge</span></code>, with no sample cap.</p></td>
+<td><p>Launcher-managed checkpoint deployment and evaluation. Use this when the launcher should deploy a Megatron Bridge checkpoint.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Pass the configuration file name with <code class="docutils literal notranslate"><span class="pre">--config</span></code>.
-You can also specify <code class="docutils literal notranslate"><span class="pre">--config</span></code> with a path to a YAML configuration file outside the step’s <code class="docutils literal notranslate"><span class="pre">config/</span></code> directory.</p>
+<p>Hosted chat QA should start with <code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code>.</p>
 </section>
-<section id="override-endpoint-credential-and-model">
-<h2>Override Endpoint, Credential, And Model<a class="headerlink" href="#override-endpoint-credential-and-model" title="Link to this heading">#</a></h2>
-<p>Three deployment fields almost always need to be overridden on the command line.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Override</p></th>
-<th class="head"><p>Value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deployment.url</span></code></p></td>
-<td><p>Full URL of the chat or completions endpoint, including the path segment.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">deployment.model_id</span></code></p></td>
-<td><p>Model identifier as the endpoint advertises it.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deployment.api_key_name</span></code></p></td>
-<td><p>Name of the environment variable that holds the bearer token.  This is the variable name, not the secret.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="choose-benchmarks">
-<h2>Choose Benchmarks<a class="headerlink" href="#choose-benchmarks" title="Link to this heading">#</a></h2>
-<p>The sample files include benchmark lists that match the file’s intent.
-Override the list when you want a different selection.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">benchmarks</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mmlu</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hellaswag</span>
+<section id="set-endpoint-values">
+<h2>Set Endpoint Values<a class="headerlink" href="#set-endpoint-values" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NEMO_EVALUATOR_MODEL_URL</span><span class="o">=</span><span class="s2">&quot;&lt;full-chat-completions-url&gt;&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NEMO_EVALUATOR_MODEL_ID</span><span class="o">=</span><span class="s2">&quot;&lt;endpoint-model-id&gt;&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NEMO_EVALUATOR_ENDPOINT_TYPE</span><span class="o">=</span>chat
 </pre></div>
 </div>
-<p>The benchmark identifiers come from NeMo Evaluator.
-Refer to <a class="reference internal" href="../reference/benchmarks-catalog.html"><span class="doc">Benchmarks Catalog</span></a> for families and endpoint-type guidance.</p>
-</section>
-<section id="set-generation-parameters">
-<h2>Set Generation Parameters<a class="headerlink" href="#set-generation-parameters" title="Link to this heading">#</a></h2>
-<p>The sample files set deterministic generation, which is the right choice for <em>log-probability</em> benchmarks and for runs you want to compare side by side.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>Default</p></th>
-<th class="head"><p>When to change</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params.temperature</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
-<td><p>Match the model card for reasoning or chat benchmarks.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params.top_p</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
-<td><p>Match the model card for reasoning or chat benchmarks.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params.parallelism</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p>Raise when the endpoint can serve concurrent requests.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params.request_timeout</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">3600</span></code></p></td>
-<td><p>Raise for long-generation benchmarks.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params.limit_samples</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> in <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">20</span></code> in <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code></p></td>
-<td><p>Set to <code class="docutils literal notranslate"><span class="pre">1</span></code> for a one-sample run.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>The tokenizer fields under <code class="docutils literal notranslate"><span class="pre">params.extra</span></code> are required for <em>log-probability</em> benchmarks.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>params.extra.tokenizer<span class="o">=</span>&lt;hf-model-id-or-path&gt;
-params.extra.tokenizer_backend<span class="o">=</span>huggingface
-</pre></div>
-</div>
+<p>The config stores the API key environment variable name, not the secret value.</p>
 </section>
 <section id="run-and-stream-output">
 <h2>Run And Stream Output<a class="headerlink" href="#run-and-stream-output" title="Link to this heading">#</a></h2>
-<p>The following command runs the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file against a hosted endpoint and limits to one sample.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>:<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NVIDIA_API_KEY</span><span class="p">:?Set NVIDIA_API_KEY for the hosted eval</span><span class="si">}</span><span class="s2">&quot;</span>
-:<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EVAL_URL</span><span class="p">:?Set EVAL_URL for the eval endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
-:<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EVAL_MODEL_ID</span><span class="p">:?Set EVAL_MODEL_ID for the eval endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
-:<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EVAL_TOKENIZER</span><span class="p">:?Set EVAL_TOKENIZER to a tokenizer path visible to the run</span><span class="si">}</span><span class="s2">&quot;</span>
-
-uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span>tiny<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-sample<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_MODEL_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.api_key_name<span class="o">=</span>NVIDIA_API_KEY<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>params.limit_samples<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>params.extra.tokenizer<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_TOKENIZER</span><span class="s2">&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-c<span class="w"> </span>tiny_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>./output/eval-tiny-chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.api_key_name<span class="o">=</span>NVIDIA_API_KEY<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.type<span class="o">=</span>chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>evaluation.nemo_evaluator_config.config.params.limit_samples<span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>For a longer production run against the same endpoint, replace <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">tiny</span></code> with <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">default</span></code>, remove the <code class="docutils literal notranslate"><span class="pre">params.limit_samples=1</span></code> override, and choose an <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> value that includes a date or run identifier.</p>
-<p>To compile and inspect the merged configuration without dispatching the run, pass <code class="docutils literal notranslate"><span class="pre">-d</span></code> or <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span>-d<span class="w"> </span>-c<span class="w"> </span>tiny<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>deployment.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$EVAL_MODEL_ID</span><span class="s2">&quot;</span>
+<p>The step saves the launcher config and then calls NeMo Evaluator Launcher.
+If the launcher returns an invocation id, the command prints the status and log commands to run next.</p>
+<p>To compile the Nemotron job without invoking the launcher:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span>-d<span class="w"> </span>-c<span class="w"> </span>tiny_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.url<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_URL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>target.api_endpoint.model_id<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEMO_EVALUATOR_MODEL_ID</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>To invoke the launcher in its own dry-run mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>eval/model_eval<span class="w"> </span>-c<span class="w"> </span>tiny_chat<span class="w"> </span><span class="nv">dry_run</span><span class="o">=</span><span class="nb">true</span>
 </pre></div>
 </div>
 </section>
 <section id="validate-output-artifacts">
 <h2>Validate Output Artifacts<a class="headerlink" href="#validate-output-artifacts" title="Link to this heading">#</a></h2>
-<p>After the run completes, list the files written under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span>./output/eval-sample<span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">5</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
+<p>After the run completes, list files under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span>./output/eval-tiny-chat<span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">5</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
 </pre></div>
 </div>
-<p>The runner writes one subdirectory per benchmark.
-For the sample <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> file, the only subdirectory is <code class="docutils literal notranslate"><span class="pre">hellaswag/</span></code>.
-For the sample <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> file, three subdirectories are written: <code class="docutils literal notranslate"><span class="pre">mmlu/</span></code>, <code class="docutils literal notranslate"><span class="pre">hellaswag/</span></code>, and <code class="docutils literal notranslate"><span class="pre">arc_challenge/</span></code>.</p>
-<p>The file set inside each subdirectory comes from NeMo Evaluator.
-A typical run produces a summary file with aggregate metrics, a per-sample predictions file, and a configuration record.
-For the contract and the on-disk layout, refer to <a class="reference internal" href="../reference/output-artifacts.html"><span class="doc">Output Artifacts</span></a>.</p>
+<p>The exact file set is owned by NeMo Evaluator Launcher and can vary by task version.</p>
 </section>
 <section id="related">
 <h2>Related<a class="headerlink" href="#related" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="discover-the-step.html"><span class="doc">Discover The Model Evaluation Step</span></a> for the discovery commands that confirm the step contract.</p></li>
-<li><p><a class="reference internal" href="evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> for picking a deployment path and pointing this step at the resulting endpoint.</p></li>
+<li><p><a class="reference internal" href="discover-the-step.html"><span class="doc">Discover The Model Evaluation Step</span></a> for discovery commands.</p></li>
+<li><p><a class="reference internal" href="evaluate-deployed-checkpoint.html"><span class="doc">Evaluate A Deployed Checkpoint</span></a> for the launcher-managed checkpoint path.</p></li>
 <li><p><a class="reference internal" href="../reference/cli-reference.html"><span class="doc">CLI Reference</span></a> for the full flag and override surface.</p></li>
 <li><p><a class="reference internal" href="../reference/config-schema.html"><span class="doc">Configuration Reference</span></a> for the YAML field reference.</p></li>
-<li><p><a class="reference internal" href="../reference/output-artifacts.html#model-eval-comparing-runs"><span class="std std-ref">Comparing Runs</span></a> for before-and-after evaluation framing.</p></li>
 </ul>
 </section>
 </section>
@@ -923,10 +849,8 @@ For the contract and the on-disk layout, refer to <a class="reference internal" 
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-a-starting-sample-file">Choose A Starting Sample File</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#override-endpoint-credential-and-model">Override Endpoint, Credential, And Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-benchmarks">Choose Benchmarks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-generation-parameters">Set Generation Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-the-starting-config">Choose The Starting Config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-endpoint-values">Set Endpoint Values</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-and-stream-output">Run And Stream Output</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validate-output-artifacts">Validate Output Artifacts</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related">Related</a></li>

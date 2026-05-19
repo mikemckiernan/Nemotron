@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -730,7 +730,7 @@ limitations under the License.
 <section id="env-toml-profile-shape">
 <h2>env.toml Profile Shape<a class="headerlink" href="#env-toml-profile-shape" title="Link to this heading">#</a></h2>
 <p>Add a profile to <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> (repository root). The example below targets a Lepton CPU node:</p>
-<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[lepton-sdg]</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[lepton_sdg_data_designer]</span>
 <span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;lepton&quot;</span>
 <span class="n">container_image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nvcr.io/nvidia/nemo:25.11.nemotron_3_nano&quot;</span>
 <span class="n">nemo_run_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/mnt/shared/nemo-run&quot;</span>
@@ -742,20 +742,20 @@ limitations under the License.
 <span class="n">can_be_preempted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 <span class="n">queue_priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;mid-4000&quot;</span>
 <span class="n">startup_commands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer&gt;=0.5.6&#39;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer==0.5.5&#39;&quot;</span>
 <span class="p">]</span>
 <span class="n">mounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;/your-nfs-source&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">mount_path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;/mnt/shared&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;node-nfs:your-nfs-id&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="p">]</span>
 
-<span class="k">[lepton-sdg.env_vars]</span>
+<span class="k">[lepton_sdg_data_designer.env_vars]</span>
 <span class="n">NVIDIA_API_KEY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${oc.env:NVIDIA_API_KEY}&quot;</span>
 </pre></div>
 </div>
 </section>
 <section id="run">
 <h2>Run<a class="headerlink" href="#run" title="Link to this heading">#</a></h2>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>lepton-sdg<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">1000</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>lepton_sdg_data_designer<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">1000</span>
 </pre></div>
 </div>
 <p>Use <code class="docutils literal notranslate"><span class="pre">--run</span></code> instead of <code class="docutils literal notranslate"><span class="pre">--batch</span></code> to stream logs interactively.</p>
@@ -767,7 +767,7 @@ limitations under the License.
 <h3><code class="docutils literal notranslate"><span class="pre">data-designer</span></code> is not pre-installed in the container<a class="headerlink" href="#data-designer-is-not-pre-installed-in-the-container" title="Link to this heading">#</a></h3>
 <p>The NeMo container image does not include <code class="docutils literal notranslate"><span class="pre">data-designer</span></code>. Install it at startup via <code class="docutils literal notranslate"><span class="pre">startup_commands</span></code>:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">startup_commands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer&gt;=0.5.6&#39;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer==0.5.5&#39;&quot;</span>
 <span class="p">]</span>
 </pre></div>
 </div>
@@ -798,13 +798,13 @@ limitations under the License.
 <section id="nvidia-api-key-is-not-forwarded-automatically">
 <h3><code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> is not forwarded automatically<a class="headerlink" href="#nvidia-api-key-is-not-forwarded-automatically" title="Link to this heading">#</a></h3>
 <p>Unlike <code class="docutils literal notranslate"><span class="pre">HF_TOKEN</span></code> and <code class="docutils literal notranslate"><span class="pre">WANDB_API_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> is not automatically forwarded to the container. Declare it explicitly in the <code class="docutils literal notranslate"><span class="pre">env_vars</span></code> section:</p>
-<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[lepton-sdg.env_vars]</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[lepton_sdg_data_designer.env_vars]</span>
 <span class="n">NVIDIA_API_KEY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${oc.env:NVIDIA_API_KEY}&quot;</span>
 </pre></div>
 </div>
 <p>Set it in your local shell before submitting the job:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NVIDIA_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
-<span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>lepton-sdg<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">1000</span>
+<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--batch<span class="w"> </span>lepton_sdg_data_designer<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">1000</span>
 </pre></div>
 </div>
 </section>
@@ -829,7 +829,7 @@ limitations under the License.
 <span class="n">run_partition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cpu&quot;</span>
 <span class="n">batch_partition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cpu&quot;</span>
 <span class="n">startup_commands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer&gt;=0.5.6&#39;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;python -m pip install --quiet --break-system-packages &#39;data-designer==0.5.5&#39;&quot;</span>
 <span class="p">]</span>
 
 <span class="k">[slurm-sdg.env_vars]</span>
@@ -844,7 +844,7 @@ limitations under the License.
 <section id="verify-before-scaling">
 <h2>Verify Before Scaling<a class="headerlink" href="#verify-before-scaling" title="Link to this heading">#</a></h2>
 <p>Run a preview via the cluster profile before a large batch:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>lepton-sdg<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>default<span class="w"> </span>--run<span class="w"> </span>lepton_sdg_data_designer<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 <p>Confirm the job reaches <code class="docutils literal notranslate"><span class="pre">Running</span></code>, the model alias check succeeds, and two records are returned before submitting the full job.</p>

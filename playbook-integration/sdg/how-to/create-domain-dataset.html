@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -877,7 +877,7 @@ This example adds category dimensions, <code class="docutils literal notranslate
 </div>
 </li>
 <li><p>Run a preview by specifying <code class="docutils literal notranslate"><span class="pre">preview=true</span> <span class="pre">num_records=2</span></code> to verify the pipeline before scaling:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>greenteme<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>greenteme<span class="w"> </span><span class="nv">preview</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">2</span>
 </pre></div>
 </div>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
@@ -920,7 +920,7 @@ This example adds category dimensions, <code class="docutils literal notranslate
 </div>
 </details></li>
 <li><p>Generate the dataset by raising <code class="docutils literal notranslate"><span class="pre">num_records</span></code> after the preview output looks correct:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>step<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>greenteme<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">100</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sdg/data_designer<span class="w"> </span>-c<span class="w"> </span>greenteme<span class="w"> </span><span class="nv">num_records</span><span class="o">=</span><span class="m">100</span>
 </pre></div>
 </div>
 </li>
@@ -930,15 +930,14 @@ This example adds category dimensions, <code class="docutils literal notranslate
 <h2>Going Further<a class="headerlink" href="#going-further" title="Link to this heading">#</a></h2>
 <p><strong>Locale-aware persona profiles.</strong> The current YAML schema supports category, seed, and LLM column types. To replace the static <code class="docutils literal notranslate"><span class="pre">traveler_segment</span></code> category with Census-grounded persona profiles using Data Designer’s <a class="reference external" href="https://nvidia-nemo.github.io/DataDesigner/latest/concepts/person_sampling/">person sampler</a>, you can include locale, age range, and synthetic-personas integration.</p>
 <p><strong>Multi-turn conversations.</strong> The example shows a single user and assistant exchange.
-For multi-turn dialogue, swap the two <code class="docutils literal notranslate"><span class="pre">llm_text</span></code> columns for one <code class="docutils literal notranslate"><span class="pre">llm_structured</span></code> column whose <code class="docutils literal notranslate"><span class="pre">output_format</span></code> is a Pydantic conversation schema.
-Refer to the <code class="docutils literal notranslate"><span class="pre">customer_support_tools.yaml</span></code> in the config directory for the structured-output pattern.</p>
+For multi-turn dialogue, follow the <code class="docutils literal notranslate"><span class="pre">customer_support_tools.yaml</span></code> pattern: ask one <code class="docutils literal notranslate"><span class="pre">llm_text</span></code> column to return a JSON object with <code class="docutils literal notranslate"><span class="pre">messages</span></code> and optional <code class="docutils literal notranslate"><span class="pre">tools</span></code>, then use the <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code> output projection to write training-ready JSONL.</p>
 <p><strong>Dispatch to a cluster.</strong> Generation runs locally against the NVIDIA-hosted endpoint by default. To run on Lepton or Slurm, see <a class="reference internal" href="dispatch-to-cluster.html"><span class="doc">Dispatch SDG to a Cluster</span></a> — env.toml profiles, container images, and the gotchas that bite first-time cluster runs.</p>
 </section>
 <section id="schema-and-downstream-use">
 <h2>Schema and Downstream Use<a class="headerlink" href="#schema-and-downstream-use" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">openai_messages</span></code> projection emits records with a <code class="docutils literal notranslate"><span class="pre">messages</span></code> array plus the metadata fields you list. These flow directly into:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">prep/sft_packing</span></code> for Megatron-Bridge-style training, or</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_prep/sft_packing</span></code> for Megatron-Bridge-style training, or</p></li>
 <li><p>AutoModel SFT, which consumes the chat format directly.</p></li>
 </ul>
 <p>For a full reference of available projection shapes, see <a class="reference internal" href="../reference/output-projections.html"><span class="doc">Output Projections</span></a>.</p>
@@ -947,7 +946,7 @@ Refer to the <code class="docutils literal notranslate"><span class="pre">custom
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><strong>Generate preference pairs for DPO</strong>: <a class="reference internal" href="preference-data.html"><span class="doc">Generate Preference Data for DPO</span></a> — the <code class="docutils literal notranslate"><span class="pre">rl_pref.yaml</span></code> pattern.</p></li>
-<li><p><strong>Generate tool-calling SFT data</strong>: <a class="reference internal" href="tool-call-data.html"><span class="doc">Generate Tool-Calling Data for SFT</span></a> — multi-turn with <code class="docutils literal notranslate"><span class="pre">output_format=Conversation</span></code>.</p></li>
+<li><p><strong>Generate tool-calling SFT data</strong>: <a class="reference internal" href="tool-call-data.html"><span class="doc">Generate Tool-Calling Data for SFT</span></a> — multi-turn <code class="docutils literal notranslate"><span class="pre">messages</span></code> and <code class="docutils literal notranslate"><span class="pre">tools</span></code> with <code class="docutils literal notranslate"><span class="pre">structured_messages</span></code>.</p></li>
 <li><p><strong>CLI flags and overrides</strong>: <a class="reference internal" href="../reference/cli-reference.html"><span class="doc">CLI Reference</span></a>.</p></li>
 <li><p><strong>Config schema</strong>: <a class="reference internal" href="../reference/config-schema.html"><span class="doc">Config Schema</span></a> — full reference for column types, samplers, and projections.</p></li>
 <li><p><strong>Pipeline overview</strong>: <a class="reference internal" href="../index.html"><span class="doc">About Synthetic Data Generation</span></a>.</p></li>

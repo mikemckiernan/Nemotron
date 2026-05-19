@@ -18,12 +18,12 @@ limitations under the License.
 (sdg-cli-reference)=
 # CLI Reference
 
-Command-line reference for `nemotron step run sdg/data_designer`. For pipeline overview, see {doc}`../index`.
+Command-line reference for `nemotron steps run sdg/data_designer`. For pipeline overview, see {doc}`../index`.
 
 ## Syntax
 
 ```console
-$ nemotron step run sdg/data_designer \
+$ nemotron steps run sdg/data_designer \
     [-c CONFIG] \
     [--run PROFILE | --batch PROFILE] \
     [--dry-run] \
@@ -75,13 +75,13 @@ Dotlist path follows the YAML structure. Nested keys use `.` as separator; list 
 Preview the default config with two records:
 
 ```console
-$ nemotron step run sdg/data_designer -c default preview=true num_records=2
+$ nemotron steps run sdg/data_designer -c default preview=true num_records=2
 ```
 
 Generate 100 SFT records with a custom output path:
 
 ```console
-$ nemotron step run sdg/data_designer -c default \
+$ nemotron steps run sdg/data_designer -c default \
     num_records=100 \
     output_path=/data/my-project/sft.jsonl
 ```
@@ -89,19 +89,19 @@ $ nemotron step run sdg/data_designer -c default \
 Dry-run a cluster submission to check the resolved config:
 
 ```console
-$ nemotron step run sdg/data_designer -c default --run my-profile --dry-run
+$ nemotron steps run sdg/data_designer -c default --run my-profile --dry-run
 ```
 
 Run attached on a Lepton profile with 500 records:
 
 ```console
-$ nemotron step run sdg/data_designer -c default --run lepton-sdg num_records=500
+$ nemotron steps run sdg/data_designer -c default --run lepton_sdg_data_designer num_records=500
 ```
 
 Use a config at an arbitrary path:
 
 ```console
-$ nemotron step run sdg/data_designer -c /path/to/my-config.yaml preview=true num_records=2
+$ nemotron steps run sdg/data_designer -c /path/to/my-config.yaml preview=true num_records=2
 ```
 
 ## Related

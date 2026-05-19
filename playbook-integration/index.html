@@ -510,7 +510,7 @@
 <li class="toctree-l1"><a class="reference internal" href="model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -524,7 +524,7 @@
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -736,6 +736,50 @@ Sample Applications</div>
 </div>
 </div>
 </section>
+<section id="customization-workflows-with-nemotron-steps">
+<h2>Customization Workflows with Nemotron Steps<a class="headerlink" href="#customization-workflows-with-nemotron-steps" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Translation</div>
+<p class="sd-card-text">Translate JSONL or Parquet corpora with <code class="docutils literal notranslate"><span class="pre">translate/nemo_curator</span></code>, NeMo Curator
+backends, and optional FAITH quality scoring.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="translation/index.html"><span class="doc">Translation With Nemotron</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Build MCQ Benchmarks</div>
+<p class="sd-card-text">Generate and translate custom multiple-choice benchmarks with <code class="docutils literal notranslate"><span class="pre">byob/mcq</span></code>.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="build-benchmarks/index.html"><span class="doc">About Building Multiple-Choice Question Benchmarks</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Synthetic Data Generation</div>
+<p class="sd-card-text">Use <code class="docutils literal notranslate"><span class="pre">sdg/data_designer</span></code> to produce SFT, tool-use, and preference datasets.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="sdg/index.html"><span class="doc">About Synthetic Data Generation</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Model Evaluation</div>
+<p class="sd-card-text">Evaluate hosted endpoints or checkpoints with <code class="docutils literal notranslate"><span class="pre">eval/model_eval</span></code>.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="model-eval/index.html"><span class="doc">About Model Evaluation</span></a></div>
+</div>
+</div>
+</div>
+</section>
 <section id="training-recipes">
 <h2>Training Recipes<a class="headerlink" href="#training-recipes" title="Link to this heading">#</a></h2>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
@@ -799,12 +843,6 @@ Embedding Fine-Tuning</div>
 </tbody>
 </table>
 </div>
-</section>
-<section id="domain-mcq-benchmarks">
-<h2>Domain MCQ benchmarks<a class="headerlink" href="#domain-mcq-benchmarks" title="Link to this heading">#</a></h2>
-<p>Generate a custom multiple-choice benchmark from your documents with <a class="reference internal" href="build-benchmarks/index.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code></span></a>.
-The tutorial and reference material live under <a class="reference internal" href="build-benchmarks/index.html"><span class="std std-doc">Build MCQ benchmarks</span></a>.
-The command also supports translation for the benchmark.</p>
 </section>
 <section id="training-pipeline">
 <h2>Training Pipeline<a class="headerlink" href="#training-pipeline" title="Link to this heading">#</a></h2>
@@ -949,9 +987,9 @@ The command also supports translation for the benchmark.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-deployments-and-applications">Sample Deployments and Applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customization-workflows-with-nemotron-steps">Customization Workflows with Nemotron Steps</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-recipes">Training Recipes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recipe-layout">Recipe Layout</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#domain-mcq-benchmarks">Domain MCQ benchmarks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-pipeline">Training Pipeline</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-nemotron">Why Nemotron?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>

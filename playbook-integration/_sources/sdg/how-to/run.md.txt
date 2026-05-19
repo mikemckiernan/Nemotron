@@ -20,10 +20,10 @@ limitations under the License.
 
 ## Preview Before Generating
 
-Always preview before running a full generation job. Preview mode calls the same pipeline but returns a small number of records without writing the final JSONL:
+Always preview before running a full generation job. Preview mode calls the same pipeline with a small record count, projects the records, and writes them to `output_path`:
 
 ```console
-$ nemotron step run sdg/data_designer -c default preview=true num_records=2
+$ nemotron steps run sdg/data_designer -c default preview=true num_records=2
 ```
 
 Use preview to verify:
@@ -47,7 +47,7 @@ The repository includes the following sample config files in the `src/nemotron/s
 Specify the file in the `-c` argument:
 
 ```console
-$ nemotron step run sdg/data_designer -c customer_support_tools preview=true num_records=2
+$ nemotron steps run sdg/data_designer -c customer_support_tools preview=true num_records=2
 ```
 
 ## Run Attached on a Cluster Profile
@@ -55,7 +55,7 @@ $ nemotron step run sdg/data_designer -c customer_support_tools preview=true num
 To dispatch to a Lepton or Slurm profile configured in `env.toml`, use `--run` (attached, streams logs) or `--batch` (detached):
 
 ```console
-$ nemotron step run sdg/data_designer -c default --run my-lepton-profile num_records=1000
+$ nemotron steps run sdg/data_designer -c default --run my-lepton-profile num_records=1000
 ```
 
 For cluster setup, see {doc}`dispatch-to-cluster`.

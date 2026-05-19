@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "How FAITH integrates into nemotron steps translation and interacts with translation backends."
+description: "How FAITH integrates into nemotron steps run translate/nemo_curator and interacts with translation backends."
 topics: ["Translation", "FAITH"]
 tags: ["Explanation", "Quality"]
 content:
@@ -12,7 +12,7 @@ content:
 
 # FAITH Evaluation Inside Translation
 
-This page explains how optional FAITH scoring behaves when `faith_eval.enabled` is `true` inside `nemotron steps translation`.
+This page explains how optional FAITH scoring behaves when `faith_eval.enabled` is `true` inside `nemotron steps run translate/nemo_curator`.
 FAITH stands for the five quality dimensions the judge scores against each translated segment: *Fluency*, *Accuracy*, *Idiomaticity*, *Terminology*, and *Handling of Format*.
 
 FAITH runs in the same `TranslationStage` invocation as translation. There is no separate CLI only for FAITH scoring.
@@ -22,7 +22,7 @@ FAITH runs in the same `TranslationStage` invocation as translation. There is no
 FAITH scores translation quality segment-by-segment using a large language model (LLM) judge configured alongside your translation backend:
 
 - `faith_eval.threshold` defines the minimum acceptable average score. The starter default is `2.5`, which you should tune per model. See the next section for what the scale means.
-- `faith_eval.segment_level` aligns scoring granularity with translation segmentation for long inputs.
+- FAITH scoring follows the translated segment pairs produced by Curator's translation stage for long inputs.
 - `faith_eval.filter_enabled` drops failing rows when `true`, which lets you keep high-confidence shards only.
 
 ## Score Scale

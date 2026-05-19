@@ -511,7 +511,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -525,7 +525,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -715,7 +715,7 @@
 <!-- Explanation: how the BYOB prepare stage pairs Hugging Face few-shots with domain text into seed.parquet. -->
 <section class="tex2jax_ignore mathjax_ignore" id="data-preparation-for-multiple-choice-question-benchmarks">
 <h1>Data Preparation for Multiple-Choice Question Benchmarks<a class="headerlink" href="#data-preparation-for-multiple-choice-question-benchmarks" title="Link to this heading">#</a></h1>
-<p>The prepare stage builds the seed dataset that backs multiple-choice question (MCQ) generation in <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob</span></code>.</p>
+<p>The prepare stage builds the seed dataset that backs multiple-choice question (MCQ) generation in <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">byob/mcq</span></code>.</p>
 <p>The data preparation stage pairs few-shot rows from your configured Hugging Face benchmark with domain-specific text you place under <code class="docutils literal notranslate"><span class="pre">input_dir</span></code>.</p>
 <p>Each seed row joins exemplar MCQs with local passages so generate can copy structure and vocabulary from the benchmark while staying grounded in your corpus.</p>
 <section id="why-few-shot-examples">

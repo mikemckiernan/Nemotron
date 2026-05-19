@@ -876,7 +876,7 @@ window.addEventListener("load", load);
 <li class="toctree-l1"><a class="reference internal" href="../model-eval/using-skills.html">Tips for Using Agents</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../model-eval/explanation/index.html">Concepts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/pipeline-overview.html">Pipeline Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Benchmark Families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/endpoint-types-and-benchmarks.html">Endpoint Types And Task Families</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/explanation/tokenizer-alignment.html">Tokenizer Alignment</a></li>
 </ul>
 </details></li>
@@ -890,7 +890,7 @@ window.addEventListener("load", load);
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/config-schema.html">Configuration Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/cli-reference.html">CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/output-artifacts.html">Output Artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Benchmarks Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/benchmarks-catalog.html">Tasks Catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../model-eval/reference/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
@@ -1072,7 +1072,7 @@ window.addEventListener("load", load);
                   
   <section class="tex2jax_ignore mathjax_ignore" id="translation-with-nemotron">
 <span id="translation-index"></span><h1>Translation With Nemotron<a class="headerlink" href="#translation-with-nemotron" title="Link to this heading">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> command translates selected fields in JSONL or Apache Parquet files.
+<p>The <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> command translates selected fields in JSONL or Apache Parquet files.
 You can use a large language model (LLM) with an OpenAI-compatible endpoint, a neural machine translation (NMT) HTTP server, Google Cloud Translation, or Amazon Translate.
 Optionally, you can also run <em>FAITH</em> evaluation with an LLM after translation to score translation quality.</p>
 <div class="admonition tip">
@@ -1081,7 +1081,7 @@ Optionally, you can also run <em>FAITH</em> evaluation with an LLM after transla
 </div>
 <section id="when-to-use">
 <h2>When to Use<a class="headerlink" href="#when-to-use" title="Link to this heading">#</a></h2>
-<p>Use <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> when you need:</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> when you need:</p>
 <ul class="simple">
 <li><p>Localized training or synthetic corpora from translating natural-language fields while preserving structured payloads such as chat turns, tool payloads, and fenced code blocks.
 Field paths, <code class="docutils literal notranslate"><span class="pre">output_mode</span></code>, and segmentation interact with that behavior; see <a class="reference internal" href="how-to/configure-fields-and-output.html"><span class="doc">Configure Fields and Output</span></a> and <a class="reference internal" href="explanation/segmentation.html"><span class="doc">Segmentation</span></a>.</p></li>
@@ -1111,7 +1111,7 @@ Field paths, <code class="docutils literal notranslate"><span class="pre">output
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 <svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-book sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M0 3.75A.75.75 0 0 1 .75 3h7.497c1.566 0 2.945.8 3.751 2.014A4.495 4.495 0 0 1 15.75 3h7.5a.75.75 0 0 1 .75.75v15.063a.752.752 0 0 1-.755.75l-7.682-.052a3 3 0 0 0-2.142.878l-.89.891a.75.75 0 0 1-1.061 0l-.902-.901a2.996 2.996 0 0 0-2.121-.879H.75a.75.75 0 0 1-.75-.75Zm12.75 15.232a4.503 4.503 0 0 1 2.823-.971l6.927.047V4.5h-6.75a3 3 0 0 0-3 3ZM11.247 7.497a3 3 0 0 0-3-2.997H1.5V18h6.947c1.018 0 2.006.346 2.803.98Z"></path></svg> Tutorial</div>
-<p class="sd-card-text">Run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> end-to-end using <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> and a sample chat JSONL file.</p>
+<p class="sd-card-text">Run <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> end-to-end using <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> and a sample chat JSONL file.</p>
 </div>
 <div class="sd-card-footer docutils">
 <p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">hands-on</span></p>
@@ -1159,7 +1159,7 @@ Field paths, <code class="docutils literal notranslate"><span class="pre">output
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 <svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-list-unordered sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5h11.5a.75.75 0 0 1 0 1.5H8.75a.75.75 0 0 1 0-1.5Zm0 6h11.5a.75.75 0 0 1 0 1.5H8.75a.75.75 0 0 1 0-1.5Zm0 6h11.5a.75.75 0 0 1 0 1.5H8.75a.75.75 0 0 1 0-1.5ZM5 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM4 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm0 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg> Reference</div>
-<p class="sd-card-text">YAML parameters and <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> CLI.</p>
+<p class="sd-card-text">YAML parameters and <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> CLI.</p>
 </div>
 <div class="sd-card-footer docutils">
 <p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-secondary sd-bg-text-secondary">lookup</span></p>
@@ -1261,7 +1261,7 @@ Reference</label><div class="sd-tab-content docutils">
 <td><p><code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> field reference</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="reference/cli-translation.html"><span class="doc">CLI Reference for Translation</span></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> syntax</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span></code> syntax</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="reference/io-format.html"><span class="doc">Input and Output Format</span></a></p></td>
 <td><p>Input and output shapes</p></td>
@@ -1276,7 +1276,7 @@ Reference</label><div class="sd-tab-content docutils">
 <h2>Limitations and Considerations<a class="headerlink" href="#limitations-and-considerations" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Cost and rate limits: Hosted and cloud LLM backends incur usage; throttle with <code class="docutils literal notranslate"><span class="pre">max_concurrent_requests</span></code> and your provider’s guidance.</p></li>
-<li><p>Local execution only: <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">translation</span></code> rejects cluster <code class="docutils literal notranslate"><span class="pre">--run</span></code> and <code class="docutils literal notranslate"><span class="pre">--batch</span></code> modes today.</p></li>
+<li><p>Remote execution: use <code class="docutils literal notranslate"><span class="pre">--run</span> <span class="pre">&lt;profile&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">--batch</span> <span class="pre">&lt;profile&gt;</span></code> with an environment profile such as <code class="docutils literal notranslate"><span class="pre">lepton_translate</span></code>.</p></li>
 <li><p>Overrides: Use <code class="docutils literal notranslate"><span class="pre">key=value</span></code> dotlist syntax after global flags, not passthrough script arguments.</p></li>
 <li><p>Mixed folders: Do not point <code class="docutils literal notranslate"><span class="pre">input_path</span></code> at one directory that contains both <code class="docutils literal notranslate"><span class="pre">.jsonl</span></code> and <code class="docutils literal notranslate"><span class="pre">.parquet</span></code> shards unless you split formats first.</p></li>
 </ul>
