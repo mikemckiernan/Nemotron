@@ -35,14 +35,6 @@ This guide covers installation expectations, the environment profile, and how to
 `Beginner`
 :::
 
-:::{grid-item-card} Tutorials
-:link: tutorials/index
-:link-type: doc
-These walkthroughs give hands-on first runs for individual training steps.
-+++
-`Beginner`
-:::
-
 :::{grid-item-card} How-To Guides
 :link: how-to/index
 :link-type: doc

@@ -231,7 +231,6 @@ About <train-models/index.md>
 Getting Started <train-models/getting-started.md>
 Tips for Using Agents <train-models/using-skill.md>
 Concepts <train-models/explanation/index.md>
-Tutorials <train-models/tutorials/index.md>
 Tasks <train-models/how-to/index.md>
 Reference <train-models/reference/index.md>
 ```

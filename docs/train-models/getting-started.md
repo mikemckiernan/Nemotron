@@ -105,16 +105,6 @@ The goal is to validate end-to-end execution, NeMo Run, and your environment pro
 The sample `tiny` config sets small training and validation splits.
 To specify the output path for checkpoints, set `SFT_OUTPUT_DIR` before running or specify the `checkpoint.checkpoint_dir` CLI override.
 
-## Discover Other Steps
-
-List step identifiers the CLI knows about:
-
-```console
-$ uv run nemotron steps list
-```
-
-Other training libraries, for example Megatron-Bridge SFT, PEFT, reinforcement learning (RL), or optimization, have their own `consumes` requirements. Use the [How-To Guides](how-to/index.md) and [Reference](reference/step-catalog.md) when you move past this first SFT path.
-
 ## Success Checks
 
 - The command `nemotron steps show <step_id>` lists `consumes` and `produces` artifact types. Those types must line up with your pipeline when you chain steps.
@@ -123,5 +113,5 @@ Other training libraries, for example Megatron-Bridge SFT, PEFT, reinforcement l
 
 ## Next Steps
 
-- Follow [First SFT Run with AutoModel](tutorials/first-sft-automodel.md) when you need to point `tiny.yaml` at your own data or change the base model.
+- Follow [Run SFT with AutoModel on Custom Data](how-to/run-sft-automodel.md) when you need to point `tiny.yaml` at your own data or change the base model.
 - Read [Choose an SFT Backend](how-to/choose-sft-backend.md) when you need Megatron Bridge instead of AutoModel.
