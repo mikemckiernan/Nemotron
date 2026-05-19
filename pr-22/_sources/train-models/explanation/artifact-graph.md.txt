@@ -12,32 +12,8 @@ content:
 
 # Artifact Graph
 
-Every training step declares the type of input artifact it consumes and the type of output artifact it produces.
-The full set of declarations forms an *artifact graph* that the pipeline uses to check whether two steps can connect directly or whether a conversion step needs to sit between them.
-
-## What the Graph Contains
-
-The artifact graph names every kind of artifact a Nemotron training step can take in or hand off, such as `training_jsonl` for a chat-formatted dataset or `checkpoint_megatron` for a sharded Megatron checkpoint.
-Each artifact type has a short description.
-Some types also declare connections to related types: a checkpoint type that one library writes can carry an explicit conversion edge to the checkpoint type that a different library expects.
-
-You can inspect what a specific step consumes and produces with the `show` subcommand.
-
-```console
-$ nemotron steps show sft/automodel
-```
-
-The relevant section of the output names the consumed and produced artifact types.
-
-```text
-Consumes
-  • training_jsonl — Instruction data in JSONL with a messages field
-
-Produces
-  • checkpoint_hf — Hugging Face checkpoint directory (full model or adapter-style PEFT output)
-```
-
-When the type a step expects to consume does not match the type the previous step produced, you must insert an explicit conversion step between the two.
+For definitions of *artifact*, *step*, and how the CLI's `--produces` and `--consumes` filters let you walk the artifact graph, see [Nemotron Steps Basics](../../steps/basics.md).
+This page focuses on the artifact types and common chains specific to model training.
 
 ## Common Training Paths
 
