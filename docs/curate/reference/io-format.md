@@ -43,8 +43,8 @@ When domain classification is enabled, classifier output fields depend on the in
 Use the output as `filtered_jsonl`.
 Common downstream paths are:
 
-- `translate/nemo_curator` for corpus translation.
-- `data_prep/pretrain_prep` for pretraining data preparation.
-- `data_prep/sft_packing` when the curated records are already in the required supervised fine-tuning format.
+- Use `translate/nemo_curator` for corpus translation.
+- Use `data_prep/pretrain_prep` for pretraining data preparation.
+- Use `data_prep/sft_packing` when the curated records are already in the required supervised fine-tuning (SFT) format.
 
 If a downstream step needs fields beyond `text`, verify that the curation reader/writer path preserves those fields before scaling the run.

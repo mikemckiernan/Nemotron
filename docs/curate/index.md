@@ -11,9 +11,9 @@ content:
 ---
 
 (curate-index)=
-# Curation With NeMo Curator
+# About Data Curation With NeMo Curator
 
-The `nemotron steps run curate/nemo_curator` command reads JSON Lines (JSONL) text, optionally materializes a Hugging Face dataset snapshot, applies lightweight NeMo Curator filters, and writes filtered JSONL shards for downstream translation or training data preparation.
+The `nemotron steps run curate/nemo_curator` command reads JSONL data, optionally materializes a Hugging Face dataset snapshot, applies lightweight NeMo Curator filters, and writes filtered JSONL shards for downstream translation or training data preparation.
 
 Use this step when you already have JSONL records and need a small, repeatable curation pass before a later step such as `translate/nemo_curator`, `data_prep/pretrain_prep`, or `data_prep/sft_packing`.
 
@@ -27,7 +27,11 @@ Use `curate/nemo_curator` when you need:
 - Optional multilingual domain classification and filtering.
 - Optional Hugging Face dataset snapshot download before the Curator reader runs.
 
-This step is intentionally lightweight. It does not crawl web pages, extract Common Crawl WARC files, or run large deduplication workflows. Use a dedicated Curator recipe for those jobs before this step, or add a separate step when that behavior is needed.
+```{note}
+This step is intentionally lightweight.
+It does not crawl web pages, extract Common Crawl WARC files, or run large deduplication workflows.
+Use a dedicated Curator recipe for those jobs before this step, or add a separate step when that behavior is needed.
+```
 
 ## Pipeline Summary
 
@@ -57,7 +61,7 @@ flowchart LR
 :::{grid-item-card} {octicon}`book;1.5em;sd-mr-1` Tutorial
 :link: getting-started
 :link-type: doc
-Install the `curate` extra, run a local tiny JSONL curation smoke, and inspect output shards.
+Install the Nemotron CLI, run a local tiny JSONL initial curation validation, and inspect output shards.
 +++
 {bdg-secondary}`hands-on`
 :::
@@ -65,7 +69,7 @@ Install the `curate` extra, run a local tiny JSONL curation smoke, and inspect o
 :::{grid-item-card} {octicon}`tools;1.5em;sd-mr-1` How-To Guides
 :link: how-to/index
 :link-type: doc
-Run local JSONL curation, hydrate a Hugging Face snapshot, and enable optional filters.
+Run local JSONL curation, download a Hugging Face snapshot, and enable optional filters.
 +++
 {bdg-secondary}`task-based`
 :::
@@ -97,7 +101,7 @@ YAML parameters, CLI syntax, input/output format, and troubleshooting.
 | Guide | Focus |
 | --- | --- |
 | {doc}`how-to/run-local-jsonl` | Local JSONL reader/writer path |
-| {doc}`how-to/use-huggingface-snapshot` | `dataset` block and Hugging Face snapshot hydration |
+| {doc}`how-to/use-huggingface-snapshot` | `dataset` block and Hugging Face snapshot download |
 | {doc}`how-to/enable-filters` | Language, word-count, and domain filters |
 
 ```
@@ -117,7 +121,6 @@ YAML parameters, CLI syntax, input/output format, and troubleshooting.
 
 ## What You Need
 
-- A Nemotron clone with dependencies installed through `uv sync --extra curate`.
 - JSONL input with one text field, usually named `text`.
 - Optional model assets when filters are enabled, such as a FastText language identification model for `language_codes`.
 - A writable output directory for JSONL shards.
@@ -130,11 +133,3 @@ YAML parameters, CLI syntax, input/output format, and troubleshooting.
 4. Filter setup: {doc}`how-to/enable-filters`
 5. Lookup flags: {doc}`reference/cli-curate`
 
-```{toctree}
-:hidden:
-:maxdepth: 2
-
-getting-started
-how-to/index
-reference/index
-```

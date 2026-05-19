@@ -48,7 +48,7 @@ $ uv run --no-sync nemotron steps run curate/nemo_curator -c default \
 
 ## Snapshot Without Optional Filters
 
-For a first infrastructure run, disable filters and verify that snapshot hydration and JSONL IO work.
+For a first infrastructure run, disable filters and verify that snapshot download and JSONL IO work.
 
 ```console
 $ uv run --no-sync nemotron steps run curate/nemo_curator -c default \

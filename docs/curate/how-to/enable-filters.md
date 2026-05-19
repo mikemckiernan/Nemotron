@@ -57,7 +57,10 @@ $ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny \
     models.hf_cache_dir="${PWD}/cache/huggingface"
 ```
 
-Keep the first domain-filtered run small because the classifier may download or cache model assets.
+```{tip}
+Keep the first domain-filtered run small.
+The classifier may download or cache model assets on first use.
+```
 
 ## Filter Order
 

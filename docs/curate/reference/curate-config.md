@@ -16,7 +16,7 @@ The step reads YAML from `src/nemotron/steps/curate/nemo_curator/config/`.
 
 | File | Purpose |
 | --- | --- |
-| `tiny.yaml` | Curator-container smoke test. Optional filters are disabled. Override `input_glob` for local runs because the checked-in path is a container path. |
+| `tiny.yaml` | Curator-container initial validation configuration. Optional filters are disabled. Override `input_glob` for local runs because the checked-in path is a container path. |
 | `default.yaml` | Example Hugging Face snapshot workflow for FineWeb-Edu-style JSONL with language and word-count filters enabled. |
 
 ## Top-Level Fields
@@ -73,8 +73,8 @@ Optional model and cache paths.
 
 Common keys:
 
-- `fasttext_langid`: FastText language identification model path.
-- `hf_cache_dir`: Hugging Face model cache directory for classifier assets.
+- Set `fasttext_langid` to the path of the FastText language identification model.
+- Set `hf_cache_dir` to the Hugging Face model cache directory for classifier assets.
 ```
 
 ```{option} ray.num_cpus

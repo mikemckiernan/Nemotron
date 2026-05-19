@@ -22,7 +22,7 @@ uv run --no-sync nemotron steps run curate/nemo_curator \
     [<dotlist-overrides>...]
 ```
 
-Use `-c tiny` for a small smoke configuration and `-c default` for the Hugging Face snapshot example.
+Use `-c tiny` for a small initial validation configuration and `-c default` for the Hugging Face snapshot example.
 Refer to [Nemotron Steps CLI Reference](../../train-models/reference/cli-reference.md) for the shared flag set.
 
 ## Common Commands
@@ -33,7 +33,7 @@ Show the step contract:
 $ uv run --no-sync nemotron steps show curate/nemo_curator
 ```
 
-Run a local JSONL smoke:
+Run a local JSONL initial validation:
 
 ```console
 $ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny \

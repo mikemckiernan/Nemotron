@@ -11,72 +11,126 @@ content:
 ---
 
 (getting-started-curate)=
-# Getting Started With Curation
+# Getting Started With Data Curation
 
-This tutorial runs `curate/nemo_curator` on the packaged tiny JSONL fixture.
-The run verifies that the Nemotron CLI can load the step, NeMo Curator can read and write JSONL, and Ray can start for the local curation pipeline.
+::::{grid} 2
+
+:::{grid-item-card}
+:columns: 8
+
+**What You'll Build**: a filtered set of JSONL shards from the packaged
+tiny fixture.
+The run reads the fixture, passes it through the NeMo Curator pipeline with all
+optional filters disabled, and writes output shards to a local directory.
+
+^^^
+
+**In this tutorial, you will**:
+
+1. Clone the repository and install dependencies.
+1. Configure the Ray runtime environment.
+1. Inspect the packaged fixture.
+1. Run the curation step with the tiny configuration.
+1. Inspect the output shards.
+
+{octicon}`clock;1.5em;sd-mr-1` This tutorial requires approximately 5 minutes to complete.
+:::
+
+:::{grid-item-card} {octicon}`flame;1.5em;sd-mr-1` **Sample Prompt**
+:columns: 4
+
+Run the `curate/nemo_curator` step on the packaged tiny JSONL fixture, then show me
+the names and record counts of the output shards.
+
+:::
+::::
 
 ## Prerequisites
 
 - The `uv` tool is available in your shell.
-- You are running commands from the Nemotron repository root.
-- The curate dependencies are installed:
 
-  ```console
-  $ uv sync --extra curate
-  ```
+## Procedure
 
-For local `uv run` execution with Curator/Ray, export `RAY_ENABLE_UV_RUN_RUNTIME_ENV=0` so Ray workers reuse the synchronized project environment.
+1. Clone the repository, if you haven't already:
 
-## Inspect the Tiny Input
+   ```console
+   $ git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
 
-The packaged fixture lives at `src/nemotron/steps/curate/nemo_curator/data/tiny.jsonl`.
-It contains JSONL records with a `text` field.
+1. Install the dependencies for curating data:
 
-```{literalinclude} ../../src/nemotron/steps/curate/nemo_curator/data/tiny.jsonl
-:language: json
-:class: scrollable
-```
+   ```console
+   $ uv sync --extra curate
+   ```
 
-## Run a Local Tiny Curation Job
+1. Set the Ray runtime environment variable so Ray workers reuse the synchronized
+   project environment:
 
-The checked-in `tiny.yaml` file is tuned for the Lepton Curator container and uses a container path under `/nemo_run/code`.
-For a local run, keep the tiny configuration but override `input_glob` and `output_dir` with host paths.
+   ```console
+   $ export RAY_ENABLE_UV_RUN_RUNTIME_ENV=0
+   ```
 
-```console
-$ export RAY_ENABLE_UV_RUN_RUNTIME_ENV=0
+1. Inspect the packaged fixture at
+   `src/nemotron/steps/curate/nemo_curator/data/tiny.jsonl`.
+   Each record contains a `text` field.
 
-$ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny \
-    input_glob="${PWD}/src/nemotron/steps/curate/nemo_curator/data/tiny.jsonl" \
-    output_dir="${PWD}/output/curate-tiny"
-```
+   ```{literalinclude} ../../src/nemotron/steps/curate/nemo_curator/data/tiny.jsonl
+   :language: json
+   :class: scrollable
+   ```
 
-The tiny configuration disables optional language, word-count, and domain filters.
-That makes the first run a reader, writer, and Ray smoke test.
+1. Run the curation step.
+   The `tiny` configuration disables optional language, word-count, and domain
+   filters, making this run a baseline validation of the reader, writer, and Ray
+   startup.
+   The checked-in `tiny.yaml` uses container paths, so override `input_glob` and
+   `output_dir` with host paths:
 
-## Inspect the Output
+   ```console
+   $ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny \
+       input_glob="${PWD}/src/nemotron/steps/curate/nemo_curator/data/tiny.jsonl" \
+       output_dir="${PWD}/output/curate-tiny"
+   ```
 
-List the output directory:
+1. Inspect the output directory:
 
-```console
-$ find output/curate-tiny -type f
-```
+   ```console
+   $ find output/curate-tiny -type f
+   ```
 
-Open the JSONL shard and confirm that records still contain the configured `text_field`.
-The exact shard name is assigned by Curator.
+   Open a shard and confirm that records contain the configured `text_field`.
+   NeMo Curator assigns the exact shard name.
 
-## Run the Same Smoke on Lepton
+1. To run the same validation on Lepton, generate an environment profile that
+   includes `lepton_curate`, then run the packaged tiny configuration without
+   local path overrides:
 
-When you have generated an environment profile that includes `lepton_curate`, the packaged tiny config can run without local path overrides:
+   ```console
+   $ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny --batch lepton_curate
+   ```
 
-```console
-$ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny --batch lepton_curate
-```
+   The `lepton_curate` profile uses the NeMo Curator container and sets CPU
+   resources for a small validation run.
 
-The `lepton_curate` profile uses the NeMo Curator container and sets CPU resources for a small smoke job.
+## Summary
+
+In this tutorial, you completed the following tasks:
+
+- Cloned the repository and installed the project dependencies.
+- Configured the Ray runtime environment.
+- Ran the `curate/nemo_curator` step with the packaged tiny JSONL fixture.
+- Inspected the output shards and verified that records contain the configured
+  text field.
+
+The `tiny` configuration disables all optional filters.
+To add language, word-count, or domain filters to a production corpus, refer to
+the how-to guides below.
 
 ## Next Steps
 
-- Use {doc}`how-to/run-local-jsonl` to point the step at your own files.
-- Use {doc}`how-to/use-huggingface-snapshot` to hydrate a Hugging Face dataset before reading.
-- Use {doc}`how-to/enable-filters` to add language, word-count, or domain filters.
+- Point the step at your own JSONL corpus: {doc}`how-to/run-local-jsonl`.
+- Download a Hugging Face dataset before curation:
+  {doc}`how-to/use-huggingface-snapshot`.
+- Add language, word-count, or domain filters: {doc}`how-to/enable-filters`.
+- Look up all configuration fields and CLI flags: {doc}`reference/curate-config`
+  and {doc}`reference/cli-curate`.

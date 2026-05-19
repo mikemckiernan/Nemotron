@@ -12,7 +12,7 @@ content:
 
 # Curation How-To Guides
 
-Use these guides after the local smoke in {doc}`../getting-started`.
+Use these guides after the local initial validation in {doc}`../getting-started`.
 
 ```{toctree}
 :maxdepth: 1

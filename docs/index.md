@@ -199,10 +199,10 @@ Airgap Environment <steps/airgap.md>
 :caption: Data Curation
 :hidden:
 
-curate/index.md
-curate/getting-started.md
-curate/how-to/index.md
-curate/reference/index.md
+About <curate/index.md>
+Getting Started <curate/getting-started.md>
+Tasks <curate/how-to/index.md>
+Reference <curate/reference/index.md>
 ```
 
 ```{toctree}
