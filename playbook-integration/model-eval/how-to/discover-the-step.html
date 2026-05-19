@@ -767,33 +767,172 @@
 <section id="read-the-sample-files">
 <h2>Read The Sample Files<a class="headerlink" href="#read-the-sample-files" title="Link to this heading">#</a></h2>
 <p>The step provides two config files under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/config/</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code> is the hosted chat smoke-test config.
-It sets <code class="docutils literal notranslate"><span class="pre">deployment.type:</span> <span class="pre">none</span></code>, reads <code class="docutils literal notranslate"><span class="pre">target.api_endpoint.*</span></code> from environment variables, and runs <code class="docutils literal notranslate"><span class="pre">mmlu_instruct</span></code> with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">1</span></code>.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard NeMo Evaluator starter config for a deployed model</span>
-<span class="c1"># Uses completions-style evaluation for standard NLU benchmarks.</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tiny hosted chat endpoint smoke-test config.</span>
+<span class="c1">#</span>
+<span class="c1"># Export endpoint settings before running:</span>
+<span class="c1">#   export NEMO_EVALUATOR_MODEL_ID=&lt;exact model id&gt;</span>
+<span class="c1">#   export NEMO_EVALUATOR_MODEL_URL=&lt;OpenAI-compatible chat completions endpoint URL&gt;</span>
+<span class="c1">#   export NEMO_EVALUATOR_API_KEY_NAME=NVIDIA_API_KEY</span>
+<span class="c1">#   export NEMO_EVALUATOR_ENDPOINT_TYPE=chat</span>
 
-<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results</span>
+<span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results-tiny-chat</span>
+<span class="nt">task_filters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">execution</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequential</span>
+<span class="w">  </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${output_dir}</span>
 
 <span class="nt">deployment</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">megatron_model</span>
-<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://0.0.0.0:8080/v1/completions/</span>
-<span class="w">  </span><span class="nt">endpoint_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">completions</span>
-<span class="w">  </span><span class="nt">api_key_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NGC_API_KEY</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
 
-<span class="nt">benchmarks</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mmlu</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hellaswag</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arc_challenge</span>
+<span class="nt">target</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">api_endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_MODEL_ID,&#39;&#39;}</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_MODEL_URL,&#39;&#39;}</span>
+<span class="w">    </span><span class="nt">api_key_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_API_KEY_NAME,NVIDIA_API_KEY}</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_ENDPOINT_TYPE,chat}</span>
 
-<span class="nt">params</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">  </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">  </span><span class="nt">parallelism</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">  </span><span class="nt">request_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
-<span class="w">  </span><span class="nt">limit_samples</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
-<span class="w">  </span><span class="nt">extra</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">tokenizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/checkpoint/tokenizer</span>
-<span class="w">    </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+<span class="nt">evaluation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nemo_evaluator_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">        </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">        </span><span class="nt">max_new_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
+<span class="w">        </span><span class="nt">max_retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">        </span><span class="nt">parallelism</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">        </span><span class="nt">request_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+<span class="w">        </span><span class="nt">limit_samples</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_endpoint</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter_config</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/results</span>
+<span class="w">          </span><span class="nt">use_progress_tracking</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">          </span><span class="nt">use_caching</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">caching_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/results/cache</span>
+<span class="w">          </span><span class="nt">use_response_logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">max_logged_responses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">          </span><span class="nt">use_request_logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">max_logged_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mmlu_instruct</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tiny_chat.yaml</span></code> is the hosted chat smoke-test config.
+It sets <code class="docutils literal notranslate"><span class="pre">deployment.type:</span> <span class="pre">none</span></code>, reads <code class="docutils literal notranslate"><span class="pre">target.api_endpoint.*</span></code> from environment variables, and runs <code class="docutils literal notranslate"><span class="pre">mmlu_instruct</span></code> with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">1</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard NeMo Evaluator Launcher config for Megatron checkpoint evaluation.</span>
+<span class="c1">#</span>
+<span class="c1"># This mirrors the Nano3/Super3 eval shape: the `run` section is used by</span>
+<span class="c1"># Nemotron for env/profile/artifact interpolation, then removed before handing</span>
+<span class="c1"># the config to NeMo Evaluator Launcher.</span>
+
+<span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results</span>
+
+<span class="nt">run</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Use a concrete Megatron Bridge iter_* checkpoint via</span>
+<span class="w">  </span><span class="c1"># `deployment.checkpoint_path=...`, or keep this as a W&amp;B artifact reference</span>
+<span class="w">  </span><span class="c1"># consumed by `${art:model,path}`.</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model:latest</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">executor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="w">    </span><span class="nt">container_image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvcr.io/nvidia/nemo:25.11.nemotron_3_nano</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:HOSTNAME,localhost}</span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:USER,&#39;&#39;}</span>
+<span class="w">    </span><span class="nt">account</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">remote_job_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:PWD}/.nemotron</span>
+<span class="w">    </span><span class="nt">time</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;04:00:00&quot;</span>
+<span class="w">  </span><span class="nt">wandb</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">execution</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.executor}</span>
+<span class="w">  </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.host}</span>
+<span class="w">  </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.user}</span>
+<span class="w">  </span><span class="nt">account</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.account}</span>
+<span class="w">  </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.partition}</span>
+<span class="w">  </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${output_dir}</span>
+<span class="w">  </span><span class="nt">walltime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.time}</span>
+<span class="w">  </span><span class="nt">num_nodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.select:run.env.nodes,1}</span>
+<span class="w">  </span><span class="nt">deployment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">n_tasks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${execution.num_nodes}</span>
+<span class="w">  </span><span class="nt">auto_export</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">destinations</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wandb</span>
+<span class="w">  </span><span class="nt">env_vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">deployment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">HF_HOME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.remote_job_dir}/hf</span>
+<span class="w">      </span><span class="nt">HF_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HF_TOKEN</span>
+<span class="w">      </span><span class="nt">NIM_CACHE_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.remote_job_dir}/nim</span>
+<span class="w">      </span><span class="nt">VLLM_CACHE_ROOT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.remote_job_dir}/vllm</span>
+<span class="w">    </span><span class="nt">evaluation</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">HF_HOME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.remote_job_dir}/hf</span>
+<span class="w">      </span><span class="nt">HF_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HF_TOKEN</span>
+<span class="w">  </span><span class="nt">mounts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">deployment</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">evaluation</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">mount_home</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="nt">deployment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generic</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.env.container_image}</span>
+<span class="w">  </span><span class="nt">checkpoint_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${art:model,path}</span>
+<span class="w">  </span><span class="nt">multiple_instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1235</span>
+<span class="w">  </span><span class="nt">served_model_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nemo-model</span>
+<span class="w">  </span><span class="nt">health_check_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/v1/health</span>
+<span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">    </span><span class="no">bash -c &#39;export TRITON_CACHE_DIR=/tmp/triton_cache;</span>
+<span class="w">    </span><span class="no">python /opt/Export-Deploy/scripts/deploy/nlp/deploy_ray_inframework.py</span>
+<span class="w">    </span><span class="no">--megatron_checkpoint /checkpoint/</span>
+<span class="w">    </span><span class="no">--num_gpus ${oc.select:run.env.gpus_per_node,1}</span>
+<span class="w">    </span><span class="no">--tensor_model_parallel_size 1</span>
+<span class="w">    </span><span class="no">--expert_model_parallel_size 1</span>
+<span class="w">    </span><span class="no">--port 1235</span>
+<span class="w">    </span><span class="no">--num_replicas 1&#39;</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">chat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/v1/chat/completions/</span>
+<span class="w">    </span><span class="nt">completions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/v1/completions/</span>
+<span class="w">    </span><span class="nt">health</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/v1/health</span>
+
+<span class="nt">evaluation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nemo_evaluator_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">max_retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">        </span><span class="nt">parallelism</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">        </span><span class="nt">request_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6000</span>
+<span class="w">        </span><span class="nt">limit_samples</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="nt">extra</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">tokenizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${deployment.checkpoint_path}/tokenizer</span>
+<span class="w">          </span><span class="nt">tokenizer_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_endpoint</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter_config</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/results</span>
+<span class="w">          </span><span class="nt">use_progress_tracking</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">          </span><span class="nt">use_caching</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">caching_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/results/cache</span>
+<span class="w">          </span><span class="nt">use_response_logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">max_logged_responses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">          </span><span class="nt">use_request_logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">max_logged_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">adlr_mmlu</span>
+<span class="w">      </span><span class="nt">nemo_evaluator_config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hellaswag</span>
+
+<span class="nt">export</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">wandb</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.wandb.entity}</span>
+<span class="w">    </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${run.wandb.project}</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> is the Megatron Bridge checkpoint evaluation config.

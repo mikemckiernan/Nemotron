@@ -713,6 +713,74 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">translate/nemo_curator</span></code> step ships <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/translate/nemo_curator/config/default.yaml</span></code> as the canonical starter profile. This page lists top-level keys you can override with <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span> <span class="pre">translate/nemo_curator</span> <span class="pre">key=value</span></code> dotlists, grouped by concern, with the full baseline file inlined below.</p>
 <section id="default-configuration-file">
 <h2>Default Configuration File<a class="headerlink" href="#default-configuration-file" title="Link to this heading">#</a></h2>
+<div class="scrollable highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Starter config for NeMo Curator corpus translation.</span>
+
+<span class="nt">run</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mounts</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${auto_mount:git+https://github.com/NVIDIA-NeMo/Curator.git@d10cd6ffe9f5ac4cbb176d7b3ada698f22633aea,/opt/Curator}</span>
+
+<span class="nt">input_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/filtered_data.jsonl</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./output/translated</span>
+
+<span class="c1"># Required. Ask the user; do not infer silently.</span>
+<span class="nt">source_language</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="nt">target_language</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="nt">input_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auto</span><span class="w">        </span><span class="c1"># auto | jsonl | parquet</span>
+<span class="nt">output_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jsonl</span><span class="w">      </span><span class="c1"># jsonl | parquet</span>
+<span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm</span><span class="w">              </span><span class="c1"># llm | nmt | google | aws</span>
+
+<span class="nt">text_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">messages.*.content</span>
+<span class="nt">output_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">translated_text</span>
+<span class="nt">translation_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">translated_text</span>
+<span class="nt">output_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">both</span><span class="w">         </span><span class="c1"># replaced | raw | both</span>
+<span class="nt">merge_scores</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">reconstruct_messages</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">messages_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">messages</span>
+<span class="nt">messages_content_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">content</span>
+
+<span class="nt">segmentation_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">coarse</span><span class="w"> </span><span class="c1"># coarse | fine</span>
+<span class="nt">min_segment_chars</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">max_concurrent_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="nt">generation_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">   </span><span class="c1"># Optional OpenAI-compatible translation generation settings.</span>
+<span class="nt">skip_translated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">files_per_partition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">blocksize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://integrate.api.nvidia.com/v1</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w">              </span><span class="c1"># Required for backend=llm and used by FAITH unless faith_eval.model_name is set.</span>
+<span class="w">  </span><span class="nt">api_key_env</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA_API_KEY</span>
+<span class="w">  </span><span class="nt">api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="nt">faith_eval</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.5</span>
+<span class="w">  </span><span class="nt">model_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">filter_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">max_concurrent_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">generation_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+
+<span class="nt">nmt</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">server_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://localhost:5000</span>
+<span class="w">  </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">  </span><span class="nt">max_concurrent_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+
+<span class="nt">google</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">project_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global</span>
+<span class="w">  </span><span class="nt">api_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v2</span>
+<span class="w">  </span><span class="nt">max_concurrent_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+
+<span class="nt">aws</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">us-east-2</span>
+<span class="w">  </span><span class="nt">max_concurrent_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+</pre></div>
+</div>
 </section>
 <section id="keys-grouped-by-concern">
 <h2>Keys Grouped by Concern<a class="headerlink" href="#keys-grouped-by-concern" title="Link to this heading">#</a></h2>
