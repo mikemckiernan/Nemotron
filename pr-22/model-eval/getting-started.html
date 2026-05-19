@@ -760,6 +760,59 @@
 <h2>About The Sample Configuration<a class="headerlink" href="#about-the-sample-configuration" title="Link to this heading">#</a></h2>
 <p>The hosted chat sample file is at <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml</span></code>.
 It sets <code class="docutils literal notranslate"><span class="pre">deployment.type:</span> <span class="pre">none</span></code>, points NeMo Evaluator Launcher at <code class="docutils literal notranslate"><span class="pre">target.api_endpoint</span></code>, and runs the chat-compatible <code class="docutils literal notranslate"><span class="pre">mmlu_instruct</span></code> task with <code class="docutils literal notranslate"><span class="pre">limit_samples:</span> <span class="pre">1</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tiny hosted chat endpoint smoke-test config.</span>
+<span class="c1">#</span>
+<span class="c1"># Export endpoint settings before running:</span>
+<span class="c1">#   export NEMO_EVALUATOR_MODEL_ID=&lt;exact model id&gt;</span>
+<span class="c1">#   export NEMO_EVALUATOR_MODEL_URL=&lt;OpenAI-compatible chat completions endpoint URL&gt;</span>
+<span class="c1">#   export NEMO_EVALUATOR_API_KEY_NAME=NVIDIA_API_KEY</span>
+<span class="c1">#   export NEMO_EVALUATOR_ENDPOINT_TYPE=chat</span>
+
+<span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results-tiny-chat</span>
+<span class="nt">task_filters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">execution</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequential</span>
+<span class="w">  </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${output_dir}</span>
+
+<span class="nt">deployment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+
+<span class="nt">target</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">api_endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_MODEL_ID,&#39;&#39;}</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_MODEL_URL,&#39;&#39;}</span>
+<span class="w">    </span><span class="nt">api_key_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_API_KEY_NAME,NVIDIA_API_KEY}</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:NEMO_EVALUATOR_ENDPOINT_TYPE,chat}</span>
+
+<span class="nt">evaluation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nemo_evaluator_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">        </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">        </span><span class="nt">max_new_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
+<span class="w">        </span><span class="nt">max_retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">        </span><span class="nt">parallelism</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">        </span><span class="nt">request_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+<span class="w">        </span><span class="nt">limit_samples</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_endpoint</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter_config</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/results</span>
+<span class="w">          </span><span class="nt">use_progress_tracking</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">          </span><span class="nt">use_caching</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">caching_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/results/cache</span>
+<span class="w">          </span><span class="nt">use_response_logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">max_logged_responses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">          </span><span class="nt">use_request_logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">max_logged_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mmlu_instruct</span>
+</pre></div>
+</div>
 </section>
 <section id="procedure">
 <h2>Procedure<a class="headerlink" href="#procedure" title="Link to this heading">#</a></h2>
