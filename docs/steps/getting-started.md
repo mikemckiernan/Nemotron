@@ -21,7 +21,7 @@ Confirm the install with the following command.
 $ nemotron steps --help
 ```
 
-The output lists the four subcommands that this guide uses: `list`, `show`, `run`, and `translation`.
+The output lists the step-catalog subcommands that this guide uses: `list`, `show`, and `run`.
 
 ## List the Available Steps
 

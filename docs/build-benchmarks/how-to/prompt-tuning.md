@@ -33,7 +33,7 @@ prompt_config: /path/to/my_prompts.yaml
 Run the step as usual.
 
 ```console
-$ uv run nemotron steps run byob -c /path/to/config.yaml
+$ uv run nemotron steps run byob/mcq -c /path/to/config.yaml
 ```
 
 If any required stage is missing, if either string under a stage is absent, or if a value is not a string, validation stops before the pipeline starts and reports the failing field.

@@ -8,7 +8,7 @@
 
 <!-- Explanation and navigation hub for the bring your own benchmark (BYOB) MCQ series. -->
 
-This section describes how to build a custom multiple-choice question (MCQ) benchmark as Apache Parquet files with the `nemotron steps run byob` command.
+This section describes how to build a custom multiple-choice question (MCQ) benchmark as Apache Parquet files with the `nemotron steps run byob/mcq` command.
 You supply domain text files under `input_dir`, and the pipeline samples few-shot exemplars from a Hugging Face benchmark named in your configuration, such as `cais/mmlu`.
 The configuration specifies subject filters such as `high_school_mathematics`.
 
@@ -21,7 +21,7 @@ New to this flow? Follow {doc}`getting-started` once, then use the grids and tab
 
 ## When to Use
 
-The `nemotron steps run byob` command enables the following outcomes.
+The `nemotron steps run byob/mcq` command enables the following outcomes.
 
 - Questions grounded in your own documents, paired with few-shot items from a public benchmark subject you declare in configuration.
 - A repeatable Parquet artifact, one experiment folder under your configured `output_dir`, plus intermediate caches when you iterate.
@@ -83,7 +83,7 @@ Supported Hugging Face datasets, Parquet outputs, and YAML fields.
 
 | Guide | What you will do |
 | --- | --- |
-| {doc}`./getting-started` | Run `nemotron steps run byob` with `tiny` and inspect outputs |
+| {doc}`./getting-started` | Run `nemotron steps run byob/mcq` with `tiny` and inspect outputs |
 
 ```
 

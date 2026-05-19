@@ -20,7 +20,7 @@ limitations under the License.
 
 This example shows how to use the `rl_pref.yaml` configuration file.
 The example generates _prompt_, _chosen_, and _rejected_ triples for direct preference optimization (DPO) training.
-Output flows directly into `prep/rl_prep` and then `rl/nemo_rl/dpo`.
+Output flows directly into `data_prep/rl_prep` and then `rl/nemo_rl/dpo`.
 
 ## How It Works
 
@@ -50,13 +50,13 @@ For each seed prompt the pipeline:
 1. Preview two records to verify the judge returns valid `winner` values:
 
    ```console
-   $ nemotron step run sdg/data_designer -c rl_pref preview=true num_records=2
+   $ nemotron steps run sdg/data_designer -c rl_pref preview=true num_records=2
    ```
 
-2. Generate the dataset. The default is 2000 records:
+2. Generate the dataset. The checked-in `rl_pref.yaml` default is 100 records:
 
    ```console
-   $ nemotron step run sdg/data_designer -c rl_pref num_records=500
+   $ nemotron steps run sdg/data_designer -c rl_pref num_records=500
    ```
 
    Output is written to `./output/sdg/rl_pref.jsonl`.
@@ -81,10 +81,10 @@ The judge performs better when the two responses have a clear quality difference
 ## Downstream Pipeline
 
 ```text
-rl_pref.jsonl  →  prep/rl_prep  →  rl/nemo_rl/dpo
+rl_pref.jsonl  →  data_prep/rl_prep  →  rl/nemo_rl/dpo
 ```
 
-`prep/rl_prep` tokenizes and packs preference pairs. `rl/nemo_rl/dpo` consumes the packed dataset. Verify the `prompt`, `chosen`, and `rejected` fields are present in every record before handing off.
+`data_prep/rl_prep` tokenizes and prepares preference pairs. `rl/nemo_rl/dpo` consumes the prepared dataset. Verify the `prompt`, `chosen`, and `rejected` fields are present in every record before handing off.
 
 ## Next Steps
 

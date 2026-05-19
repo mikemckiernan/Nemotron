@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "How nemotron eval/model_eval flows from a checkpoint or hosted endpoint, through NeMo Evaluator, into eval_results on disk."
+description: "How nemotron eval/model_eval builds a NeMo Evaluator Launcher config and writes eval_results."
 topics: ["Model Evaluation", "Pipeline"]
 tags: ["Explanation", "Architecture"]
 content:
@@ -13,63 +13,56 @@ content:
 (model-eval-pipeline-overview)=
 # Pipeline Overview
 
-The `eval/model_eval` step is the evaluation stage of the Nemotron pipeline.
-Its artifact flow begins at a Hugging Face checkpoint or a Megatron Bridge checkpoint, passes through an OpenAI-compatible endpoint that some other process deploys, runs through `eval/model_eval`, and ends as an `eval_results` directory on disk.
+The `eval/model_eval` step is a thin Nemotron wrapper around NeMo Evaluator Launcher.
+It does not implement benchmark scoring itself.
+It loads a YAML config, applies command-line overrides, saves the launcher config, and calls `run_eval`.
 
 ## Architecture
 
 ```{mermaid}
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryBorderColor': '#333333', 'lineColor': '#333333', 'primaryTextColor': '#333333', 'clusterBkg': '#ffffff', 'clusterBorder': '#333333'}}}%%
 flowchart LR
-    ckpt["Hugging Face or<br/>Megatron Bridge checkpoint"] --> deploy["OpenAI-compatible<br/>endpoint"]
-    hosted["Hosted endpoint"] --> deploy
-    deploy --> step["eval/model_eval<br/>(NeMo Evaluator)"]
-    step --> results["output_dir/&lt;benchmark&gt;/<br/>per-benchmark subdirs"]
+    hosted["Hosted OpenAI-compatible endpoint"] --> cfg["target.api_endpoint"]
+    ckpt["Megatron Bridge iter_* checkpoint"] --> deploy["launcher deployment block"]
+    cfg --> step["eval/model_eval"]
+    deploy --> step
+    step --> launcher["NeMo Evaluator Launcher run_eval"]
+    launcher --> results["eval_results under output_dir"]
 ```
+
+## Runtime Flow
+
+1. `step.py` calls `run_model_eval` from `runtime.py`.
+1. The runtime loads the selected config from `config/default.yaml`, `config/tiny_chat.yaml`, or a user-supplied YAML path.
+1. Hydra-style dotlist overrides are merged into the config.
+1. Nemotron-only keys are removed before launcher dispatch: `dry_run`, `output_dir`, `task_filters`, and `run`.
+1. `output_dir` is copied into `execution.output_dir`.
+1. The resolved launcher config is saved and printed as `launcher_config`.
+1. `nemo_evaluator_launcher.api.functional.run_eval` is called with the launcher config and optional task filters.
 
 ## Input Artifacts
 
-The step declares two optional input artifacts in `src/nemotron/steps/eval/model_eval/step.toml`.
-
-- `checkpoint_megatron` is a Megatron Bridge checkpoint directory, usually an `iter_*` directory, deployed by a separate process before the step runs.
-- `checkpoint_hf` is a Hugging Face checkpoint or model path, deployed by a separate process before the step runs.
-
-Both are marked `required = false` because the step does not deploy the checkpoint.
-A third case is also supported: the user points the step at an already-running hosted endpoint, in which case no checkpoint artifact is consumed and only the `deployment` configuration is needed.
-
-## Endpoint Validation
-
-Before the runner dispatches any benchmark, it issues a single `check_endpoint` probe.
-The runner passes three arguments to that probe: the URL, the endpoint type, and the model identifier.
-A failing probe stops the run before any benchmark is dispatched, which catches a typo in the URL, a mismatch between the URL path and the endpoint type, and an endpoint that does not advertise the configured model identifier.
-
-## Per-Benchmark Loop
-
-The runner iterates the `benchmarks` list in declaration order and writes each benchmark's results to `output_dir/<benchmark>/`.
-No merge step combines results across benchmarks.
-Each subdirectory contains whatever NeMo Evaluator writes for that benchmark, treated as a per-benchmark contract that the step does not normalize.
+The step declares optional `checkpoint_megatron` input.
+Hosted endpoint runs do not consume a checkpoint artifact.
+Launcher-managed checkpoint runs usually pass a concrete Megatron Bridge `iter_*` directory through `deployment.checkpoint_path`.
 
 ## Output Artifact
 
-The step produces a single `eval_results` artifact, which is the `output_dir` directory together with its per-benchmark subdirectories.
-This is a loose contract: `step.toml` declares only `produces.type = "eval_results"`, and the on-disk layout is whatever the underlying NeMo Evaluator benchmark writes.
-For the layout details and the recommended pattern for comparing runs, refer to {doc}`../reference/output-artifacts`.
+The step produces `eval_results`.
+The exact directory layout and files are owned by NeMo Evaluator Launcher and the selected task implementations.
+For result inspection guidance, refer to {doc}`../reference/output-artifacts`.
 
 ## What Is Owned Where
 
-| Owned by Nemotron | Owned by NeMo Evaluator |
+| Owned by Nemotron | Owned by NeMo Evaluator Launcher |
 | --- | --- |
-| The YAML schema for `output_dir`, `deployment`, `benchmarks`, and `params`. | The implementation of each benchmark task and its scoring code. |
-| The `check_endpoint` call site and the named error modes in `step.toml`. | The wire format of requests issued to the chat or completions endpoint. |
-| Hydra-style command-line overrides and the discovery commands. | The structure of files written into each per-benchmark subdirectory. |
-| The deterministic-by-default generation parameters in the sample files. | The accepted set of benchmark identifiers and their version handling. |
-
-Use this split to decide where a given parameter lives.
-Parameters that live in the YAML and are documented in this section are owned by Nemotron; everything below the YAML surface sits upstream in NeMo Evaluator.
+| Step discovery, config loading, dotlist overrides, launcher config saving. | Task implementations, endpoint probing, deployment orchestration, and result files. |
+| `dry_run`, `output_dir`, `task_filters`, and `run` preprocessing. | `execution`, `deployment`, `target`, `evaluation`, `tasks`, and `export` semantics after dispatch. |
+| The `step.toml` contract and agent-facing guidance. | Accepted task identifiers and version-specific task behavior. |
 
 ## Related Pages
 
-- {doc}`endpoint-types-and-benchmarks` for the chat-versus-completions decision.
-- {doc}`tokenizer-alignment` for why log-probability benchmarks need a matching tokenizer.
-- {doc}`../reference/output-artifacts` for the on-disk layout and the {ref}`model-eval-comparing-runs` framing.
+- {doc}`endpoint-types-and-benchmarks` for endpoint/task pairing.
+- {doc}`tokenizer-alignment` for why log-probability tasks need a matching tokenizer.
+- {doc}`../reference/output-artifacts` for result inspection.
 - {doc}`../how-to/discover-the-step` for reading the step contract before configuring a run.

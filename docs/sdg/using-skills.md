@@ -21,7 +21,7 @@ limitations under the License.
 This page is for newcomers to model training and new to *synthetic data generation (SDG)*.
 The main goal is to help you run a productive, efficient session with a coding agent: less back-and-forth, fewer clarifying questions, and clearer handoffs between what you decide and what the agent edits in the repository.
 
-This page aligns with the `nemotron step run sdg/data_designer` command.
+This page aligns with the `nemotron steps run sdg/data_designer` command.
 Use an agent to translate your intent into the right YAML, seed files, and `nemotron` commands.
 
 ## Keeping an Agent Session Productive
@@ -47,7 +47,7 @@ Please: [one request]. Use Nemotron SDG defaults from the repo unless something 
 
 ## What Success Looks Like on Day One
 
-A reasonable first success is a small preview run that prints plausible rows, plus a short list of seed ideas you believe are on-brand for your domain.
+A reasonable first success is a small preview run that writes plausible rows to `output_path`, plus a short list of seed ideas you believe are on-brand for your domain.
 If you have that, you are already operating SDG: iterate small, then scale record counts.
 
 The hands-on path is {doc}`getting-started`.

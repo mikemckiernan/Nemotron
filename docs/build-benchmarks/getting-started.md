@@ -6,7 +6,7 @@
 (getting-started-byob-mcq)=
 # Getting Started with Building MCQ Benchmarks
 
-<!-- Tutorial: end-to-end `tiny` BYOB run; about 10 to 15 minutes including model waits; requires Nemotron clone, uv, BYOB extra, and NGC_API_KEY. -->
+<!-- Tutorial: end-to-end `tiny` BYOB run; about 10 to 15 minutes including model waits; requires Nemotron clone, uv, BYOB extra, and NVIDIA_API_KEY. -->
 
 ::::{grid} 2
 
@@ -14,7 +14,7 @@
 :columns: 8
 
 **What You'll Build**: A small multiple-choice question (MCQ) benchmark for math questions from the sample `tiny` configuration.
-You'll run the `nemotron steps run byob` command and it will use an NVIDIA-hosted model endpoint for inference.
+You'll run the `nemotron steps run byob/mcq` command and it will use an NVIDIA-hosted model endpoint for inference.
 
 ^^^
 
@@ -53,7 +53,7 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
 
 - You have a host with access to https://integrate.api.nvidia.com.
 - The `uv` tool available in your shell.
-- `NGC_API_KEY` exported in the same shell session before you run the procedure.
+- `NVIDIA_API_KEY` exported in the same shell session before you run the procedure.
   The default model for the configuration is `openai/gpt-oss-120b`.
 
 ## Procedure
@@ -75,17 +75,18 @@ Help me create an MCQ benchmark using the `tiny` configuration from the Nemotron
    This stage setting chains the data preparation and then generation for MCQ.
 
    ```console
-   uv run nemotron steps run byob \
-     --family mcq \
-     --config tiny \
+   uv run nemotron steps run byob/mcq \
+     -c tiny \
+     family=mcq \
+     stage=all \
      input_dir="./src/nemotron/steps/byob/data/tiny_input" \
      output_dir=./byob-output
    ```
 
-   When the `--config` argument is not a path, the command resolves the config file name in the `src/nemotron/steps/byob/config/` directory.
+   When the `-c` / `--config` argument is not a path, the command resolves the config file name in the `src/nemotron/steps/byob/mcq/config/` directory.
 
    When the command finishes, list the `./byob-output/byob_mcq_tiny/` directory.
-   The `expt_name` field in the `src/nemotron/steps/byob/config/tiny.yaml` file specifies that directory.
+   The `expt_name` field in the `src/nemotron/steps/byob/mcq/config/tiny.yaml` file specifies that directory.
    Look for the following files:
 
    - `stage_cache/*.parquet`, one file per intermediate stage, described in {doc}`reference/output-files`

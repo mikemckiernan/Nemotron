@@ -8,7 +8,6 @@ These guides are task-focused instructions for training with Nemotron steps. Eac
 choose-sft-backend
 choose-peft-backend
 choose-rl-step
-convert-checkpoints
 run-optimization
 env-and-executors
 data-and-checkpoint-formats

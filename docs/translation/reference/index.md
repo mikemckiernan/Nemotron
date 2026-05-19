@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Reference index for nemotron steps translation YAML, CLI, and input and output shapes."
+description: "Reference index for nemotron steps run translate/nemo_curator YAML, CLI, and input and output shapes."
 topics: ["Translation", "Reference"]
 tags: ["Reference", "Translation"]
 content:
@@ -24,7 +24,7 @@ io-format
 troubleshooting
 ```
 
-Specifications for `nemotron steps translation`.
+Specifications for `nemotron steps run translate/nemo_curator`.
 
 ::::{grid} 1 1 1 2
 :gutter: 1 1 1 2

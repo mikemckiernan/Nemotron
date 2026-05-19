@@ -39,7 +39,7 @@ Set `input_format` when automatic probing cannot distinguish ambiguous globs. Al
 You can override any YAML key with dotlists:
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   text_field=messages.*.content \
   output_mode=both \
   reconstruct_messages=true \

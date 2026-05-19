@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Task guides for nemotron steps translation backends and configuration."
+description: "Task guides for nemotron steps run translate/nemo_curator backends and configuration."
 topics: ["Translation", "How-To"]
 tags: ["How-To", "Translation"]
 content:
@@ -29,7 +29,7 @@ use-fine-segmentation
 run-faith-evaluation
 ```
 
-Focused procedures for `nemotron steps translation`.
+Focused procedures for `nemotron steps run translate/nemo_curator`.
 
 ## Run Translation
 
@@ -102,7 +102,7 @@ Thresholds, filtering, model overrides.
 
 ```{mermaid}
 graph LR
-    A[Prepare YAML + env] --> B[nemotron steps translation]
+    A[Prepare YAML + env] --> B[nemotron steps run translate/nemo_curator]
     B --> C{Need FAITH?}
     C -->|yes| D[Tune faith_eval]
     C -->|no| E[Disable faith_eval]

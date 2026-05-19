@@ -7,7 +7,7 @@
 
 # Troubleshooting
 
-This page lists common symptoms when you run `nemotron steps run byob` with the bring your own benchmark (BYOB) multiple choice question (MCQ) family and when you tune BYOB translation settings.
+This page lists common symptoms when you run `nemotron steps run byob/mcq` with the bring your own benchmark (BYOB) multiple choice question (MCQ) family and when you tune BYOB translation settings.
 Each table row pairs a symptom with the files, fields, or flags you should inspect first.
 For stage flow and design rationale, see the explanation pages linked from {doc}`../explanation/index`.
 
@@ -24,7 +24,7 @@ For stage flow and design rationale, see the explanation pages linked from {doc}
 
 | Symptom | What to do |
 | --- | --- |
-| A stage fails because an expected Parquet file is missing under `output_dir/<expt_name>/stage_cache/` | When you use `--skip-until`, every stage before the resume point must have written its output file to disk. Rerun from an earlier stage without skipping, or copy valid caches from a prior run. See {doc}`../how-to/skip-stages`. |
+| A stage fails because an expected Parquet file is missing under `output_dir/<expt_name>/stage_cache/` | When you use `skip_until`, every stage before the resume point must have written its output file to disk. Rerun from an earlier stage without skipping, or copy valid caches from a prior run. See {doc}`../how-to/skip-stages`. |
 
 ## Generation Ends With No Final Benchmark Rows
 

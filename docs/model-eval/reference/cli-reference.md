@@ -7,8 +7,8 @@
 # CLI Reference
 
 This page documents the CLI surface for `nemotron steps run eval/model_eval`.
-The flags listed here are shared by every step.
-The Hydra override examples are specific to this step's YAML schema.
+The flags are shared by every Nemotron step.
+The override examples are specific to the `eval/model_eval` YAML schema.
 
 ## Syntax
 
@@ -16,100 +16,91 @@ The Hydra override examples are specific to this step's YAML schema.
 uv run nemotron steps run eval/model_eval [FLAGS] [HYDRA_OVERRIDES...]
 ```
 
-Run the command from the repository root after `uv sync`.
-Pass the configuration name with `-c`, the per-step overrides as `key=value` dotlists, and any optional flags described below.
+Run the command from the repository root after `uv sync --extra evaluator`.
+Pass the configuration name with `-c`, per-step overrides as `key=value` dotlists, and optional execution flags.
 
 ## Flags
 
-These flags are accepted by `nemotron steps run` for every step.
-The implementation is in `src/nemotron/cli/commands/steps/run_cmd.py`.
-
 | Flag | Long form | Purpose |
 | --- | --- | --- |
-| `-c` | `--config` | Configuration name inside the step's `config/` directory, such as `default` or `tiny`.  Accepts an explicit path to a `*.yaml` file. |
-| `-r` | `--run` | Attached execution by using an environment profile defined in `env.toml`.  Streams logs back to the terminal. |
+| `-c` | `--config` | Config name inside `src/nemotron/steps/eval/model_eval/config/`, such as `default` or `tiny_chat`. Accepts a path to a YAML file. |
+| `-r` | `--run` | Attached execution by using an environment profile defined in `env.toml`. |
 | `-b` | `--batch` | Detached execution by using an environment profile defined in `env.toml`. |
-| `-d` | `--dry-run` | Compile the merged configuration and exit without dispatching the run. |
-| | `--force-squash` | Force re-squash of the container image when the executor builds one. |
+| `-d` | `--dry-run` | Compile the Nemotron job config and exit without dispatching. |
+| | `--force-squash` | Force re-squash of the container image when the selected backend builds one. |
 
-Invoking the command without `-c` resolves the runspec default, which is `default.yaml`.
+Invoking the command without `-c` resolves the runspec default, `default.yaml`.
 
-## Hydra Overrides
-
-Anything passed after the flags as `key=value` is merged into the loaded YAML by using OmegaConf dotlist semantics.
-The fields documented here are the ones operators override most often.
+## Common Overrides
 
 | Override | Purpose |
 | --- | --- |
-| `output_dir=<path>` | Directory under which each benchmark gets a subdirectory.  Include a run identifier when keeping multiple runs side by side. |
-| `deployment.url=<url>` | Full URL of the chat or completions endpoint, with the path segment. |
-| `deployment.model_id=<id>` | Model identifier as the endpoint advertises it. |
-| `deployment.endpoint_type=<type>` | `chat` or `completions`.  Defaults to `completions` when omitted. |
-| `deployment.api_key_name=<env-var-name>` | Name of the environment variable holding the bearer token.  This is the variable name, not the secret. |
-| `benchmarks=[<id>,<id>,...]` | Override the benchmark list.  Quote the value so the shell does not interpret the brackets. |
-| `params.limit_samples=<int>` | Cap the number of samples per benchmark.  Use `1` for a one-sample run. |
-| `params.temperature=<float>` | Sampling temperature.  Hold this constant across runs that you want to compare. |
-| `params.top_p=<float>` | Top-p nucleus sampling. |
-| `params.parallelism=<int>` | Concurrent requests issued by the runner. |
-| `params.request_timeout=<int>` | Per-request timeout in seconds. |
-| `params.extra.tokenizer=<model-id-or-path>` | Hugging Face model ID, filesystem path, or Megatron Bridge `tokenizer/` subdirectory. |
-| `params.extra.tokenizer_backend=huggingface` | Documented tokenizer backend for this step. |
+| `output_dir=<path>` | Base output directory. The runtime also writes this into `execution.output_dir` before calling NeMo Evaluator Launcher. |
+| `dry_run=true` | Pass dry-run mode to NeMo Evaluator Launcher. This is different from CLI `--dry-run`, which only compiles the Nemotron job. |
+| `task_filters=[<task>,...]` | Optional subset of configured task names passed to NeMo Evaluator Launcher. |
+| `target.api_endpoint.url=<url>` | OpenAI-compatible endpoint URL for hosted evaluation when `deployment.type=none`. |
+| `target.api_endpoint.model_id=<id>` | Exact model id advertised by the hosted endpoint. |
+| `target.api_endpoint.api_key_name=<env-var-name>` | Name of the environment variable holding the bearer token. This is the variable name, not the secret. |
+| `target.api_endpoint.type=<chat|completions>` | Endpoint type expected by the selected task. |
+| `evaluation.nemo_evaluator_config.config.params.limit_samples=<int>` | Per-task sample cap for smoke tests. |
+| `evaluation.nemo_evaluator_config.config.params.parallelism=<int>` | Concurrent requests issued by the evaluator where supported. |
+| `evaluation.nemo_evaluator_config.config.params.request_timeout=<int>` | Per-request timeout in seconds. |
+| `evaluation.nemo_evaluator_config.config.params.extra.tokenizer=<path-or-id>` | Tokenizer used by log-probability tasks such as HellaSwag. |
+| `deployment.checkpoint_path=<iter_* path>` | Megatron Bridge checkpoint path used by `default.yaml` launcher deployment. |
+| `deployment.image=<container>` | Container image used by the launcher deployment in `default.yaml`. |
 
 ## Discovery Commands
-
-The discovery commands surface the step contract from `step.toml` without running the step.
 
 ```bash
 uv run --no-sync nemotron steps list --category eval --json
 uv run --no-sync nemotron steps show eval/model_eval --json
 ```
 
-`nemotron steps list --category eval` filters the catalog to the evaluation category.
 `nemotron steps show eval/model_eval --json` prints the full step contract, including `consumes`, `produces`, `parameters`, `strategies`, and `errors`.
-The {doc}`../how-to/discover-the-step` guide walks through both commands.
 
 ## Examples
 
-### Sample Run Against A Hosted Endpoint
-
-Run a one-sample evaluation by using the sample `tiny.yaml` file and four overrides for the endpoint, model, credential variable, and tokenizer.
+### Hosted Chat Smoke Test
 
 ```bash
+: "${NVIDIA_API_KEY:?Set NVIDIA_API_KEY}"
+: "${NEMO_EVALUATOR_MODEL_URL:?Set the chat-completions endpoint URL}"
+: "${NEMO_EVALUATOR_MODEL_ID:?Set the endpoint model id}"
+
 uv run --no-sync nemotron steps run eval/model_eval \
-  -c tiny \
-  output_dir=./output/eval-sample \
-  deployment.url="$EVAL_URL" \
-  deployment.model_id="$EVAL_MODEL_ID" \
-  deployment.api_key_name=NVIDIA_API_KEY \
-  params.limit_samples=1 \
-  params.extra.tokenizer="$EVAL_TOKENIZER"
+  -c tiny_chat \
+  output_dir=./output/eval-tiny-chat \
+  target.api_endpoint.url="$NEMO_EVALUATOR_MODEL_URL" \
+  target.api_endpoint.model_id="$NEMO_EVALUATOR_MODEL_ID" \
+  target.api_endpoint.api_key_name=NVIDIA_API_KEY \
+  target.api_endpoint.type=chat \
+  evaluation.nemo_evaluator_config.config.params.limit_samples=1
 ```
 
-### Production Run Against A Self-Hosted vLLM Endpoint
+### Megatron Checkpoint Evaluation Config
 
-Use the sample `default.yaml` file to score against the three-benchmark starting set.
-Set `deployment.url` to the local vLLM endpoint and `params.parallelism` to a higher value if the endpoint can serve concurrent requests.
+Use `default.yaml` when NeMo Evaluator Launcher should deploy a Megatron Bridge checkpoint and then run the configured tasks.
 
 ```bash
 uv run --no-sync nemotron steps run eval/model_eval \
   -c default \
-  output_dir=./output/eval-2026-05-14 \
-  deployment.url=http://0.0.0.0:8080/v1/completions/ \
-  deployment.model_id=my-checkpoint \
-  deployment.api_key_name=NVIDIA_API_KEY \
-  params.parallelism=4 \
-  params.extra.tokenizer=/path/to/checkpoint/tokenizer
+  output_dir=./output/eval-megatron \
+  deployment.checkpoint_path=/path/to/checkpoint/iter_0001000 \
+  evaluation.nemo_evaluator_config.config.params.limit_samples=1
 ```
 
-### Dry Run
-
-Compile the merged configuration and exit.
-Use this to confirm overrides land where you expect before issuing a real run.
+### Compile Without Dispatching
 
 ```bash
-uv run --no-sync nemotron steps run eval/model_eval -d -c tiny \
-  deployment.url="$EVAL_URL" \
-  deployment.model_id="$EVAL_MODEL_ID"
+uv run --no-sync nemotron steps run eval/model_eval -d -c tiny_chat \
+  target.api_endpoint.url="$NEMO_EVALUATOR_MODEL_URL" \
+  target.api_endpoint.model_id="$NEMO_EVALUATOR_MODEL_ID"
+```
+
+### Launcher Dry Run
+
+```bash
+uv run --no-sync nemotron steps run eval/model_eval -c tiny_chat dry_run=true
 ```
 
 ## Related

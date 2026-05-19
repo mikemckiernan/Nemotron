@@ -25,7 +25,7 @@ This guide covers configuring an env.toml profile and running `sdg/data_designer
 Add a profile to `env.toml` (repository root). The example below targets a Lepton CPU node:
 
 ```toml
-[lepton-sdg]
+[lepton_sdg_data_designer]
 executor = "lepton"
 container_image = "nvcr.io/nvidia/nemo:25.11.nemotron_3_nano"
 nemo_run_dir = "/mnt/shared/nemo-run"
@@ -37,20 +37,20 @@ shared_memory_size = 1024
 can_be_preempted = true
 queue_priority = "mid-4000"
 startup_commands = [
-    "python -m pip install --quiet --break-system-packages 'data-designer>=0.5.6'"
+    "python -m pip install --quiet --break-system-packages 'data-designer==0.5.5'"
 ]
 mounts = [
     { path = "/your-nfs-source", mount_path = "/mnt/shared", from = "node-nfs:your-nfs-id" }
 ]
 
-[lepton-sdg.env_vars]
+[lepton_sdg_data_designer.env_vars]
 NVIDIA_API_KEY = "${oc.env:NVIDIA_API_KEY}"
 ```
 
 ## Run
 
 ```console
-$ nemotron step run sdg/data_designer -c default --batch lepton-sdg num_records=1000
+$ uv run --no-sync nemotron steps run sdg/data_designer -c default --batch lepton_sdg_data_designer num_records=1000
 ```
 
 Use `--run` instead of `--batch` to stream logs interactively.
@@ -65,7 +65,7 @@ The NeMo container image does not include `data-designer`. Install it at startup
 
 ```toml
 startup_commands = [
-    "python -m pip install --quiet --break-system-packages 'data-designer>=0.5.6'"
+    "python -m pip install --quiet --break-system-packages 'data-designer==0.5.5'"
 ]
 ```
 
@@ -101,7 +101,7 @@ In the `mounts` table, `path` is the NFS **source** path on the NFS server — n
 Unlike `HF_TOKEN` and `WANDB_API_KEY`, `NVIDIA_API_KEY` is not automatically forwarded to the container. Declare it explicitly in the `env_vars` section:
 
 ```toml
-[lepton-sdg.env_vars]
+[lepton_sdg_data_designer.env_vars]
 NVIDIA_API_KEY = "${oc.env:NVIDIA_API_KEY}"
 ```
 
@@ -109,7 +109,7 @@ Set it in your local shell before submitting the job:
 
 ```console
 $ export NVIDIA_API_KEY="your-api-key"
-$ nemotron step run sdg/data_designer -c default --batch lepton-sdg num_records=1000
+$ uv run --no-sync nemotron steps run sdg/data_designer -c default --batch lepton_sdg_data_designer num_records=1000
 ```
 
 ### Container image: always look up, never guess
@@ -134,7 +134,7 @@ gpus_per_node = 0
 run_partition = "cpu"
 batch_partition = "cpu"
 startup_commands = [
-    "python -m pip install --quiet --break-system-packages 'data-designer>=0.5.6'"
+    "python -m pip install --quiet --break-system-packages 'data-designer==0.5.5'"
 ]
 
 [slurm-sdg.env_vars]
@@ -150,7 +150,7 @@ On clusters where the default partition requires GPUs (for example, NVIDIA's `dl
 Run a preview via the cluster profile before a large batch:
 
 ```console
-$ nemotron step run sdg/data_designer -c default --run lepton-sdg preview=true num_records=2
+$ uv run --no-sync nemotron steps run sdg/data_designer -c default --run lepton_sdg_data_designer preview=true num_records=2
 ```
 
 Confirm the job reaches `Running`, the model alias check succeeds, and two records are returned before submitting the full job.

@@ -6,9 +6,8 @@
 (model-eval-index)=
 # About Model Evaluation
 
-The `eval/model_eval` Nemotron step is a wrapper around NeMo Evaluator that runs one or more benchmark suites against an OpenAI-compatible *endpoint*.
-The step targets an existing endpoint and writes an `eval_results` artifact to disk.
-To deploy a checkpoint before evaluation, refer to {doc}`how-to/evaluate-deployed-checkpoint`.
+The `eval/model_eval` Nemotron step is a wrapper around NeMo Evaluator Launcher.
+It runs launcher tasks against either an existing OpenAI-compatible endpoint or a launcher-managed Megatron Bridge checkpoint deployment, then writes an `eval_results` artifact to disk.
 
 :::{tip}
 New to model evaluation or the Nemotron CLI?
@@ -19,9 +18,9 @@ Read {doc}`using-skills` for a short guide to productive agent sessions, then st
 
 Use `eval/model_eval` when the work matches one of the following.
 
-- Score a trained checkpoint on standard benchmarks served by NeMo Evaluator, after the checkpoint is deployed behind a chat or completions endpoint.
-- Compare a new training run against a baseline by running the same benchmark set against both, with the generation parameters and the endpoint type held constant.
-- Perform a sample run against a hosted endpoint, to confirm the URL, the credential, and the tokenizer configuration before scaling up.
+- Score a trained checkpoint with NeMo Evaluator Launcher tasks.
+- Compare a new training run against a baseline by running the same task set against both, with generation parameters and endpoint type held constant.
+- Perform a sample run against a hosted endpoint, to confirm the URL, credential, and model id before scaling up.
 - Pair this step with a baseline evaluation before training to capture before-and-after measurements around a training change, by following {ref}`model-eval-comparing-runs`.
 
 ## Pipeline At A Glance
@@ -35,22 +34,20 @@ flowchart LR
     step --> results["eval_results<br/>per-benchmark subdirs"]
 ```
 
-The step iterates the benchmark list in order and writes one subdirectory per benchmark under `output_dir`.
+NeMo Evaluator Launcher owns task execution and result files under `output_dir`.
 For the contract and the on-disk layout, refer to {doc}`reference/output-artifacts`.
 
 ## How It Works
 
-The runner reads a single YAML document, applies command-line overrides, and constructs three NeMo Evaluator objects: an `ApiEndpoint`, an `EvaluationTarget`, and a `ConfigParams`.
-It calls `check_endpoint` first to validate the URL, the endpoint type, and the model identifier.
-A failing probe stops the run before any benchmark is dispatched.
+The runner reads a single YAML document, applies command-line overrides, removes Nemotron-only keys, saves the resolved launcher config, and calls `nemo_evaluator_launcher.api.functional.run_eval`.
 
 The endpoint type must match the benchmark family.
 Chat and instruction benchmarks need a *chat* endpoint.
-*Log-probability* benchmarks, such as `mmlu`, `hellaswag`, `arc_challenge`, and `piqa`, need a *completions* endpoint with `logprobs` support and a tokenizer that matches the served model.
+*Log-probability* tasks, such as HellaSwag, need a *completions* endpoint with `logprobs` support and a tokenizer that matches the served model.
 
-Generation is deterministic by default.
-The sample files set `params.temperature` and `params.top_p` to `0`, which makes runs reproducible and comparable.
-Reasoning models need higher `params.max_new_tokens` and the temperature and top-p values from the model card.
+The hosted smoke-test config is `tiny_chat.yaml`.
+The checkpoint-evaluation config is `default.yaml`.
+Generation settings live under `evaluation.nemo_evaluator_config.config.params`.
 
 For the full concept set behind these design rules, refer to {doc}`explanation/index`.
 
@@ -128,10 +125,10 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 
 | Reference | What You Will Find |
 |---|---|
-| {doc}`reference/config-schema` | YAML field reference for `default.yaml` and `tiny.yaml` |
+| {doc}`reference/config-schema` | YAML field reference for `default.yaml` and `tiny_chat.yaml` |
 | {doc}`reference/cli-reference` | Flags and Hydra overrides for `nemotron steps run eval/model_eval` |
 | {doc}`reference/output-artifacts` | `eval_results` contract and on-disk layout |
-| {doc}`reference/benchmarks-catalog` | Benchmark identifiers grouped by family |
+| {doc}`reference/benchmarks-catalog` | NeMo Evaluator Launcher task identifiers grouped by family |
 | {doc}`reference/troubleshooting` | Named error modes from `step.toml`, with cause and recovery |
 
 ```
@@ -152,19 +149,18 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 ## Before You Start
 
 - The Nemotron repository is synced and `uv sync` is complete.
-- A bearer token is exported as the environment variable named in `deployment.api_key_name`.
-  The sample files name `NGC_API_KEY`, and the NVIDIA-hosted endpoint uses `NVIDIA_API_KEY`.
+- A bearer token is exported as the environment variable named in `target.api_endpoint.api_key_name`.
+  Hosted smoke tests usually use `NVIDIA_API_KEY`.
 - A reachable evaluation endpoint URL and a model identifier the endpoint advertises.
-- A tokenizer that matches the served model.
-  Accepted shapes are a Hugging Face model identifier, a filesystem path, and the `tokenizer/` subdirectory of a Megatron Bridge `iter_*` checkpoint.
+- A tokenizer that matches the served model when running log-probability tasks.
+  The hosted chat smoke test does not require a tokenizer override.
 
 ## Limitations And Considerations
 
 - Cost: every benchmark sample issues at least one request to the endpoint, and hosted endpoints incur per-token cost.
-- Rate limits: hosted endpoints throttle concurrent requests, so set `params.parallelism` to a value the endpoint can serve.
-- Deployment: this step targets an already-deployed endpoint.
-  To deploy the model, follow one of the paths in {doc}`how-to/evaluate-deployed-checkpoint` or the broader catalog in {doc}`../deployment-guides`.
-- Comparability: scores are comparable when the endpoint type, the benchmark version, and the generation parameters are held constant across runs.
+- Rate limits: hosted endpoints throttle concurrent requests, so set `evaluation.nemo_evaluator_config.config.params.parallelism` to a value the endpoint can serve.
+- Deployment: `tiny_chat.yaml` targets an already-deployed endpoint; `default.yaml` uses launcher-managed deployment for a Megatron Bridge checkpoint.
+- Comparability: scores are comparable when the endpoint type, task version, tokenizer, and generation parameters are held constant across runs.
   The {ref}`model-eval-comparing-runs` section explains the framing.
 
 ## Related Documentation
@@ -172,4 +168,3 @@ Architecture, endpoint and benchmark families, and tokenizer alignment.
 - The full `step.toml` contract: `src/nemotron/steps/eval/model_eval/step.toml` in the repository.
 - The before-and-after evaluation framing: {ref}`model-eval-comparing-runs`.
 - Upstream NeMo Evaluator quick-start: <https://docs.nvidia.com/nemo/evaluator/latest/get-started/quickstart/launcher.html>.
-

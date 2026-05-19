@@ -11,7 +11,7 @@ You do not need to read it to invoke a single command, but every domain section 
 
 ## What a Step Is
 
-A *step* is a named unit of work with a stable identifier, such as `sft/automodel`, `byob`, or `optimize/modelopt/quantize`.
+A *step* is a named unit of work with a stable identifier, such as `sft/automodel`, `byob/mcq`, or `optimize/modelopt/quantize`.
 Each step packages four things:
 
 - A description of the work the step performs.
@@ -36,7 +36,7 @@ Every step that runs at production scale ships at least two configurations:
   Use `default` as the starting point for real work, and override individual values from the command line when needed.
 
 You select the configuration with the `-c` option.
-You can supply ad hoc overrides with `-o key=value` arguments on the same command line.
+You can supply ad hoc overrides as trailing `key=value` dotlist arguments on the same command line.
 
 ## Environment Profiles
 
@@ -78,7 +78,7 @@ The following procedure generates a starter profile file, reviews it, and points
 
    Substitute `-c slurm` or `-c dgxcloud` for the other targets.
    The step writes to `env.lepton.toml`, `env.slurm.toml`, or `env.dgxcloud.toml` by default, and it refuses to overwrite an existing file.
-   If you intentionally want to regenerate, pass `-o force=true` on the command line.
+   If you intentionally want to regenerate, pass `force=true` on the command line.
 
 3. Open the generated TOML file and replace the site-specific values.
    At minimum, set the node group, the resource shape, the workspace path, and the mount points.
@@ -103,7 +103,7 @@ The following procedure generates a starter profile file, reviews it, and points
 
    A successful submission proves that the CLI loaded the profile file, matched the named profile, and accepted the resource shape.
 
-After the file passes step (5), you can add new profiles by editing the YAML template under `src/nemotron/steps/env/env_toml/config/` and rerunning `nemotron steps run env/env_toml` with `-o force=true`.
+After the file passes step (5), you can add new profiles by editing the YAML template under `src/nemotron/steps/env/env_toml/config/` and rerunning `nemotron steps run env/env_toml` with `force=true`.
 Child profiles can use `extends` to inherit from an existing profile and override only the image, the mounts, the environment variables, or the resource shape that differ.
 
 ## Artifacts Between Steps

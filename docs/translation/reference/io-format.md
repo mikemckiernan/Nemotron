@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Input and output expectations for nemotron steps translation."
+description: "Input and output expectations for nemotron steps run translate/nemo_curator."
 topics: ["Translation", "Schema"]
 tags: ["Reference", "JSONL"]
 content:

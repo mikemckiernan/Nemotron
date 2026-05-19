@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Concept pages for nemotron steps translation: pipeline flow, segmentation, FAITH."
+description: "Concept pages for nemotron steps run translate/nemo_curator: pipeline flow, segmentation, FAITH."
 topics: ["Translation", "Concepts"]
 tags: ["Explanation", "Translation"]
 content:
@@ -23,7 +23,7 @@ segmentation
 faith-evaluation
 ```
 
-Concept-focused explanations for `nemotron steps translation` and the `translate/translation` Curator pipeline.
+Concept-focused explanations for `nemotron steps run translate/nemo_curator` and the `translate/nemo_curator` Curator pipeline.
 
 ## Pipeline Processing
 

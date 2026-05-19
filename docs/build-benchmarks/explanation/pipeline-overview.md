@@ -16,7 +16,7 @@ The `mcq` family is registered in `runtime/benchmark_families/registry.py` and e
 | `translate` | `translate_mcq` |
 | `all` | `prepare_mcq_data` then `generate_mcq` |
 
-`nemotron steps run byob` executes `step.py`, which forwards to the same argparse entrypoint used by the Typer command.
+`nemotron steps run byob/mcq` executes `mcq/step.py`, which forwards to the BYOB argparse dispatcher in `src/nemotron/steps/byob/scripts/run.py`.
 
 ## Generate stage order
 

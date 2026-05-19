@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Switch segmentation_mode between coarse and fine modes for nemotron steps translation."
+description: "Switch segmentation_mode between coarse and fine modes for nemotron steps run translate/nemo_curator."
 topics: ["Translation", "Segmentation"]
 tags: ["How-To", "Translation"]
 content:
@@ -22,7 +22,7 @@ Conceptual background lives in {doc}`../explanation/segmentation`.
 2. Retry on a slice with `segmentation_mode=fine`:
 
 ```bash
-uv run nemotron steps translation -c default \
+uv run nemotron steps run translate/nemo_curator -c default \
   segmentation_mode=fine \
   input_path=/path/to/sample.jsonl \
   output_dir=/path/to/out-fine \

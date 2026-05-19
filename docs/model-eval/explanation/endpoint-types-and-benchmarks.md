@@ -1,7 +1,7 @@
 ---
 license: Apache-2.0
 copyright: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-description: "Why eval/model_eval couples endpoint type to benchmark family, and how the chat versus completions decision is made."
+description: "Why eval/model_eval couples endpoint type to NeMo Evaluator Launcher task family."
 topics: ["Model Evaluation", "Endpoints"]
 tags: ["Explanation", "Model Evaluation"]
 content:
@@ -11,61 +11,44 @@ content:
 ---
 
 (model-eval-endpoint-types-and-benchmarks)=
-# Endpoint Types And Benchmark Families
+# Endpoint Types And Task Families
 
-The step reads two coupled fields from the `deployment` block: the `endpoint_type` and the URL path inside `url`.
-Both fields must agree with the benchmark family for the benchmarks named in the `benchmarks` list.
-The step itself does not validate the match.
-A mismatch surfaces when NeMo Evaluator dispatches a benchmark, not during the preflight probe.
+`eval/model_eval` passes endpoint and task configuration to NeMo Evaluator Launcher.
+The endpoint type must match the selected task family.
 
-## Two Endpoint Types
+## Endpoint Fields
 
-`eval/model_eval` supports two endpoint shapes.
+Hosted endpoint runs use:
 
-- A *chat endpoint* exposes the path `/v1/chat/completions` and accepts a structured `messages` payload.
-  The endpoint returns the assistant's reply as generated text.
-- A *completions endpoint* exposes the path `/v1/completions` and accepts a raw prompt string.
-  The endpoint returns generated text and, when requested, the per-token log-probabilities of the response.
+```text
+target.api_endpoint.url
+target.api_endpoint.model_id
+target.api_endpoint.api_key_name
+target.api_endpoint.type
+```
 
-The configured `endpoint_type` value must match the URL path you place in `deployment.url`.
+The `type` value is usually `chat` or `completions`.
+The URL path should agree with that value.
 
-## Two Benchmark Families
+## Task Families
 
-Benchmarks split into two families based on how they score the model.
-
-- *Generation-based* benchmarks issue a prompt to the endpoint and score the produced text against a reference answer, a verifier, or a judge model.
-  These benchmarks use a chat endpoint.
-- *Log-probability* benchmarks request token-level probabilities from the model for each candidate answer, then select the candidate with the highest likelihood.
-  These benchmarks use a completions endpoint with `logprobs` support and require a tokenizer that the run can resolve locally.
-
-## Why The Match Matters
-
-The step does not enforce the matching rule itself.
-The `check_endpoint` probe in `src/nemotron/steps/eval/model_eval/step.py` calls NeMo Evaluator with the URL, the endpoint type, and the model identifier only, so it reports reachability and authentication failures but does not see the benchmark list.
-When the endpoint type does not match the benchmark family, the failure surfaces later, inside the per-benchmark `evaluate` call from NeMo Evaluator.
-
-The `wrong_endpoint_type` entry in `src/nemotron/steps/eval/model_eval/step.toml` documents this class of mistake and points to the recovery guidance.
-That entry is documentation rather than an enforcement check.
-For the recovery, refer to {doc}`../reference/troubleshooting`.
+- Chat and instruction tasks issue chat-completions requests and score generated answers.
+- Log-probability tasks need a completions endpoint with logprobs support and a tokenizer that matches the served model.
 
 ## Decision Table
 
-| Benchmark family | Required `endpoint_type` | Required URL shape | Extra requirements |
-| --- | --- | --- | --- |
-| Chat and instruction benchmarks | `chat` | A chat-completions URL ending in `/v1/chat/completions` | None beyond deterministic generation defaults. |
-| Log-probability benchmarks | `completions` | A completions URL ending in `/v1/completions` | A tokenizer that matches the served model and `logprobs` support on the endpoint. |
-| Reasoning benchmarks | `chat` | A chat-completions URL ending in `/v1/chat/completions` | Non-deterministic generation parameters from the model card. |
+| Task family | Required endpoint type | Extra requirements |
+| --- | --- | --- |
+| Hosted chat smoke tests | `chat` | A chat-completions URL and a valid API key. |
+| Instruction/chat tasks | `chat` | Generation parameters appropriate for the model and task. |
+| Log-probability tasks | `completions` | A completions endpoint with logprobs support and a matching tokenizer. |
 
-## Reasoning Models
-
-Reasoning benchmarks are the one common reason to deviate from the deterministic defaults.
-The `step.toml` strategy entry for reasoning models calls for three changes: a higher `params.max_new_tokens` value to fit the typical chain-of-thought trace, reasoning-trace processing on so the scorer sees the final answer rather than the trace, and model-card temperature and top-p values instead of the deterministic `0` defaults.
-Outside of reasoning models, the recommendation is to keep generation deterministic so that scores remain comparable across runs.
+The repository smoke-test config, `tiny_chat.yaml`, uses `mmlu_instruct` with `target.api_endpoint.type=chat`.
+The checkpoint config, `default.yaml`, includes launcher tasks for Megatron checkpoint evaluation; verify endpoint and tokenizer requirements before changing those tasks.
 
 ## Related Pages
 
-- {doc}`tokenizer-alignment` for the tokenizer side of the log-probability case.
-- {doc}`pipeline-overview` for where the endpoint sits in the artifact flow.
-- {doc}`../how-to/evaluate-deployed-checkpoint` for choosing an endpoint type in context.
-- {doc}`../reference/benchmarks-catalog` for the benchmark identifiers in each family.
-- {doc}`../reference/troubleshooting` for the named error modes and their recovery guidance.
+- {doc}`tokenizer-alignment` for the tokenizer side of log-probability tasks.
+- {doc}`pipeline-overview` for where endpoint config enters the run.
+- {doc}`../how-to/evaluate-deployed-checkpoint` for choosing the hosted or checkpoint path.
+- {doc}`../reference/benchmarks-catalog` for task identifiers.

@@ -5,7 +5,7 @@
 
 # How-To Guides
 
-Task-focused guides for `nemotron steps run byob` with the `mcq` family.
+Task-focused guides for `nemotron steps run byob/mcq` with the `mcq` family.
 
 Start with {doc}`../getting-started` if you have not produced `benchmark.parquet` yet.
 
@@ -67,7 +67,7 @@ Point `prompt_config` at a YAML file that defines stage templates.
 :::{grid-item-card} {octicon}`sync;1.5em;sd-mr-1` Skip stages
 :link: skip-stages
 :link-type: doc
-Resume with `--skip-until` and cached Parquet files.
+Resume with `skip_until` and cached Parquet files.
 +++
 {bdg-secondary}`iteration`
 :::
@@ -79,7 +79,7 @@ Resume with `--skip-until` and cached Parquet files.
 ```{mermaid}
 flowchart LR
     A[Prepare data layout] --> B[Edit YAML]
-    B --> C[uv run nemotron steps run byob]
+    B --> C[uv run nemotron steps run byob/mcq]
     C --> D{Need translation?}
     D -->|yes| E[translate config + passthrough]
     D -->|no| F[Done]
