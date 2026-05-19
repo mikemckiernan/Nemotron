@@ -4,7 +4,7 @@
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
-| [byob](byob/) | Generate and translate BYOB MCQ benchmark parquet artifacts from domain documents with an extensible benchmark-family runtime. | benchmark_source_corpus, benchmark_parquet (optional) | mcq_benchmark_parquet, translated_mcq_benchmark_parquet (optional) |
+| [byob/mcq](byob/mcq/) | Generate and translate BYOB MCQ benchmark parquet artifacts from domain documents with an extensible benchmark-family runtime. | benchmark_source_corpus, benchmark_parquet (optional) | mcq_benchmark_parquet, translated_mcq_benchmark_parquet (optional) |
 
 ## convert — Conversion
 
@@ -12,13 +12,13 @@
 | --- | --- | --- | --- |
 | [convert/hf_to_megatron](convert/hf_to_megatron/) | Convert a HuggingFace safetensors checkpoint to Megatron distributed format. | checkpoint_hf | checkpoint_megatron |
 | [convert/megatron_to_hf](convert/megatron_to_hf/) | Convert a Megatron distributed checkpoint to HuggingFace safetensors format. | checkpoint_megatron | checkpoint_hf |
-| [convert/merge_lora](convert/merge_lora/) | Merge a LoRA adapter into the base model to produce a standalone HuggingFace checkpoint. | checkpoint_lora, checkpoint_hf | checkpoint_hf |
+| [convert/merge_lora](convert/merge_lora/) | Merge a LoRA adapter into its original base model, producing a standalone HuggingFace checkpoint. | checkpoint_lora, checkpoint_hf, checkpoint_megatron (optional) | checkpoint_hf, checkpoint_megatron (optional) |
 
 ## curate — Data Curation
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
-| [curate/nemo_curator](curate/nemo_curator/) | Read JSONL text with NeMo Curator, optionally hydrate a Hugging Face snapshot, apply light language, word-count, and domain filters, and write downstream-ready JSONL. | - | filtered_jsonl |
+| [curate/nemo_curator](curate/nemo_curator/) | Read JSONL text with NeMo Curator, optionally hydrate a Hugging Face snapshot, apply light language, word-count, and domain filters, and write downstream-ready JSONL. | raw_jsonl | filtered_jsonl |
 
 ## data_prep — Data Preparation
 
@@ -28,17 +28,17 @@
 | [data_prep/rl_prep](data_prep/rl_prep/) | Resolve HuggingFace dataset references in an RL data blend and shard the output JSONL into the prompt / preference layout expected by rl/nemo_rl/*. | training_jsonl | training_jsonl |
 | [data_prep/sft_packing](data_prep/sft_packing/) | Apply the chat template, tokenize training JSONL, and pack examples into Megatron-Bridge-compatible Parquet shards for SFT. | training_jsonl | packed_parquet |
 
-## env
+## env — Environment Profiles
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
-| [env/env_toml](env/env_toml/) | Generate and validate step-linked env profile examples from compact YAML templates for Lepton or Slurm, including inheritance, image overrides, mounts, env-var placeholders, Curator/Data Designer profiles, and Ray/RL guardrails. | - | env_toml |
+| [env/env_toml](env/env_toml/) | Generate and validate step-linked env profile examples from compact YAML templates for Lepton, Slurm, or DGX Cloud, including inheritance, image overrides, mounts, env-var placeholders, Curator/Data Designer profiles, and Ray/RL guardrails. | - | env_toml |
 
 ## eval — Evaluation
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
-| [eval/model_eval](eval/model_eval/) | Deploy a trained checkpoint behind an OpenAI-compatible endpoint and run benchmark suites with NeMo Evaluator, producing consolidated evaluation results. | checkpoint_megatron (optional), checkpoint_hf (optional) | eval_results |
+| [eval/model_eval](eval/model_eval/) | Deploy a Megatron Bridge checkpoint behind an OpenAI-compatible endpoint, or evaluate an existing hosted endpoint, with NeMo Evaluator Launcher. | checkpoint_megatron (optional) | eval_results |
 
 ## optimize — Model Optimization
 
@@ -74,7 +74,7 @@
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
-| [sdg/data_designer](sdg/data_designer/) | Build a NeMo Data Designer pipeline declaratively and generate synthetic data. Two recipes ship in config/: 'default' produces SFT chat data, 'rl_pref' produces preference pairs (chosen / rejected) for DPO.  Customisation lives in YAML — step.py just translates declarative column specs into the upstream DataDesignerConfigBuilder API. | training_jsonl (optional) | synthetic_jsonl |
+| [sdg/data_designer](sdg/data_designer/) | Build a NeMo Data Designer pipeline declaratively and generate synthetic data. Three recipes ship in config/: 'default' produces SFT chat data, 'customer_support_tools' produces tool-call SFT data, and 'rl_pref' produces preference pairs (chosen / rejected) for DPO.  Customisation lives in YAML — step.py just translates declarative column specs into the upstream DataDesignerConfigBuilder API. | training_jsonl (optional) | synthetic_jsonl |
 
 ## sft — Supervised Fine-Tuning
 
@@ -87,4 +87,4 @@
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
-| [translate/translation](translate/translation/) | Translate JSONL or Parquet training corpora with NeMo Curator's TranslationStage, preserving structured fields and optionally attaching FAITH quality scores. | filtered_jsonl | translated_jsonl |
+| [translate/nemo_curator](translate/nemo_curator/) | Translate JSONL or Parquet training corpora with NeMo Curator's TranslationStage, preserving structured fields and optionally attaching FAITH quality scores. | filtered_jsonl | translated_jsonl |
