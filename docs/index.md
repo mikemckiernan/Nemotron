@@ -195,6 +195,7 @@ Airgap Environment <steps/airgap.md>
 About <sdg/index>
 Getting Started <sdg/getting-started>
 Tips for Using Agents <sdg/using-skills>
+Planning <sdg/planning>
 Tasks <sdg/how-to/index>
 Reference <sdg/reference/index>
 ```
