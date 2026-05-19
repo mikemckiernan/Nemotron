@@ -91,6 +91,14 @@ The `optimize/modelopt/quantize`, `optimize/modelopt/prune`, and `optimize/model
 {bdg-success}`reference`
 :::
 
+:::{grid-item-card} {octicon}`git-compare;1.5em;sd-mr-1` Checkpoint Conversion Steps
+:link: convert/index
+:link-type: doc
+The `convert/hf_to_megatron`, `convert/megatron_to_hf`, and `convert/merge_lora` references.
++++
+{bdg-success}`reference`
+:::
+
 ::::
 
 ## Related Documentation
@@ -110,5 +118,6 @@ config-conventions
 SFT Steps <sft/index>
 PEFT Steps <peft/index>
 RL Steps <rl/index>
-optimize/index
+Optimization Steps <optimize/index>
+Checkpoint Conversion Steps <convert/index>
 ```

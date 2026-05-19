@@ -12,14 +12,25 @@ Every command in this guide reads metadata only.
 
 If you have not read [Nemotron Steps Basics](basics.md), start there for the definitions of *step*, *configuration*, *environment profile*, and *artifact*.
 
-## Prerequisites
+## Getting Access to the Nemotron CLI
 
-You need the Nemotron CLI installed and on your `PATH`.
-Confirm the install with the following command.
+1. Clone the repository, if you haven't already:
 
-```console
-$ nemotron steps --help
-```
+   ```console
+   $ git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
+   ```
+
+1. Synchronize the common dependencies:
+
+   ```console
+   $ uv sync
+   ```
+
+1. Confirm you can run the CLI:
+
+   ```console
+   $ uv run nemotron steps --help
+   ```
 
 The output lists the step-catalog subcommands that this guide uses: `list`, `show`, and `run`.
 
@@ -29,7 +40,7 @@ Use `nemotron steps list` to see every step that the CLI discovers.
 The output is a table with the step identifier, the category, the consumed artifact types, the produced artifact types, and a short description.
 
 ```console
-$ nemotron steps list
+$ uv run nemotron steps list
 ```
 
 Each row in the table is one building block that you can run, inspect, or chain into a pipeline.
@@ -40,7 +51,7 @@ Pass `--category` to narrow the list to one family of steps.
 For example, the following command shows only the supervised fine-tuning steps.
 
 ```console
-$ nemotron steps list --category sft
+$ uv run nemotron steps list --category sft
 ```
 
 The category matches the top-level folder under `src/nemotron/steps/`.
@@ -52,8 +63,8 @@ Pass `--json` to emit a JSON array instead of a table.
 The JSON output is the same data the table renders, with no formatting noise, so it works well with `jq` and with agent tooling.
 
 ```console
-$ nemotron steps list --json
-$ nemotron steps list --category sft --json | jq '.[].id'
+$ uv run nemotron steps list --json
+$ uv run nemotron steps list --category sft --json | jq '.[].id'
 ```
 
 The `--json` flag is available on both `nemotron steps list` and `nemotron steps show`.
@@ -64,13 +75,13 @@ Use `nemotron steps show <id>` to print the manifest for one step.
 The output includes the description, the consumed and produced artifacts with their types and descriptions, the parameters with their defaults and choices, and the run specification, which covers the launcher, the container image, the resource shape, and the default configuration.
 
 ```console
-$ nemotron steps show sft/automodel
+$ uv run nemotron steps show sft/automodel
 ```
 
 The same command in JSON form is the easiest way to read the full manifest programmatically.
 
 ```console
-$ nemotron steps show sft/automodel --json
+$ uv run nemotron steps show sft/automodel --json
 ```
 
 The JSON document includes a `consumes` array and a `produces` array.
@@ -85,7 +96,7 @@ Use the `--produces` and `--consumes` filters on `nemotron steps list` to walk t
 To find every step that writes a `training_jsonl` artifact, run the following command.
 
 ```console
-$ nemotron steps list --produces training_jsonl
+$ uv run nemotron steps list --produces training_jsonl
 ```
 
 The output lists the synthetic data generation and data preparation steps that emit training JSONL.
@@ -93,7 +104,7 @@ The output lists the synthetic data generation and data preparation steps that e
 To find every step that reads a `training_jsonl` artifact, run the following command.
 
 ```console
-$ nemotron steps list --consumes training_jsonl
+$ uv run nemotron steps list --consumes training_jsonl
 ```
 
 The output lists the fine-tuning and reinforcement-learning (RL) steps that take training JSONL as input.
@@ -109,7 +120,7 @@ Once you know which step you want, use `nemotron steps run` to invoke it.
 The following command runs the `tiny` configuration of `sft/automodel` on the local machine.
 
 ```console
-$ nemotron steps run sft/automodel -c tiny
+$ uv run nemotron steps run sft/automodel -c tiny
 ```
 
 To run on a cluster, pass `-r <profile>` for attached execution or `-b <profile>` for detached execution, where the profile name comes from your environment profile file.

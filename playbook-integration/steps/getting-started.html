@@ -375,6 +375,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../sdg/index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdg/getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdg/planning.html">Planning</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
@@ -461,17 +462,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../train-models/explanation/training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../train-models/tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
-</ul>
-</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/run-sft-automodel.html">Run SFT with AutoModel on Custom Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/run-optimization.html">Run Post-Training Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/convert-checkpoints.html">Convert Checkpoints</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -495,10 +494,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/prune.html">optimize/modelopt/prune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/distill.html">optimize/modelopt/distill</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/convert/index.html">Checkpoint Conversion Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/convert/hf-to-megatron.html">convert/hf_to_megatron</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/convert/megatron-to-hf.html">convert/megatron_to_hf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/convert/merge-lora.html">convert/merge_lora</a></li>
 </ul>
 </details></li>
 </ul>
@@ -715,20 +720,32 @@
 You do not need a cluster or a GPU to follow along.
 Every command in this guide reads metadata only.</p>
 <p>If you have not read <a class="reference internal" href="basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a>, start there for the definitions of <em>step</em>, <em>configuration</em>, <em>environment profile</em>, and <em>artifact</em>.</p>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
-<p>You need the Nemotron CLI installed and on your <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.
-Confirm the install with the following command.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>--help
+<section id="getting-access-to-the-nemotron-cli">
+<h2>Getting Access to the Nemotron CLI<a class="headerlink" href="#getting-access-to-the-nemotron-cli" title="Link to this heading">#</a></h2>
+<ol class="arabic">
+<li><p>Clone the repository, if you haven’t already:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA-NeMo/Nemotron<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>Nemotron
 </pre></div>
 </div>
+</li>
+<li><p>Synchronize the common dependencies:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync
+</pre></div>
+</div>
+</li>
+<li><p>Confirm you can run the CLI:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>--help
+</pre></div>
+</div>
+</li>
+</ol>
 <p>The output lists the step-catalog subcommands that this guide uses: <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">show</span></code>, and <code class="docutils literal notranslate"><span class="pre">run</span></code>.</p>
 </section>
 <section id="list-the-available-steps">
 <h2>List the Available Steps<a class="headerlink" href="#list-the-available-steps" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">list</span></code> to see every step that the CLI discovers.
 The output is a table with the step identifier, the category, the consumed artifact types, the produced artifact types, and a short description.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list
 </pre></div>
 </div>
 <p>Each row in the table is one building block that you can run, inspect, or chain into a pipeline.</p>
@@ -736,7 +753,7 @@ The output is a table with the step identifier, the category, the consumed artif
 <h3>Filter by Category<a class="headerlink" href="#filter-by-category" title="Link to this heading">#</a></h3>
 <p>Pass <code class="docutils literal notranslate"><span class="pre">--category</span></code> to narrow the list to one family of steps.
 For example, the following command shows only the supervised fine-tuning steps.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--category<span class="w"> </span>sft
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--category<span class="w"> </span>sft
 </pre></div>
 </div>
 <p>The category matches the top-level folder under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/</span></code>.
@@ -746,8 +763,8 @@ Common categories include <code class="docutils literal notranslate"><span class
 <h3>Emit Machine-Readable JSON<a class="headerlink" href="#emit-machine-readable-json" title="Link to this heading">#</a></h3>
 <p>Pass <code class="docutils literal notranslate"><span class="pre">--json</span></code> to emit a JSON array instead of a table.
 The JSON output is the same data the table renders, with no formatting noise, so it works well with <code class="docutils literal notranslate"><span class="pre">jq</span></code> and with agent tooling.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--json
-<span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--category<span class="w"> </span>sft<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.[].id&#39;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--json
+<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--category<span class="w"> </span>sft<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.[].id&#39;</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--json</span></code> flag is available on both <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">list</span></code> and <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">show</span></code>.</p>
@@ -757,11 +774,11 @@ The JSON output is the same data the table renders, with no formatting noise, so
 <h2>Inspect a Single Step<a class="headerlink" href="#inspect-a-single-step" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">show</span> <span class="pre">&lt;id&gt;</span></code> to print the manifest for one step.
 The output includes the description, the consumed and produced artifacts with their types and descriptions, the parameters with their defaults and choices, and the run specification, which covers the launcher, the container image, the resource shape, and the default configuration.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>show<span class="w"> </span>sft/automodel
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>show<span class="w"> </span>sft/automodel
 </pre></div>
 </div>
 <p>The same command in JSON form is the easiest way to read the full manifest programmatically.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>show<span class="w"> </span>sft/automodel<span class="w"> </span>--json
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>show<span class="w"> </span>sft/automodel<span class="w"> </span>--json
 </pre></div>
 </div>
 <p>The JSON document includes a <code class="docutils literal notranslate"><span class="pre">consumes</span></code> array and a <code class="docutils literal notranslate"><span class="pre">produces</span></code> array.
@@ -773,12 +790,12 @@ These two arrays are the contract that connects one step to the next.</p>
 <p>Steps fit together because their consumed and produced artifact types match.
 Use the <code class="docutils literal notranslate"><span class="pre">--produces</span></code> and <code class="docutils literal notranslate"><span class="pre">--consumes</span></code> filters on <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">list</span></code> to walk the building-block graph from either direction.</p>
 <p>To find every step that writes a <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code> artifact, run the following command.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--produces<span class="w"> </span>training_jsonl
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--produces<span class="w"> </span>training_jsonl
 </pre></div>
 </div>
 <p>The output lists the synthetic data generation and data preparation steps that emit training JSONL.</p>
 <p>To find every step that reads a <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code> artifact, run the following command.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--consumes<span class="w"> </span>training_jsonl
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list<span class="w"> </span>--consumes<span class="w"> </span>training_jsonl
 </pre></div>
 </div>
 <p>The output lists the fine-tuning and reinforcement-learning (RL) steps that take training JSONL as input.</p>
@@ -790,7 +807,7 @@ For example, the <code class="docutils literal notranslate"><span class="pre">sd
 <h2>Run a Step<a class="headerlink" href="#run-a-step" title="Link to this heading">#</a></h2>
 <p>Once you know which step you want, use <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span></code> to invoke it.
 The following command runs the <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration of <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> on the local machine.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sft/automodel<span class="w"> </span>-c<span class="w"> </span>tiny
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sft/automodel<span class="w"> </span>-c<span class="w"> </span>tiny
 </pre></div>
 </div>
 <p>To run on a cluster, pass <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;profile&gt;</span></code> for attached execution or <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;profile&gt;</span></code> for detached execution, where the profile name comes from your environment profile file.
@@ -858,7 +875,7 @@ See <a class="reference internal" href="basics.html"><span class="std std-doc">N
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-access-to-the-nemotron-cli">Getting Access to the Nemotron CLI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#list-the-available-steps">List the Available Steps</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#filter-by-category">Filter by Category</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#emit-machine-readable-json">Emit Machine-Readable JSON</a></li>

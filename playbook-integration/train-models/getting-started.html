@@ -375,6 +375,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../sdg/index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdg/getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdg/planning.html">Planning</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
@@ -461,17 +462,15 @@
 <li class="toctree-l2"><a class="reference internal" href="explanation/training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
-</ul>
-</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to/run-sft-automodel.html">Run SFT with AutoModel on Custom Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/run-optimization.html">Run Post-Training Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/convert-checkpoints.html">Convert Checkpoints</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -495,10 +494,16 @@
 <li class="toctree-l3"><a class="reference internal" href="reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/optimize/prune.html">optimize/modelopt/prune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/optimize/distill.html">optimize/modelopt/distill</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/convert/index.html">Checkpoint Conversion Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/convert/hf-to-megatron.html">convert/hf_to_megatron</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/convert/megatron-to-hf.html">convert/megatron_to_hf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/convert/merge-lora.html">convert/merge_lora</a></li>
 </ul>
 </details></li>
 </ul>
@@ -858,14 +863,6 @@ The profile name <code class="docutils literal notranslate"><span class="pre">le
 <p>The sample <code class="docutils literal notranslate"><span class="pre">tiny</span></code> config sets small training and validation splits.
 To specify the output path for checkpoints, set <code class="docutils literal notranslate"><span class="pre">SFT_OUTPUT_DIR</span></code> before running or specify the <code class="docutils literal notranslate"><span class="pre">checkpoint.checkpoint_dir</span></code> CLI override.</p>
 </section>
-<section id="discover-other-steps">
-<h2>Discover Other Steps<a class="headerlink" href="#discover-other-steps" title="Link to this heading">#</a></h2>
-<p>List step identifiers the CLI knows about:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>list
-</pre></div>
-</div>
-<p>Other training libraries, for example Megatron-Bridge SFT, PEFT, reinforcement learning (RL), or optimization, have their own <code class="docutils literal notranslate"><span class="pre">consumes</span></code> requirements. Use the <a class="reference internal" href="how-to/index.html"><span class="std std-doc">How-To Guides</span></a> and <a class="reference internal" href="reference/step-catalog.html"><span class="std std-doc">Reference</span></a> when you move past this first SFT path.</p>
-</section>
 <section id="success-checks">
 <h2>Success Checks<a class="headerlink" href="#success-checks" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -877,7 +874,7 @@ To specify the output path for checkpoints, set <code class="docutils literal no
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Follow <a class="reference internal" href="tutorials/first-sft-automodel.html"><span class="std std-doc">First SFT Run with AutoModel</span></a> when you need to point <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> at your own data or change the base model.</p></li>
+<li><p>Follow <a class="reference internal" href="how-to/run-sft-automodel.html"><span class="std std-doc">Run SFT with AutoModel on Custom Data</span></a> when you need to point <code class="docutils literal notranslate"><span class="pre">tiny.yaml</span></code> at your own data or change the base model.</p></li>
 <li><p>Read <a class="reference internal" href="how-to/choose-sft-backend.html"><span class="std std-doc">Choose an SFT Backend</span></a> when you need Megatron Bridge instead of AutoModel.</p></li>
 </ul>
 </section>
@@ -934,7 +931,6 @@ To specify the output path for checkpoints, set <code class="docutils literal no
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#procedure">Procedure</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discover-other-steps">Discover Other Steps</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#success-checks">Success Checks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
 </ul>

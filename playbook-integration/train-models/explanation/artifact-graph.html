@@ -375,6 +375,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../sdg/index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sdg/getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdg/planning.html">Planning</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
@@ -461,17 +462,15 @@
 <li class="toctree-l2"><a class="reference internal" href="training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
-</ul>
-</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/run-sft-automodel.html">Run SFT with AutoModel on Custom Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/run-optimization.html">Run Post-Training Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/convert-checkpoints.html">Convert Checkpoints</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -495,10 +494,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/optimize/prune.html">optimize/modelopt/prune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/optimize/distill.html">optimize/modelopt/distill</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/convert/index.html">Checkpoint Conversion Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/convert/hf-to-megatron.html">convert/hf_to_megatron</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/convert/megatron-to-hf.html">convert/megatron_to_hf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/convert/merge-lora.html">convert/merge_lora</a></li>
 </ul>
 </details></li>
 </ul>
@@ -689,7 +694,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Explanation</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Training Concepts</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Artifact Graph</span></li>
   </ul>
@@ -710,27 +715,8 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="artifact-graph">
 <h1>Artifact Graph<a class="headerlink" href="#artifact-graph" title="Link to this heading">#</a></h1>
-<p>Every training step declares the type of input artifact it consumes and the type of output artifact it produces.
-The full set of declarations forms an <em>artifact graph</em> that the pipeline uses to check whether two steps can connect directly or whether a conversion step needs to sit between them.</p>
-<section id="what-the-graph-contains">
-<h2>What the Graph Contains<a class="headerlink" href="#what-the-graph-contains" title="Link to this heading">#</a></h2>
-<p>The artifact graph names every kind of artifact a Nemotron training step can take in or hand off, such as <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code> for a chat-formatted dataset or <code class="docutils literal notranslate"><span class="pre">checkpoint_megatron</span></code> for a sharded Megatron checkpoint.
-Each artifact type has a short description.
-Some types also declare connections to related types: a checkpoint type that one library writes can carry an explicit conversion edge to the checkpoint type that a different library expects.</p>
-<p>You can inspect what a specific step consumes and produces with the <code class="docutils literal notranslate"><span class="pre">show</span></code> subcommand.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nemotron<span class="w"> </span>steps<span class="w"> </span>show<span class="w"> </span>sft/automodel
-</pre></div>
-</div>
-<p>The relevant section of the output names the consumed and produced artifact types.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Consumes
-  • training_jsonl — Instruction data in JSONL with a messages field
-
-Produces
-  • checkpoint_hf — Hugging Face checkpoint directory (full model or adapter-style PEFT output)
-</pre></div>
-</div>
-<p>When the type a step expects to consume does not match the type the previous step produced, you must insert an explicit conversion step between the two.</p>
-</section>
+<p>For definitions of <em>artifact</em>, <em>step</em>, and how the CLI’s <code class="docutils literal notranslate"><span class="pre">--produces</span></code> and <code class="docutils literal notranslate"><span class="pre">--consumes</span></code> filters let you walk the artifact graph, see <a class="reference internal" href="../../steps/basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a>.
+This page focuses on the artifact types and common chains specific to model training.</p>
 <section id="common-training-paths">
 <h2>Common Training Paths<a class="headerlink" href="#common-training-paths" title="Link to this heading">#</a></h2>
 <p>The supervised fine-tuning paths in the Nemotron pipeline follow one of the following two chains.</p>
@@ -808,7 +794,6 @@ A mismatch often appears as a plausible training loss curve with poor downstream
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-graph-contains">What the Graph Contains</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-training-paths">Common Training Paths</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tokenizer-and-chat-template-consistency">Tokenizer and Chat Template Consistency</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-reading">Related Reading</a></li>

@@ -67,6 +67,8 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Synthetic Data How-To Guides" href="how-to/index.html" />
+    <link rel="prev" title="Use the SDG Skill With Confidence" href="using-skills.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -369,10 +371,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../steps/airgap.html">Airgap Environment</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Synthetic Data Generation</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Planning</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
@@ -459,17 +462,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../train-models/explanation/training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../train-models/tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
-</ul>
-</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/run-sft-automodel.html">Run SFT with AutoModel on Custom Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/run-optimization.html">Run Post-Training Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../train-models/how-to/convert-checkpoints.html">Convert Checkpoints</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../train-models/reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -493,10 +494,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/prune.html">optimize/modelopt/prune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../train-models/reference/optimize/distill.html">optimize/modelopt/distill</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../train-models/reference/convert/index.html">Checkpoint Conversion Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/convert/hf-to-megatron.html">convert/hf_to_megatron</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/convert/megatron-to-hf.html">convert/megatron_to_hf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../train-models/reference/convert/merge-lora.html">convert/merge_lora</a></li>
 </ul>
 </details></li>
 </ul>
@@ -740,10 +747,10 @@ If yes, it belongs.</p>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>First run: <span class="xref std std-doc">../getting-started</span></p></li>
-<li><p>Adapt the pipeline to your domain: <span class="xref std std-doc">../how-to/create-domain-dataset</span></p></li>
-<li><p>Preview and iterate on a config: <span class="xref std std-doc">../how-to/run</span></p></li>
-<li><p>Config field reference: <span class="xref std std-doc">../reference/config-schema</span></p></li>
+<li><p>First run: <a class="reference internal" href="getting-started.html"><span class="doc">Generate Your First Synthetic Dataset</span></a></p></li>
+<li><p>Adapt the pipeline to your domain: <a class="reference internal" href="how-to/create-domain-dataset.html"><span class="doc">Create a Domain Dataset for Airlines Customer Service</span></a></p></li>
+<li><p>Preview and iterate on a config: <a class="reference internal" href="how-to/run.html"><span class="doc">Tips for the Data Generation Pipeline</span></a></p></li>
+<li><p>Config field reference: <a class="reference internal" href="reference/config-schema.html"><span class="doc">Config Schema</span></a></p></li>
 </ul>
 </section>
 </section>
@@ -758,6 +765,24 @@ If yes, it belongs.</p>
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="using-skills.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Use the SDG Skill With Confidence</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="how-to/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Synthetic Data How-To Guides</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               

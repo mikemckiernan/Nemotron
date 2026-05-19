@@ -41,7 +41,7 @@ Preview records before you commit to generating thousands of records.
 
 ## Next Steps
 
-- First run: {doc}`../getting-started`
-- Adapt the pipeline to your domain: {doc}`../how-to/create-domain-dataset`
-- Preview and iterate on a config: {doc}`../how-to/run`
-- Config field reference: {doc}`../reference/config-schema`
+- First run: {doc}`getting-started`
+- Adapt the pipeline to your domain: {doc}`./how-to/create-domain-dataset`
+- Preview and iterate on a config: {doc}`./how-to/run`
+- Config field reference: {doc}`./reference/config-schema`

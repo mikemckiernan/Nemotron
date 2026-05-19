@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Training Reference &#8212; Nemotron</title>
+    <title>Run SFT with AutoModel on Custom Data &#8212; Nemotron</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=18b33a23"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'train-models/reference/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'train-models/how-to/run-sft-automodel';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
@@ -67,8 +67,8 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Nemotron Steps CLI Reference" href="cli-reference.html" />
-    <link rel="prev" title="Convert Checkpoints Between Training Steps" href="../how-to/convert-checkpoints.html" />
+    <link rel="next" title="Choose an SFT Backend" href="choose-sft-backend.html" />
+    <link rel="prev" title="Model Training How-To Guides" href="index.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -462,48 +462,48 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanation/training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/run-sft-automodel.html">Run SFT with AutoModel on Custom Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/run-optimization.html">Run Post-Training Optimization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how-to/convert-checkpoints.html">Convert Checkpoints</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tasks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Run SFT with AutoModel on Custom Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="choose-sft-backend.html">Choose an SFT Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="choose-peft-backend.html">Choose a PEFT Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="choose-rl-step.html">Choose an RL Alignment Step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run-optimization.html">Run Post-Training Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="env-and-executors.html">Environment Profiles and Executors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert-checkpoints.html">Convert Checkpoints</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="cli-reference.html">Nemotron Steps CLI Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="env-profile-generator.html">Env Profile Generator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="step-catalog.html">Step Catalog</a></li>
-<li class="toctree-l2"><a class="reference internal" href="config-conventions.html">Configuration Conventions</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="sft/index.html">SFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="sft/automodel.html">sft/automodel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sft/megatron-bridge.html">sft/megatron_bridge</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/cli-reference.html">Nemotron Steps CLI Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/env-profile-generator.html">Env Profile Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/step-catalog.html">Step Catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/config-conventions.html">Configuration Conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/sft/index.html">SFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/sft/automodel.html">sft/automodel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/sft/megatron-bridge.html">sft/megatron_bridge</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="peft/index.html">PEFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="peft/automodel.html">peft/automodel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="peft/megatron-bridge.html">peft/megatron_bridge</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/peft/index.html">PEFT Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/peft/automodel.html">peft/automodel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/peft/megatron-bridge.html">peft/megatron_bridge</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="rl/index.html">RL Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="rl/dpo.html">rl/nemo_rl/dpo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rl/rlvr.html">rl/nemo_rl/rlvr</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/rl/index.html">RL Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/rl/dpo.html">rl/nemo_rl/dpo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/rl/rlvr.html">rl/nemo_rl/rlvr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="optimize/quantize.html">optimize/modelopt/quantize</a></li>
-<li class="toctree-l3"><a class="reference internal" href="optimize/prune.html">optimize/modelopt/prune</a></li>
-<li class="toctree-l3"><a class="reference internal" href="optimize/distill.html">optimize/modelopt/distill</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/optimize/quantize.html">optimize/modelopt/quantize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/optimize/prune.html">optimize/modelopt/prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/optimize/distill.html">optimize/modelopt/distill</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="convert/index.html">Checkpoint Conversion Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="convert/hf-to-megatron.html">convert/hf_to_megatron</a></li>
-<li class="toctree-l3"><a class="reference internal" href="convert/megatron-to-hf.html">convert/megatron_to_hf</a></li>
-<li class="toctree-l3"><a class="reference internal" href="convert/merge-lora.html">convert/merge_lora</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/convert/index.html">Checkpoint Conversion Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/convert/hf-to-megatron.html">convert/hf_to_megatron</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/convert/megatron-to-hf.html">convert/megatron_to_hf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/convert/merge-lora.html">convert/merge_lora</a></li>
 </ul>
 </details></li>
 </ul>
@@ -693,7 +693,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Training Reference</span></li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Model Training How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Run SFT with AutoModel on Custom Data</span></li>
   </ul>
 </nav>
 </div>
@@ -710,141 +713,85 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="training-reference">
-<h1>Training Reference<a class="headerlink" href="#training-reference" title="Link to this heading">#</a></h1>
-<p>This section provides lookup material for every supervised fine-tuning (SFT), parameter-efficient fine-tuning (PEFT), reinforcement learning (RL), and optimization step packaged under <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/</span></code>.
-Use these pages to find the exact CLI syntax, configuration file layout, parameters, and configuration overrides for each step.</p>
-<section id="reference-sections">
-<h2>Reference Sections<a class="headerlink" href="#reference-sections" title="Link to this heading">#</a></h2>
-<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-2 docutils">
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-terminal sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53Zm2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5h-5Z"></path><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"></path></svg> Nemotron Steps CLI Reference</div>
-<p class="sd-card-text">Shared command-line syntax, options, dotlist overrides, and passthrough arguments for the <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span></code> command group.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">lookup</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="cli-reference.html"><span class="doc">Nemotron Steps CLI Reference</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-gear sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-1.5 0a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path><path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13.044-.246.002-.315l-.776-1.275c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.22l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.06-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.16-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098.036-.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z"></path></svg> Env Profile Generator</div>
-<p class="sd-card-text">The packaged <code class="docutils literal notranslate"><span class="pre">env/env_toml</span></code> step that generates the environment profile file every other training step consumes.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">setup</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="env-profile-generator.html"><span class="doc">Env Profile Generator</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-list-unordered sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5h11.5a.75.75 0 0 1 0 1.5H8.75a.75.75 0 0 1 0-1.5Zm0 6h11.5a.75.75 0 0 1 0 1.5H8.75a.75.75 0 0 1 0-1.5Zm0 6h11.5a.75.75 0 0 1 0 1.5H8.75a.75.75 0 0 1 0-1.5ZM5 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM4 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm0 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg> Step Catalog</div>
-<p class="sd-card-text">Every step identifier, manifest path, and per-step reference link.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">lookup</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="step-catalog.html"><span class="doc">Step Catalog</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-file-code sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg> Configuration Conventions</div>
-<p class="sd-card-text">Per-step <code class="docutils literal notranslate"><span class="pre">config/</span></code> layout, CLI configuration resolution, dotlist override rules, and environment-variable expansion.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">lookup</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="config-conventions.html"><span class="doc">Configuration Conventions</span></a></div>
-</div>
-</div>
-</div>
-</section>
-<section id="per-category-step-references">
-<h2>Per-Category Step References<a class="headerlink" href="#per-category-step-references" title="Link to this heading">#</a></h2>
-<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-2 docutils">
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-rocket sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.322.75h1.176a1.75 1.75 0 0 1 1.75 1.749v1.177a10.75 10.75 0 0 1-2.925 7.374l-1.228 1.304a23.699 23.699 0 0 1-1.596 1.542v5.038c0 .615-.323 1.184-.85 1.5l-4.514 2.709a.75.75 0 0 1-1.12-.488l-.963-4.572a1.305 1.305 0 0 1-.14-.129L8.04 15.96l-1.994-1.873a1.305 1.305 0 0 1-.129-.14l-4.571-.963a.75.75 0 0 1-.49-1.12l2.71-4.514c.316-.527.885-.85 1.5-.85h5.037a23.668 23.668 0 0 1 1.542-1.594l1.304-1.23A10.753 10.753 0 0 1 20.321.75Zm-6.344 4.018v-.001l-1.304 1.23a22.275 22.275 0 0 0-3.255 3.851l-2.193 3.29 1.859 1.744a.545.545 0 0 1 .034.034l1.743 1.858 3.288-2.192a22.263 22.263 0 0 0 3.854-3.257l1.228-1.303a9.251 9.251 0 0 0 2.517-6.346V2.5a.25.25 0 0 0-.25-.25h-1.177a9.252 9.252 0 0 0-6.344 2.518ZM6.5 21c-1.209 1.209-3.901 1.445-4.743 1.49a.236.236 0 0 1-.18-.067.236.236 0 0 1-.067-.18c.045-.842.281-3.534 1.49-4.743.9-.9 2.6-.9 3.5 0 .9.9.9 2.6 0 3.5Zm-.592-8.588L8.17 9.017c.23-.346.47-.685.717-1.017H5.066a.25.25 0 0 0-.214.121l-2.167 3.612ZM16 15.112c-.333.248-.672.487-1.018.718l-3.393 2.262.678 3.223 3.612-2.167a.25.25 0 0 0 .121-.214ZM17.5 8a1.5 1.5 0 1 1-3.001-.001A1.5 1.5 0 0 1 17.5 8Z"></path></svg> Supervised Fine-Tuning Steps</div>
-<p class="sd-card-text">The <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> and <code class="docutils literal notranslate"><span class="pre">sft/megatron_bridge</span></code> references.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">reference</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="sft/index.html"><span class="doc">Supervised Fine-Tuning Steps</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-tools sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.875 2.292a.114.114 0 0 0-.032.018A7.239 7.239 0 0 0 4.75 8.25a7.248 7.248 0 0 0 3.654 6.297c.57.327.982.955.941 1.682v.002l-.317 6.058a.75.75 0 1 1-1.498-.078l.317-6.062v-.004c.006-.09-.047-.215-.188-.296A8.749 8.749 0 0 1 3.25 8.25a8.738 8.738 0 0 1 3.732-7.169 1.547 1.547 0 0 1 1.709-.064c.484.292.809.835.809 1.46v4.714a.25.25 0 0 0 .119.213l2.25 1.385c.08.05.182.05.262 0l2.25-1.385a.25.25 0 0 0 .119-.213V2.478c0-.626.325-1.169.81-1.461a1.547 1.547 0 0 1 1.708.064 8.741 8.741 0 0 1 3.732 7.17 8.747 8.747 0 0 1-4.41 7.598c-.14.081-.193.206-.188.296v.004l.318 6.062a.75.75 0 1 1-1.498.078l-.317-6.058v-.002c-.041-.727.37-1.355.94-1.682A7.247 7.247 0 0 0 19.25 8.25a7.239 7.239 0 0 0-3.093-5.94.114.114 0 0 0-.032-.018l-.01-.001c-.003 0-.014 0-.031.01-.036.022-.084.079-.084.177V7.19c0 .608-.315 1.172-.833 1.49l-2.25 1.385a1.75 1.75 0 0 1-1.834 0l-2.25-1.384A1.752 1.752 0 0 1 8 7.192V2.477c0-.098-.048-.155-.084-.176a.068.068 0 0 0-.031-.011l-.01.001Z"></path></svg> Parameter-Efficient Fine-Tuning Steps</div>
-<p class="sd-card-text">The <code class="docutils literal notranslate"><span class="pre">peft/automodel</span></code> and <code class="docutils literal notranslate"><span class="pre">peft/megatron_bridge</span></code> references.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">reference</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="peft/index.html"><span class="doc">Parameter-Efficient Fine-Tuning Steps</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-milestone sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.75 1a.75.75 0 0 1 .75.75V4h6.532c.42 0 .826.15 1.143.425l3.187 2.75a1.75 1.75 0 0 1 0 2.65l-3.187 2.75a1.75 1.75 0 0 1-1.143.425H12.5v9.25a.75.75 0 0 1-1.5 0V13H3.75A1.75 1.75 0 0 1 2 11.25v-5.5C2 4.783 2.784 4 3.75 4H11V1.75a.75.75 0 0 1 .75-.75Zm7.282 4.5H3.75a.25.25 0 0 0-.25.25v5.5c0 .138.112.25.25.25h15.282c.06 0 .118-.021.163-.06l3.188-2.75a.248.248 0 0 0 0-.38l-3.188-2.75a.249.249 0 0 0-.163-.06Z"></path></svg> Reinforcement Learning Steps</div>
-<p class="sd-card-text">The <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/dpo</span></code>, <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlvr</span></code>, and <code class="docutils literal notranslate"><span class="pre">rl/nemo_rl/rlhf</span></code> references.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">reference</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="rl/index.html"><span class="doc">Reinforcement Learning Steps</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-zap sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.716 1.329a1.341 1.341 0 0 1 2.109 1.55L15.147 9h4.161c1.623 0 2.372 2.016 1.143 3.075L8.102 22.721a1.148 1.148 0 0 1-1.81-1.317L8.996 15H4.674c-1.619 0-2.37-2.008-1.148-3.07l12.19-10.6Zm.452 1.595L4.51 13.061a.25.25 0 0 0 .164.439h5.45a.749.749 0 0 1 .692 1.041l-2.559 6.066 11.215-9.668a.25.25 0 0 0-.164-.439H14a.75.75 0 0 1-.687-1.05Z"></path></svg> Optimization Steps</div>
-<p class="sd-card-text">The <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/quantize</span></code>, <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/prune</span></code>, and <code class="docutils literal notranslate"><span class="pre">optimize/modelopt/distill</span></code> references.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">reference</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="optimize/index.html"><span class="doc">Model Optimization Steps</span></a></div>
-</div>
-<div class="sd-col sd-d-flex-row docutils">
-<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-git-compare sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 19.25a3.25 3.25 0 1 1 6.5 0 3.25 3.25 0 0 1-6.5 0Zm3.25-1.75a1.75 1.75 0 1 0 .001 3.501 1.75 1.75 0 0 0-.001-3.501Z"></path><path d="M13.905 1.72a.75.75 0 0 1 0 1.06L12.685 4h4.065a3.75 3.75 0 0 1 3.75 3.75v8.75a.75.75 0 0 1-1.5 0V7.75a2.25 2.25 0 0 0-2.25-2.25h-4.064l1.22 1.22a.75.75 0 0 1-1.061 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06l2.5-2.5a.75.75 0 0 1 1.06 0ZM7.5 4.75a3.25 3.25 0 1 1-6.5 0 3.25 3.25 0 0 1 6.5 0ZM4.25 6.5a1.75 1.75 0 1 0-.001-3.501A1.75 1.75 0 0 0 4.25 6.5Z"></path><path d="M10.095 22.28a.75.75 0 0 1 0-1.06l1.22-1.22H7.25a3.75 3.75 0 0 1-3.75-3.75V7.5a.75.75 0 0 1 1.5 0v8.75a2.25 2.25 0 0 0 2.25 2.25h4.064l-1.22-1.22a.748.748 0 0 1 .332-1.265.75.75 0 0 1 .729.205l2.5 2.5a.75.75 0 0 1 0 1.06l-2.5 2.5a.75.75 0 0 1-1.06 0Z"></path></svg> Checkpoint Conversion Steps</div>
-<p class="sd-card-text">The <code class="docutils literal notranslate"><span class="pre">convert/hf_to_megatron</span></code>, <code class="docutils literal notranslate"><span class="pre">convert/megatron_to_hf</span></code>, and <code class="docutils literal notranslate"><span class="pre">convert/merge_lora</span></code> references.</p>
-</div>
-<div class="sd-card-footer docutils">
-<p class="sd-card-text"><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">reference</span></p>
-</div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="convert/index.html"><span class="doc">Checkpoint Conversion Steps</span></a></div>
-</div>
-</div>
-</div>
-</section>
-<section id="related-documentation">
-<h2>Related Documentation<a class="headerlink" href="#related-documentation" title="Link to this heading">#</a></h2>
+  <!--
+SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="run-sft-with-automodel-on-custom-data">
+<h1>Run SFT with AutoModel on Custom Data<a class="headerlink" href="#run-sft-with-automodel-on-custom-data" title="Link to this heading">#</a></h1>
+<p>This guide walks through configuring and running the <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> step with your own instruction data.
+The step trains models in a Hugging Face checkpoint layout from OpenAI chat-formatted JSON Lines (JSONL).</p>
+<p>Before following this guide, complete <a class="reference internal" href="../getting-started.html"><span class="std std-doc">Getting Started with Training Steps</span></a> to verify your environment profile and confirm that the sample job runs to completion.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../getting-started.html"><span class="std std-doc">Getting Started With Training Steps</span></a> walks through a first run with the tiny configuration.</p></li>
-<li><p><a class="reference internal" href="../../nemo_runspec/nemo-run.html"><span class="std std-doc">Execution Through NeMo Run</span></a> explains attached and detached execution, environment profiles, and remote job directories.</p></li>
-<li><p><a class="reference internal" href="../how-to/index.html"><span class="std std-doc">How-To Guides</span></a> cover backend choice, data and checkpoint formats, and environment-and-executor setup.</p></li>
+<li><p>A completed <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> at the repository root with a training profile such as <code class="docutils literal notranslate"><span class="pre">lepton_sft_automodel</span></code>.
+See <a class="reference internal" href="../getting-started.html"><span class="std std-doc">Getting Started with Training Steps</span></a> for the environment snippet and how to generate the full profile file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HF_TOKEN</span></code>, <code class="docutils literal notranslate"><span class="pre">WANDB_API_KEY</span></code>, and <code class="docutils literal notranslate"><span class="pre">NVIDIA_API_KEY</span></code> exported in your shell.</p></li>
+<li><p>Instruction data in JSONL form where each record includes a <code class="docutils literal notranslate"><span class="pre">messages</span></code> field in OpenAI chat format.</p></li>
+<li><p>A Hugging Face access token if the base model is gated or must be downloaded from the Hugging Face Hub.</p></li>
+<li><p>Enough GPU memory for the model you select.
+Verify memory requirements before scaling beyond a tiny configuration.</p></li>
 </ul>
-<div class="toctree-wrapper compound">
+</section>
+<section id="configure-the-step">
+<h2>Configure the Step<a class="headerlink" href="#configure-the-step" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Open <code class="docutils literal notranslate"><span class="pre">src/nemotron/steps/sft/automodel/config/tiny.yaml</span></code>.
+The checked-in defaults pull small public data slices from the Hugging Face Hub.
+Replace the <code class="docutils literal notranslate"><span class="pre">dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">model</span></code> fields with your paths and model identifier.</p></li>
+<li><p>Align the tokenizer and chat template with how your JSONL was built.
+The step applies the tokenizer at training time, so a mismatch between the template used during data preparation and the template applied here causes silent quality degradation or a hard failure at startup.
+See <a class="reference internal" href="data-and-checkpoint-formats.html"><span class="std std-doc">Data and Checkpoint Formats</span></a> for the canonical field names the step expects.</p></li>
+</ol>
+</section>
+<section id="run-the-step">
+<h2>Run the Step<a class="headerlink" href="#run-the-step" title="Link to this heading">#</a></h2>
+<p>Submit the step against your environment profile:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sft/automodel<span class="w"> </span>-c<span class="w"> </span>tiny<span class="w"> </span>-r<span class="w"> </span>lepton_sft_automodel
+</pre></div>
 </div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">lepton_sft_automodel</span></code> with the profile name from your <code class="docutils literal notranslate"><span class="pre">env.toml</span></code> when your team uses a different table key.
+See <a class="reference internal" href="../../nemo_runspec/nemo-run.html"><span class="std std-doc">Execution through NeMo Run</span></a> for profile setup and scheduler behavior.</p>
+</section>
+<section id="verify-output">
+<h2>Verify Output<a class="headerlink" href="#verify-output" title="Link to this heading">#</a></h2>
+<p>The step manifest declares a <code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code> artifact on success.
+Confirm the output directory you set in the training configuration contains checkpoints, and that logs show stable loss for the duration of the run.</p>
+<p>To inspect what the step produces, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>show<span class="w"> </span>sft/automodel
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">produces</span></code> block lists <code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code> and the path it writes to.</p>
+</section>
+<section id="common-issues">
+<h2>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>When you encounter CUDA out-of-memory errors, reduce batch sizes in YAML or switch to a smaller base model.</p></li>
+<li><p>When the trainer reports a missing chat template, pick a tokenizer that defines a template or convert your data to a format the trainer accepts.
+The <code class="docutils literal notranslate"><span class="pre">step.toml</span></code> file lists <code class="docutils literal notranslate"><span class="pre">[[errors]]</span></code> entries such as <code class="docutils literal notranslate"><span class="pre">chat_template_missing</span></code> with recovery hints.</p></li>
+<li><p>When you need to checkpoint to a specific directory, set <code class="docutils literal notranslate"><span class="pre">SFT_OUTPUT_DIR</span></code> in your shell before running or pass the <code class="docutils literal notranslate"><span class="pre">checkpoint.checkpoint_dir</span></code> override on the command line.</p></li>
+</ul>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Read <a class="reference internal" href="choose-sft-backend.html"><span class="std std-doc">Choose an SFT Backend</span></a> when you need Megatron Bridge and packed Parquet instead of AutoModel and JSONL.</p></li>
+<li><p>Read <a class="reference internal" href="data-and-checkpoint-formats.html"><span class="std std-doc">Data and Checkpoint Formats</span></a> to understand how JSONL and checkpoints chain with other steps.</p></li>
+<li><p>Read <a class="reference internal" href="convert-checkpoints.html"><span class="std std-doc">Convert Checkpoints Between Training Steps</span></a> when the next step in your pipeline requires a different checkpoint layout.</p></li>
+</ul>
 </section>
 </section>
 
@@ -859,20 +806,20 @@ Use these pages to find the exact CLI syntax, configuration file layout, paramet
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../how-to/convert-checkpoints.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Convert Checkpoints Between Training Steps</p>
+        <p class="prev-next-title">Model Training How-To Guides</p>
       </div>
     </a>
     <a class="right-next"
-       href="cli-reference.html"
+       href="choose-sft-backend.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Nemotron Steps CLI Reference</p>
+        <p class="prev-next-title">Choose an SFT Backend</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -897,9 +844,12 @@ Use these pages to find the exact CLI syntax, configuration file layout, paramet
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-sections">Reference Sections</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#per-category-step-references">Per-Category Step References</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-documentation">Related Documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-the-step">Configure the Step</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-step">Run the Step</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-output">Verify Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
 </ul>
   </nav></div>
 

@@ -67,6 +67,8 @@
 
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="convert/hf_to_megatron" href="hf-to-megatron.html" />
+    <link rel="prev" title="optimize/modelopt/distill" href="../optimize/distill.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -373,6 +375,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../sdg/index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdg/getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdg/using-skills.html">Tips for Using Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdg/planning.html">Planning</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../sdg/how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../sdg/how-to/create-domain-dataset.html">Create a Domain Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sdg/how-to/tool-call-data.html">Create Tool-Calling Dataset</a></li>
@@ -449,7 +452,7 @@
 </details></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../using-skill.html">Tips for Using Agents</a></li>
@@ -459,20 +462,18 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/training-libraries.html">Training Libraries</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorials/first-sft-automodel.html">First SFT Run with AutoModel</a></li>
-</ul>
-</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../how-to/index.html">Tasks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../how-to/run-sft-automodel.html">Run SFT with AutoModel on Custom Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how-to/choose-sft-backend.html">Choose an SFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how-to/choose-peft-backend.html">Choose a PEFT Backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how-to/choose-rl-step.html">Choose an RL Alignment Step</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how-to/run-optimization.html">Run Post-Training Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how-to/env-and-executors.html">Environment Profiles and Executors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how-to/data-and-checkpoint-formats.html">Data and Checkpoint Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how-to/convert-checkpoints.html">Convert Checkpoints</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../index.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../cli-reference.html">Nemotron Steps CLI Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../env-profile-generator.html">Env Profile Generator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../step-catalog.html">Step Catalog</a></li>
@@ -493,10 +494,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../rl/rlhf.html">rl/nemo_rl/rlhf</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../optimize/index.html">Model Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../optimize/index.html">Optimization Steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../optimize/quantize.html">optimize/modelopt/quantize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../optimize/prune.html">optimize/modelopt/prune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../optimize/distill.html">optimize/modelopt/distill</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Checkpoint Conversion Steps</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="hf-to-megatron.html">convert/hf_to_megatron</a></li>
+<li class="toctree-l3"><a class="reference internal" href="megatron-to-hf.html">convert/megatron_to_hf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merge-lora.html">convert/merge_lora</a></li>
 </ul>
 </details></li>
 </ul>
@@ -686,6 +693,9 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Training Reference</a></li>
+    
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Checkpoint Conversion Steps</span></li>
   </ul>
 </nav>
@@ -772,6 +782,24 @@ convert/merge_lora</div>
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="../optimize/distill.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">optimize/modelopt/distill</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="hf-to-megatron.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">convert/hf_to_megatron</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
