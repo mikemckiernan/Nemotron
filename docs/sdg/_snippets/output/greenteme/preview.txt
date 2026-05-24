@@ -1,0 +1,4 @@
+TODO(maintainer): replace this placeholder with captured stdout from
+    nemotron step run sdg/data_designer -c greenteme preview=true num_records=2
+The tutorial expects to show: model-alias check, two-row preview, and the
+"Preview 2 records → ..." summary line printed by step.py.
