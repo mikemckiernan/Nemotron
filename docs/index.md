@@ -53,6 +53,49 @@ End-to-end applications: RAG agents, ML agents, and multi-agent systems.
 
 ::::
 
+## Customization Workflows with Nemotron Steps
+
+::::{grid} 1 2 2 2
+:gutter: 3
+
+:::{grid-item-card} Translation
+:link: translation/index
+:link-type: doc
+
+Translate JSONL or Parquet corpora with `translate/nemo_curator`, NeMo Curator
+backends, and optional FAITH quality scoring.
+:::
+
+:::{grid-item-card} Build MCQ Benchmarks
+:link: build-benchmarks/index
+:link-type: doc
+
+Generate and translate custom multiple-choice benchmarks with `byob/mcq`.
+:::
+
+:::{grid-item-card} Data Curation
+:link: curate/index
+:link-type: doc
+
+Filter JSONL text with `curate/nemo_curator` before translation or training data preparation.
+:::
+
+:::{grid-item-card} Synthetic Data Generation
+:link: sdg/index
+:link-type: doc
+
+Use `sdg/data_designer` to produce SFT, tool-use, and preference datasets.
+:::
+
+:::{grid-item-card} Model Evaluation
+:link: model-eval/index
+:link-type: doc
+
+Evaluate hosted endpoints or checkpoints with `eval/model_eval`.
+:::
+
+::::
+
 ## Training Recipes
 
 ::::{grid} 1 2 2 2
@@ -131,6 +174,7 @@ Each recipe family has its own stage layout, and all of them can be tracked thro
 - [Pre-training Datasets](https://huggingface.co/collections/nvidia/nemotron-pre-training-datasets) – open pre-training data
 - [Post-training Datasets](https://huggingface.co/collections/nvidia/nemotron-post-training-v3) – SFT and RL data
 - [Artifact Lineage](nemotron/artifacts.md) – W&B integration guide
+- [Model training steps](train-models/index.md) – SFT, PEFT, RL, and optimization with `nemotron step run`
 
 ```{toctree}
 :caption: Nemotron
@@ -142,13 +186,92 @@ deployment-guides.md
 ```
 
 ```{toctree}
+:caption: Nemotron Step Basics
+:hidden:
+
+About <steps/index.md>
+Basics <steps/basics.md>
+Getting Started <steps/getting-started.md>
+Airgap Environment <steps/airgap.md>
+```
+
+```{toctree}
+:caption: Data Curation
+:hidden:
+
+About <curate/index.md>
+Getting Started <curate/getting-started.md>
+Tasks <curate/how-to/index.md>
+Reference <curate/reference/index.md>
+```
+
+```{toctree}
+:caption: Synthetic Data Generation
+:hidden:
+
+About <sdg/index>
+Getting Started <sdg/getting-started>
+Tips for Using Agents <sdg/using-skills>
+Planning <sdg/planning>
+Tasks <sdg/how-to/index>
+Reference <sdg/reference/index>
+```
+
+```{toctree}
+:caption: Translation
+:hidden:
+
+About <translation/index.md>
+Getting Started <translation/getting-started.md>
+Tips for Using Agents <translation/using-skills.md>
+translation/explanation/index.md
+Tasks <translation/how-to/index.md>
+Reference <translation/reference/index.md>
+```
+
+```{toctree}
+:caption: Build MCQ Benchmarks
+:hidden:
+
+About <build-benchmarks/index.md>
+Getting Started <build-benchmarks/getting-started.md>
+Concepts <build-benchmarks/explanation/index.md>
+Tasks <build-benchmarks/how-to/index.md>
+Reference <build-benchmarks/reference/index.md>
+```
+
+```{toctree}
+:caption: Model Training
+:hidden:
+
+About <train-models/index.md>
+Getting Started <train-models/getting-started.md>
+Tips for Using Agents <train-models/using-skill.md>
+Concepts <train-models/explanation/index.md>
+Tasks <train-models/how-to/index.md>
+Reference <train-models/reference/index.md>
+```
+
+```{toctree}
+:caption: Model Evaluation
+:hidden:
+
+About <model-eval/index.md>
+Getting Started <model-eval/getting-started.md>
+Tips for Using Agents <model-eval/using-skills.md>
+Concepts <model-eval/explanation/index.md>
+Tasks <model-eval/how-to/index.md>
+Reference <model-eval/reference/index.md>
+```
+
+```{toctree}
 :caption: Training Recipes
 :hidden:
 
-nemotron/nano3/README.md
-nemotron/omni3/README.md
-nemotron/super3/README.md
-nemotron/embed/README.md
+Nemotron 3 Nano <nemotron/nano3/README.md>
+Nemotron 3 Omni <nemotron/omni3/README.md>
+Nemotron 3 Super <nemotron/super3/README.md>
+Llama Nemotron Embed <nemotron/embed/README.md>
 nemotron/artifacts.md
 ```
 
