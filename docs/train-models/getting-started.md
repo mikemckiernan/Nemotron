@@ -14,6 +14,9 @@ The goal is to validate end-to-end execution, NeMo Run, and your environment pro
   - `NVIDIA_API_KEY`
 - You ran `lep login` after syncronizing dependencies and are logged into Lepton.
 
+The preceding list applies to the steps on this page.
+Refer to [](./index.md#limitations-and-restrictions) for information about supported environments.
+
 ## Procedure
 
 1. Clone the repository, if you haven't already:

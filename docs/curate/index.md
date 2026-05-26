@@ -132,4 +132,3 @@ YAML parameters, CLI syntax, input/output format, and troubleshooting.
 3. Hugging Face snapshot setup: {doc}`how-to/use-huggingface-snapshot`
 4. Filter setup: {doc}`how-to/enable-filters`
 5. Lookup flags: {doc}`reference/cli-curate`
-

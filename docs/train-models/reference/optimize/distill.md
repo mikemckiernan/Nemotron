@@ -164,12 +164,15 @@ $ nemotron steps run optimize/modelopt/distill -c default -b slurm_optimize_mode
     args.train_iters=100
 ```
 
+## Related Skill
+
+Run the `nemotron-optimizer-distillation` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Run Post-Training Optimization](../../how-to/run-optimization.md) explains the ordering of prune and distill, hardware targets, and quality recovery.
 - [optimize/modelopt/prune](prune.md) feeds pruned checkpoints into this step.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/optimize/modelopt/distill/SKILL.md) collects teacher-and-student selection guidance.
 
 ### Upstream
 

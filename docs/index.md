@@ -16,8 +16,11 @@
 
 ```console
 // Install the Nemotron training recipes
-$ git clone https://github.com/NVIDIA/nemotron
-$ cd nemotron && uv sync
+$ git clone https://github.com/NVIDIA-NeMo/Nemotron
+$ cd Nemotron && uv sync
+
+// Run a tiny SFT job on your cluster
+$ uv run nemotron steps run sft/automodel -c tiny --run YOUR-CLUSTER
 
 // Run the Nano3 pipeline stage by stage
 $ uv run nemotron nano3 data prep pretrain --run YOUR-CLUSTER
