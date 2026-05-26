@@ -738,6 +738,15 @@
 You do not need a cluster or a GPU to follow along.
 Every command in this guide reads metadata only.</p>
 <p>If you have not read <a class="reference internal" href="basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a>, start there for the definitions of <em>step</em>, <em>configuration</em>, <em>environment profile</em>, and <em>artifact</em>.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Python 3.10 or later.</p></li>
+<li><p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> installed and on your path.</p></li>
+</ul>
+<p>These prerequisites cover the basics for an introduction to using the steps.
+For each activity, such as model training or data generation, refer to the getting started page of each activity for additional prerequisites.</p>
+</section>
 <section id="getting-access-to-the-nemotron-cli">
 <h2>Getting Access to the Nemotron CLI<a class="headerlink" href="#getting-access-to-the-nemotron-cli" title="Link to this heading">#</a></h2>
 <ol class="arabic">
@@ -745,6 +754,7 @@ Every command in this guide reads metadata only.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA-NeMo/Nemotron<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>Nemotron
 </pre></div>
 </div>
+<p>Run all commands from the repository root.</p>
 </li>
 <li><p>Synchronize the common dependencies:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync
@@ -821,16 +831,6 @@ Use the <code class="docutils literal notranslate"><span class="pre">--produces<
 For example, the <code class="docutils literal notranslate"><span class="pre">sdg/data_designer</span></code> step produces <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code>, and the <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> step consumes <code class="docutils literal notranslate"><span class="pre">training_jsonl</span></code>, so you can pipe the synthetic dataset directly into supervised fine-tuning without an intermediate conversion.</p>
 <p>The same pattern works for other artifact types, such as <code class="docutils literal notranslate"><span class="pre">packed_parquet</span></code>, <code class="docutils literal notranslate"><span class="pre">binidx</span></code>, <code class="docutils literal notranslate"><span class="pre">checkpoint_hf</span></code>, <code class="docutils literal notranslate"><span class="pre">checkpoint_megatron</span></code>, <code class="docutils literal notranslate"><span class="pre">checkpoint_lora</span></code>, <code class="docutils literal notranslate"><span class="pre">synthetic_jsonl</span></code>, <code class="docutils literal notranslate"><span class="pre">eval_results</span></code>, and <code class="docutils literal notranslate"><span class="pre">mcq_benchmark_parquet</span></code>.</p>
 </section>
-<section id="run-a-step">
-<h2>Run a Step<a class="headerlink" href="#run-a-step" title="Link to this heading">#</a></h2>
-<p>Once you know which step you want, use <code class="docutils literal notranslate"><span class="pre">nemotron</span> <span class="pre">steps</span> <span class="pre">run</span></code> to invoke it.
-The following command runs the <code class="docutils literal notranslate"><span class="pre">tiny</span></code> configuration of <code class="docutils literal notranslate"><span class="pre">sft/automodel</span></code> on the local machine.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sft/automodel<span class="w"> </span>-c<span class="w"> </span>tiny
-</pre></div>
-</div>
-<p>To run on a cluster, pass <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;profile&gt;</span></code> for attached execution or <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;profile&gt;</span></code> for detached execution, where the profile name comes from your environment profile file.
-See <a class="reference internal" href="basics.html"><span class="std std-doc">Nemotron Steps Basics</span></a> for the profile model and <a class="reference internal" href="../nemo_runspec/nemo-run.html"><span class="std std-doc">Execution Through NeMo Run</span></a> for cluster setup.</p>
-</section>
 <section id="where-to-go-next">
 <h2>Where To Go Next<a class="headerlink" href="#where-to-go-next" title="Link to this heading">#</a></h2>
 <p>Pick the domain section that matches the work you have in mind.</p>
@@ -893,6 +893,7 @@ See <a class="reference internal" href="basics.html"><span class="std std-doc">N
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-access-to-the-nemotron-cli">Getting Access to the Nemotron CLI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#list-the-available-steps">List the Available Steps</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#filter-by-category">Filter by Category</a></li>
@@ -901,7 +902,6 @@ See <a class="reference internal" href="basics.html"><span class="std std-doc">N
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-a-single-step">Inspect a Single Step</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain-steps-through-artifacts">Chain Steps Through Artifacts</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-a-step">Run a Step</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-go-next">Where To Go Next</a></li>
 </ul>
   </nav></div>

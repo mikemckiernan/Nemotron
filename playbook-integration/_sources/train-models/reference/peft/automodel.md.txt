@@ -175,12 +175,15 @@ $ nemotron steps run peft/automodel -c default -b slurm_peft_automodel \
     peft.alpha=16
 ```
 
+## Related Skill
+
+Run the `nemotron-peft-automodel` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Choose a PEFT Backend](../../how-to/choose-peft-backend.md) compares `peft/automodel` and `peft/megatron_bridge`.
 - [peft/megatron_bridge](megatron-bridge.md) documents the Megatron-Bridge LoRA step.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/peft/automodel/SKILL.md) collects rank and alpha defaults and adapter-merge discipline.
 
 ### Upstream
 

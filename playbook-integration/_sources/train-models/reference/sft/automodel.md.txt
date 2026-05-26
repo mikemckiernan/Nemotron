@@ -175,12 +175,15 @@ $ nemotron steps run sft/automodel -c default -b slurm_sft_automodel \
     checkpoint.checkpoint_dir=/lustre/runs/qwen-sft
 ```
 
+## Related Skill
+
+Run the `nemotron-sft-automodel` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Choose an SFT Backend](../../how-to/choose-sft-backend.md) compares `sft/automodel` to `sft/megatron_bridge`.
 - [Configuration Conventions](../config-conventions.md) describes the per-step `config/` layout.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/sft/automodel/SKILL.md) collects backend choice, sample commands, and patterns for tokenizer alignment.
 
 ### Upstream
 

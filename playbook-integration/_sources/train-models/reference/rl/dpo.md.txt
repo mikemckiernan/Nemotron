@@ -138,11 +138,14 @@ $ nemotron steps run rl/nemo_rl/dpo -c default -b slurm_rl_nemo_rl_dpo \
     policy.optimizer.lr=1.0e-6
 ```
 
+## Related Skill
+
+Run the `nemotron-rl-nemo-rl-dpo` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Choose an RL Alignment Step](../../how-to/choose-rl-step.md) compares the three RL steps.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/rl/nemo_rl/dpo/SKILL.md) collects reward selection and convergence guidance.
 
 ### Upstream
 

@@ -764,6 +764,18 @@ If you are new to fine-tuning, start with <a class="reference internal" href="ex
 </table>
 </div>
 </section>
+<section id="limitations-and-restrictions">
+<h2>Limitations and Restrictions<a class="headerlink" href="#limitations-and-restrictions" title="Link to this heading">#</a></h2>
+<p>The Nemotron steps for data preparation and model training do not support local training, such as on a developer workstation.</p>
+<p>These steps require access to at least two nodes, each equipped with 8 x NVIDIA A100 80 GB or better GPUs.
+These steps support the following environments:</p>
+<ul class="simple">
+<li><p>Slurm</p></li>
+<li><p>NVIDIA DGX Cloud Lepton</p></li>
+<li><p>NVIDIA Run:ai</p></li>
+</ul>
+<p>For assistance with configuring access to one of the supported computing environments, refer to <a class="reference internal" href="reference/env-profile-generator.html"><span class="std std-doc">Env Profile Generator</span></a> or run the <code class="docutils literal notranslate"><span class="pre">nemotron-env-toml</span></code> skill with your agent.</p>
+</section>
 <section id="learning-path">
 <h2>Learning Path<a class="headerlink" href="#learning-path" title="Link to this heading">#</a></h2>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
@@ -904,6 +916,7 @@ Model Training with Agents</div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#capabilities-at-a-glance">Capabilities at a Glance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations-and-restrictions">Limitations and Restrictions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-path">Learning Path</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-links">Quick Links</a></li>
 </ul>

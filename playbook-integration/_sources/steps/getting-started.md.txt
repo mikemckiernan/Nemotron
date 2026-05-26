@@ -12,6 +12,14 @@ Every command in this guide reads metadata only.
 
 If you have not read [Nemotron Steps Basics](basics.md), start there for the definitions of *step*, *configuration*, *environment profile*, and *artifact*.
 
+## Prerequisites
+
+- Python 3.10 or later.
+- [uv](https://docs.astral.sh/uv/) installed and on your path.
+
+These prerequisites cover the basics for an introduction to using the steps.
+For each activity, such as model training or data generation, refer to the getting started page of each activity for additional prerequisites.
+
 ## Getting Access to the Nemotron CLI
 
 1. Clone the repository, if you haven't already:
@@ -19,6 +27,8 @@ If you have not read [Nemotron Steps Basics](basics.md), start there for the def
    ```console
    $ git clone https://github.com/NVIDIA-NeMo/Nemotron && cd Nemotron
    ```
+
+   Run all commands from the repository root.
 
 1. Synchronize the common dependencies:
 
@@ -113,18 +123,6 @@ Together, the two queries show you which steps you can chain.
 For example, the `sdg/data_designer` step produces `training_jsonl`, and the `sft/automodel` step consumes `training_jsonl`, so you can pipe the synthetic dataset directly into supervised fine-tuning without an intermediate conversion.
 
 The same pattern works for other artifact types, such as `packed_parquet`, `binidx`, `checkpoint_hf`, `checkpoint_megatron`, `checkpoint_lora`, `synthetic_jsonl`, `eval_results`, and `mcq_benchmark_parquet`.
-
-## Run a Step
-
-Once you know which step you want, use `nemotron steps run` to invoke it.
-The following command runs the `tiny` configuration of `sft/automodel` on the local machine.
-
-```console
-$ uv run nemotron steps run sft/automodel -c tiny
-```
-
-To run on a cluster, pass `-r <profile>` for attached execution or `-b <profile>` for detached execution, where the profile name comes from your environment profile file.
-See [Nemotron Steps Basics](basics.md) for the profile model and [Execution Through NeMo Run](../nemo_runspec/nemo-run.md) for cluster setup.
 
 ## Where To Go Next
 

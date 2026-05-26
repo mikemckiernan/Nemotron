@@ -817,15 +817,6 @@ The checked-in <code class="docutils literal notranslate"><span class="pre">tiny
 <p>Open a shard and confirm that records contain the configured <code class="docutils literal notranslate"><span class="pre">text_field</span></code>.
 NeMo Curator assigns the exact shard name.</p>
 </li>
-<li><p>To run the same validation on Lepton, generate an environment profile that
-includes <code class="docutils literal notranslate"><span class="pre">lepton_curate</span></code>, then run the packaged tiny configuration without
-local path overrides:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>curate/nemo_curator<span class="w"> </span>-c<span class="w"> </span>tiny<span class="w"> </span>--batch<span class="w"> </span>lepton_curate
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">lepton_curate</span></code> profile uses the NeMo Curator container and sets CPU
-resources for a small validation run.</p>
-</li>
 </ol>
 </section>
 <section id="summary">

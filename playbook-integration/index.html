@@ -717,8 +717,11 @@
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
 <div class="termy">
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">// Install the Nemotron training recipes</span>
-<span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/nemotron
-<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>nemotron<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>sync
+<span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA-NeMo/Nemotron
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>Nemotron<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>sync
+
+<span class="go">// Run a tiny SFT job on your cluster</span>
+<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>steps<span class="w"> </span>run<span class="w"> </span>sft/automodel<span class="w"> </span>-c<span class="w"> </span>tiny<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
 
 <span class="go">// Run the Nano3 pipeline stage by stage</span>
 <span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>nemotron<span class="w"> </span>nano3<span class="w"> </span>data<span class="w"> </span>prep<span class="w"> </span>pretrain<span class="w"> </span>--run<span class="w"> </span>YOUR-CLUSTER
