@@ -147,11 +147,14 @@ $ nemotron steps run optimize/modelopt/quantize -c nvfp4 -b slurm_optimize_model
     args.megatron_save_path=/lustre/quantized/super3-nvfp4
 ```
 
+## Related Skill
+
+Run the `nemotron-optimizer-quantization` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Run Post-Training Optimization](../../how-to/run-optimization.md) explains the ordering of prune and distill, hardware targets, and quality recovery.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/optimize/modelopt/quantize/SKILL.md) collects per-recipe guidance.
 
 ### Upstream
 

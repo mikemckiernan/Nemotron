@@ -147,11 +147,14 @@ $ nemotron steps run rl/nemo_rl/rlhf -c default -b slurm_rl_nemo_rl_rlhf \
     data.validation.data_path=/lustre/rlhf/val.jsonl
 ```
 
+## Related Skill
+
+Run the `nemotron-rl-nemo-rl-rlhf` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Choose an RL Alignment Step](../../how-to/choose-rl-step.md) compares the three RL steps.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/rl/nemo_rl/rlhf/SKILL.md) collects reward model selection and NeMo-Gym configuration guidance.
 
 ### Upstream
 

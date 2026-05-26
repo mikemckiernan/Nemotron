@@ -173,12 +173,15 @@ $ nemotron steps run peft/megatron_bridge -c default -b slurm_peft_megatron_brid
     train.global_batch_size=64
 ```
 
+## Related Skill
+
+Run the `nemotron-peft-megatron-bridge` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Choose a PEFT Backend](../../how-to/choose-peft-backend.md) compares `peft/megatron_bridge` and `peft/automodel`.
 - [peft/automodel](automodel.md) documents the NeMo AutoModel LoRA step.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/peft/megatron_bridge/SKILL.md) collects parallelism choices and adapter-merge discipline.
 
 ### Upstream
 

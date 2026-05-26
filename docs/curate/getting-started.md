@@ -101,17 +101,6 @@ the names and record counts of the output shards.
    Open a shard and confirm that records contain the configured `text_field`.
    NeMo Curator assigns the exact shard name.
 
-1. To run the same validation on Lepton, generate an environment profile that
-   includes `lepton_curate`, then run the packaged tiny configuration without
-   local path overrides:
-
-   ```console
-   $ uv run --no-sync nemotron steps run curate/nemo_curator -c tiny --batch lepton_curate
-   ```
-
-   The `lepton_curate` profile uses the NeMo Curator container and sets CPU
-   resources for a small validation run.
-
 ## Summary
 
 In this tutorial, you completed the following tasks:

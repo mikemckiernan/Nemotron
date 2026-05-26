@@ -14,6 +14,19 @@ If you are new to fine-tuning, start with [Training Basics](explanation/basics.m
 | RL | `rl/nemo_rl/dpo`, `rl/nemo_rl/rlvr`, `rl/nemo_rl/rlhf` | Alignment after a supervised fine tuning (SFT) policy exists |
 | Optimize | `optimize/modelopt/quantize`, `optimize/modelopt/prune`, `optimize/modelopt/distill` | Compression and quality recovery |
 
+## Limitations and Restrictions
+
+The Nemotron steps for data preparation and model training do not support local training, such as on a developer workstation.
+
+These steps require access to at least two nodes, each equipped with 8 x NVIDIA A100 80 GB or better GPUs.
+These steps support the following environments:
+
+- Slurm
+- NVIDIA DGX Cloud Lepton
+- NVIDIA Run:ai
+
+For assistance with configuring access to one of the supported computing environments, refer to [](./reference/env-profile-generator.md) or run the `nemotron-env-toml` skill with your agent.
+
 ## Learning Path
 
 ::::{grid} 1 2 2 2

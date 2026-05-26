@@ -194,12 +194,15 @@ $ nemotron steps run sft/megatron_bridge -c default -r lepton_sft_megatron_bridg
     recipe.pipeline_model_parallel_size=4
 ```
 
+## Related Skill
+
+Run the `nemotron-sft-megatron-bridge` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Choose an SFT Backend](../../how-to/choose-sft-backend.md) compares `sft/megatron_bridge` to `sft/automodel`.
 - [Configuration Conventions](../config-conventions.md) describes the per-step `config/` layout.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/sft/megatron_bridge/SKILL.md) collects perf-tuning notes and decision patterns.
 
 ### Upstream
 

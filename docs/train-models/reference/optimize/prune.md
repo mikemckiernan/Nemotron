@@ -156,12 +156,15 @@ $ nemotron steps run optimize/modelopt/prune -c default -b slurm_optimize_modelo
     args.pp_size=4
 ```
 
+## Related Skill
+
+Run the `nemotron-optimizer-pruning` skill with your agent.
+
 ## Related Documentation
 
 - [Nemotron Steps CLI Reference](../cli-reference.md) covers the shared option set, dotlist overrides, and passthrough arguments.
 - [Run Post-Training Optimization](../../how-to/run-optimization.md) explains the ordering of prune and distill, hardware targets, and quality recovery.
 - [optimize/modelopt/distill](distill.md) recovers quality after pruning.
-- [Operator Notes](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/src/nemotron/steps/optimize/modelopt/prune/SKILL.md) collects search-and-export guidance.
 
 ### Upstream
 
