@@ -12,18 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Release Nightly Docs
+# Build half (collector) of the Fern docs preview pair.
+#
+# Fork-PR safe: collects fern/ sources and PR metadata into an artifact
+# without using any secrets. The companion comment workflow runs in the
+# base-repo context via workflow_run and consumes the artifact.
+#
+name: "Preview Fern Docs: Build"
 
 on:
-  schedule:
-    - cron: "0 10 * * *"
+  pull_request:
+    paths:
+      - 'fern/**'
+      - '.github/workflows/fern-docs-preview-build.yml'
 
 jobs:
-  call-release-docs:
-    uses: ./.github/workflows/release-docs.yml
-    with:
-      dry-run: false
-      publish-as-latest: false
-      docs-version-override: "nightly"
-      update-version-picker: false
-    secrets: inherit
+  collect:
+    uses: NVIDIA-NeMo/FW-CI-templates/.github/workflows/_fern_docs_preview_build.yml@mmck-docs-fern
