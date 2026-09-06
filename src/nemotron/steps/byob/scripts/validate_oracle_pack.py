@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import tempfile
 from pathlib import Path
 
@@ -56,7 +57,8 @@ def main() -> None:
                 ensure_ascii=False,
                 indent=2,
                 sort_keys=True,
-            )
+            ),
+            file=sys.stderr,
         )
         raise SystemExit(1) from exc
 
