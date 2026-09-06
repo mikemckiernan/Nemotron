@@ -43,6 +43,13 @@ structured errors, and 1 timeout. Every tool needs a successful case; every decl
 mutating tool needs a reviewed state-changing case. Error cases name an expected code,
 while timeout cases cannot claim an outcome or state transition.
 
+[`bfcl-probe-plan.example.json`](bfcl-probe-plan.example.json) is a worked plan of that
+shape, taken from a published release: ten successes covering every published tool, two
+of them state-changing for the two mutating tools, four structured errors naming their
+codes, and the one timeout case A2 requires. Its `fixtures` block is abridged to the
+records its own cases reach, because a real plan inlines the source's complete canonical
+fixtures and is dominated by them.
+
 Before execution, BFCL scans the complete plan with the held-out detector and rejects
 source imports or calls outside `bfcl-local-least-privilege-v1`. The initial policy
 permits only a closed data-processing subset of the standard library and no locked
