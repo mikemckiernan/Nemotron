@@ -72,6 +72,17 @@ Every number in the example files is a worked example for the pack that file poi
 | `eval.launcher.yaml` | Launcher evaluation envelope. |
 | `translate.yaml` | Localization of an already published benchmark. |
 
+## Authoring Input Examples
+
+Those configurations drive generation, which starts only once a reviewed pack exists. The inputs the authoring flows take *before* generation ship as worked examples under `src/nemotron/steps/byob/references/`, taken from a published release.
+
+| File | Used by | Purpose |
+| --- | --- | --- |
+| `bfcl-domain-brief.example.txt` | `--brief` | The reviewed statement of what a source is for, sanitized and bound into the evidence. |
+| `bfcl-probe-plan.example.json` | `--probe-plan` | A complete plan for certification tier A2: a success per published tool, a state-changing case per mutating tool, structured errors naming their codes, and the required timeout case. Its `fixtures` block is abridged to the records its own cases reach. |
+| `bfcl-authoring-policy.example.yaml` | policy | Organizational defaults a guided session should not ask for twice. |
+| `bfcl-endpoint-config.example.yaml` | `endpoint_config.yaml` | A complete endpoint-backed pack declaration, with credentials referenced by environment-variable name only. |
+
 ## Command-line Conventions
 
 These pages use `nemotron steps run byob/bfcl -c <CONFIG> stage=<STAGE>`. The same code path

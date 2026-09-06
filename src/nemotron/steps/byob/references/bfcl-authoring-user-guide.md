@@ -48,6 +48,14 @@ are accepted for Mode A only, since Mode A is the only mode whose reset and stat
 control tools; without a plan MCP intake certifies A0, exactly as the other transports
 do.
 
+[`bfcl-probe-plan.example.json`](bfcl-probe-plan.example.json) is a complete plan of that
+shape from a published release, with a success per published tool, a state-changing case
+for each mutating tool, structured errors naming their codes, and the timeout case A2
+requires; its `fixtures` block is abridged to the records its own cases reach.
+[`bfcl-domain-brief.example.txt`](bfcl-domain-brief.example.txt) is the matching `--brief`.
+Organizational defaults that policy should supply rather than each invocation are shown in
+[`bfcl-authoring-policy.example.yaml`](bfcl-authoring-policy.example.yaml).
+
 <!-- doc-smoke: bfcl-author-author-help -->
 ```shell
 python -m nemotron.steps.byob.scripts.bfcl_author author --help

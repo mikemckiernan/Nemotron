@@ -153,7 +153,10 @@ It also creates:
 
 The probe plan covers every published tool, a structured error, a mutation, and
 a controlled timeout. Intake runs those probes in isolated processes and may
-attain A2 only from observed outcomes.
+attain A2 only from observed outcomes. To author these two by hand for a source
+of your own, copy the shape from
+[`bfcl-probe-plan.example.json`](bfcl-probe-plan.example.json) and
+[`bfcl-domain-brief.example.txt`](bfcl-domain-brief.example.txt).
 
 Equivalent guided command shape:
 
