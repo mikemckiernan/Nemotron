@@ -110,5 +110,12 @@ These pages describe the operator-facing surface. The normative contracts live i
 | Review, approval, and freeze record shapes | `src/nemotron/steps/byob/references/bfcl-authoring-release-v2.md` |
 | Adapter enablement policy and `BFCL_ENABLE_*` variables | `src/nemotron/steps/byob/references/bfcl-authoring-rollout.md` |
 | End-to-end manual pack lifecycle, including endpoint pins | `src/nemotron/steps/byob/references/bfcl-manual-oracle-pack-flow.md` |
+| Source package layouts and the dependency-lock format | `src/nemotron/steps/byob/references/bfcl-conventional-source-packages.md` |
+| Certification tiers and the stable refusal-code registry | `src/nemotron/steps/byob/references/bfcl-source-adapter-certification-profiles.md` |
+| Credential-reference lifecycle and authorization digests | `src/nemotron/steps/byob/references/bfcl-authoring-credentials.md` |
+| Authoring event-log payload allowlist | `src/nemotron/steps/byob/references/bfcl-authoring-events.md` |
+| Release revocation registry | `src/nemotron/steps/byob/references/bfcl-authoring-revocation.md` |
+| Cache retention and the `purge-cache` audit record | `src/nemotron/steps/byob/references/bfcl-authoring-cache-retention.md` |
+| Why MCP reaches the pipeline through a gateway | `src/nemotron/steps/byob/references/bfcl-mcp-architecture-decision.md` |
 
 The step's own declared inputs, outputs, and error taxonomy are in `src/nemotron/steps/byob/bfcl/step.toml`.
