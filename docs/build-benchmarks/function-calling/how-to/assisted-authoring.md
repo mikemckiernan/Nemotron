@@ -24,9 +24,10 @@ It certifies a source, drafts and assembles a candidate pack, validates, reviews
 ## Before You Start
 
 - Install the BYOB dependencies with `uv sync --extra byob`, and prepare a source package in one of the two supported layouts below.
-- Prepare a domain brief, a reviewed statement of what the source is for, which is sanitized and bound into the evidence.
-- Prepare a probe plan, which you need for certification tier A1 or A2 and therefore for a Gold release.
+- Prepare a domain brief, a reviewed statement of what the source is for, which is sanitized and bound into the evidence. `src/nemotron/steps/byob/references/bfcl-domain-brief.example.txt` is the brief a published release was authored from.
+- Prepare a probe plan, which you need for certification tier A1 or A2 and therefore for a Gold release. `src/nemotron/steps/byob/references/bfcl-probe-plan.example.json` is a complete A2-shaped plan to copy the structure from.
 - Have a certification key pair and its allowlisted key identifier available.
+- Organizational defaults that should not be retyped per session belong in a reviewed policy file; see `src/nemotron/steps/byob/references/bfcl-authoring-policy.example.yaml`.
 
 ### Source layouts
 

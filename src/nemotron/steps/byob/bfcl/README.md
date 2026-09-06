@@ -173,6 +173,14 @@ for a complete endpoint-backed pack configuration; and
 [`../references/bfcl-authoring-user-guide.md`](../references/bfcl-authoring-user-guide.md)
 as the index to the assisted-authoring contracts.
 
+Assisted authoring takes three reviewed inputs a model may not write for you, and each
+ships as a worked example taken from a published release: a domain brief
+([`../references/bfcl-domain-brief.example.txt`](../references/bfcl-domain-brief.example.txt)),
+a probe plan that must reach the certification tier you need
+([`../references/bfcl-probe-plan.example.json`](../references/bfcl-probe-plan.example.json)),
+and the organizational defaults a guided session should not ask for twice
+([`../references/bfcl-authoring-policy.example.yaml`](../references/bfcl-authoring-policy.example.yaml)).
+
 Two packs ship under [`../data/`](../data/). `tiny_oracle_pack` is the smallest
 working example. `banking_vn_oracle_pack` is the reference pack: it declares a
 template for every conversation policy the pipeline supports, and no template
