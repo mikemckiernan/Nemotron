@@ -133,10 +133,11 @@ Start with `limits.max_parallel_tasks: 1` and raise it only after confirming the
 
 ## Step 7: Read the Artifacts
 
-A completed run writes an immutable set under `outputs.output_dir`:
+A completed run writes an immutable set directly into `outputs.output_dir`, with no
+intermediate subdirectory:
 
 ```text
-artifacts/
+<outputs.output_dir>/
 ├── resolved_eval_config.json
 ├── source_verification_report.json
 ├── contamination_report.json
@@ -164,7 +165,9 @@ Relaxing any of those is allowed only with `publication.requested: false`, and t
 | The source hash moved | Something wrote into the publication tree during the evaluation, usually a regeneration into the same directory. Verify again from a clean tree. |
 | A finished artifact set exists | Immutable results are never overwritten. Use a new output directory. |
 
-Every failure leaves through one published exit status: `2` for a configuration you must edit, `3` for a setup, source, scoring, or aggregation refusal, `4` for contamination or answer-key exposure, `5` for a candidate-endpoint failure, `6` for live oracle or assertion infrastructure, and `7` for an immutable artifact that already holds different evidence.
+Every failure leaves through one published exit status: `2` for a configuration you must edit, `3` for a setup, source, scoring, or aggregation refusal, `4` for contamination or answer-key exposure, `5` for a candidate-endpoint failure, `6` for live oracle or assertion infrastructure, and `7` for an immutable artifact that already holds different evidence. Exit `7` also
+covers a publication-policy refusal raised against an existing artifact set, which you
+fix in the eval config rather than in the output tree.
 
 ## Next Steps
 

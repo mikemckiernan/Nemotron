@@ -45,12 +45,17 @@ The size target drives everything else: divide it by the number of categories yo
 
 ```yaml
 task_generation:
-  candidate_tasks_per_category: 480
-  tasks_per_category: 232
-  target_published_tasks: 1392
+  candidate_tasks_per_category: 480  # expansion ceiling, >= tasks_per_category
+  tasks_per_category: 232            # size target divided by your category count
+  target_published_tasks: 1392       # tasks_per_category x your category count
   max_turns: 5
   max_tool_calls: 3
 ```
+
+Those numbers are one worked example, not defaults to copy: they read `232 x 6` for a pack
+that declares six categories. Recompute both against your own category count, because
+`target_published_tasks` is an exact count and a value that does not match your inventory
+aborts the run rather than publishing short.
 
 `tasks_per_category` is the default expansion budget for a category and the publication cap over unique bindings, and it may not fall below the template count of your widest category. `candidate_tasks_per_category` is an optional, larger expansion ceiling so that balancing has inventory to select from; it defaults to, and cannot be smaller than, `tasks_per_category`. `target_published_tasks` is the optional exact run-wide publication count, and declaring it is what lets the pipeline abort instead of quietly publishing short. `max_turns` and `max_tool_calls` are publication hard limits, and a task that exceeds either is dropped with its own reason.
 
