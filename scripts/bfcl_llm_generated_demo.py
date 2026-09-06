@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One runnable walk of the BFCL LLM-generated authoring lane, end to end.
+"""One runnable walk of the BFCL assisted authoring flow, end to end.
 
 This drives the shipped guided CLI rather than reimplementing it: a reviewed source
 package is certified by live probes, an authoring model drafts the plans that source can
@@ -19,7 +19,7 @@ benchmark through the real scorer.
     uv run python scripts/bfcl_llm_generated_demo.py --workdir /tmp/bfcl-demo
 
 The candidate answers from the benchmark's own recorded turns, so a clean run should score
-1.0 and prove the lane produces a benchmark a model can pass. To watch the scorer fail a
+1.0 and prove the flow produces a benchmark a model can pass. To watch the scorer fail a
 model instead, re-score the published benchmark with one task sabotaged:
 
     uv run python scripts/bfcl_llm_generated_demo.py --workdir /tmp/bfcl-demo \
