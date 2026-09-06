@@ -85,21 +85,15 @@ a weaker guarantee.
 
 ## Bundled Configurations
 
-Every number in these files is a worked example for the pack it points at, not a
+`config/` holds nine runnable files: a tiny plumbing run, an annotated template whose
+pack path is a placeholder so it cannot publish an example domain by omission, a
+domain-sized smoke run, two publication profiles, three evaluation envelopes, and a
+localization config. Each one is described in
+[the configuration reference](../../../../../docs/build-benchmarks/function-calling/reference/index.md#bundled-configurations).
+
+Every number in those files is a worked example for the pack it points at, not a
 framework default. Copying another pack's task counts and diversity limits is the
 most common way to make the balancing stage infeasible.
-
-| File | What it is for |
-| --- | --- |
-| `config/tiny.yaml` | Smallest end-to-end run against `tiny_oracle_pack`. Not publication-eligible. |
-| `config/default.yaml` | The publication-oriented starting template for a new pack. Its pack path is a placeholder, so the template cannot publish an example domain by omission. |
-| `config/smoke.example.yaml` | A small run covering every supported conversation policy, for surfacing a pack defect in minutes. Not publication-eligible. |
-| `config/publication.example.yaml` | Publication-scale, template-only: every published surface is rendered from the pack's own templates. |
-| `config/publication.paraphrase.example.yaml` | The same run with a model rewording prompts under fail-closed exact-surface diversity constraints, preserving the executable case of each task. |
-| `config/eval.default.yaml` | The scoring template. Copy it, resolve every placeholder, and keep it outside the generation output tree. |
-| `config/eval.cli.yaml` | The direct evaluation envelope: operational choices that must not change the identity of the measurement. |
-| `config/eval.launcher.yaml` | The NeMo Evaluator Launcher envelope, for submitting the exported bundle as a native task. |
-| `config/translate.yaml` | Localizes a published benchmark. |
 
 Model roles are opt-in and disabled in the shipped templates. An enabled role is
 routed by Data Designer, so the provider it names must exist in that installation
@@ -165,12 +159,13 @@ content-hashes some of these documents into the identity of what it publishes.
 | [`../references/bfcl-authoring-support-matrix.md`](../references/bfcl-authoring-support-matrix.md) | Which assisted-authoring surfaces are supported, experimental, or unimplemented, with the test that evidences each one |
 | [`../references/bfcl-mcp-support-matrix.md`](../references/bfcl-mcp-support-matrix.md) | The same for MCP transport behavior |
 
-Also useful: [`../references/bfcl-endpoint-config.example.yaml`](../references/bfcl-endpoint-config.example.yaml)
-for a complete endpoint-backed pack configuration,
+Also useful: [`../references/bfcl-manual-oracle-pack-flow.md`](../references/bfcl-manual-oracle-pack-flow.md)
+for the hand-authored lifecycle end to end, from a new pack through publication to
+evaluation, including endpoint identity pins;
+[`../references/bfcl-endpoint-config.example.yaml`](../references/bfcl-endpoint-config.example.yaml)
+for a complete endpoint-backed pack configuration; and
 [`../references/bfcl-authoring-user-guide.md`](../references/bfcl-authoring-user-guide.md)
-as the index to the assisted-authoring contracts, and
-[`../patterns/create-bfcl-from-oracle-pack.md`](../patterns/create-bfcl-from-oracle-pack.md)
-for the manual lifecycle end to end.
+as the index to the assisted-authoring contracts.
 
 Two packs ship under [`../data/`](../data/). `tiny_oracle_pack` is the smallest
 working example. `banking_vn_oracle_pack` is the reference pack: it declares a

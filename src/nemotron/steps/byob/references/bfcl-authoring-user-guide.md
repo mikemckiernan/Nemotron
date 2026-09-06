@@ -7,6 +7,12 @@ test-linked in [bfcl-authoring-support-matrix.md](bfcl-authoring-support-matrix.
 watch the whole flow run once before reading it step by step, see
 [bfcl-llm-generated-demo.md](bfcl-llm-generated-demo.md).
 
+This file is the command-level reference: every invocation below is a smoke case the test
+suite executes, so it stays in step with the CLI. For the narrative walkthrough of the same
+flow, read
+[the assisted-authoring task guide](../../../../../docs/build-benchmarks/function-calling/how-to/assisted-authoring.md)
+first and return here for exact arguments and refusal codes.
+
 ## Install and inspect the CLI
 
 Install the BYOB dependencies. MCP transport users also install the isolated `bfcl-mcp`
@@ -62,7 +68,7 @@ The normal command sequence is:
 3. `authorize` grants model exposure for the exact evidence subject.
 4. `approve --boundary evidence` separately approves that evidence for drafting.
 5. `draft` runs bounded, cached structured model calls.
-6. `assemble_candidate_pack` binds those drafts into a loadable pack.
+6. `assemble` binds those drafts into a loadable pack.
 7. `review` assembles independently verified certification, fresh validation, answered
    questions, and the complete candidate pack.
 8. `approve --boundary release` approves the exact review packet.

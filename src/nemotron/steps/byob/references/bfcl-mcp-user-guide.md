@@ -1,11 +1,18 @@
 # BFCL MCP onboarding guide
 
 This guide is for operators onboarding an MCP server and for server authors implementing the
-BFCL MCP Oracle Profile. The path remains feature-flagged; Mode A can publish only after fresh,
-independent P4–P11 evidence passes
-([`test_bfcl_authoring_e2e.py`](../../../../../tests/steps/byob/test_bfcl_authoring_e2e.py)).
+BFCL MCP Oracle Profile. The path is feature-flagged; Mode A can publish only after fresh,
+independent `P4`–`P11` evidence passes. Those probes and the conformance levels they
+establish are defined in
+[bfcl-mcp-oracle-contract.md](bfcl-mcp-oracle-contract.md), and which of them are supported
+today is recorded in [bfcl-mcp-support-matrix.md](bfcl-mcp-support-matrix.md).
 For the shared local/HTTP/MCP workflow, use
 [bfcl-authoring-user-guide.md](bfcl-authoring-user-guide.md).
+
+This file is the command-level reference, with every invocation below executed as a smoke
+case by the test suite. For the narrative walkthrough, read
+[the MCP onboarding task guide](../../../../../docs/build-benchmarks/function-calling/how-to/mcp-server.md)
+first and return here for exact arguments and refusal codes.
 
 ## 1. Choose an operating mode
 
@@ -164,8 +171,9 @@ A cooperative server must:
 ### “MCP onboarding is experimental”
 
 Set `BFCL_ENABLE_MCP_MODE_A=1` for live discovery, gateway startup, or MCP intake.
-Offline review and verification do not require the flag. The legacy
-`BFCL_ENABLE_EXPERIMENTAL_MCP` alias remains temporarily available.
+Offline review and verification do not require the flag. `BFCL_ENABLE_EXPERIMENTAL_MCP` is
+accepted as a deprecated alias; see
+[the rollout policy](bfcl-authoring-rollout.md) for how the two interact.
 
 ### SDK major mismatch
 

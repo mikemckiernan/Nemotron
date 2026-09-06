@@ -9,6 +9,8 @@ Use this guide to produce a reviewed Oracle Pack from a conventional source pack
 
 A model in this flow may propose a tool coverage plan, validation cases, task-template plans, and declarative assertion specifications. It may not change the backend, the endpoint behavior, the tool schemas, or the fixtures, and it may not certify its own output, invent fixture bindings, approve anything, or bypass executable Gold validation. Everything it proposes passes through the same replay and Gold gate as a hand-written pack, which is why {doc}`author-a-pack` and this guide converge on one publication contract.
 
+This page is the walkthrough. `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` is the matching command-level reference: it lists every subcommand and refusal code, and its invocations are executed as smoke cases by the test suite, so consult it when you need exact arguments rather than the shape of the flow.
+
 ## Before You Start
 
 - Install the BYOB dependencies with `uv sync --extra byob`, and prepare a source package in one of the two supported layouts below.

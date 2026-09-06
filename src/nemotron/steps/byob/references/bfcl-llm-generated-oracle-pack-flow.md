@@ -1,6 +1,11 @@
-# LLM-generated BFCL demo: source intake to evaluation
+# Assisted authoring runbook: source intake to evaluation
 
-This guide runs the supported LLM-assisted conventional-source flow:
+This is the step-by-step runbook for the supported LLM-assisted conventional-source flow.
+It carries every command, refusal, and recovery. For a short orientation to the same flow —
+what the bundled demo simulates, what it executes for real, and how to read its scores —
+read [bfcl-llm-generated-demo.md](bfcl-llm-generated-demo.md) first.
+
+The flow is:
 
 ```text
 reviewed local Python source + domain brief + probe plan
