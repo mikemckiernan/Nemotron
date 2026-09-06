@@ -158,4 +158,4 @@ MCP Mode B and Mode C are not implemented.
 - {doc}`../how-to/mcp-server` for onboarding an MCP server.
 - {doc}`../how-to/publish-a-release` for freezing and publishing.
 - {doc}`oracle-pack` for the contract every flow must satisfy.
-- `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md`, `bfcl-transport-neutral-intake.md`, and `bfcl-llm-generated-oracle-pack-flow.md` for the normative authoring contracts.
+- `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md`, `bfcl-transport-neutral-intake.md`, and `bfcl-assisted-authoring-runbook.md` for the normative authoring contracts.

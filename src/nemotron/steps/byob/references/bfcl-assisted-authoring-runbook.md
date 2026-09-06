@@ -3,7 +3,7 @@
 This is the step-by-step runbook for the supported LLM-assisted conventional-source flow.
 It carries every command, refusal, and recovery. For a short orientation to the same flow —
 what the bundled demo simulates, what it executes for real, and how to read its scores —
-read [bfcl-llm-generated-demo.md](bfcl-llm-generated-demo.md) first.
+read [bfcl-assisted-authoring-walkthrough.md](bfcl-assisted-authoring-walkthrough.md) first.
 
 The flow is:
 
@@ -26,7 +26,7 @@ The shipped runnable example uses a deterministic library source and the
 An HTTP package can currently reach intake, drafting, review, and freeze, but
 publication is intentionally refused until its publication adapter exists.
 
-## 1. Understand what “LLM-generated” means
+## 1. Understand what assisted authoring means
 
 The authoring model may propose:
 
@@ -48,9 +48,9 @@ The reviewed semantic supplement still supplies slot bindings, conversation
 policies, localized user turns, and other semantics that evidence alone cannot
 prove.
 
-This differs from **LLM paraphrasing**. The shipped LLM-generated demo uses an
-LLM during pack authoring but does not enable a second model to paraphrase the
-published task surfaces. Add paraphrasing only as a separate, explicitly
+This differs from **model paraphrasing**. The shipped demo uses a model during
+pack authoring but does not enable a second model to paraphrase the published
+task surfaces. Add paraphrasing only as a separate, explicitly
 configured generation role after the generated pack is known to satisfy the
 required diversity and publication constraints.
 
@@ -81,7 +81,7 @@ export NEMOTRON_ROOT="$PWD"
 The main implementation and operator references are:
 
 ```text
-scripts/bfcl_llm_generated_demo.py
+scripts/bfcl_assisted_authoring_demo.py
 src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md
 src/nemotron/steps/byob/references/bfcl-authoring-support-matrix.md
 src/nemotron/steps/byob/references/bfcl-authoring-release-v2.md
@@ -98,7 +98,7 @@ uv sync --extra byob
 Confirm both entry points:
 
 ```bash
-uv run python scripts/bfcl_llm_generated_demo.py --help
+uv run python scripts/bfcl_assisted_authoring_demo.py --help
 uv run python -m nemotron.steps.byob.scripts.bfcl_author --help
 ```
 
@@ -119,15 +119,15 @@ Without this flag, or an equivalent reviewed rollout policy, intake fails with
 Choose a path that does not exist:
 
 ```bash
-export BFCL_LLM_DEMO_ROOT="${TMPDIR:-/tmp}/bfcl-llm-generated-demo"
-test ! -e "$BFCL_LLM_DEMO_ROOT"
+export BFCL_DEMO_ROOT="${TMPDIR:-/tmp}/bfcl-assisted-authoring-walkthrough"
+test ! -e "$BFCL_DEMO_ROOT"
 ```
 
 Run all nine stages:
 
 ```bash
-uv run python scripts/bfcl_llm_generated_demo.py \
-  --workdir "$BFCL_LLM_DEMO_ROOT"
+uv run python scripts/bfcl_assisted_authoring_demo.py \
+  --workdir "$BFCL_DEMO_ROOT"
 ```
 
 The script refuses an existing work directory. This prevents old evidence,
@@ -138,7 +138,7 @@ approvals, caches, or generated files from being mistaken for a fresh run.
 The demo first materializes a reviewed local Python source package:
 
 ```text
-$BFCL_LLM_DEMO_ROOT/library-source/
+$BFCL_DEMO_ROOT/library-source/
 ├── backend.py
 ├── tools.json
 ├── fixtures.json
@@ -163,17 +163,17 @@ Equivalent guided command shape:
 ```bash
 uv run python -m nemotron.steps.byob.scripts.bfcl_author \
   --ci author \
-  --workspace "$BFCL_LLM_DEMO_ROOT/workspace" \
-  --source "$BFCL_LLM_DEMO_ROOT/library-source" \
-  --brief "$BFCL_LLM_DEMO_ROOT/domain-brief.txt" \
+  --workspace "$BFCL_DEMO_ROOT/workspace" \
+  --source "$BFCL_DEMO_ROOT/library-source" \
+  --brief "$BFCL_DEMO_ROOT/domain-brief.txt" \
   --pack-id tiny_library \
   --pack-version 0.1.0 \
   --required-tier A2 \
   --held-out-not-applicable-reason "The catalogue is public reference data." \
   --held-out-reviewed-by reviewer@example.test \
-  --certification-private-key "$BFCL_LLM_DEMO_ROOT/certification-private.pem" \
+  --certification-private-key "$BFCL_DEMO_ROOT/certification-private.pem" \
   --certification-key-id bfcl-demo \
-  --probe-plan "$BFCL_LLM_DEMO_ROOT/probe-plan.json"
+  --probe-plan "$BFCL_DEMO_ROOT/probe-plan.json"
 ```
 
 Key outputs:
@@ -244,7 +244,7 @@ or cache conflicts fail closed.
 Use a fresh work directory; do not rerun `all` over the scripted workspace:
 
 ```bash
-export BFCL_LIVE_DEMO_ROOT="${TMPDIR:-/tmp}/bfcl-llm-generated-live"
+export BFCL_LIVE_DEMO_ROOT="${TMPDIR:-/tmp}/bfcl-assisted-authoring-live"
 test ! -e "$BFCL_LIVE_DEMO_ROOT"
 ```
 
@@ -260,7 +260,7 @@ The provider definition must reference the environment-variable name, never the
 secret value. Then run:
 
 ```bash
-uv run python scripts/bfcl_llm_generated_demo.py \
+uv run python scripts/bfcl_assisted_authoring_demo.py \
   --workdir "$BFCL_LIVE_DEMO_ROOT" \
   --author-model live \
   --model-provider REPLACE_WITH_PROVIDER_NAME \
@@ -339,12 +339,12 @@ workspace/generated/bfcl-demo/
 Set convenient paths:
 
 ```bash
-export BFCL_LLM_PUBLICATION="$BFCL_LLM_DEMO_ROOT/workspace/generated/bfcl-demo"
-export BFCL_LLM_MANIFEST="$BFCL_LLM_PUBLICATION/run_manifest.json"
-test -f "$BFCL_LLM_MANIFEST"
+export BFCL_PUBLICATION="$BFCL_DEMO_ROOT/workspace/generated/bfcl-demo"
+export BFCL_MANIFEST="$BFCL_PUBLICATION/run_manifest.json"
+test -f "$BFCL_MANIFEST"
 ```
 
-For a live-authoring run, replace `BFCL_LLM_DEMO_ROOT` above with
+For a live-authoring run, replace `BFCL_DEMO_ROOT` above with
 `BFCL_LIVE_DEMO_ROOT`.
 
 ### Evaluate an existing publication without rerunning authoring
@@ -364,12 +364,12 @@ export NEMOTRON_ROOT="$PWD"
 
 # Override this root when the publication is on another persistent mount.
 export BFCL_RUN_ROOT="${BFCL_RUN_ROOT:-$HOME/bfcl-runs}"
-export BFCL_LLM_PUBLICATION="$BFCL_RUN_ROOT/bfcl_banking_vn_gold_v1_1392"
-export BFCL_LLM_MANIFEST="$BFCL_LLM_PUBLICATION/run_manifest.json"
+export BFCL_PUBLICATION="$BFCL_RUN_ROOT/bfcl_banking_vn_gold_v1_1392"
+export BFCL_MANIFEST="$BFCL_PUBLICATION/run_manifest.json"
 
-test -f "$BFCL_LLM_MANIFEST"
-test -f "$BFCL_LLM_PUBLICATION/benchmark.parquet"
-test -f "$BFCL_LLM_PUBLICATION/benchmark_raw.parquet"
+test -f "$BFCL_MANIFEST"
+test -f "$BFCL_PUBLICATION/benchmark.parquet"
+test -f "$BFCL_PUBLICATION/benchmark_raw.parquet"
 ```
 
 Executable evaluation requires the exact Oracle Pack recorded by that
@@ -382,14 +382,14 @@ test -f "$BFCL_EXISTING_PACK/manifest.yaml"
 test -f "$BFCL_EXISTING_PACK/backend.py"
 ```
 
-For an existing benchmark produced by this LLM-generated demo, point
+For an existing benchmark produced by this demo, point
 `BFCL_EXISTING_PACK` at the preserved frozen pack instead:
 
 ```bash
 export BFCL_EXISTING_PACK="/absolute/path/to/preserved-workspace/release/pack"
 ```
 
-Do not use `scripts/bfcl_llm_generated_demo.py --stage eval` with only a copied
+Do not use `scripts/bfcl_assisted_authoring_demo.py --stage eval` with only a copied
 publication directory. That command expects the complete demo workspace,
 including its release pack and loopback-candidate state. For a standalone
 existing publication, continue at Section 13 and create an independent
@@ -440,7 +440,7 @@ The full demo automatically starts a loopback OpenAI-compatible candidate and
 runs the real BFCL trace evaluator. Its first immutable output directory is:
 
 ```text
-$BFCL_LLM_DEMO_ROOT/eval-1/
+$BFCL_DEMO_ROOT/eval-1/
 ├── resolved_eval_config.json
 ├── source_verification_report.json
 ├── contamination_report.json
@@ -457,7 +457,7 @@ candidate is primed with recorded expected replies.
 Inspect the report:
 
 ```bash
-uv run python - "$BFCL_LLM_DEMO_ROOT/eval-1/eval_report.json" <<'PY'
+uv run python - "$BFCL_DEMO_ROOT/eval-1/eval_report.json" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -477,8 +477,8 @@ Select a task ID from `eval_task_results.parquet`, then run evaluation only:
 ```bash
 export WRONG_TASK_ID="REPLACE_WITH_TASK_ID"
 
-uv run python scripts/bfcl_llm_generated_demo.py \
-  --workdir "$BFCL_LLM_DEMO_ROOT" \
+uv run python scripts/bfcl_assisted_authoring_demo.py \
+  --workdir "$BFCL_DEMO_ROOT" \
   --stage eval \
   --wrong-answer-task "$WRONG_TASK_ID"
 ```
@@ -495,7 +495,7 @@ still does not measure a real model.
 For a real model evaluation, reuse the resolved evaluation procedure in
 [Manual Oracle Pack flow](bfcl-manual-oracle-pack-flow.md), with these source
 changes. Store `eval.yaml` under
-`$BFCL_LLM_DEMO_ROOT/external-eval-1/`; the paths below are relative to that
+`$BFCL_DEMO_ROOT/external-eval-1/`; the paths below are relative to that
 file:
 
 ```yaml
@@ -576,15 +576,15 @@ authoring model with immutable identity, and an independent candidate endpoint.
 Frozen release files are read-only. To archive a completed demo:
 
 ```bash
-chmod -R u+w "$BFCL_LLM_DEMO_ROOT"
-mv "$BFCL_LLM_DEMO_ROOT" "${BFCL_LLM_DEMO_ROOT}.archived"
+chmod -R u+w "$BFCL_DEMO_ROOT"
+mv "$BFCL_DEMO_ROOT" "${BFCL_DEMO_ROOT}.archived"
 ```
 
 Verify both paths before running the archive command.
 
 ## 16. Completion checklist
 
-The LLM-generated demo is complete only when:
+The demo is complete only when:
 
 - source certification reaches A2;
 - model exposure and evidence approval bind current digests;
