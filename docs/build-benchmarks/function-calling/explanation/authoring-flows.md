@@ -15,6 +15,46 @@ That convergence is the design: a pack drafted with model assistance receives ex
 | Assisted from a conventional source | A source declaration, a domain brief, and a probe plan | A `local_python` package's own files, or a pinned `http_package` endpoint. |
 | Assisted from an MCP server | An MCP server, a domain brief, and a probe plan | The certified MCP server, reached through a gateway that exposes BFCL Oracle HTTP v1. |
 
+Read the diagram left of `Reviewed oracle pack` as the part that differs per flow, and everything right of it as the part that does not.
+The manual flow reaches the pack directly because there is no source to certify; the two assisted flows share one intake spine, one certification ladder, and one review-and-freeze boundary, and the MCP flow joins that spine behind a gateway.
+
+```mermaid
+flowchart TB
+  M0["Manual<br/>hand-authored oracle and declarative files"]
+  C0["Conventional source<br/>local_python tree or http_package session<br/>plus domain brief and probe plan"]
+  K0["MCP server<br/>plus domain brief and probe plan"]
+
+  K1["Discovery pins implementation identity<br/>and the paginated catalog digest"]
+  K2["Gateway exposes BFCL Oracle HTTP v1"]
+
+  I1["Shared intake<br/>source identity, reviewed catalog,<br/>descriptor, measured probe records"]
+  I2["Certification tier derived by the pipeline<br/>A0, A1, or A2"]
+  I3["Model exposure authorized, evidence approved,<br/>drafts proposed and assembled"]
+  I4["Review packet and release approval"]
+  FZ{"Freeze as gold"}
+  STOPF["Refuse freeze"]
+
+  PACK["Reviewed oracle pack"]
+
+  S1["Stage 1 — prepare"]
+  S2{"Stage 2 — Gold eligibility gate"}
+  STOPG["Refuse generation"]
+  S3["Stages 3 to 12<br/>expand, replay against the oracle,<br/>verify and atomically publish"]
+  OUT["benchmark.parquet<br/>run_manifest.json"]
+
+  M0 -->|"no intake: nothing to certify"| PACK
+  C0 --> I1
+  K0 --> K1 --> K2 --> I1
+  I1 --> I2 --> I3 --> I4 --> FZ
+  FZ -->|"below A2"| STOPF
+  FZ -->|A2| PACK
+  PACK --> S1 --> S2
+  S2 -->|"not gold-eligible"| STOPG
+  S2 -->|"gold-eligible"| S3 --> OUT
+```
+
+The diagram has two refusal points for a reason. A lower-tier source may be drafted and reviewed, so the tier is checked where it matters — at freeze — rather than being used to block exploration. The gold gate then re-derives eligibility from the frozen pack itself, which is why a pack that arrived through model assistance cannot enter generation on the strength of its authoring history alone.
+
 ## Manual Authoring
 
 In the manual flow the operator supplies the executable oracle and every declarative file beside it.
