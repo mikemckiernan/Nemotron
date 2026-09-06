@@ -698,7 +698,7 @@ def test_a_digest_only_candidate_is_accepted(tmp_path: Path) -> None:
 def test_a_credential_key_is_refused_before_anything_is_hashed(tmp_path: Path) -> None:
     run_dir = _published_run(tmp_path)
     data = _config_data(run_dir, _scoring_contract(tmp_path), tmp_path / "eval_out")
-    data["candidates"][0]["api"]["api_key"] = "nvapi-abcdefghijklmnopqrstuvwxyz"
+    data["candidates"][0]["api"]["api_key"] = "nvapi-EXAMPLE_ONLY_not_a_real_key"
 
     with pytest.raises(SecretInConfigError) as failure:
         _load(tmp_path, data)
@@ -710,12 +710,12 @@ def test_a_credential_key_is_refused_before_anything_is_hashed(tmp_path: Path) -
 def test_a_credential_value_is_refused_whatever_field_holds_it(tmp_path: Path) -> None:
     run_dir = _published_run(tmp_path)
     data = _config_data(run_dir, _scoring_contract(tmp_path), tmp_path / "eval_out")
-    data["candidates"][0]["provider_api_version"] = "nvapi-0123456789abcdef"
+    data["candidates"][0]["provider_api_version"] = "nvapi-EXAMPLE_ONLY_wrong_field"
 
     with pytest.raises(SecretInConfigError) as failure:
         _load(tmp_path, data)
 
-    assert "nvapi-0123456789abcdef" not in str(failure.value)
+    assert "nvapi-EXAMPLE_ONLY_wrong_field" not in str(failure.value)
 
 
 def test_a_missing_api_key_environment_variable_is_not_a_config_error(
@@ -1185,14 +1185,14 @@ def test_the_shipped_template_names_the_shipped_contract_and_refuses_to_run() ->
 def test_the_error_summary_names_the_code_and_field_without_the_value(tmp_path: Path) -> None:
     run_dir = _published_run(tmp_path)
     data = _config_data(run_dir, _scoring_contract(tmp_path), tmp_path / "eval_out")
-    data["candidates"][0]["api"]["token"] = "sk-secret-value-1234567890"
+    data["candidates"][0]["api"]["token"] = "sk-EXAMPLE_ONLY_not_a_real_key"
 
     with pytest.raises(SecretInConfigError) as failure:
         _load(tmp_path, data)
 
     summary = describe_eval_config_error(failure.value)
     assert summary.startswith("[secret_in_eval_config] candidates[0].api.token")
-    assert "sk-secret" not in summary
+    assert "sk-EXAMPLE_ONLY" not in summary
     assert failure.value.as_report()["value"] == "<redacted>"
 
 
