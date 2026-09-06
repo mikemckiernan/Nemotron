@@ -11,6 +11,10 @@ each artifact instead of reading about them. It is a demonstration, not a proof:
 guarantee that a gate holds comes from the test that owns it, named in
 [bfcl-authoring-support-matrix.md](bfcl-authoring-support-matrix.md).
 
+This page orients you. To run the flow yourself command by command, with every refusal and
+recovery spelled out, use
+[bfcl-llm-generated-oracle-pack-flow.md](bfcl-llm-generated-oracle-pack-flow.md).
+
 For setup, live-model configuration, per-stage artifacts, an intentionally
 failing scorer run, and evaluation against an independent candidate endpoint,
 see the
@@ -63,7 +67,8 @@ really seals the pack read-only, and evaluation runs the shipped scorer.
    frozen pack the approval seals.
 8. **Publish.** A fresh Gold validation, then benchmark generation, committed by
    `run_manifest.json`.
-9. **Evaluate.** A real evaluation run against a candidate served on loopback.
+9. **Evaluate.** A real evaluation run against a candidate served on loopback, in
+   `mode: [trace]`; the demo scores recorded traces and does not execute a live oracle.
 
 ## Reading the evaluation
 

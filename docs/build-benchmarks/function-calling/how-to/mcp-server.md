@@ -11,6 +11,8 @@ Use this guide when the domain you want to benchmark is already exposed as a Mod
 This transport is experimental and disabled by default. Only Mode A, in which the server itself implements the reviewed describe, reset, state, and end controls, is implemented. Mode B and Mode C declarations are inert discovery records with no execution path. Read `src/nemotron/steps/byob/references/bfcl-mcp-threat-model.md` before you point BFCL at a server you do not control; it states the trust boundaries this flow assumes.
 :::
 
+This page is the walkthrough. `src/nemotron/steps/byob/references/bfcl-mcp-user-guide.md` is the matching command-level reference, with every invocation executed as a smoke case by the test suite; use it when you need exact arguments and refusal codes.
+
 ## Before You Start
 
 - Confirm the server can implement the Mode A control tools. If it cannot, this flow has nothing to onboard.

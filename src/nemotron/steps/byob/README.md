@@ -44,7 +44,13 @@ Final benchmark rows must preserve `question_id`, `question`, `options`,
 ## Function-Calling Benchmarks (BFCL)
 
 The `bfcl` family generates function-calling benchmarks from an executable oracle
-pack instead of source documents, so its flow differs from MCQ:
+pack instead of source documents, so its flow differs from MCQ. The rest of this
+section is the developer-facing summary; if you want to *run* the family rather than
+extend it, start from
+[the function-calling documentation](../../../../docs/build-benchmarks/function-calling/index.md)
+or [bfcl/README.md](bfcl/README.md).
+
+The flow is:
 
 ```text
 oracle pack (tools + backend or HTTPS endpoint + fixtures + templates + assertions + validation_cases)
@@ -76,16 +82,13 @@ contract, draft a canonical Oracle Pack from sanitized evidence, and carry a rev
 pack into the existing generation path. Install that transport runtime separately with
 `uv sync --extra bfcl-mcp`; the model-authoring environment may use a different MCP SDK major.
 
-Mode A discovery, P4–P11 probing, L2 attestation, shared review/freeze, and fresh-Gold
-publication handoff are implemented and remain experimental
-([`test_bfcl_mcp_gateway.py`](../../../../tests/steps/byob/test_bfcl_mcp_gateway.py),
-[`test_bfcl_authoring_e2e.py`](../../../../tests/steps/byob/test_bfcl_authoring_e2e.py)).
-Mode B and Mode C execution are **unimplemented**. Human approval and freeze never raise
-the attained conformance level. Set `BFCL_ENABLE_MCP_MODE_A=1` to opt into live
-discovery, gateway startup, or intake; the default is disabled. The legacy
-`BFCL_ENABLE_EXPERIMENTAL_MCP` name remains a temporary compatibility alias. See the
-[MCP support matrix](references/bfcl-mcp-support-matrix.md) before integrating a server, then
-use the normative
+Mode A is implemented end to end — discovery, conformance probing, gateway attestation,
+review and freeze, and the fresh-Gold publication handoff — and is still marked
+experimental. Mode B and Mode C execution are **unimplemented**. Human approval and freeze
+never raise the attained conformance level. Live discovery, gateway startup, and intake are
+disabled by default; set `BFCL_ENABLE_MCP_MODE_A=1` to opt in. Check the
+[MCP support matrix](references/bfcl-mcp-support-matrix.md) for exactly which behavior is
+supported, experimental, or refused before integrating a server, then use the normative
 [MCP Oracle contract](references/bfcl-mcp-oracle-contract.md) for profile and control details.
 
 For local Python, reviewed HTTP, and MCP assisted authoring, start with the
