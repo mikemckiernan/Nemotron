@@ -62,14 +62,17 @@ def test_standalone_validator_reports_invalid_config_as_an_error_envelope(
 
     Exit 1 is reserved for "the validator could not reach a verdict". A pack that
     was validated and refused Gold exits 2, so a caller can tell the two apart.
+    The envelope goes to stderr so that stdout carries only report documents and
+    stays parseable by a caller that pipes it straight into a JSON reader.
     """
     config = tmp_path / "invalid.yaml"
     config.write_text("[]\n", encoding="utf-8")
 
     completed = _run(config, tmp_path / "validation")
 
-    assert completed.returncode == 1, completed.stderr
-    envelope = json.loads(completed.stdout)
+    assert completed.returncode == 1, completed.stdout
+    assert completed.stdout == ""
+    envelope = json.loads(completed.stderr)
     assert envelope["status"] == "fail"
     assert envelope["error_type"] == "ValueError"
     assert "Config must be a YAML mapping" in envelope["reason"]

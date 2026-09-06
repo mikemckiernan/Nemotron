@@ -86,7 +86,7 @@ python -m nemotron.steps.byob.scripts.validate_oracle_pack \
 | --- | --- |
 | `0` | The pack validated and is Gold-eligible. |
 | `2` | The pack validated and was refused Gold. Read the `checks` in the report. |
-| `1` | The validator could not reach a verdict at all, for example an unreadable or malformed config. Standard output carries a JSON envelope with `status`, `error_type`, and `reason`. |
+| `1` | The validator could not reach a verdict at all, for example an unreadable or malformed config. Standard error carries a JSON envelope with `status`, `error_type`, and `reason`, leaving standard output empty so a caller can parse it unconditionally. |
 
 The distinction between `1` and `2` matters in automation: a crash is worth retrying, whereas a verdict is worth reporting to a person.
 
