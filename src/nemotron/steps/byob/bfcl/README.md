@@ -83,6 +83,12 @@ assistance, or onboarding a running MCP server — and all three converge on the
 same generation stages and the same gold gate, so the authoring route never earns
 a weaker guarantee.
 
+Both shapes are drawn rather than only described:
+[authoring flows](../../../../../docs/build-benchmarks/function-calling/explanation/authoring-flows.md)
+diagrams the three routes converging on the gold gate, and
+[pipeline overview](../../../../../docs/build-benchmarks/function-calling/explanation/pipeline-overview.md)
+expands the twelve stages with the artifact each one writes.
+
 ## Bundled Configurations
 
 `config/` holds nine runnable files: a tiny plumbing run, an annotated template whose
