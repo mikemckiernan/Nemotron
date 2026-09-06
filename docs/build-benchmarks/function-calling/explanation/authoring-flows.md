@@ -55,6 +55,8 @@ flowchart TB
 
 The diagram has two refusal points for a reason. A lower-tier source may be drafted and reviewed, so the tier is checked where it matters — at freeze — rather than being used to block exploration. The gold gate then re-derives eligibility from the frozen pack itself, which is why a pack that arrived through model assistance cannot enter generation on the strength of its authoring history alone.
 
+The `Stages 3 to 12` node is collapsed here because it is identical for all three flows. {doc}`pipeline-overview` draws the same run with every stage named, including which two are optional and how a disabled stage is bypassed.
+
 ## Manual Authoring
 
 In the manual flow the operator supplies the executable oracle and every declarative file beside it.
