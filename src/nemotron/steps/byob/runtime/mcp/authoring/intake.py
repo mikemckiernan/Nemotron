@@ -18,7 +18,7 @@
 An operator using MCP as an authoring source still has to state three things no server
 can state for them: which pack identity the draft carries, which reviewed MCP profile to
 discover, and which gateway will serve the resulting pack as an oracle. Everything else
-in the draft is derived. Keeping that list short is the point of the whole lane, and
+in the draft is derived. Keeping that list short is the point of the whole flow, and
 keeping it *declared* is what makes the derivation reviewable.
 """
 
@@ -236,7 +236,7 @@ class GatewayConfig(_StrictModel):
 
 
 class McpIntakeConfig(_StrictModel):
-    """The whole reviewed intake surface for the MCP authoring lane."""
+    """The whole reviewed intake surface for the MCP authoring flow."""
 
     intake_version: Literal["bfcl-mcp-intake-v1"]
     kind: Literal["mcp"]

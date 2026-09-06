@@ -255,7 +255,7 @@ def _view(document: dict[str, Any], tmp: Path) -> EvidenceView:
     return load_evidence_bundle(path)
 
 
-# --- Coverage plan (MCP-305) -------------------------------------------------------------
+# --- Coverage plan -----------------------------------------------------------------------
 
 
 def _coverage_response() -> dict[str, Any]:
@@ -303,7 +303,7 @@ def test_coverage_cannot_invent_a_tool_or_contradict_the_reviewed_profile() -> N
         validate_coverage_plan(_grounding(), CoveragePlan.model_validate(contradicting))
 
 
-# --- Validation cases (MCP-306) ----------------------------------------------------------
+# --- Validation cases --------------------------------------------------------------------
 
 
 def _case(**overrides: Any) -> dict[str, Any]:
@@ -417,7 +417,7 @@ def test_a_probe_cannot_claim_to_be_blocked_on_an_unknown_the_bundle_resolved() 
         validate_validation_cases(_grounding(document), plan)
 
 
-# --- Task templates (MCP-307) ------------------------------------------------------------
+# --- Task templates ----------------------------------------------------------------------
 
 
 def _template(**overrides: Any) -> dict[str, Any]:
@@ -465,7 +465,7 @@ def test_a_valid_template_survives_grounding() -> None:
     assert validate_task_templates(_grounding(), plan) is plan
 
 
-# --- Assertion specifications (MCP-308) --------------------------------------------------
+# --- Assertion specifications ------------------------------------------------------------
 
 
 def _trace_spec(**overrides: Any) -> dict[str, Any]:
@@ -1082,7 +1082,7 @@ def test_the_prompt_payload_fences_every_server_string(tmp_path: Path) -> None:
     assert set(body["unknown_fields"]) == set(UNKNOWNS)
 
 
-# --- Unified evidence v2 drafting (UA-706) -----------------------------------------------
+# --- Unified evidence v2 drafting ---------------------------------------------------------
 
 
 def _v2_descriptor() -> AdapterDescriptor:
