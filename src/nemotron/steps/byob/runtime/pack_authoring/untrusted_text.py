@@ -92,7 +92,7 @@ PROSE_KEYS = ("description", "title", "$comment")
 
 # Ceilings on the prompt as a whole, not on any one field. Without them a server with a
 # thousand verbose tools produces a bundle no human will actually read, and unreviewed
-# review is the failure this lane exists to avoid.
+# review is the failure this module exists to avoid.
 MAX_BUNDLE_PROSE_CHARS = 256 * 1024
 MAX_PROSE_FIELDS = 4096
 

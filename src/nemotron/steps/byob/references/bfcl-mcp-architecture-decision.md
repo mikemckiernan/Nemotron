@@ -131,11 +131,11 @@ certified code paths.
 
 ## Alternatives considered
 
-| Alternative | Why not now |
+| Alternative | Why not |
 | --- | --- |
 | Native `oracle.kind: mcp` in the BFCL runtime | Reaches eval config, source verification, oracle resource schema, and the manifest; duplicates TLS, auth, size, and retry policy already in `endpoint.py`; blocked by worker environment sanitization for stdio. |
 | Generate a `backend.py` that wraps an MCP client per pack | Puts network and credential handling inside fingerprinted pack code that runs in the sanitized worker, and copies the same client into every pack. |
-| Use MCP for intake only, keep `backend.py` as the oracle | Shipping as Lane A. It lowers authoring effort but does not remove the requirement to write an executable oracle, so it is a first step rather than the destination. |
+| Use MCP for intake only, keep `backend.py` as the oracle | This is what ships. It lowers authoring effort but does not remove the requirement to write an executable oracle. |
 | Treat MCP `annotations` as the mutation and confirmation contract | The specification requires clients to treat annotations as untrusted. BFCL check `M1` compares declared mutation against observed state change, so an unverified hint could certify a wrong claim. |
 | Accept text-only tool results and parse error prose | Check `D2` requires `error.code` on every observed structured error and check 5 compares `expect.error_code`. Deriving codes from prose would make a Gold verdict depend on wording. |
 | Support the MCP Tasks extension and `InputRequiredResult` in v1 | Both turn one BFCL call into a multi-round-trip exchange with server-side lifecycle. The expected-trace and replay contracts assume one call, one result. Deferred with an explicit rejection instead of a partial implementation. |

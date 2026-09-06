@@ -2193,7 +2193,7 @@ DATA_ROOT = (
     / "data"
 )
 MANUAL_PACKS = ("tiny_oracle_pack", "banking_vn_oracle_pack")
-FLOW_TWO_ARTIFACTS = frozenset(
+ASSISTED_AUTHORING_ARTIFACTS = frozenset(
     {
         "source_declaration.json",
         "source_declaration.yaml",
@@ -2212,15 +2212,15 @@ MANIFEST_ADAPTER_KEYS = frozenset(
 
 
 @pytest.mark.parametrize("pack_name", MANUAL_PACKS)
-def test_manual_oracle_packs_require_no_flow_two_adapter_metadata(
+def test_manual_oracle_packs_require_no_assisted_authoring_adapter_metadata(
     pack_name: str,
 ) -> None:
     """A manual pack must load from the manual contract alone, with no adapter records."""
     pack_root = DATA_ROOT / pack_name
     present = sorted(
-        item.name for item in pack_root.iterdir() if item.name in FLOW_TWO_ARTIFACTS
+        item.name for item in pack_root.iterdir() if item.name in ASSISTED_AUTHORING_ARTIFACTS
     )
-    assert not present, f"{pack_name} ships Flow 2 artifacts: {present}"
+    assert not present, f"{pack_name} ships assisted-authoring artifacts: {present}"
 
     manifest = yaml.safe_load((pack_root / "manifest.yaml").read_text("utf-8"))
     assert not MANIFEST_ADAPTER_KEYS & set(manifest)
@@ -2239,11 +2239,11 @@ def test_manual_oracle_packs_require_no_flow_two_adapter_metadata(
         paths.backend_path,
     ):
         assert declared.is_file()
-        assert declared.name not in FLOW_TWO_ARTIFACTS
+        assert declared.name not in ASSISTED_AUTHORING_ARTIFACTS
 
 
 def test_manual_gold_tier_ignores_adapter_and_certification_fields() -> None:
-    """Flow 2 records in a report may not move the manual Gold verdict either way."""
+    """Assisted-authoring records in a report may not move the manual Gold verdict."""
     gold: dict[str, Any] = {
         "checks": [{"status": "pass", "failures": []}],
         "stats": {
