@@ -58,6 +58,8 @@ Symptom-to-fix index derived from the step's declared error taxonomy.
 
 The step ships runnable configurations under `src/nemotron/steps/byob/bfcl/config/`. Copy the one closest to your intent rather than starting from an empty file.
 
+Every number in the example files is a worked example for the pack that file points at, not a framework default. Copying another pack's task counts and diversity limits is the most common way to make the balancing stage infeasible.
+
 | File | Purpose |
 | --- | --- |
 | `tiny.yaml` | Plumbing smoke run against the bundled tiny pack. Not publication-eligible. |
@@ -71,6 +73,13 @@ The step ships runnable configurations under `src/nemotron/steps/byob/bfcl/confi
 | `translate.yaml` | Localization of an already published benchmark. |
 
 ## Command-line Conventions
+
+These pages use `nemotron steps run byob/bfcl -c <CONFIG> stage=<STAGE>`. The same code path
+is reachable directly as `python -m nemotron.steps.byob.scripts.run --config <CONFIG>
+--stage <STAGE>`, which is convenient when the `nemotron` console script is not on `PATH`.
+Every shipped configuration declares `family: bfcl`, so the direct form needs no `--family`;
+a configuration that omits the key falls back to the MCQ family, so keep it declared in
+configs you write yourself.
 
 The helper commands under `nemotron.steps.byob.scripts` — the pack validator, the bias auditor, the release archiver, the authoring and MCP release commands — share one exit contract, so a wrapper can branch on the status alone:
 
@@ -96,5 +105,10 @@ These pages describe the operator-facing surface. The normative contracts live i
 | MCP oracle profile | `src/nemotron/steps/byob/references/bfcl-mcp-oracle-contract.md` |
 | MCP trust boundaries | `src/nemotron/steps/byob/references/bfcl-mcp-threat-model.md` |
 | Supported, experimental, and refused capabilities | `src/nemotron/steps/byob/references/bfcl-authoring-support-matrix.md` |
+| Supported, experimental, and refused MCP transports | `src/nemotron/steps/byob/references/bfcl-mcp-support-matrix.md` |
+| Shared source-intake spine and evidence envelope | `src/nemotron/steps/byob/references/bfcl-transport-neutral-intake.md` |
+| Review, approval, and freeze record shapes | `src/nemotron/steps/byob/references/bfcl-authoring-release-v2.md` |
+| Adapter enablement policy and `BFCL_ENABLE_*` variables | `src/nemotron/steps/byob/references/bfcl-authoring-rollout.md` |
+| End-to-end manual pack lifecycle, including endpoint pins | `src/nemotron/steps/byob/references/bfcl-manual-oracle-pack-flow.md` |
 
 The step's own declared inputs, outputs, and error taxonomy are in `src/nemotron/steps/byob/bfcl/step.toml`.
