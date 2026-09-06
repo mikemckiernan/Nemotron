@@ -1,6 +1,6 @@
 # Walking the assisted authoring flow end to end
 
-`scripts/bfcl_llm_generated_demo.py` runs the entire assisted authoring flow in one
+`scripts/bfcl_assisted_authoring_demo.py` runs the entire assisted authoring flow in one
 command: a reviewed source package is certified by live probes, an authoring model drafts
 what that source can support, the drafts plus reviewed semantics become a candidate pack,
 and the pack is validated, reviewed, frozen, published into a benchmark, and scored by a
@@ -11,18 +11,15 @@ each artifact instead of reading about them. It is a demonstration, not a proof:
 guarantee that a gate holds comes from the test that owns it, named in
 [bfcl-authoring-support-matrix.md](bfcl-authoring-support-matrix.md).
 
-This page orients you. To run the flow yourself command by command, with every refusal and
-recovery spelled out, use
-[bfcl-llm-generated-oracle-pack-flow.md](bfcl-llm-generated-oracle-pack-flow.md).
-
-For setup, live-model configuration, per-stage artifacts, an intentionally
-failing scorer run, and evaluation against an independent candidate endpoint,
-see the
-[detailed LLM-generated Oracle Pack flow](bfcl-llm-generated-oracle-pack-flow.md).
+This page orients you. To run the flow yourself command by command, use
+[bfcl-assisted-authoring-runbook.md](bfcl-assisted-authoring-runbook.md): it spells out
+every refusal and recovery, along with setup, live-model configuration, per-stage
+artifacts, an intentionally failing scorer run, and evaluation against an independent
+candidate endpoint.
 
 ```shell
-export BFCL_LLM_DEMO_ROOT="${TMPDIR:-/tmp}/bfcl-llm-generated-demo"
-uv run python scripts/bfcl_llm_generated_demo.py --workdir "$BFCL_LLM_DEMO_ROOT"
+export BFCL_DEMO_ROOT="${TMPDIR:-/tmp}/bfcl-assisted-authoring-walkthrough"
+uv run python scripts/bfcl_assisted_authoring_demo.py --workdir "$BFCL_DEMO_ROOT"
 ```
 
 The run takes a few minutes, most of it real probe sessions and two unmocked validation
@@ -82,7 +79,7 @@ can be re-scored with one task sabotaged — the candidate answers it with text 
 was expected:
 
 ```shell
-uv run python scripts/bfcl_llm_generated_demo.py --workdir "$BFCL_LLM_DEMO_ROOT" \
+uv run python scripts/bfcl_assisted_authoring_demo.py --workdir "$BFCL_DEMO_ROOT" \
     --stage eval --wrong-answer-task <task_id>
 ```
 

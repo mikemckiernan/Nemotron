@@ -5,7 +5,7 @@ and one domain brief. The manual Oracle Pack path remains unchanged and is docum
 [bfcl-oracle-pack.md](bfcl-oracle-pack.md). Current adapter and publication status is
 test-linked in [bfcl-authoring-support-matrix.md](bfcl-authoring-support-matrix.md). To
 watch the whole flow run once before reading it step by step, see
-[bfcl-llm-generated-demo.md](bfcl-llm-generated-demo.md).
+[bfcl-assisted-authoring-walkthrough.md](bfcl-assisted-authoring-walkthrough.md).
 
 This file is the command-level reference: every invocation below is a smoke case the test
 suite executes, so it stays in step with the CLI. For the narrative walkthrough of the same

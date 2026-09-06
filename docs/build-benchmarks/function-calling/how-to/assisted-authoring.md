@@ -15,7 +15,7 @@ This page is the walkthrough. `src/nemotron/steps/byob/references/bfcl-authoring
 To watch the whole flow run before you prepare a source of your own, use the bundled demo. It needs no credentials and no endpoint: the authoring model is scripted and the candidate is served on loopback, while intake probes a real package and validation derives its own tier unmocked.
 
 ```bash
-uv run python scripts/bfcl_llm_generated_demo.py --workdir /tmp/bfcl-demo
+uv run python scripts/bfcl_assisted_authoring_demo.py --workdir /tmp/bfcl-demo
 ```
 
 It certifies a source, drafts and assembles a candidate pack, validates, reviews, freezes, publishes a benchmark, and scores it, printing at each human gate what a reviewer would have been deciding. Pass `--author-model live` to send the same prompts to a real endpoint instead.
