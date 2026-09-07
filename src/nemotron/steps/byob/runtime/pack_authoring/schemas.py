@@ -28,7 +28,7 @@ expectation looks finished.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -57,6 +57,11 @@ UnknownField = Literal[
     "fixture_samples",
     "tool_dependencies",
 ]
+
+# The same closed set, as a value. Two parties need it: this schema constrains what a model
+# may emit, and the evidence reader has to decide which of a bundle's gap records name an
+# unknown a draft could declare at all. Derived from the type so they cannot drift.
+UNKNOWN_FIELDS: frozenset[str] = frozenset(get_args(UnknownField))
 
 # Where an argument value comes from. `unresolved` is the honest answer at L0 for anything
 # that would otherwise be invented.

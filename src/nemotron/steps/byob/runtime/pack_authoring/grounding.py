@@ -38,6 +38,9 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from nemotron.steps.byob.runtime.pack_authoring.bundle import EvidenceView, ToolEvidence
+from nemotron.steps.byob.runtime.pack_authoring.compile_assertions import (
+    COMPILABLE_PREDICATES,
+)
 from nemotron.steps.byob.runtime.pack_authoring.schemas import (
     IDENTIFIER_PATTERN,
     ArgumentPlan,
@@ -410,11 +413,22 @@ def validate_assertion_specs(
             )
 
         required: set[str] = set()
-        if spec.predicate in _RESULT_PREDICATES:
-            required.add("observed_result_shapes")
-        elif spec.predicate in _STATE_PREDICATES:
-            # Whether a collection changes size is exactly what a probe has to observe.
-            required.add("state_deltas")
+        if spec.predicate not in COMPILABLE_PREDICATES:
+            # Grounding and the compiler have to agree on what a specification can become.
+            # The compiler reads only the call trace BFCL records, and it refuses per pack
+            # rather than per specification, so one predicate over a result field or over
+            # oracle state costs a whole drafting run every assertion it produced.
+            #
+            # Treating this as a missing observation instead was the weaker reading: on a
+            # bundle still listing the unknown it asked for a blocker the compiler then
+            # refused, and on one that listed nothing it asked for nothing and let the
+            # specification through to fail at compilation. Neither tier can express the
+            # predicate, so the refusal belongs here, beside the rest of the violations.
+            violations.append(
+                f"{where}: predicate {spec.predicate!r} cannot become an executable "
+                f"assertion; only {sorted(COMPILABLE_PREDICATES)} read the call trace, "
+                "and a pack compiles all of its specifications or none of them"
+            )
         elif spec.predicate == "tool_called_after":
             required.add("tool_dependencies")
 
