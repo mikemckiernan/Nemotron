@@ -1,10 +1,10 @@
 # Persona MCQ SDG
 
 `sdg/persona_mcq` is a config-driven, resumable Nemotron step for generating
-persona-grounded multiple-choice SFT data. It generates India-grounded English
-and Hindi questions, removes lexical and semantic duplicates, asks three
-teachers to answer each question, applies agreement and quality gates, and
-writes aligned SFT JSONL for teacher ablations.
+persona-grounded multiple-choice SFT data. It generates regionally grounded
+questions from configured persona locales, removes lexical and semantic
+duplicates, asks three teachers to answer each question, applies agreement and
+quality gates, and writes aligned SFT JSONL for teacher ablations.
 
 The reusable Data Designer column lives in `sdg/plugins/persona_mcq`; future SDG
 steps can consume it without copying the pipeline.
@@ -15,6 +15,17 @@ steps can consume it without copying the pipeline.
 uv sync --extra data-sdg
 uv run data-designer download personas --locale en_IN
 uv run data-designer download personas --locale hi_Deva_IN
+```
+
+The shipped profiles use `en_IN` and `hi_Deva_IN`. Geography is not fixed to
+India: each entry under `languages` selects a Data Designer persona `locale`,
+and question grounding comes from the sampled persona. Download another
+supported locale and override the corresponding value, for example:
+
+```bash
+uv run data-designer download personas --locale en_US
+uv run nemotron steps run sdg/persona_mcq -c tiny \
+  languages.english.locale=en_US pipeline.experiment_name=us-smoke
 ```
 
 Set `QWEN_API_BASE`, `OSS_API_BASE`, `GEMMA_API_BASE`, and `NVIDIA_API_KEY`.

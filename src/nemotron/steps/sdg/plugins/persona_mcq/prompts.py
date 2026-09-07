@@ -20,9 +20,9 @@ from __future__ import annotations
 # The generator passes ONE persona facet (not the whole persona) plus a
 # difficulty tier derived from the persona's education level. No example block.
 # ---------------------------------------------------------------------------
-QUESTION_AUTHOR_SYSTEM_PROMPT_KNOWLEDGE_MCQ_FACET = """You are an expert exam-question writer building an Indian-domain multiple-choice question bank.
+QUESTION_AUTHOR_SYSTEM_PROMPT_KNOWLEDGE_MCQ_FACET = """You are an expert exam-question writer building a persona-grounded multiple-choice question bank.
 
-You are given ONE aspect ("facet") of an Indian person's life below. It will mention specific, real things — people, art forms, musical instruments, dishes, festivals, places, rivers, mountains, crops, climate features, monuments, crafts, techniques, government schemes, medical conditions or treatments, financial instruments, texts, organisms, or concepts.
+You are given ONE aspect ("facet") of a person's life below. It will mention specific, real things — people, art forms, musical instruments, dishes, festivals, places, rivers, mountains, crops, climate features, monuments, crafts, techniques, government schemes, medical conditions or treatments, financial instruments, texts, organisms, or concepts.
 
 <HOW_TO_USE_THE_FACET>
 - From the facet, pick exactly ONE specific, concrete entity (a named person, work, art form, instrument, dish, festival, place, river, mountain, crop, climate feature, monument, craft, technique, government scheme, medical condition or treatment, financial instrument, text, organism, or concept).
@@ -76,8 +76,8 @@ The person's life aspect to draw a subject from — facet type: {facet_name}
 
 # ---------------------------------------------------------------------------
 # Author prompt — SUBJECT-TAXONOMY (grid track B). No persona is passed.
-# Used for universal/STEM subjects (generic knowledge) and India-applied
-# academic subjects (light Indian framing). Sub-topic granularity + an
+# Used for universal/STEM subjects (generic knowledge) and regionally applied
+# academic subjects (light persona-derived framing). Sub-topic granularity + an
 # explicit "specific, non-obvious concept" instruction prevent canonical
 # collapse (the topic-only failure mode).
 # ---------------------------------------------------------------------------
@@ -137,7 +137,7 @@ B) [option B text]
 # (occupation / age / region), while still forbidding any mention of the person
 # (this is what prevents the whole-persona mode-collapse). No example block.
 # ---------------------------------------------------------------------------
-QUESTION_AUTHOR_SYSTEM_PROMPT_CONTEXTUAL = """You are an expert exam-question writer building an Indian-domain multiple-choice question bank.
+QUESTION_AUTHOR_SYSTEM_PROMPT_CONTEXTUAL = """You are an expert exam-question writer building a persona-grounded multiple-choice question bank.
 
 Write ONE multiple-choice question on the subject "{subject}", focused strictly on the SUB-TOPIC below.
 
@@ -148,7 +148,7 @@ DIFFICULTY (audience level): {difficulty}
 <HOW_TO_CHOOSE_THE_QUESTION>
 - Stay within the SUB-TOPIC. Pick a SPECIFIC, precise concept within it and test real understanding of it. Avoid the single most clichéd, over-tested fact — for finance do NOT default to a plain "what is a SIP / recurring deposit" definition; for health do NOT default to "what is hypertension/anaemia". Prefer a sharper, less-obvious point appropriate to the difficulty.
 - VARY THE PHRASING across questions: do NOT reuse a fixed question template or always open with the same words (e.g. not every question as "Which of the following ..."). Change the sentence structure, opening, and angle of inquiry from one question to the next.
-- Below is the real-life CONTEXT of an Indian person (occupation, age, region) and a short PROFILE. Use these ONLY to choose subject matter that is authentic and relevant to such a life — e.g. a scheme, instrument, condition, risk, or practice that genuinely matters to someone in that occupation / age-group / region.
+- Below is a person's real-life CONTEXT (occupation, age, region) and a short PROFILE. Use these ONLY to choose subject matter that is authentic and relevant to such a life — e.g. a scheme, instrument, condition, risk, or practice that genuinely matters to someone in that occupation / age-group / region.
 - Ignore the person otherwise: do NOT mention, name, or describe them, do NOT write in the first person, and do NOT use "according to this person / as given above" framing. Use a neutral, third-person exam style.
 - The question must be answerable from real-world knowledge (NOT from the context/profile text), self-contained, and must not give away its own answer.
 </HOW_TO_CHOOSE_THE_QUESTION>

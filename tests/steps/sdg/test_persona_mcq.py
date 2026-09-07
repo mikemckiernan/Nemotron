@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import random
 from importlib.metadata import entry_points
 from pathlib import Path
 from types import SimpleNamespace
@@ -136,6 +137,27 @@ def test_parser_requires_exactly_four_distinct_options() -> None:
     assert parse_question(valid)["success"] is True
     assert parse_question(valid.replace("D) Godavari", "C) Godavari"))["success"] is False
     assert parse_question(valid.replace("D) Godavari", "D) Ganga"))["success"] is False
+
+
+def test_question_prompt_uses_the_persona_geography() -> None:
+    pytest.importorskip("data_designer")
+    from nemotron.steps.sdg.plugins.persona_mcq.generator import PersonaMCQGenerator
+
+    config = SimpleNamespace(
+        facet_weights={"arts_persona": 1.0},
+        difficulty_weights={"easy": 1.0},
+        language="English",
+        num_options=4,
+    )
+    prompt, metadata = PersonaMCQGenerator._build_prompt(
+        {"state": "California", "city": "Oakland", "arts_persona": "West Coast jazz"},
+        config,
+        random.Random(42),
+    )
+
+    assert metadata["region"] == "California"
+    assert 'region "State/Region: California; City: Oakland"' in prompt
+    assert "India" not in prompt
 
 
 @pytest.mark.parametrize("new_shape", [True, False])

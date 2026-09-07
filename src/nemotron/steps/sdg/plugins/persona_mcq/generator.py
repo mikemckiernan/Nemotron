@@ -45,13 +45,23 @@ FACET_LABELS = {
     GEOGRAPHY_FACET: "geography and regional knowledge",
 }
 GEO_FIELDS = (
+    ("country", "Country"),
+    ("state", "State/Region"),
     ("region", "State/Region"),
     ("district", "District"),
     ("city", "City"),
     ("zone", "Area type"),
     ("first_language", "Primary language"),
 )
-CONTEXT_FIELDS = (("occupation", "Occupation"), ("age", "Age"), ("region", "Region"), ("zone", "Area type"))
+CONTEXT_FIELDS = (
+    ("occupation", "Occupation"),
+    ("age", "Age"),
+    ("country", "Country"),
+    ("state", "State/Region"),
+    ("region", "State/Region"),
+    ("city", "City"),
+    ("zone", "Area type"),
+)
 
 
 def _field(persona: Any, key: str) -> str:
@@ -137,13 +147,17 @@ class PersonaMCQGenerator(
 
         facet = _weighted_choice(rng, eligible)
         difficulty = _weighted_choice(rng, cfg.difficulty_weights or DIFFICULTY_WEIGHTS)
-        region = _field(persona, "region") or "India"
+        region = next(
+            (value for key in ("region", "state", "country", "city", "district") if (value := _field(persona, key))),
+            "",
+        )
+        region_hint = _descriptor(persona, GEO_FIELDS) or "the locale represented by the persona"
         metadata: dict[str, Any] = {
             "track": "persona_grounded",
             "persona": persona,
             "facet": facet,
             "difficulty": difficulty,
-            "region": region,
+            "region": region or None,
         }
         if facet in CONTEXTUAL_FACETS:
             contextual = CONTEXTUAL_FACETS[facet]
@@ -153,7 +167,7 @@ class PersonaMCQGenerator(
             prompt = QUESTION_AUTHOR_SYSTEM_PROMPT_CONTEXTUAL.format(
                 subject=subject,
                 subtopic=subtopic,
-                context_text=_descriptor(persona, CONTEXT_FIELDS) or region,
+                context_text=_descriptor(persona, CONTEXT_FIELDS) or region_hint,
                 profile_text=facet_texts[facet],
                 difficulty=difficulty,
                 language=cfg.language,
@@ -165,7 +179,7 @@ class PersonaMCQGenerator(
             prompt = QUESTION_AUTHOR_SYSTEM_PROMPT_KNOWLEDGE_MCQ_FACET.format(
                 facet_name=topic,
                 facet_text=facet_texts[facet],
-                region=region,
+                region=region_hint,
                 difficulty=difficulty,
                 language=cfg.language,
                 num_options=cfg.num_options,
