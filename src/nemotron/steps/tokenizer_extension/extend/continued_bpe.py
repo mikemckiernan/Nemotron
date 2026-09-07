@@ -281,25 +281,33 @@ def _apply_bpe_extension_backend(
     merges_raw = model.get("merges", [])
     merges: list[str] = [m if isinstance(m, str) else f"{m[0]} {m[1]}" for m in merges_raw]
 
-    # Get exactly the top n_tokens we want to add
-    selected_tokens = [t for (t, _) in sorted(new_vocab.items(), key=lambda kv: kv[1])][: int(n_tokens)]
+    # Candidates in trained-priority order. Deliberately NOT pre-truncated to
+    # n_tokens: a candidate may have to be skipped (already present, not
+    # buildable from the byte alphabet, or needing more rows than remain), and
+    # slicing first would then silently deliver fewer rows than requested --
+    # the same trap the expand arm documents.
+    ranked = [t for (t, _) in sorted(new_vocab.items(), key=lambda kv: kv[1])]
 
     next_id = (max(vocab.values()) + 1) if vocab else 0
+    budget = int(n_tokens)
+    added = 0
 
     if not new_merges:
-        for tok in selected_tokens:
-            if tok not in vocab:
-                vocab[tok] = next_id
-                next_id += 1
+        for tok in ranked:
+            if added >= budget:
+                break
+            if tok in vocab:
+                continue
+            vocab[tok] = next_id
+            next_id += 1
+            added += 1
         model["vocab"] = vocab
         return Tokenizer.from_str(json.dumps(obj))
 
     ranks = _rank_merges(merges)
     alphabet = {tok for tok in vocab if len(tok) == 1}
-    budget = int(n_tokens)
-    added = 0
 
-    for tok in selected_tokens:
+    for tok in ranked:
         if added >= budget:
             break
         if tok in vocab:
@@ -326,10 +334,11 @@ def _apply_bpe_extension_backend(
         cost = sum(1 for piece in chain if piece not in vocab)
 
         if added + cost > budget:
-            # The next token does not fit. Later candidates are lower priority
-            # and cannot be cheaper in a useful way, so stop rather than skip
-            # ahead and silently reorder the vocabulary.
-            break
+            # This token needs more rows than remain. Skip it and keep scanning:
+            # cost varies per token, so a later, lower-priority candidate can be
+            # cheaper and land the arm on exactly `extension_size`. Stopping here
+            # instead would underfill the budget.
+            continue
 
         left = pieces[0]
         for right in pieces[1:]:
