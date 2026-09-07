@@ -73,15 +73,15 @@ The opening brief in the section above keeps this step short: one propose-and-cu
 
 Check licensing and confidentiality before you drop internal documents into an agent or into a seed file.
 Keep evaluation benchmarks separate from training seeds so synthetic items do not leak into the set you use to claim quality.
-Skim `src/nemotron/steps/sdg/SKILL.md` for the short list of pattern links on blending, versioning, and benchmarks when you move past experiments.
+Skim `skills/nemotron-customize/SKILL.md` for the routing and guardrails on blending, versioning, and benchmarks when you move past experiments.
 
 ## How SKILL.md Fits Your Session
 
-`src/nemotron/steps/sdg/SKILL.md` is written for assistants that route work into the right shipped YAML profile and guardrails.
+`skills/nemotron-customize/SKILL.md` is written for assistants that route work into the right shipped YAML profile and guardrails.
 You do not need to memorize it.
 
 Skim the decision table once so you know which bundled config matches which need, then let the agent open that file when you change output format or scale record counts.
-You can also say in the chat, “follow `src/nemotron/steps/sdg/SKILL.md` for SDG,” so guardrails land in the thread without a long lecture.
+You can also say in the chat, “follow `skills/nemotron-customize/SKILL.md` for SDG,” so guardrails land in the thread without a long lecture.
 
 ## Next Steps
 
