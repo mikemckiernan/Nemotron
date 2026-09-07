@@ -12,7 +12,7 @@ steps can consume it without copying the pipeline.
 ## Install
 
 ```bash
-uv sync --extra qasynth-sdg
+uv sync --extra data-sdg
 uv run data-designer download personas --locale en_IN
 uv run data-designer download personas --locale hi_Deva_IN
 ```

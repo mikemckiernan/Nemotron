@@ -3435,6 +3435,7 @@ all = [
     { name = "scikit-learn", marker = "python_full_version >= '3.11'" },
     { name = "sentence-transformers", marker = "python_full_version >= '3.11'" },
     { name = "sentencepiece" },
+    { name = "torch" },
     { name = "wandb" },
     { name = "webdataset" },
 ]
@@ -3490,6 +3491,8 @@ curate = [
 ]
 data-sdg = [
     { name = "data-designer", marker = "python_full_version >= '3.11'" },
+    { name = "sentence-transformers", marker = "python_full_version >= '3.11'" },
+    { name = "torch" },
 ]
 dev = [
     { name = "mypy" },
@@ -3502,11 +3505,6 @@ evaluator = [
 ]
 gcs = [
     { name = "gcsfs" },
-]
-qasynth-sdg = [
-    { name = "data-designer", marker = "python_full_version >= '3.11'" },
-    { name = "sentence-transformers", marker = "python_full_version >= '3.11'" },
-    { name = "torch" },
 ]
 s3 = [
     { name = "s3fs" },
@@ -3581,10 +3579,9 @@ requires-dist = [
     { name = "cuml-cu12", marker = "python_full_version >= '3.11' and platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'all'", specifier = "==25.10.*" },
     { name = "cuml-cu12", marker = "python_full_version >= '3.11' and platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'byob-gpu'", specifier = "==25.10.*" },
     { name = "cupy-cuda12x", marker = "python_full_version >= '3.11' and platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'byob-gpu'", specifier = ">=14.0,<15" },
-    { name = "data-designer", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'all'", specifier = ">=0.5.6" },
+    { name = "data-designer", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'all'", specifier = "==0.5.9" },
     { name = "data-designer", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'byob'", specifier = ">=0.5.6" },
-    { name = "data-designer", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'data-sdg'", specifier = ">=0.5.6" },
-    { name = "data-designer", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'qasynth-sdg'", specifier = "==0.5.9" },
+    { name = "data-designer", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'data-sdg'", specifier = "==0.5.9" },
     { name = "datasets", specifier = ">=2.14.0" },
     { name = "datasets", marker = "python_full_version >= '3.11' and extra == 'byob'", specifier = ">=2.14.0" },
     { name = "fsspec", specifier = ">=2024.0.0" },
@@ -3651,7 +3648,7 @@ requires-dist = [
     { name = "sacrebleu", marker = "python_full_version >= '3.11' and extra == 'translate'", specifier = ">=2.6.0,<3.0.0" },
     { name = "scikit-learn", marker = "python_full_version >= '3.11' and extra == 'all'", specifier = ">=1.7.0,<1.8.0" },
     { name = "scikit-learn", marker = "python_full_version >= '3.11' and extra == 'byob-gpu'", specifier = ">=1.7.0,<1.8.0" },
-    { name = "sentence-transformers", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'qasynth-sdg'", specifier = ">=5.0.0,<6.0.0" },
+    { name = "sentence-transformers", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'data-sdg'", specifier = ">=5.0.0,<6.0.0" },
     { name = "sentence-transformers", marker = "python_full_version >= '3.11' and extra == 'all'", specifier = ">=5.0.0,<6.0.0" },
     { name = "sentence-transformers", marker = "python_full_version >= '3.11' and extra == 'byob-gpu'", specifier = ">=5.0.0,<6.0.0" },
     { name = "sentencepiece", marker = "extra == 'all'", specifier = ">=0.2.0" },
@@ -3661,7 +3658,8 @@ requires-dist = [
     { name = "textual", specifier = ">=0.70.0" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0.0" },
     { name = "tomlkit", specifier = ">=0.12.0" },
-    { name = "torch", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'qasynth-sdg'", specifier = ">=2.10,<2.11" },
+    { name = "torch", marker = "python_full_version >= '3.11' and python_full_version < '3.14' and extra == 'data-sdg'", specifier = ">=2.10,<2.11" },
+    { name = "torch", marker = "python_full_version >= '3.11' and extra == 'all'", specifier = ">=2.10,<2.11" },
     { name = "torch", marker = "python_full_version >= '3.11' and extra == 'byob-gpu'", specifier = ">=2.10,<2.11" },
     { name = "tqdm", marker = "python_full_version >= '3.11' and extra == 'byob'" },
     { name = "transformers", specifier = ">=4.57.6,<5.0" },
@@ -3675,7 +3673,7 @@ requires-dist = [
     { name = "webdataset", marker = "extra == 'audio'", specifier = ">=0.2.86" },
     { name = "xxhash", specifier = ">=3.4.0" },
 ]
-provides-extras = ["wandb", "s3", "gcs", "sentencepiece", "xenna", "audio", "data-sdg", "qasynth-sdg", "byob", "byob-gpu", "translate", "evaluator", "curate", "dev", "all"]
+provides-extras = ["wandb", "s3", "gcs", "sentencepiece", "xenna", "audio", "data-sdg", "byob", "byob-gpu", "translate", "evaluator", "curate", "dev", "all"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=9.0.3" }]

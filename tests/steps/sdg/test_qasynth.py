@@ -7,10 +7,12 @@ from __future__ import annotations
 
 import json
 from importlib.metadata import entry_points
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
 import pytest
+import tomllib
 import yaml
 from omegaconf import OmegaConf
 from typer.testing import CliRunner
@@ -33,6 +35,7 @@ from nemotron.steps.sdg.qasynth.runtime.sft import (
 from .._step_helpers import assert_step_static, step_dir
 
 STEP = step_dir(__file__, "sdg", "qasynth")
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _conversation(question: str, choices: list[str]) -> dict:
@@ -105,6 +108,16 @@ def test_cli_train_config_preserves_pipeline_controls() -> None:
 
     assert train.pipeline.experiment_name == "persona-mcq-smoke"
     assert list(train.pipeline.stages) == ["all"]
+
+
+def test_qasynth_uses_shared_data_sdg_extra() -> None:
+    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    extras = project["optional-dependencies"]
+
+    assert "qasynth-sdg" not in extras
+    assert any(requirement.startswith("data-designer==0.5.9") for requirement in extras["data-sdg"])
+    assert any(requirement.startswith("sentence-transformers") for requirement in extras["data-sdg"])
+    assert any(requirement.startswith("torch") for requirement in extras["data-sdg"])
 
 
 def test_qasynth_entry_point_is_installed() -> None:

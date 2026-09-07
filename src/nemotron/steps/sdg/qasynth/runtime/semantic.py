@@ -92,7 +92,7 @@ def embed_questions(
     try:
         from sentence_transformers import SentenceTransformer
     except ImportError as exc:
-        raise RuntimeError("Semantic dedup requires the 'qasynth-sdg' optional dependency") from exc
+        raise RuntimeError("Semantic dedup requires the 'data-sdg' optional dependency") from exc
     model = SentenceTransformer(model_name, device=device)
     values = model.encode(
         [f"query: {record['question']}" for record in records],
