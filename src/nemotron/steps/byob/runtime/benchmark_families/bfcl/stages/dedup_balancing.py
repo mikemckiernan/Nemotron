@@ -1276,7 +1276,9 @@ def _solve_balanced_selection(
             variables[task_id] for task_id in ordered if str(features[task_id][dimension]) in mix
         )
         for bucket, weight in sorted(mix.items()):
-            count = pulp.lpSum(variables[task_id] for task_id in ordered if str(features[task_id][dimension]) == bucket)
+            count = pulp.lpSum(
+                variables[task_id] for task_id in ordered if str(features[task_id][dimension]) == bucket
+            )
             under = pulp.LpVariable(
                 f"conditional_under_{len(deviation_terms)}",
                 lowBound=0,
@@ -1637,7 +1639,9 @@ def balance_publication_set(
                         "actual": actual,
                         "inventory": inventory,
                         "reason": (
-                            "insufficient_inventory" if inventory < target else "coverage_or_cross_dimension_constraint"
+                            "insufficient_inventory"
+                            if inventory < target
+                            else "coverage_or_cross_dimension_constraint"
                         ),
                     }
                 )

@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pytest
 
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.isolation import (
+    ProcessWorker,
+)
 from nemotron.steps.byob.runtime.source_adapters.certification import (
     AdapterTier,
     certification_input_digest,
@@ -20,9 +23,6 @@ from nemotron.steps.byob.runtime.source_adapters.contract import (
 from nemotron.steps.byob.runtime.source_adapters.local_python import (
     LocalPythonError,
     inspect_local_python_package,
-)
-from nemotron.steps.byob.runtime.benchmark_families.bfcl.isolation import (
-    ProcessWorker,
 )
 from nemotron.steps.byob.runtime.source_adapters.local_python_probes import (
     LocalProbeCase,

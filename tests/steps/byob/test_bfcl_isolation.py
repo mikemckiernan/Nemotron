@@ -13,7 +13,6 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.isolation import (
     run_with_timeout,
 )
 
-
 # Budgets that are scaffolding rather than the thing under test. Spawning a worker
 # and importing a backend competes with every other test process for CPU, so a value
 # chosen to look brisk fails on a loaded machine and says nothing when it does. These
