@@ -1,9 +1,10 @@
 ---
 name: nemotron-customize
-description: "Plan, configure, and chain repo-native Nemotron customization steps into single-step or multi-step pipelines: curation, translation, synthetic data generation (including persona-grounded MCQ SFT), SFT/PEFT (AutoModel or Megatron-Bridge), pretraining/CPT, RL alignment (DPO/RLVR/GRPO/RLHF), BYOB/MCQ benchmarks, checkpoint conversion, ModelOpt optimization, env profiles, and evaluation of trained checkpoints or existing/hosted endpoints. Use when a request names a Nemotron step or workflow, or asks to clean, translate, generate training data, train, fine-tune, align, convert, optimize, evaluate, or compose these into a pipeline. Do NOT use for frontend/dashboard/visualization work, generic ML advice, billing/access, or non-Nemotron coding tasks."
+description: "Plan, configure, and chain repo-native Nemotron customization steps into single-step or multi-step pipelines: curation, translation, SFT/PEFT (AutoModel or Megatron-Bridge), pretraining/CPT, RL alignment (DPO/RLVR/GRPO/RLHF), BYOB/MCQ benchmarks, checkpoint conversion, ModelOpt optimization, env profiles, and evaluation of trained checkpoints or existing/hosted endpoints. Use when a request names a Nemotron step or workflow, or asks to clean, translate, train, fine-tune, align, convert, optimize, evaluate, or compose these into a pipeline. Do NOT use for frontend/dashboard/visualization work, generic ML advice, billing/access, or non-Nemotron coding tasks."
+version: 0.1.1
 license: Apache-2.0
 metadata:
-  version: 0.1.2
+  version: 0.1.1
   author: NVIDIA Nemotron Team <noreply@nvidia.com>
   tags:
     - nemotron
@@ -15,11 +16,10 @@ metadata:
 # nemotron-customize
 
 IMPORTANT: Read this file before answering any `nemotron-customize`,
-Nemotron customization, Curator curation, synthetic data generation,
-translation, SFT, PEFT, RL, conversion, optimization, checkpoint or
-existing/hosted-endpoint evaluation, or multi-step pipeline request. This
-applies whether the user names one step or asks you to compose several steps
-into a pipeline.
+Nemotron customization, Curator curation, translation, SFT, PEFT, RL,
+conversion, optimization, checkpoint or existing/hosted-endpoint evaluation, or
+multi-step pipeline request. This applies whether the user names one step or
+asks you to compose several steps into a pipeline.
 
 Evaluation requests count even when no training is involved: "evaluate",
 "benchmark", "smoke test", or "score" an existing/hosted endpoint, an API/model
@@ -143,10 +143,6 @@ Use `references/CATALOG.md` as the authoritative home for step selection and
 route-specific fast paths. Use `ARTIFACTS.md`, `PATTERNS.md`, and `HARDWARE.md`
 only to resolve artifact, cross-step, or hardware constraints after the catalog
 narrows the route.
-
-Distinguish MCQ-shaped training data from benchmark data. Persona-grounded MCQ
-examples intended for SFT route to `sdg/persona_mcq`; held-out MCQ benchmark or
-evaluation datasets route to `byob/mcq`.
 
 Each step is independent and stitching steps together is your job. Compose any
 pipeline by artifact matching from the user's end goal: chain a step only when
