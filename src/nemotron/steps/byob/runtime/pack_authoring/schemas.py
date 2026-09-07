@@ -30,7 +30,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # One definition of what an identifier is, because two parties rely on it: the validator
 # refuses a draft that breaks it, and the model only learns it from the field description
@@ -60,7 +60,19 @@ UnknownField = Literal[
 
 # Where an argument value comes from. `unresolved` is the honest answer at L0 for anything
 # that would otherwise be invented.
-ValueSource = Literal["literal", "fixture", "absent_id", "confirmation_flag", "unresolved"]
+#
+# `invalid_literal` exists because an error probe has to send something the tool refuses, and
+# every other source is defined never to produce one. Without it that case can only be spelled
+# `unresolved`, which reads identically to an unobserved value, and a reviewer then cannot tell
+# a deliberate refusal probe from a gap nobody closed.
+ValueSource = Literal[
+    "literal",
+    "invalid_literal",
+    "fixture",
+    "absent_id",
+    "confirmation_flag",
+    "unresolved",
+]
 
 
 class _Draft(BaseModel):
@@ -111,9 +123,25 @@ class ArgumentPlan(_Draft):
     source: ValueSource
     literal: str | None = Field(
         default=None,
-        description="Only for source=literal, and only when the value is domain-neutral",
+        description=(
+            "The value itself: for source=literal when the parameter's own schema pins the "
+            "value set, and for source=invalid_literal when that schema refuses the value"
+        ),
     )
-    note: str | None = None
+    note: str | None = Field(
+        default=None,
+        description="Required for source=unresolved: the value this argument still needs",
+    )
+
+    @model_validator(mode="after")
+    def _unresolved_states_what_is_missing(self) -> ArgumentPlan:
+        # `unresolved` is the one source naming no value at all. Left unexplained it reads
+        # like a settled argument, which is the shape a reviewer has no way to question.
+        if self.source == "unresolved" and not (self.note or "").strip():
+            raise ValueError(
+                "source=unresolved requires a note naming the value the case still needs"
+            )
+        return self
 
 
 class ValidationCaseDraft(_Draft):
@@ -128,8 +156,12 @@ class ValidationCaseDraft(_Draft):
     blocked_on: list[UnknownField] = Field(default_factory=list)
 
 
+# Every plan below states a minimum for the same reason `required_tools` does. An empty list
+# satisfies each field-level rule while proving nothing, and the emptiness only surfaces much
+# later — at compilation, or at an assembly whose supplement can no longer name what it meant
+# to reference. Stated here it reaches the model as a constraint rather than a late refusal.
 class ValidationCasePlan(_Draft):
-    cases: list[ValidationCaseDraft]
+    cases: list[ValidationCaseDraft] = Field(min_length=1)
 
 
 class MilestoneDraft(_Draft):
@@ -156,7 +188,7 @@ class TaskTemplateDraft(_Draft):
 
 
 class TaskTemplatePlan(_Draft):
-    templates: list[TaskTemplateDraft]
+    templates: list[TaskTemplateDraft] = Field(min_length=1)
 
 
 class AssertionSpecDraft(_Draft):
@@ -180,4 +212,4 @@ class AssertionSpecDraft(_Draft):
 
 
 class AssertionSpecPlan(_Draft):
-    assertions: list[AssertionSpecDraft]
+    assertions: list[AssertionSpecDraft] = Field(min_length=1)

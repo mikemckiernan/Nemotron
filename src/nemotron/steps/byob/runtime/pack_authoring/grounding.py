@@ -159,9 +159,17 @@ def validate_coverage_plan(grounding: Grounding, plan: CoveragePlan) -> Coverage
         violations.extend(
             _check_prose(
                 f"{where}.policies",
-                [*entry.policies, *entry.positive_intents, *entry.negative_intents],
+                [
+                    entry.purpose,
+                    *entry.policies,
+                    *entry.positive_intents,
+                    *entry.negative_intents,
+                ],
             )
         )
+    # Scanned like every other model string: these reach a reviewer, and text that hides
+    # itself defeats review wherever it sits.
+    violations.extend(_check_prose("coverage.cross_tool_notes", plan.cross_tool_notes))
     missing = sorted(grounding.tool_names - set(named))
     if missing:
         violations.append(
@@ -185,7 +193,20 @@ def validate_validation_cases(
         violations.extend(_check_identifier(case.case_id, f"{where}.case_id"))
         violations.extend(_check_tool(grounding, case.tool, where))
         tool = grounding.tool(case.tool)
-        violations.extend(_check_prose(where, [case.intent, case.expectation]))
+        violations.extend(
+            _check_prose(
+                where,
+                [
+                    case.intent,
+                    case.expectation,
+                    *(
+                        argument.note
+                        for argument in case.arguments
+                        if argument.note is not None
+                    ),
+                ],
+            )
+        )
 
         required: list[str] = []
         if case.kind == "success":
@@ -207,6 +228,14 @@ def validate_validation_cases(
             slot = f"{where}.arguments[{argument.name}]"
             if tool is None:
                 continue
+            if argument.source == "invalid_literal":
+                # A value the schema forbids is only a probe when the case expects the
+                # tool to refuse it; on a success case it is an invented argument.
+                if case.kind != "error":
+                    violations.append(
+                        f"{slot}: source=invalid_literal belongs to an error probe, and "
+                        f"this case is kind={case.kind!r}"
+                    )
             if argument.source == "confirmation_flag":
                 if argument.name != grounding.confirmation_parameter:
                     violations.append(
@@ -221,6 +250,8 @@ def validate_validation_cases(
                 continue
             if argument.source == "literal":
                 violations.extend(_check_literal(tool, argument, slot))
+            elif argument.source == "invalid_literal":
+                violations.extend(_check_invalid_literal(tool, argument, slot))
             elif argument.source in {"fixture", "absent_id"}:
                 required.append("fixture_samples")
         if tool is not None:
@@ -257,6 +288,61 @@ def _check_literal(
     return [
         f"{slot}: {argument.name!r} has no enum or boolean type, so a literal here would "
         "be invented domain data; name a fixture source instead"
+    ]
+
+
+def _parses_as(value: str, declared: str) -> bool:
+    try:
+        number = float(value)
+    except ValueError:
+        return False
+    return number.is_integer() if declared == "integer" else True
+
+
+def _check_invalid_literal(
+    tool: ToolEvidence,
+    argument: ArgumentPlan,
+    slot: str,
+) -> list[str]:
+    """An invalid literal is grounded only where the schema itself refuses the value.
+
+    This is the mirror of `_check_literal` and rests on the same rule: the tool's own input
+    schema decides, not the model. Otherwise "the tool rejects this" is a claim about a
+    server nobody probed, and the probe passes for whatever reason the source invents.
+    """
+    schema = tool.parameters.get("properties", {}).get(argument.name)
+    if not isinstance(schema, dict):
+        return [
+            f"{slot}: cannot ground an invalid literal against a missing parameter schema"
+        ]
+    if argument.literal is None:
+        return [f"{slot}: source=invalid_literal requires the value the tool must reject"]
+    enum = schema.get("enum")
+    if isinstance(enum, list):
+        if argument.literal in [str(value) for value in enum]:
+            return [
+                f"{slot}: {argument.literal!r} is in the schema enum {sorted(str(value) for value in enum)}, "
+                "so the tool has no declared reason to reject it"
+            ]
+        return []
+    declared = schema.get("type")
+    if declared == "boolean":
+        if argument.literal in {"true", "false"}:
+            return [
+                f"{slot}: {argument.literal!r} is a valid boolean, so the tool has no "
+                "declared reason to reject it"
+            ]
+        return []
+    if declared in {"integer", "number"}:
+        if _parses_as(argument.literal, str(declared)):
+            return [
+                f"{slot}: {argument.literal!r} is a valid {declared}, so the tool has no "
+                "declared reason to reject it"
+            ]
+        return []
+    return [
+        f"{slot}: the schema for {argument.name!r} pins no enum, boolean, or numeric type, "
+        "so nothing in it makes this value invalid; name a fixture or absent_id source"
     ]
 
 

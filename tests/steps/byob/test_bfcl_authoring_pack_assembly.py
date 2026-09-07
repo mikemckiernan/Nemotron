@@ -8,6 +8,7 @@ runs at A0, because these bindings do not depend on the probe tier.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -251,6 +252,11 @@ def test_assembly_binds_the_pack_to_the_certified_source_and_compiled_drafts(
 
     record = assembled.record
     assert record["evidence_digest"] == session.evidence_digest
+    # The record names the drafting run it was assembled from, so a pack can be traced
+    # back to the proposals a reviewer signed off on rather than only to the evidence.
+    assert record["draft_provenance_digest"] == "sha256:" + hashlib.sha256(
+        (session.drafts.parent / "draft_provenance.json").read_bytes()
+    ).hexdigest()
     assert record["compiled_assertions"] == [
         "assert_checkout_committed",
         "assert_no_checkout_attempted",

@@ -382,6 +382,125 @@ def test_a_literal_is_only_allowed_where_the_schema_pins_the_value_set() -> None
         )
 
 
+def _error_case(unit: dict[str, Any]) -> ValidationCasePlan:
+    return ValidationCasePlan.model_validate(
+        {
+            "cases": [
+                _case(
+                    case_id="lookup_rejects_unit",
+                    kind="error",
+                    arguments=[
+                        {"name": "id", "source": "fixture", "literal": None, "note": None},
+                        unit,
+                    ],
+                    blocked_on=["observed_error_codes", "fixture_samples"],
+                )
+            ]
+        }
+    )
+
+
+def test_an_invalid_literal_is_only_allowed_where_the_schema_refuses_the_value() -> None:
+    # The mirror of the literal rule. A probe may send a value the tool must reject, but
+    # what makes it rejectable has to be the published schema rather than the model's
+    # belief about a server nobody has run.
+    grounded = _error_case(
+        {"name": "unit", "source": "invalid_literal", "literal": "tonnes", "note": None}
+    )
+    assert validate_validation_cases(_grounding(), grounded) is grounded
+
+    permitted = _error_case(
+        {"name": "unit", "source": "invalid_literal", "literal": "kg", "note": None}
+    )
+    with pytest.raises(GroundingError, match="no declared reason to reject it"):
+        validate_validation_cases(_grounding(), permitted)
+
+    # `id` is an unconstrained string, so nothing in the schema makes any value invalid.
+    unconstrained = _error_case(
+        {"name": "unit", "source": "fixture", "literal": None, "note": None}
+    )
+    loosened = copy.deepcopy(unconstrained.model_dump(mode="json"))
+    loosened["cases"][0]["arguments"][0] = {
+        "name": "id",
+        "source": "invalid_literal",
+        "literal": "anything",
+        "note": None,
+    }
+    with pytest.raises(GroundingError, match="pins no enum, boolean, or numeric type"):
+        validate_validation_cases(
+            _grounding(), ValidationCasePlan.model_validate(loosened)
+        )
+
+    missing = _error_case(
+        {"name": "unit", "source": "invalid_literal", "literal": None, "note": None}
+    )
+    with pytest.raises(GroundingError, match="requires the value the tool must reject"):
+        validate_validation_cases(_grounding(), missing)
+
+
+def test_an_invalid_literal_is_refused_on_a_probe_that_expects_success() -> None:
+    # A value the schema forbids is only a probe when the case expects the refusal; on a
+    # success case it is an invented argument wearing the error probe's clothes.
+    plan = ValidationCasePlan.model_validate(
+        {
+            "cases": [
+                _case(
+                    arguments=[
+                        {"name": "id", "source": "fixture", "literal": None, "note": None},
+                        {
+                            "name": "unit",
+                            "source": "invalid_literal",
+                            "literal": "tonnes",
+                            "note": None,
+                        },
+                    ]
+                )
+            ]
+        }
+    )
+    with pytest.raises(GroundingError, match="belongs to an error probe"):
+        validate_validation_cases(_grounding(), plan)
+
+
+def test_an_unresolved_argument_must_say_which_value_is_still_missing() -> None:
+    # `unresolved` names no value, so without the note it reads like a settled argument
+    # and a reviewer is given nothing to question.
+    with pytest.raises(ValidationError, match="requires a note"):
+        ValidationCasePlan.model_validate(
+            {
+                "cases": [
+                    _case(
+                        arguments=[
+                            {
+                                "name": "id",
+                                "source": "unresolved",
+                                "literal": None,
+                                "note": None,
+                            }
+                        ]
+                    )
+                ]
+            }
+        )
+
+
+@pytest.mark.parametrize(
+    ("plan", "field"),
+    [
+        (ValidationCasePlan, "cases"),
+        (TaskTemplatePlan, "templates"),
+        (AssertionSpecPlan, "assertions"),
+    ],
+)
+def test_an_empty_plan_is_refused_where_the_model_can_still_read_the_rule(
+    plan: type[Any], field: str
+) -> None:
+    # An empty plan satisfies every field-level rule while proving nothing, and it would
+    # otherwise surface only at compilation or at an assembly with nothing to bind.
+    with pytest.raises(ValidationError, match="at least 1 item"):
+        plan.model_validate({field: []})
+
+
 def test_a_probe_must_supply_every_required_parameter() -> None:
     plan = ValidationCasePlan.model_validate({"cases": [_case(arguments=[])]})
     with pytest.raises(GroundingError, match=r"omits required parameter\(s\)"):
