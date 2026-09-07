@@ -28,6 +28,10 @@ from nemotron.steps.byob.runtime.pack_authoring.probe_planning import (
     materialize_plan,
     plan_findings,
 )
+from nemotron.steps.byob.runtime.source_adapters.local_python import (
+    LocalPythonError,
+    inspect_local_python_package,
+)
 from nemotron.steps.byob.runtime.source_adapters.local_python_reach import walk_source
 from nemotron.steps.byob.runtime.source_adapters.probe_engine import AdapterProbePlan
 
@@ -450,6 +454,64 @@ def test_error_vocabulary_refuses_a_path_nothing_reaches(tmp_path: Path) -> None
     )
     assert result.returncode == 1
     assert "no literal error code reaches" in json.loads(result.stderr)["reason"]
+
+
+def _intake_ready_source(root: Path, fixtures: dict) -> Path:
+    """The smallest source `inspect_local_python_package` will look at."""
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "backend.py").write_text("def list_tools():\n    return []\n", encoding="utf-8")
+    (root / "tools.json").write_text(json.dumps([_tool("read_slot")]), encoding="utf-8")
+    (root / "dependency-lock.json").write_text(
+        json.dumps({"schema_version": "bfcl-python-dependency-lock-v1", "dependencies": []}),
+        encoding="utf-8",
+    )
+    (root / "fixtures.json").write_text(json.dumps(fixtures), encoding="utf-8")
+    return root
+
+
+@pytest.mark.parametrize(
+    ("fixtures", "expected"),
+    [
+        ({"slots": {"slot_id": "S-1"}}, "must be a list of objects, not dict"),
+        ({"slots": "S-1,S-2"}, "must be a list of objects, not str"),
+        ({"slots": [{"slot_id": "S-1"}, "S-2"]}, "row 1 of collection 'slots' must be an object"),
+        ({"slots": [["S-1"]]}, "row 0 of collection 'slots' must be an object"),
+    ],
+)
+def test_intake_refuses_a_fixture_collection_nothing_can_read(
+    tmp_path: Path,
+    fixtures: dict,
+    expected: str,
+) -> None:
+    """Indexed by row and read by field is what every reader assumes; nothing else is.
+
+    Before this, a collection that is a string was digested and certified, and the first
+    complaint arrived from whichever reader happened to reach it, if any did.
+    """
+    source = _intake_ready_source(tmp_path / "source", fixtures)
+    with pytest.raises(LocalPythonError) as caught:
+        inspect_local_python_package(source, allowed_roots=(source,))
+    assert caught.value.code == "fixture_metadata_invalid"
+    assert expected in caught.value.detail
+
+
+def test_intake_accepts_rows_that_disagree_about_their_fields(tmp_path: Path) -> None:
+    """A source's data is its own business past the point the framework has to read it.
+
+    The packs that ship today already carry collections with two field shapes, so a rule
+    demanding rows line up would refuse them. An empty collection is likewise left alone:
+    it is useless to a probe and it is not malformed.
+    """
+    source = _intake_ready_source(
+        tmp_path / "source",
+        {
+            "slots": [{"slot_id": "S-1"}, {"slot_id": "S-2", "seeing": "poor"}],
+            "proposals": [],
+        },
+    )
+    inspection = inspect_local_python_package(source, allowed_roots=(source,))
+    roles = {artifact.role for artifact in inspection.identity.artifacts}
+    assert "fixtures" in roles
 
 
 def test_dependency_lock_is_blocked_when_it_would_name_a_dependency(tmp_path: Path) -> None:
