@@ -33,10 +33,9 @@ import json
 import logging
 import math
 import os
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
-
-from transformers import AutoTokenizer, PreTrainedTokenizerBase
+from typing import Any
 
 from continued_bpe import (
     batch_iterator,
@@ -45,13 +44,15 @@ from continued_bpe import (
     extend_tokenizer,
     find_rank_dead_tokens,
 )
-from languages import get_normalizer, resolve as resolve_language
+from languages import get_normalizer
+from languages import resolve as resolve_language
 from replace_bpe import (
     identify_script_tokens,
     prune_backend,
     resolve_ranges,
     wrap_fast,
 )
+from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
 log = logging.getLogger(__name__)
 
@@ -161,7 +162,7 @@ def corpus_stream(corpus: dict, normalizer: Any) -> Iterator[str]:
                     break
     else:  # jsonl
         for fpath in files:
-            with open(fpath, "r", encoding="utf-8") as fh:
+            with open(fpath, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -293,7 +294,8 @@ def run_extension(cfg: dict) -> dict:
             for bt in pending:
                 surface = trained_tok.convert_tokens_to_string([bt]).strip()
                 if surface and surface not in seen:
-                    seen.add(surface); batch.append(surface)
+                    seen.add(surface)
+                    batch.append(surface)
                     if len(batch) >= ext_size - spliced:
                         break
             if not batch:

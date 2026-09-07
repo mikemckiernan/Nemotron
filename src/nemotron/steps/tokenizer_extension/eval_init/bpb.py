@@ -44,9 +44,9 @@ import argparse
 import json
 import math
 import time
+from collections.abc import Iterator, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, Iterator, List, Optional, Sequence, Tuple
 
 import torch
 from tqdm import tqdm
@@ -78,7 +78,7 @@ class EvalResult:
 # Configuration
 # ---------------------------------------------------------------------------
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
         epilog=__doc__,
@@ -187,7 +187,7 @@ def safe_exp(value: float) -> float:
     return math.exp(value) if value < 700 else float("inf")
 
 
-def unique_labels(paths: Sequence[str]) -> List[str]:
+def unique_labels(paths: Sequence[str]) -> list[str]:
     """Directory names, disambiguated when several models share one."""
     labels, seen = [], {}
     for path in paths:
@@ -207,7 +207,7 @@ def stream_texts(data_path: str, text_field: str = "text",
     is_json = Path(data_path).suffix.lower() in (".jsonl", ".json")
     yielded = 0
 
-    with open(data_path, "r", encoding="utf-8") as handle:
+    with open(data_path, encoding="utf-8") as handle:
         for line in handle:
             line = line.strip()
             if not line:
@@ -228,7 +228,7 @@ def stream_texts(data_path: str, text_field: str = "text",
                     return
 
 
-def stream_hf(hf_dataset: str, hf_config: Optional[str], hf_split: str,
+def stream_hf(hf_dataset: str, hf_config: str | None, hf_split: str,
               text_field: str = "text", max_docs: int = -1,
               skip_docs: int = 0) -> Iterator[str]:
     """Yield documents from a streamed HF dataset (held-out slice via skip_docs)."""
@@ -247,7 +247,7 @@ def stream_hf(hf_dataset: str, hf_config: Optional[str], hf_split: str,
                 return
 
 
-def make_text_stream(args) -> "tuple[callable, str]":
+def make_text_stream(args) -> tuple[callable, str]:
     """Return (factory, source_label): path-first local file, else HF stream."""
     if args.data_file:
         return (lambda: stream_texts(args.data_file, args.text_field, args.max_docs),
@@ -263,7 +263,7 @@ def make_text_stream(args) -> "tuple[callable, str]":
 # ---------------------------------------------------------------------------
 
 @torch.no_grad()
-def evaluate_perplexity(model, tokenizer, make_stream, total: Optional[int] = None,
+def evaluate_perplexity(model, tokenizer, make_stream, total: int | None = None,
                         max_length: int = 2048, stride: int = 512,
                         max_tokens: int = -1, device: str = "cuda",
                         desc: str = "Evaluating") -> EvalResult:
@@ -373,7 +373,7 @@ def load_model_and_tokenizer(model_path: str, dtype: torch.dtype, device: str,
 # Result reports
 # ---------------------------------------------------------------------------
 
-def report_summary(results: Dict[str, EvalResult], args: argparse.Namespace) -> None:
+def report_summary(results: dict[str, EvalResult], args: argparse.Namespace) -> None:
     print("\n\n" + "=" * 90)
     print("SUMMARY - embedding initialization comparison")
     print("=" * 90)
@@ -419,7 +419,7 @@ def report_summary(results: Dict[str, EvalResult], args: argparse.Namespace) -> 
     print("=" * 90)
 
 
-def report_tsv(results: Dict[str, EvalResult]) -> None:
+def report_tsv(results: dict[str, EvalResult]) -> None:
     print("\n\n" + "=" * 90)
     print("RESULTS (TSV)")
     print("=" * 90)
@@ -431,7 +431,7 @@ def report_tsv(results: Dict[str, EvalResult]) -> None:
     print("=" * 90)
 
 
-def save_results(path: str, results: Dict[str, EvalResult],
+def save_results(path: str, results: dict[str, EvalResult],
                  args: argparse.Namespace) -> None:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -452,7 +452,7 @@ def save_results(path: str, results: Dict[str, EvalResult],
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: Optional[Sequence[str]] = None) -> None:
+def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     dtype = DTYPES[args.dtype]
@@ -495,12 +495,12 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
                   "number of documents and the BPB values are again not comparable; "
                   "the per-model 'documents' count below tells you which bound.")
 
-    queue: List[Tuple[str, str]] = []
+    queue: list[tuple[str, str]] = []
     if args.base_model:
         queue.append((BASE_LABEL, args.base_model))
     queue.extend(zip(unique_labels(args.models), args.models))
 
-    results: Dict[str, EvalResult] = {}
+    results: dict[str, EvalResult] = {}
     for position, (label, model_path) in enumerate(queue, 1):
         print("\n" + "=" * 70)
         print(f"[{position}/{len(queue)}] Evaluating: {label}")

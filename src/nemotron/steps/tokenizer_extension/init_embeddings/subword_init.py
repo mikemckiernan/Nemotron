@@ -54,9 +54,9 @@ from __future__ import annotations
 import argparse
 import statistics
 import time
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Dict, Iterator, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 import torch
@@ -79,7 +79,7 @@ RULE = "=" * 60
 # Configuration
 # ---------------------------------------------------------------------------
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -135,7 +135,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
     # Apply the language profile before anything reads the target script.
     if getattr(args, "language", None):
-        from languages import profile as _lp, fasttext_url as _fu
+        from languages import fasttext_url as _fu
+        from languages import profile as _lp
         from script_ranges import set_target_script
         _prof = _lp(args.language)
         set_target_script(_prof.script)
@@ -152,7 +153,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     return args
 
 
-def semantic_methods_in_use(args: argparse.Namespace) -> Set[str]:
+def semantic_methods_in_use(args: argparse.Namespace) -> set[str]:
     return {args.input_averaging, args.output_averaging} & set(SEMANTIC_METHODS)
 
 
@@ -196,33 +197,33 @@ class TokenPlan:
 
     category: str  # "mean" | "copy" | "multi"
     token_str: str
-    subword_ids: List[int]
+    subword_ids: list[int]
 
 
 @dataclass
 class Decomposition:
-    plans: Dict[int, TokenPlan]
-    multi_token_ids: List[int]
-    unique_subword_ids: List[int]
-    subword_counts: List[int]
+    plans: dict[int, TokenPlan]
+    multi_token_ids: list[int]
+    unique_subword_ids: list[int]
+    subword_counts: list[int]
 
 
 @dataclass
 class SemanticInputs:
     """Decoded strings that the semantic models embed."""
 
-    token_ids: List[int]
-    token_texts: List[str]
-    subword_ids: List[int]
-    subword_texts: List[str]
+    token_ids: list[int]
+    token_texts: list[str]
+    subword_ids: list[int]
+    subword_texts: list[str]
 
 
 @dataclass
 class SemanticEmbeddings:
     label: str
     full_token: np.ndarray
-    token_id_to_row: Dict[int, int]
-    subword: Dict[int, np.ndarray]
+    token_id_to_row: dict[int, int]
+    subword: dict[int, np.ndarray]
 
 
 @dataclass
@@ -230,14 +231,14 @@ class SampleRecord:
     token_id: int
     token_str: str
     decoded_text: str
-    subword_ids: List[int]
-    subword_tokens: List[str]
-    subword_texts: List[str]
-    char_lengths: List[int]
-    input_weights: List[float]
-    output_weights: List[float]
-    input_sims: Optional[List[float]] = None
-    output_sims: Optional[List[float]] = None
+    subword_ids: list[int]
+    subword_tokens: list[str]
+    subword_texts: list[str]
+    char_lengths: list[int]
+    input_weights: list[float]
+    output_weights: list[float]
+    input_sims: list[float] | None = None
+    output_sims: list[float] | None = None
 
 
 @dataclass
@@ -245,15 +246,15 @@ class InitResult:
     from_subwords: int = 0
     from_copy: int = 0
     from_mean: int = 0
-    target_input_norm: Optional[float] = None
-    target_output_norm: Optional[float] = None
+    target_input_norm: float | None = None
+    target_output_norm: float | None = None
     input_norm_source: str = ""
     output_norm_source: str = ""
-    input_norms_before: List[float] = field(default_factory=list)
-    input_norms_after: List[float] = field(default_factory=list)
-    output_norms_before: List[float] = field(default_factory=list)
-    output_norms_after: List[float] = field(default_factory=list)
-    samples: List[SampleRecord] = field(default_factory=list)
+    input_norms_before: list[float] = field(default_factory=list)
+    input_norms_after: list[float] = field(default_factory=list)
+    output_norms_before: list[float] = field(default_factory=list)
+    output_norms_after: list[float] = field(default_factory=list)
+    samples: list[SampleRecord] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -315,7 +316,7 @@ def is_devanagari(text: str) -> bool:
     return is_target(text)
 
 
-def find_devanagari_tokens(tokenizer, vocab_size: int) -> List[Tuple[int, str]]:
+def find_devanagari_tokens(tokenizer, vocab_size: int) -> list[tuple[int, str]]:
     found = []
     for token_id in tqdm(range(vocab_size), desc="Scanning vocabulary for target-language tokens"):
         try:
@@ -327,7 +328,7 @@ def find_devanagari_tokens(tokenizer, vocab_size: int) -> List[Tuple[int, str]]:
     return found
 
 
-def decoded_char_lengths(subword_ids: Sequence[int], tokenizer) -> List[int]:
+def decoded_char_lengths(subword_ids: Sequence[int], tokenizer) -> list[int]:
     # Clamped to 1 so that an empty decoding never yields a zero weight.
     return [max(len(tokenizer.decode([sid])), 1) for sid in subword_ids]
 
@@ -357,9 +358,9 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def semantic_similarity_weights(subword_ids: Sequence[int], full_token_vector: np.ndarray,
-                                subword_vectors: Dict[int, np.ndarray], temperature: float,
+                                subword_vectors: dict[int, np.ndarray], temperature: float,
                                 dtype: torch.dtype,
-                                device: torch.device) -> Tuple[torch.Tensor, List[float]]:
+                                device: torch.device) -> tuple[torch.Tensor, list[float]]:
     sims = [cosine_similarity(full_token_vector, subword_vectors[sid]) for sid in subword_ids]
     scaled = np.array(sims, dtype=np.float64) / temperature
     exponentiated = np.exp(scaled - scaled.max())
@@ -368,9 +369,9 @@ def semantic_similarity_weights(subword_ids: Sequence[int], full_token_vector: n
 
 
 def subword_weights(method: str, token_id: int, subword_ids: Sequence[int], tokenizer,
-                    semantic: Dict[str, SemanticEmbeddings], temperature: float,
+                    semantic: dict[str, SemanticEmbeddings], temperature: float,
                     dtype: torch.dtype,
-                    device: torch.device) -> Tuple[torch.Tensor, Optional[List[float]]]:
+                    device: torch.device) -> tuple[torch.Tensor, list[float] | None]:
     if method in SEMANTIC_METHODS:
         embeddings = semantic[method]
         full_token_vector = embeddings.full_token[embeddings.token_id_to_row[token_id]]
@@ -430,7 +431,7 @@ def gemma_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
     print(f"  {len(texts)} texts in {total_batches} batches of {batch_size}")
 
     embed_tokens = input_embedding_layer(model)
-    embeddings: List[np.ndarray] = []
+    embeddings: list[np.ndarray] = []
     with torch.no_grad():
         for start in tqdm(range(0, len(texts), batch_size), desc="Gemma embeddings",
                           total=total_batches, unit="batch"):
@@ -573,10 +574,10 @@ def build_gemma_semantics(args: argparse.Namespace,
 
 def decompose_new_tokens(new_token_ids: Sequence[int], extended_tokenizer, original_tokenizer,
                          original_vocab_size: int) -> Decomposition:
-    plans: Dict[int, TokenPlan] = {}
-    multi_token_ids: List[int] = []
-    unique_subword_ids: Set[int] = set()
-    subword_counts: List[int] = []
+    plans: dict[int, TokenPlan] = {}
+    multi_token_ids: list[int] = []
+    unique_subword_ids: set[int] = set()
+    subword_counts: list[int] = []
 
     for token_id in tqdm(new_token_ids, desc="Decomposing tokens"):
         token_str = extended_tokenizer.convert_ids_to_tokens(token_id)
@@ -631,9 +632,9 @@ def report_decomposition(decomposition: Decomposition) -> None:
 # Initialization
 # ---------------------------------------------------------------------------
 
-def resolve_target_norm(all_norms: torch.Tensor, hindi_norms: Optional[torch.Tensor],
+def resolve_target_norm(all_norms: torch.Tensor, hindi_norms: torch.Tensor | None,
                         use_hindi: bool, correction_enabled: bool,
-                        side: str) -> Tuple[torch.Tensor, str]:
+                        side: str) -> tuple[torch.Tensor, str]:
     if use_hindi and hindi_norms is not None and hindi_norms.numel() > 0:
         return hindi_norms.median(), "Hindi tokens"
     if use_hindi and correction_enabled:
@@ -642,8 +643,8 @@ def resolve_target_norm(all_norms: torch.Tensor, hindi_norms: Optional[torch.Ten
 
 
 def report_original_norms(input_norms: torch.Tensor, output_norms: torch.Tensor,
-                          hindi_input_norms: Optional[torch.Tensor],
-                          hindi_output_norms: Optional[torch.Tensor],
+                          hindi_input_norms: torch.Tensor | None,
+                          hindi_output_norms: torch.Tensor | None,
                           result: InitResult, args: argparse.Namespace) -> None:
     print("\n" + RULE)
     print("Original embedding norm statistics")
@@ -670,8 +671,8 @@ def report_original_norms(input_norms: torch.Tensor, output_norms: torch.Tensor,
 
 def build_sample_record(token_id: int, plan: TokenPlan, original_tokenizer,
                         input_weights: torch.Tensor, output_weights: torch.Tensor,
-                        input_sims: Optional[List[float]],
-                        output_sims: Optional[List[float]]) -> SampleRecord:
+                        input_sims: list[float] | None,
+                        output_sims: list[float] | None) -> SampleRecord:
     subword_ids = plan.subword_ids
     try:
         decoded_text = original_tokenizer.decode(subword_ids)
@@ -703,7 +704,7 @@ def build_sample_record(token_id: int, plan: TokenPlan, original_tokenizer,
 def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence[int],
                               original_vocab_size: int, decomposition: Decomposition,
                               hindi_token_ids: Sequence[int],
-                              semantic: Dict[str, SemanticEmbeddings],
+                              semantic: dict[str, SemanticEmbeddings],
                               args: argparse.Namespace) -> InitResult:
     result = InitResult()
 
@@ -806,7 +807,7 @@ def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence
 # ---------------------------------------------------------------------------
 
 def report_samples(samples: Sequence[SampleRecord], args: argparse.Namespace,
-                   semantic: Dict[str, SemanticEmbeddings]) -> None:
+                   semantic: dict[str, SemanticEmbeddings]) -> None:
     if not samples:
         return
 
@@ -879,7 +880,7 @@ def report_norm_analysis(model, original_vocab_size: int, result: InitResult,
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: Optional[Sequence[str]] = None) -> None:
+def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     script_start = time.time()
 
@@ -905,7 +906,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     print(f"Input  embeddings:   {tuple(model.get_input_embeddings().weight.shape)}")
     print(f"Output embeddings:   {tuple(model.get_output_embeddings().weight.shape)}")
 
-    hindi_token_ids: List[int] = []
+    hindi_token_ids: list[int] = []
     if hindi_norm_in_use(args):
         with phase("Phase 1b: Locating Hindi tokens in the original vocabulary"):
             hindi_tokens = find_devanagari_tokens(original_tokenizer, original_vocab_size)
@@ -921,7 +922,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
                                              original_tokenizer, original_vocab_size)
         report_decomposition(decomposition)
 
-    semantic: Dict[str, SemanticEmbeddings] = {}
+    semantic: dict[str, SemanticEmbeddings] = {}
     methods = semantic_methods_in_use(args)
     if methods:
         with phase("Phase 3: Decoding texts for semantic embedding"):

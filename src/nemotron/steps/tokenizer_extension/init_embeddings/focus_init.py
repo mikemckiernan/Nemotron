@@ -48,10 +48,10 @@ from __future__ import annotations
 import argparse
 import statistics
 import time
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterator, List, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -66,7 +66,7 @@ RULE = "=" * 60
 
 def ensure_fasttext(path: str, url: str | None) -> str:
     """Config-driven staging: if the fastText .bin isn't at `path`, download it from
-    `url` (on the Lepton node) and .gz-decompress. Idempotent — a second focus cell
+    `url` (on the compute node) and .gz-decompress. Idempotent — a second focus cell
     reuses the cached file. Writes atomically so a crashed download can't half-fill it."""
     import os
 
@@ -108,7 +108,7 @@ def ensure_fasttext(path: str, url: str | None) -> str:
 # Configuration
 # ---------------------------------------------------------------------------
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -130,7 +130,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     paths.add_argument("--fasttext-model", default=None,
                        help="fastText binary model (.bin) used as the auxiliary space. "
                             "If absent and --fasttext-url is set, it is downloaded here (on the "
-                            "Lepton node). Defaults to $FASTTEXT_CACHE_DIR/cc.<code>.300.bin "
+                            "compute node). Defaults to $FASTTEXT_CACHE_DIR/cc.<code>.300.bin "
                             "resolved from --language.")
     paths.add_argument("--fasttext-url", default=None,
                        help="Source to fetch the fastText .bin from if --fasttext-model is missing. "
@@ -164,7 +164,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
     # Apply the language profile before anything reads the target script.
     if getattr(args, "language", None):
-        from languages import profile as _lp, fasttext_url as _fu
+        from languages import fasttext_url as _fu
+        from languages import profile as _lp
         from script_ranges import set_target_script
         _prof = _lp(args.language)
         set_target_script(_prof.script)
@@ -211,10 +212,10 @@ class FocusSample:
     token_id: int
     token_text: str
     nonzero_count: int
-    top_token_ids: List[int]
-    top_token_texts: List[str]
-    top_similarities: List[float]
-    top_weights: List[float]
+    top_token_ids: list[int]
+    top_token_texts: list[str]
+    top_similarities: list[float]
+    top_weights: list[float]
 
 
 @dataclass
@@ -222,8 +223,8 @@ class FocusResult:
     total: int = 0
     successful: int = 0
     failed: int = 0
-    nonzero_counts: List[int] = field(default_factory=list)
-    samples: List[FocusSample] = field(default_factory=list)
+    nonzero_counts: list[int] = field(default_factory=list)
+    samples: list[FocusSample] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +294,7 @@ def is_devanagari(text: str) -> bool:
     from script_ranges import is_target
     return is_target(text)
 
-def decode_vocabulary(tokenizer, vocab_size: int, desc: str) -> List[str]:
+def decode_vocabulary(tokenizer, vocab_size: int, desc: str) -> list[str]:
     texts = []
     for token_id in tqdm(range(vocab_size), desc=desc):
         try:
@@ -303,7 +304,7 @@ def decode_vocabulary(tokenizer, vocab_size: int, desc: str) -> List[str]:
     return texts
 
 
-def decode_new_tokens(tokenizer, token_ids: Sequence[int]) -> List[str]:
+def decode_new_tokens(tokenizer, token_ids: Sequence[int]) -> list[str]:
     texts = []
     for token_id in tqdm(token_ids, desc="Decoding new tokens"):
         try:
@@ -379,7 +380,7 @@ def decode_for_display(tokenizer, token_id: int) -> str:
 def initialize_focus_embeddings(model, original_tokenizer, extended_tokenizer,
                                 new_token_ids: Sequence[int], new_vectors: np.ndarray,
                                 pool: CandidatePool, original_vocab_size: int,
-                                args: argparse.Namespace) -> Tuple[FocusResult, torch.Tensor,
+                                args: argparse.Namespace) -> tuple[FocusResult, torch.Tensor,
                                                                    torch.Tensor]:
     result = FocusResult(total=len(new_token_ids))
 
@@ -448,8 +449,8 @@ def validate_embeddings(model, original_input: torch.Tensor, original_output: to
     print("Validation")
     print(RULE)
 
-    errors: List[str] = []
-    warnings: List[str] = []
+    errors: list[str] = []
+    warnings: list[str] = []
 
     input_embeddings = model.get_input_embeddings().weight
     output_embeddings = model.get_output_embeddings().weight
@@ -598,7 +599,7 @@ def report_norms(model, original_input: torch.Tensor, original_output: torch.Ten
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: Optional[Sequence[str]] = None) -> None:
+def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     script_start = time.time()
 

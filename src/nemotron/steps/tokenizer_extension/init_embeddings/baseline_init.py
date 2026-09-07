@@ -45,8 +45,8 @@ from __future__ import annotations
 
 import argparse
 import time
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from typing import Iterator, List, Optional, Sequence
 
 import torch
 from tqdm import tqdm
@@ -62,7 +62,7 @@ RULE = "=" * 60
 # Configuration
 # ---------------------------------------------------------------------------
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -139,7 +139,7 @@ def is_devanagari(text: str) -> bool:
     from script_ranges import is_target
     return is_target(text)
 
-def find_devanagari_token_ids(tokenizer, vocab_size: int) -> List[int]:
+def find_devanagari_token_ids(tokenizer, vocab_size: int) -> list[int]:
     token_ids = []
     for token_id in tqdm(range(vocab_size), desc="Scanning vocabulary for Hindi tokens"):
         try:
@@ -161,7 +161,7 @@ def initialize_hf_default(model, new_vocab_size: int) -> None:
 
 
 def initialize_with_vector(model, new_vocab_size: int, original_vocab_size: int,
-                           source_ids: Optional[torch.Tensor], label: str) -> None:
+                           source_ids: torch.Tensor | None, label: str) -> None:
     """Fill every new row with the mean over `source_ids`, or over the whole vocabulary."""
     with torch.no_grad():
         input_embeddings = model.get_input_embeddings().weight
@@ -226,7 +226,7 @@ def apply_input_norm_correction(model, original_vocab_size: int) -> None:
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: Optional[Sequence[str]] = None) -> None:
+def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     script_start = time.time()
 

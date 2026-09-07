@@ -37,16 +37,13 @@ math matches the ADD arm exactly. Mirrors the init engines' argparse main(argv).
 from __future__ import annotations
 
 import argparse
-import os
 import json
+import os
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 import torch
-from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
 from subword_init import (
     SEMANTIC_METHODS,
     build_bert_semantics,
@@ -57,6 +54,8 @@ from subword_init import (
     resolve_target_norm,
     subword_weights,
 )
+from tqdm import tqdm
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 DTYPES = {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": torch.float32}
 LENGTH_METHODS = ("uniform", "char_weighted", "max_char")
@@ -66,7 +65,7 @@ METHODS = ("subword", "mean_all", "hf_default", "focus", "bert")
 RULE = "=" * 60
 
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--base-model", required=True)
     p.add_argument("--extended-tokenizer", required=True)
@@ -96,7 +95,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
                         "(Megatron VocabParallelEmbedding). Padding rows are never indexed. 0 disables.")
     # bert (semantic) options
     p.add_argument("--bert-model", default=None,
-                   help="Auxiliary encoder for --method bert. Default: from --language, else google/muril-base-cased (Indic-only; wrong for non-Indic targets).")
+                   help="Auxiliary encoder for --method bert. Default: from --language, "
+                       "else google/muril-base-cased (Indic-only; wrong for non-Indic targets).")
     p.add_argument("--temperature", type=float, default=0.1)
     p.add_argument("--bert-batch-size", type=int, default=128)
     p.add_argument("--gemma-model", default=None)  # parity; unused
@@ -105,15 +105,18 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     p.add_argument("--fasttext-model", default=None,
                    help="fastText .bin (e.g. cc.hi.300.bin); required for --method focus")
     p.add_argument("--fasttext-url", default=None,
-                   help="Fetch fastText here (on the Lepton node) if --fasttext-model is missing (.gz auto-decompressed).")
+                   help="Fetch fastText here (on the compute node) if "
+                       "--fasttext-model is missing (.gz auto-decompressed).")
     p.add_argument("--candidate-pool", choices=("hindi", "target", "all"), default="target",
-                   help="FOCUS candidates: the base model's target-language rows, or all rows. 'hindi' is the old name for 'target'.")
+                   help="FOCUS candidates: the base model's target-language "
+                       "rows, or all rows. 'hindi' is the old name for 'target'.")
     p.add_argument("--sparsemax-temperature", type=float, default=0.05)
     args = p.parse_args(argv)
 
     # Resolve language-dependent defaults before validation. Without --language
     # this leaves the historical Hindi values in place.
-    from languages import profile as _lang_profile, fasttext_url as _ft_url
+    from languages import fasttext_url as _ft_url
+    from languages import profile as _lang_profile
     from script_ranges import set_target_script
     if args.language:
         prof = _lang_profile(args.language)
@@ -196,14 +199,19 @@ def _init_subword(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in
         for tid in tqdm(fresh_ids, desc="Init fresh (mean-of-constituents)"):
             plan = decomp.plans[tid]
             if plan.category == "mean":
-                in_emb[tid] = mean_in; out_emb[tid] = mean_out; stats["mean"] += 1
+                in_emb[tid] = mean_in
+                out_emb[tid] = mean_out
+                stats["mean"] += 1
                 continue
             if plan.category == "copy":
                 sid = plan.subword_ids[0]
-                in_emb[tid] = base_in[sid]; out_emb[tid] = base_out[sid]; stats["copy"] += 1
+                in_emb[tid] = base_in[sid]
+                out_emb[tid] = base_out[sid]
+                stats["copy"] += 1
                 continue
             w_in = length_based_weights(plan.subword_ids, args.input_averaging, base_tok, in_emb.dtype, in_emb.device)
-            w_out = length_based_weights(plan.subword_ids, args.output_averaging, base_tok, out_emb.dtype, out_emb.device)
+            w_out = length_based_weights(plan.subword_ids, args.output_averaging, base_tok, out_emb.dtype,
+                out_emb.device)
             avg_in = (base_in[plan.subword_ids] * w_in.unsqueeze(1)).sum(dim=0)
             avg_out = (base_out[plan.subword_ids] * w_out.unsqueeze(1)).sum(dim=0)
             in_emb[tid] = _norm_correct(avg_in, args.input_norm_correction, target_in)
@@ -226,11 +234,15 @@ def _init_bert(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, m
         for tid in tqdm(fresh_ids, desc="Init fresh (bert)"):
             plan = decomp.plans[tid]
             if plan.category == "mean":
-                in_emb[tid] = mean_in; out_emb[tid] = mean_out; stats["mean"] += 1
+                in_emb[tid] = mean_in
+                out_emb[tid] = mean_out
+                stats["mean"] += 1
                 continue
             if plan.category == "copy":
                 sid = plan.subword_ids[0]
-                in_emb[tid] = base_in[sid]; out_emb[tid] = base_out[sid]; stats["copy"] += 1
+                in_emb[tid] = base_in[sid]
+                out_emb[tid] = base_out[sid]
+                stats["copy"] += 1
                 continue
             # Input and output are weighted INDEPENDENTLY, matching the Add arm
             # (subword_init) and _init_subword above. Reusing w_in for the output
@@ -257,8 +269,14 @@ def _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out
     """FOCUS: sparsemax blend of nearest base tokens in fastText space."""
     import fasttext
     import numpy as np
-    from focus_init import (build_candidate_pool, decode_new_tokens, decode_vocabulary,
-                            ensure_fasttext, fasttext_vectors, sparsemax)
+    from focus_init import (
+        build_candidate_pool,
+        decode_new_tokens,
+        decode_vocabulary,
+        ensure_fasttext,
+        fasttext_vectors,
+        sparsemax,
+    )
 
     ensure_fasttext(args.fasttext_model, getattr(args, "fasttext_url", None))
     ft = fasttext.load_model(args.fasttext_model)
@@ -270,12 +288,15 @@ def _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out
     stats = {"focus": 0, "mean": 0}
     with torch.no_grad():
         for k, tid in enumerate(tqdm(fresh_ids, desc="Init fresh (FOCUS)")):
-            q = new_vecs[k]; q = q / (np.linalg.norm(q) + 1e-8)
+            q = new_vecs[k]
+            q = q / (np.linalg.norm(q) + 1e-8)
             sims = pool.unit_vectors @ q
             w = sparsemax(sims / args.sparsemax_temperature)
             sel = np.flatnonzero(w)
             if sel.size == 0:
-                in_emb[tid] = mean_in; out_emb[tid] = mean_out; stats["mean"] += 1
+                in_emb[tid] = mean_in
+                out_emb[tid] = mean_out
+                stats["mean"] += 1
                 continue
             wt = torch.tensor(w[sel], dtype=in_emb.dtype, device=in_emb.device).unsqueeze(1)
             ids = pool.token_ids[sel].tolist()
@@ -285,12 +306,14 @@ def _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out
     return stats
 
 
-def main(argv: Optional[Sequence[str]] = None) -> None:
+def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     t0 = time.time()
     dtype = DTYPES[args.dtype]
 
-    print(RULE); print(f"REPLACE embedding init (survivor remap + method={args.method})"); print(RULE)
+    print(RULE)
+    print(f"REPLACE embedding init (survivor remap + method={args.method})")
+    print(RULE)
     print(f"  Base model:         {args.base_model}")
     print(f"  Extended tokenizer: {args.extended_tokenizer}")
 
@@ -300,7 +323,8 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     remap = {int(k): int(v) for k, v in json.loads(remap_path.read_text()).items()}
     print(f"  id_remap survivors: {len(remap):,} (from {remap_path})")
 
-    model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=dtype, trust_remote_code=args.trust_remote_code)
+    model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=dtype,
+        trust_remote_code=args.trust_remote_code)
     base_tok = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
     ext_tok = AutoTokenizer.from_pretrained(args.extended_tokenizer, fix_mistral_regex=True)
 
@@ -385,7 +409,9 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     model.save_pretrained(args.output_dir)
     ext_tok.save_pretrained(args.output_dir)
-    print(RULE); print(f"DONE in {time.time() - t0:.1f}s -> {args.output_dir}"); print(RULE)
+    print(RULE)
+    print(f"DONE in {time.time() - t0:.1f}s -> {args.output_dir}")
+    print(RULE)
 
 
 if __name__ == "__main__":

@@ -27,7 +27,6 @@ never captured -- which is what lets a pruned script be rebuilt from bytes.
 """
 from __future__ import annotations
 
-
 SCRIPT_UNICODE_RANGES: dict[str, list[tuple[int, int]]] = {
     "devanagari": [(0x0900, 0x097F)],   # Hindi, Marathi, Sanskrit, Nepali, ...
     "bengali":    [(0x0980, 0x09FF)],   # Bengali, Assamese

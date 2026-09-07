@@ -27,8 +27,8 @@ import json
 import logging
 import os
 import time
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from transformers import AutoTokenizer
 
@@ -118,7 +118,8 @@ def run_fertility(cfg: dict) -> dict:
     t0 = time.time()
     trust = cfg.get("trust_remote_code", False)
     try:
-        tok = AutoTokenizer.from_pretrained(cfg["tokenizer"], use_fast=True, trust_remote_code=trust, fix_mistral_regex=True)
+        tok = AutoTokenizer.from_pretrained(
+            cfg["tokenizer"], use_fast=True, trust_remote_code=trust, fix_mistral_regex=True)
         used_fix = True
     except TypeError:
         tok = AutoTokenizer.from_pretrained(cfg["tokenizer"], use_fast=True, trust_remote_code=trust)

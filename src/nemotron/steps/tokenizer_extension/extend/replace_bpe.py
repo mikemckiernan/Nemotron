@@ -60,9 +60,10 @@ import logging
 import os
 import re
 import unicodedata
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Iterator
+from typing import Any
 
 try:  # tokenizer-build path is torch-free; only the embedding-init helpers need torch
     import torch
@@ -70,6 +71,7 @@ except ModuleNotFoundError:
     torch = None
 from datasets import get_dataset_split_names, interleave_datasets, load_dataset
 from tokenizers import Tokenizer
+from tqdm import tqdm
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -77,7 +79,6 @@ from transformers import (
     PreTrainedTokenizerBase,
     PreTrainedTokenizerFast,
 )
-from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -388,7 +389,7 @@ def find_rank_dead_tokens(
 # Unicode ranges per script. A token is "residual" for a script if any character
 # of its *decoded* surface string falls in one of these ranges. Names are the
 # keys accepted by --remove-script (comma-separated).
-from script_ranges import SCRIPT_UNICODE_RANGES, resolve_ranges  # noqa: F401
+from script_ranges import SCRIPT_UNICODE_RANGES, resolve_ranges  # noqa: E402,F401
 
 
 def identify_script_tokens(
@@ -632,7 +633,7 @@ def local_jsonl_text_stream(
     fields = (text_field, "text", "content", "response", "prompt")
     yielded = 0
     for path in paths:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -768,7 +769,7 @@ def main() -> None:
     )
 
     # -------------------------------------------------- Phase 3: train fresh BPE
-    langs = [l.strip() for l in args.languages.split(",") if l.strip()]
+    langs = [lang.strip() for lang in args.languages.split(",") if lang.strip()]
     if args.corpus_jsonl:
         total = args.samples_per_lang
         logger.info(f"Phase 3: training fresh BPE on local jsonl {args.corpus_jsonl} ...")
