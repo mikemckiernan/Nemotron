@@ -49,7 +49,7 @@ in [bfcl-authoring-support-matrix.md](bfcl-authoring-support-matrix.md).
 | Confirmation boundary | implemented, experimental | P8 proves unconfirmed mutation leaves state unchanged. | [`test_bfcl_mcp_gateway.py`](../../../../../tests/steps/byob/test_bfcl_mcp_gateway.py) |
 | Resources and prompts as truth | refused | They are not Oracle Pack truth sources in this profile. | [`test_bfcl_mcp_discovery.py`](../../../../../tests/steps/byob/test_bfcl_mcp_discovery.py) |
 | Dynamic `listChanged` catalog | refused | Catalog identity remains pinned through publication. | [`test_bfcl_mcp_discovery.py`](../../../../../tests/steps/byob/test_bfcl_mcp_discovery.py) |
-| Evidence-bound LLM drafting | implemented, experimental | Compilation, validation, and review remain authoritative. | [`test_bfcl_mcp_authoring.py`](../../../../../tests/steps/byob/test_bfcl_mcp_authoring.py) |
+| Evidence-bound model drafting | implemented, experimental | Compilation, validation, and review remain authoritative. | [`test_bfcl_mcp_authoring.py`](../../../../../tests/steps/byob/test_bfcl_mcp_authoring.py) |
 | Review and immutable freeze | implemented, experimental | Approval cannot raise conformance level. | [`test_bfcl_authoring_release.py`](../../../../../tests/steps/byob/test_bfcl_authoring_release.py) |
 | Mode A publication handoff | implemented, experimental | Fresh Gold plus independently verified publishable L2. | [`test_bfcl_authoring_e2e.py`](../../../../../tests/steps/byob/test_bfcl_authoring_e2e.py) |
 | Mode B executable shim | unimplemented | Discovery shape does not authorize execution. | unimplemented |

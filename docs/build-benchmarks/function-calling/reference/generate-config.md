@@ -7,10 +7,11 @@
 
 This page lists the YAML keys accepted by the BFCL generation config, as validated by
 `BfclConfig.from_yaml` in
-`src/nemotron/steps/byob/runtime/benchmark_families/bfcl/config.py`. Start from
-`config/default.yaml`, which carries the same keys with inline commentary, or from
-`config/tiny.yaml`, `config/smoke.example.yaml`, `config/publication.example.yaml`, or
-`config/publication.paraphrase.example.yaml` for worked examples at different scales.
+`src/nemotron/steps/byob/runtime/benchmark_families/bfcl/config.py`. The bundled
+configurations named below all live in `src/nemotron/steps/byob/bfcl/config/`. Start from
+`default.yaml`, which carries the same keys with inline commentary, or from `tiny.yaml`,
+`smoke.example.yaml`, `publication.example.yaml`, or `publication.paraphrase.example.yaml`
+for worked examples at different scales.
 For how the fields fit together, see {doc}`../explanation/pipeline-overview`.
 
 :::{important}

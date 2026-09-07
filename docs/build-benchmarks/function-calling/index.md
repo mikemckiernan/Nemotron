@@ -48,8 +48,8 @@ The pack is the hard part, so there are three supported ways to produce one. All
 | Flow | You start from | Guide |
 | --- | --- | --- |
 | Manual | Your own knowledge of the domain and its tools | {doc}`how-to/author-a-pack` |
-| LLM-assisted, conventional source | A Python package or a reviewed HTTP service | {doc}`how-to/assisted-authoring` |
-| LLM-assisted, MCP source | A running MCP server | {doc}`how-to/mcp-server` |
+| Assisted, conventional source | A Python package or a reviewed HTTP service | {doc}`how-to/assisted-authoring` |
+| Assisted, MCP source | A running MCP server | {doc}`how-to/mcp-server` |
 
 In the assisted flows a model may propose pack semantics, but it can never award a certification tier, approve its own output, or bypass executable replay. {doc}`explanation/authoring-flows` explains where the human decisions sit and why they are separate.
 

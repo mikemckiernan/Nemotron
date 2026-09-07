@@ -30,7 +30,7 @@ retry the same command.
 | `category_budget_too_small` | `task_generation.tasks_per_category` is below the template count of a category. | Raise it to at least the number of templates in the largest category, so no template loses its instances. |
 | `stage_resume_invalid` | `skip_until` names an unknown or disabled stage, or the checkpoint chain was edited. | Use one enabled canonical stage name, and restore the untouched parent chain or run a full generation without `skip_until`. Do not edit checkpoint manifests, state, or snapshots. |
 | `byob_stage_unsupported` | The requested stage is not implemented by this family. | BFCL supports `prepare`, `generate`, `translate`, `eval`, and `all`. Note that `translate` and `eval` do not accept generation resume controls. |
-| `bfcl_translation_invalid` | The translate config names a bare table, reuses an output directory, or enables quality filtering. | Start from `config/translate.yaml`, set `config_status: resolved`, name the source release's `run_manifest.json`, use a distinct empty output directory, and leave `remove_low_quality` off, because task identity and publication order cannot change. |
+| `bfcl_translation_invalid` | The translate config names a bare table, reuses an output directory, or enables quality filtering. | Start from `bfcl/config/translate.yaml`, set `config_status: resolved`, name the source release's `run_manifest.json`, use a distinct empty output directory, and leave `remove_low_quality` off, because task identity and publication order cannot change. |
 
 ## Pack Validation and the Gold Gate
 
@@ -85,7 +85,7 @@ Balancing that cannot meet a declared target is governed by
 | `secret_in_eval_config` | A literal credential was written into the config or embedded in `base_url`. | Name the environment variable with `candidates[].api.api_key_env` and export the value in the runner environment. Rotate the key that reached the file. |
 | `eval_publication_policy_violation` | Publication was requested with a weakened gate or an unpinned candidate. | Restore every locked gate and pin each candidate, or set `publication.requested: false` and read `non_publication_reasons`. See {doc}`eval-config`. |
 | `unsupported_eval_mode` | `eval.mode` is empty, repeated, or names an unknown mode. | Write a non-empty list with no repeats. Executable modes additionally need a source run whose manifest declares an oracle. |
-| `eval_cli_invalid` | The envelope changed a value the runner owns. | Start from `config/eval.cli.yaml` or `config/eval.launcher.yaml`, keep `stage: eval` and `family: bfcl`, and point `eval_config_path` at one resolved eval config. |
+| `eval_cli_invalid` | The envelope changed a value the runner owns. | Start from `bfcl/config/eval.cli.yaml` or `bfcl/config/eval.launcher.yaml`, keep `stage: eval` and `family: bfcl`, and point `eval_config_path` at one resolved eval config. |
 
 ## Evaluation Source and Contamination
 

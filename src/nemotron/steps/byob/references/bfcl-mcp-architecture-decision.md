@@ -30,7 +30,7 @@ Gold Gate ── GET /v1/conformance + pinned digest ──▶ gateway
 ```
 
 MCP is additionally used as an **intake source** for authoring: the normalized tool
-catalog feeds `tools.json` and the evidence bundle that the LLM authoring flow reads.
+catalog feeds `tools.json` and the evidence bundle that the assisted authoring flow reads.
 Intake and oracle execution are separate concerns and ship in that order.
 
 ## Context
