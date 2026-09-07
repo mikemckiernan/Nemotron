@@ -34,6 +34,7 @@ from typing import Any
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from nemotron.steps.byob.runtime.pack_authoring.artifacts import sha256_json
+from nemotron.steps.byob.runtime.pack_authoring.schemas import UNKNOWN_FIELDS
 from nemotron.steps.byob.runtime.source_adapters.certification import (
     AdapterCertificationReport,
     AdapterTier,
@@ -195,15 +196,33 @@ class EvidenceView:
 
     @property
     def unresolved_unknowns(self) -> frozenset[str]:
-        """Field names the bundle says nothing can be inferred about yet."""
-        if self.is_v2:
-            return frozenset(
-                str(entry["field"])
-                for entry in self.document.get("unresolved_gaps", [])
-            )
-        return frozenset(
-            str(entry["field"]) for entry in self.document.get("unknowns", [])
+        """The still-open unknowns, named in the vocabulary a draft may declare.
+
+        A v2 gap record carries its vocabulary term in a different key depending on which
+        producer wrote it: source intake puts the term in `code` and the document location
+        in `field`, while legacy migration puts `legacy_unresolved` in `code` and the term
+        in `field`. Reading `field` alone therefore reported locations -- `tools`,
+        `vocabulary` -- as if they were unknowns. Nothing downstream can use those: a draft
+        cannot declare them, so every gate that asks whether an unknown is still open was
+        answered no, and a draft naming the real unknown was refused for naming one the
+        bundle supposedly did not list.
+
+        Both keys are read, and only terms in the drafting vocabulary survive. A gap
+        outside it, such as reset isolation, blocks no drafting decision and is dropped
+        rather than passed on as a blocker no draft could ever resolve.
+        """
+        entries = (
+            self.document.get("unresolved_gaps", [])
+            if self.is_v2
+            else self.document.get("unknowns", [])
         )
+        named = {
+            str(entry[key])
+            for entry in entries
+            for key in ("code", "field")
+            if entry.get(key) is not None
+        }
+        return frozenset(named & UNKNOWN_FIELDS)
 
     @property
     def tools(self) -> tuple[ToolEvidence, ...]:

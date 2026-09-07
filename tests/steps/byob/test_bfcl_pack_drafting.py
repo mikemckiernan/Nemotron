@@ -71,6 +71,7 @@ from nemotron.steps.byob.runtime.pack_authoring.runner import (
     run_drafting,
 )
 from nemotron.steps.byob.runtime.pack_authoring.schemas import (
+    UNKNOWN_FIELDS,
     AssertionSpecDraft,
     AssertionSpecPlan,
     CoveragePlan,
@@ -253,6 +254,34 @@ def _view(document: dict[str, Any], tmp: Path) -> EvidenceView:
     path = tmp / "evidence_bundle.json"
     path.write_text(json.dumps(document), encoding="utf-8")
     return load_evidence_bundle(path)
+
+
+def test_open_unknowns_are_read_as_the_vocabulary_a_draft_can_declare() -> None:
+    # Two producers encode a v2 gap differently: source intake writes the vocabulary term
+    # in `code` and the document location in `field`, while migration writes
+    # `legacy_unresolved` in `code` and the term in `field`. Reading `field` alone reported
+    # locations as unknowns, so on native v2 every gate asking whether an unknown was still
+    # open answered no, and a draft naming the real one was refused for naming a term the
+    # bundle supposedly never listed.
+    assert UNKNOWN_FIELDS == set(UNKNOWNS)
+
+    view = EvidenceView(
+        document={
+            "schema_version": "bfcl-source-evidence-v2",
+            "unresolved_gaps": [
+                {"code": "observed_error_codes", "field": "tools", "reason": "no A1"},
+                {"code": "legacy_unresolved", "field": "fixture_samples", "reason": "x"},
+                # Outside the drafting vocabulary: no draft rests on reset isolation, so
+                # carrying it would name a blocker nothing could ever resolve.
+                {"code": "reset_isolation", "field": "capabilities", "reason": "no A2"},
+            ],
+        },
+        path=Path("evidence_bundle.json"),
+    )
+
+    assert view.unresolved_unknowns == frozenset(
+        {"observed_error_codes", "fixture_samples"}
+    )
 
 
 # --- Coverage plan -----------------------------------------------------------------------
@@ -602,14 +631,18 @@ def _trace_spec(**overrides: Any) -> dict[str, Any]:
     return spec
 
 
-def test_trace_predicates_need_no_probe_but_result_and_state_predicates_do() -> None:
+def test_a_predicate_the_compiler_cannot_express_is_refused_by_grounding() -> None:
     # BFCL records what was called, so a trace claim is grounded in its own evidence.
     grounded = AssertionSpecPlan.model_validate({"assertions": [_trace_spec()]})
     assert validate_assertion_specs(_grounding(), grounded) is grounded
 
-    for predicate, subject, unknown in (
-        ("field_present", "result", "observed_result_shapes"),
-        ("collection_size_changed", "state", "state_deltas"),
+    # Result and state predicates are not waiting for a probe: no tier compiles them, and
+    # compilation is per pack, so one of them costs the run every assertion it drafted.
+    # Grounding is where the whole violation list is collected, so it refuses them here
+    # rather than leaving them to fail alone at compilation.
+    for predicate, subject in (
+        ("field_present", "result"),
+        ("collection_size_changed", "state"),
     ):
         plan = AssertionSpecPlan.model_validate(
             {
@@ -623,7 +656,9 @@ def test_trace_predicates_need_no_probe_but_result_and_state_predicates_do() -> 
                 ]
             }
         )
-        with pytest.raises(GroundingError, match=unknown):
+        with pytest.raises(
+            GroundingError, match="cannot become an executable assertion"
+        ):
             validate_assertion_specs(_grounding(), plan)
 
 
