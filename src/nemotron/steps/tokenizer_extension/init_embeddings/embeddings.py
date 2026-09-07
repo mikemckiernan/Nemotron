@@ -78,6 +78,10 @@ def _common_argv(cfg: dict) -> list[str]:
     # encoder / fastText defaults. Omitted -> the historical Hindi behaviour.
     if cfg.get("language"):
         argv += ["--language", str(cfg["language"])]
+    # Off by default: loading a repo whose modeling code ships with the weights
+    # executes that code, so it is opt-in from config rather than implicit.
+    if bool(cfg.get("trust_remote_code", False)):
+        argv += ["--trust-remote-code"]
     return argv
 
 

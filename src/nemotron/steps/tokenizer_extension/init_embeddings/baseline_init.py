@@ -75,6 +75,9 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
                        help="Tokenizer containing the base vocabulary plus the new tokens.")
     paths.add_argument("--output-dir", required=True,
                        help="Directory to save the extended model and tokenizer to.")
+    paths.add_argument("--trust-remote-code", action="store_true",
+                       help="Execute custom modeling code shipped in the model repo. "
+                            "Off by default; required by architectures whose code lives there.")
     paths.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
                        help="Precision to load the base model in.")
 
@@ -235,7 +238,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
 
     with phase("Phase 1: Loading model and tokenizers"):
         model = AutoModelForCausalLM.from_pretrained(
-            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=True,
+            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=args.trust_remote_code,
         )
         extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer,
                                                            fix_mistral_regex=True)

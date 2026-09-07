@@ -320,7 +320,16 @@ def run_extension(cfg: dict) -> dict:
         (out_dir / "removed_tokens.txt").write_text("\n".join(removed_list))
         summary["removed"] = len(removed_ids)
     summary.update({"final_vocab_size": len(arm_tok), "new_candidates": cand,
-                    "tokens_spliced": spliced, "output": str(out_dir)})
+                    "tokens_requested": int(ext_size), "tokens_spliced": spliced,
+                    "output": str(out_dir)})
+    # Record the budget alongside the result so any artifact can be audited after
+    # the fact. Constructive merging can add intermediate tokens as well as the
+    # target, so `spliced` is not guaranteed to equal the request; comparisons
+    # across arms are only valid at a matched budget.
+    if spliced != ext_size:
+        log.warning("tokens_spliced (%d) != extension_size (%d) for method=%s. Fertility "
+                    "and BPB comparisons are only valid between arms with the same "
+                    "tokens_spliced.", spliced, ext_size, method)
     summary["timings_sec"]["build"] = round(time.time() - t_build, 1)
     summary["timings_sec"]["total"] = round(time.time() - t0, 1)
 

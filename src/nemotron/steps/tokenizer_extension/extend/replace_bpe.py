@@ -510,6 +510,22 @@ def wrap_fast(backend: Tokenizer, base_tok: PreTrainedTokenizerBase) -> PreTrain
     chat_template = getattr(base_tok, "chat_template", None)
     if chat_template:
         fast.chat_template = chat_template
+
+    # Carry the rest of the base's tokenizer configuration. Without this the saved
+    # tokenizer silently changes behaviour versus the base — model_max_length falls
+    # back to the unlimited sentinel and the padding/truncation sides flip — so it
+    # is not a drop-in replacement even though the vocabulary is correct.
+    for attr in ("model_max_length", "padding_side", "truncation_side",
+                 "clean_up_tokenization_spaces", "sep_token", "cls_token", "mask_token"):
+        value = getattr(base_tok, attr, None)
+        if value is not None:
+            try:
+                setattr(fast, attr, value)
+            except (AttributeError, ValueError):
+                pass
+    extra = getattr(base_tok, "additional_special_tokens", None)
+    if extra:
+        fast.additional_special_tokens = list(extra)
     # NFKC normalizer so inference matches the NFKC decomposition clean_text()
     # applies during BPE training (fixes nukta byte-fragmentation: पड़/मरीज़/...).
     from tokenizers import normalizers

@@ -71,6 +71,9 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     p.add_argument("--base-model", required=True)
     p.add_argument("--extended-tokenizer", required=True)
     p.add_argument("--output-dir", required=True)
+    p.add_argument("--trust-remote-code", action="store_true",
+                   help="Execute custom modeling code shipped in the model repo. "
+                        "Off by default; required by architectures whose code lives there.")
     p.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16")
     p.add_argument("--id-remap", default=None,
                    help="id_remap.json (old_id->new_id). Default: <extended-tokenizer>/id_remap.json")
@@ -297,7 +300,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     remap = {int(k): int(v) for k, v in json.loads(remap_path.read_text()).items()}
     print(f"  id_remap survivors: {len(remap):,} (from {remap_path})")
 
-    model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=dtype, trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=dtype, trust_remote_code=args.trust_remote_code)
     base_tok = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
     ext_tok = AutoTokenizer.from_pretrained(args.extended_tokenizer, fix_mistral_regex=True)
 

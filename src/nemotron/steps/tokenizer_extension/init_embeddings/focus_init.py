@@ -136,6 +136,9 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
                        help="Source to fetch the fastText .bin from if --fasttext-model is missing. "
                             ".gz is auto-decompressed. Defaults to the cc.<code>.300 URL for "
                             "--language, or Hindi when neither is given (legacy).")
+    paths.add_argument("--trust-remote-code", action="store_true",
+                       help="Execute custom modeling code shipped in the model repo. "
+                            "Off by default; required by architectures whose code lives there.")
     paths.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
                        help="Precision to load the base model in.")
 
@@ -601,7 +604,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
 
     with phase("Phase 1: Loading model and tokenizers"):
         model = AutoModelForCausalLM.from_pretrained(
-            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=True,
+            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=args.trust_remote_code,
         )
         original_tokenizer = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
         extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer,

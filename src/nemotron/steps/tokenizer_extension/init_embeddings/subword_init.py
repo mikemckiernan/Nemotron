@@ -92,6 +92,9 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
                        help="Tokenizer containing the base vocabulary plus the new tokens.")
     paths.add_argument("--output-dir", required=True,
                        help="Directory to save the extended model and tokenizer to.")
+    paths.add_argument("--trust-remote-code", action="store_true",
+                       help="Execute custom modeling code shipped in the model repo. "
+                            "Off by default; required by architectures whose code lives there.")
     paths.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
                        help="Precision to load the base model in.")
 
@@ -400,8 +403,14 @@ def bert_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
                 pooled = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1.0)
                 embeddings.append(pooled.float().cpu().numpy())
             except Exception as error:
-                print(f"  Error in batch at index {start}: {error}")
-                embeddings.append(np.zeros((len(batch), model.config.hidden_size)))
+                # A zero vector here is not a neutral fallback: it silently turns a
+                # semantic initialization into a meaningless one, and the run still
+                # reports success. Fail instead — the caller can retry with a
+                # smaller batch or a different encoder.
+                raise RuntimeError(
+                    f"encoder failed on the batch at index {start}: {error}. Refusing to "
+                    f"substitute zero vectors, which would make this a non-semantic init."
+                ) from error
 
     return np.vstack(embeddings)
 
@@ -438,8 +447,10 @@ def gemma_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
                         pooled = token_embeddings.mean(dim=1)
                     embeddings.append(pooled[0].float().cpu().numpy())
                 except Exception as error:
-                    print(f"  Error embedding {text[:50]!r}: {error}")
-                    embeddings.append(np.zeros(model.config.hidden_size))
+                    raise RuntimeError(
+                        f"encoder failed on {text[:50]!r}: {error}. Refusing to substitute a "
+                        f"zero vector, which would silently drop this token's semantics."
+                    ) from error
 
     return np.array(embeddings)
 
@@ -481,10 +492,10 @@ def build_bert_semantics(args: argparse.Namespace,
         print(f"  Device:      {args.semantic_device}")
         print("  Representation: mean-pooled last hidden state of a full forward pass")
 
-        model = AutoModel.from_pretrained(args.bert_model, trust_remote_code=True)
+        model = AutoModel.from_pretrained(args.bert_model, trust_remote_code=args.trust_remote_code)
         model = model.to(args.semantic_device)
         model.eval()
-        tokenizer = AutoTokenizer.from_pretrained(args.bert_model, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(args.bert_model, trust_remote_code=args.trust_remote_code)
         print(f"  Hidden size: {model.config.hidden_size}")
 
         with step(f"Embedding {len(inputs.token_texts)} full token strings"):
@@ -526,10 +537,10 @@ def build_gemma_semantics(args: argparse.Namespace,
             args.gemma_model,
             dtype=dtype,
             device_map="auto" if on_cuda else None,
-            trust_remote_code=True,
+            trust_remote_code=args.trust_remote_code,
         )
         model.eval()
-        tokenizer = AutoTokenizer.from_pretrained(args.gemma_model, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(args.gemma_model, trust_remote_code=args.trust_remote_code)
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
         print(f"  Hidden size: {model.config.hidden_size}")
@@ -874,7 +885,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
 
     with phase("Phase 1: Loading model and tokenizers"):
         model = AutoModelForCausalLM.from_pretrained(
-            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=True,
+            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=args.trust_remote_code,
         )
         original_tokenizer = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
         extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer,
