@@ -130,6 +130,12 @@ def generate_questions(
     max_parallel: int,
     buffer_size: int,
 ) -> list[dict[str, Any]]:
+    from nemotron.steps.sdg.plugins.persona_mcq.plugin import ensure_registered
+
+    # Source-staged remote jobs do not have this checkout's package entry-point
+    # metadata. Register before importing Data Designer's column-type union.
+    ensure_registered()
+
     import data_designer.config as dd
     from data_designer.config.models import ModelProvider
     from data_designer.interface import DataDesigner

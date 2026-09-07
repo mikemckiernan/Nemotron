@@ -29,8 +29,10 @@ uv run nemotron steps run sdg/persona_mcq -c tiny \
 ```
 
 Set `QWEN_API_BASE`, `OSS_API_BASE`, `GEMMA_API_BASE`, and `NVIDIA_API_KEY`.
-Resolved credentials are never written to committed configs or run metadata;
-endpoint URLs are retained in the redacted run configuration for provenance.
+Also export `HF_TOKEN` when the embedding model is gated or to avoid anonymous
+Hugging Face Hub rate limits. Resolved credentials are never written to
+committed configs or run metadata; endpoint URLs are retained in the redacted
+run configuration for provenance.
 
 ## Run
 
@@ -54,6 +56,33 @@ Run production-shaped defaults only after inspecting the smoke artifacts:
 uv run nemotron steps run sdg/persona_mcq -c default \
   pipeline.experiment_name=my-run
 ```
+
+Run remotely through the same Nemotron environment-profile interface as other
+steps. The generated environment templates include profiles for Lepton, Slurm,
+and DGX Cloud (Run:ai); select attached execution with `--run` or detached
+execution with `--batch`:
+
+```bash
+export NEMOTRON_ENV_FILE=env.lepton.toml
+uv run nemotron steps run sdg/persona_mcq -c tiny \
+  --run lepton_sdg_persona_mcq_tiny
+
+export NEMOTRON_ENV_FILE=env.slurm.toml
+uv run nemotron steps run sdg/persona_mcq -c default \
+  --batch slurm_sdg_persona_mcq
+
+export NEMOTRON_ENV_FILE=env.dgxcloud.toml
+uv run nemotron steps run sdg/persona_mcq -c default \
+  --batch dgxcloud_sdg_persona_mcq
+```
+
+Before submission, stage every configured persona locale under the profile's
+shared `DATA_DESIGNER_MANAGED_ASSETS_PATH` (which defaults beneath
+`DATA_DESIGNER_HOME`), and export the three endpoint variables plus
+`NVIDIA_API_KEY`. Export `HF_TOKEN` when Hub authentication is needed; every
+generated backend profile forwards it from the submitting environment.
+`NEMOTRON_RUN_DIR` also points to shared storage so detached runs can resume and
+their outputs persist after the worker exits.
 
 Run or resume selected stages with an OmegaConf list override:
 

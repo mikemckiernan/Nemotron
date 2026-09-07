@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import json
 import random
+import subprocess
+import sys
 from importlib.metadata import entry_points
 from pathlib import Path
 from types import SimpleNamespace
@@ -130,6 +132,29 @@ def test_persona_mcq_entry_point_is_installed() -> None:
     assert "qasynth-mcq" not in matches
     plugin = matches["persona-mcq"].load()
     assert plugin.name == "persona-mcq"
+
+
+def test_persona_mcq_registers_without_installed_entry_point() -> None:
+    pytest.importorskip("data_designer")
+    code = """
+from data_designer.plugins import registry as registry_module
+
+registry_module.PluginRegistry.reset()
+registry_module.entry_points = lambda **kwargs: ()
+
+from nemotron.steps.sdg.plugins.persona_mcq.plugin import ensure_registered
+
+ensure_registered()
+
+from data_designer.config.column_types import DataDesignerColumnType
+from data_designer.engine.column_generators.registry import create_default_column_generator_registry
+
+column_type = DataDesignerColumnType("persona-mcq")
+registry = create_default_column_generator_registry()
+assert registry.get_task_type(column_type).__name__ == "PersonaMCQGenerator"
+"""
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
 
 
 def test_parser_requires_exactly_four_distinct_options() -> None:
@@ -271,6 +296,37 @@ def test_shipped_configs_validate() -> None:
     for path in sorted((STEP / "config").glob("*.yaml")):
         config = yaml.safe_load(path.read_text(encoding="utf-8"))
         validate_config(config)
+
+
+@pytest.mark.parametrize(
+    ("target", "profile"),
+    [
+        ("lepton", "lepton_sdg_persona_mcq"),
+        ("slurm", "slurm_sdg_persona_mcq"),
+        ("dgxcloud", "dgxcloud_sdg_persona_mcq"),
+    ],
+)
+def test_environment_templates_wire_persona_mcq(target: str, profile: str) -> None:
+    path = REPO_ROOT / "src" / "nemotron" / "steps" / "env" / "env_toml" / "config" / f"{target}.yaml"
+    config = yaml.safe_load(path.read_text(encoding="utf-8"))
+    sections = config["sections"]
+
+    assert profile in config["checks"]["required_profiles"]
+    assert f"{profile}_tiny" in config["checks"]["required_profiles"]
+    assert sections[profile]["gpus_per_node"] == 1
+    assert sections[f"{profile}_tiny"]["gpus_per_node"] == 0
+    assert "data-designer>=0.5.9,<0.6" in sections[profile]["startup_commands"][0]
+    assert "sentence-transformers>=5.0.0,<6.0.0" in sections[profile]["startup_commands"][0]
+    assert "torchvision>=0.25,<0.26" in sections[profile]["startup_commands"][1]
+    assert set(sections[profile]["env_vars"]) >= {
+        "NEMOTRON_RUN_DIR",
+        "DATA_DESIGNER_HOME",
+        "DATA_DESIGNER_MANAGED_ASSETS_PATH",
+        "NVIDIA_API_KEY",
+        "QWEN_API_BASE",
+        "OSS_API_BASE",
+        "GEMMA_API_BASE",
+    }
 
 
 def test_cli_stage_list_string_is_normalized(tmp_path) -> None:
