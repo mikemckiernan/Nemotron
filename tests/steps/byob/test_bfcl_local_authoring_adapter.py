@@ -30,6 +30,13 @@ from nemotron.steps.byob.runtime.source_adapters.local_python_probes import (
     run_local_python_probes,
 )
 
+# The probed backend sleeps for whole seconds, so an episode costs real time rather
+# than work, and the production default leaves the episode ceiling at twelve seconds.
+# A loaded machine has been observed spending 12.6 seconds there, which times a probe
+# out and drops the derived tier. These tests assert tier derivation, not latency, so
+# they buy headroom while leaving the forced-deadline probe at its own budget.
+_PROBE_TIMEOUT_S = 60.0
+
 
 def _package(tmp_path: Path, *, backend: str = "import helper\n") -> Path:
     (tmp_path / "backend.py").write_text(backend, encoding="utf-8")
@@ -354,6 +361,7 @@ def test_local_process_probes_derive_a2_without_adapter_assigned_tier(
         inspection,
         _probe_plan(),
         allowed_roots=(tmp_path,),
+        timeout_s=_PROBE_TIMEOUT_S,
     )
     profile = local_python_reference_profile()
     input_digest = certification_input_digest(
@@ -385,6 +393,7 @@ def test_local_a2_requires_timeout_cleanup_and_truthful_mutation(
         inspection,
         _probe_plan(include_timeout=False),
         allowed_roots=(tmp_path,),
+        timeout_s=_PROBE_TIMEOUT_S,
     )
     outcomes = project_probe_executions(
         profile,
@@ -409,6 +418,7 @@ def test_local_a2_requires_timeout_cleanup_and_truthful_mutation(
         changed,
         _probe_plan(),
         allowed_roots=(tmp_path,),
+        timeout_s=_PROBE_TIMEOUT_S,
     )
     mutation_outcomes = project_probe_executions(
         profile,
@@ -462,6 +472,7 @@ def test_timeout_probe_separates_a_broken_transport_from_an_ignored_deadline(
         inspection,
         _probe_plan(),
         allowed_roots=(tmp_path,),
+        timeout_s=_PROBE_TIMEOUT_S,
     )
     outcomes = project_probe_executions(
         profile,
@@ -509,6 +520,7 @@ def test_local_probe_inputs_cannot_overlap_held_out_material(
             plan,
             allowed_roots=(tmp_path,),
             held_out_sensitive_terms=("RESERVED-42",),
+            timeout_s=_PROBE_TIMEOUT_S,
         )
 
 
@@ -536,4 +548,5 @@ def test_local_execution_policy_rejects_host_and_process_access(
             inspection,
             _probe_plan(),
             allowed_roots=(tmp_path,),
+            timeout_s=_PROBE_TIMEOUT_S,
         )
