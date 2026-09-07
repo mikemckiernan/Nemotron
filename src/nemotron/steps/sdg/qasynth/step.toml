@@ -13,11 +13,11 @@ type = "synthetic_jsonl"
 description = "Aligned per-teacher OpenAI messages JSONL with optional assistant reasoning content."
 
 [[parameters]]
-name = "run.experiment_name"
+name = "pipeline.experiment_name"
 description = "Stable experiment namespace used for artifacts, checkpoints, config identity, and summaries."
 
 [[parameters]]
-name = "run.stages"
+name = "pipeline.stages"
 description = "Ordered stages to run, or [all] for the complete pipeline."
 default = ["all"]
 
@@ -51,11 +51,11 @@ then = "Use config/tiny.yaml and a fresh experiment_name before scaling record c
 
 [[strategies]]
 when = "Resuming after an endpoint or worker failure"
-then = "Keep the same experiment name and config with run.resume=true; failed answer rows remain retryable."
+then = "Keep the same experiment name and config with pipeline.resume=true; failed answer rows remain retryable."
 
 [[errors]]
 name = "experiment_config_mismatch"
-recovery = "Choose a new experiment name or intentionally set run.overwrite=true; never combine incompatible stage artifacts."
+recovery = "Choose a new experiment name or intentionally set pipeline.overwrite=true; never combine incompatible stage artifacts."
 
 [[errors]]
 name = "persona_assets_missing"

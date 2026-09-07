@@ -110,7 +110,7 @@ and replace placeholders before final output.
 | Curator JSONL cleaning | `curate/nemo_curator` | `uv run nemotron steps run curate/nemo_curator -c <config> --dry-run input_glob=<raw-jsonl-glob> output_dir=<cleaned-output-dir>` |
 | Corpus translation | `translate/nemo_curator` | `uv run nemotron steps run translate/nemo_curator input_path=<input> output_dir=<output> source_language=<src> target_language=<tgt> backend=<backend>` |
 | BYOB MCQ benchmark | `byob/mcq` | `uv run nemotron steps run byob/mcq -c <config> --dry-run stage=<prepare-generate-translate-or-all> family=mcq` |
-| Persona QASynth SFT | `sdg/qasynth` | `uv run nemotron steps run sdg/qasynth -c <default-or-tiny> --dry-run run.experiment_name=<name>` |
+| Persona QASynth SFT | `sdg/qasynth` | `uv run nemotron steps run sdg/qasynth -c <default-or-tiny> --dry-run pipeline.experiment_name=<name>` |
 | SFT packing | `data_prep/sft_packing` | `uv run nemotron steps run data_prep/sft_packing -c <config> --dry-run` |
 | Pretrain prep | `data_prep/pretrain_prep` | `uv run nemotron steps run data_prep/pretrain_prep -c <config> --dry-run` |
 | RL prep | `data_prep/rl_prep` | `uv run nemotron steps run data_prep/rl_prep -c <config> --dry-run` |

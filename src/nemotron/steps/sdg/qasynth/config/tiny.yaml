@@ -1,4 +1,4 @@
-run:
+pipeline:
   experiment_name: persona-mcq-smoke
   output_root: ${oc.env:NEMOTRON_RUN_DIR,./outputs}/qasynth
   stages: [all]

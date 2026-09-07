@@ -44,24 +44,24 @@ def _stage_list(value: Any) -> list[str]:
 def _identity_config(config: dict[str, Any]) -> dict[str, Any]:
     """Remove execution controls that may legitimately change between resumes."""
     identity = redact_config(config)
-    run = identity.get("run") or {}
+    pipeline = identity.get("pipeline") or {}
     for key in ("stages", "resume", "overwrite"):
-        run.pop(key, None)
+        pipeline.pop(key, None)
     return identity
 
 
 def validate_config(config: dict[str, Any]) -> None:
-    run = config.get("run") or {}
-    if not run.get("experiment_name"):
-        raise ValueError("run.experiment_name is required")
-    stages = _stage_list(run.get("stages"))
+    pipeline = config.get("pipeline") or {}
+    if not pipeline.get("experiment_name"):
+        raise ValueError("pipeline.experiment_name is required")
+    stages = _stage_list(pipeline.get("stages"))
     if not stages:
-        raise ValueError("run.stages must select 'all' or at least one named stage")
+        raise ValueError("pipeline.stages must select 'all' or at least one named stage")
     unknown = set(stages) - set(STAGES) - {"all"}
     if unknown:
         raise ValueError(f"Unknown QASynth stages: {sorted(unknown)}")
     if "all" in stages and len(stages) != 1:
-        raise ValueError("run.stages may contain 'all' or named stages, not both")
+        raise ValueError("pipeline.stages may contain 'all' or named stages, not both")
     languages = config.get("languages") or {}
     if not languages:
         raise ValueError("at least one language must be configured")
@@ -188,17 +188,17 @@ class QASynthPipeline:
     """Run selected QASynth stages against one immutable experiment configuration."""
 
     def __init__(self, config: dict[str, Any]) -> None:
-        config.setdefault("run", {})["stages"] = _stage_list((config.get("run") or {}).get("stages"))
+        config.setdefault("pipeline", {})["stages"] = _stage_list((config.get("pipeline") or {}).get("stages"))
         validate_config(config)
         self.config = config
-        run = config["run"]
-        self.root = Path(run["output_root"]).expanduser().resolve() / run["experiment_name"]
-        self.resume = bool(run.get("resume", True))
-        self.overwrite = bool(run.get("overwrite", False))
+        pipeline = config["pipeline"]
+        self.root = Path(pipeline["output_root"]).expanduser().resolve() / pipeline["experiment_name"]
+        self.resume = bool(pipeline.get("resume", True))
+        self.overwrite = bool(pipeline.get("overwrite", False))
         self.summary: dict[str, Any] = {"stages": {}}
 
     def run(self) -> None:
-        stages = list(self.config["run"].get("stages") or ["all"])
+        stages = list(self.config["pipeline"].get("stages") or ["all"])
         selected = list(STAGES) if stages == ["all"] else stages
         self._prepare_experiment()
         functions: dict[str, Callable[[], None]] = {
@@ -225,7 +225,7 @@ class QASynthPipeline:
             if existing.get("config_hash") != config_hash and not self.overwrite:
                 raise ValueError(
                     f"Experiment {self.root} was created with a different config; choose a new experiment_name "
-                    "or set run.overwrite=true"
+                    "or set pipeline.overwrite=true"
                 )
         try:
             dd_version = version("data-designer")
@@ -264,9 +264,9 @@ class QASynthPipeline:
                     language=language,
                     count=int(cfg["question_generation"]["num_records"]),
                     artifact_root=output.parent / "artifacts",
-                    dataset_name=f"{cfg['run']['experiment_name']}_{model_key}_{language_key}",
+                    dataset_name=f"{cfg['pipeline']['experiment_name']}_{model_key}_{language_key}",
                     resume=self.resume and not self.overwrite,
-                    random_seed=int(cfg["run"]["seed"]),
+                    random_seed=int(cfg["pipeline"]["seed"]),
                     max_parallel=int(cfg["question_generation"]["max_parallel_requests"]),
                     buffer_size=int(cfg["question_generation"]["buffer_size"]),
                 )
@@ -349,7 +349,7 @@ class QASynthPipeline:
 
     def _answer_seed(self) -> None:
         stats: dict[str, int] = {}
-        seed = int(self.config["run"]["seed"])
+        seed = int(self.config["pipeline"]["seed"])
         for language in self.config["languages"]:
             records = read_jsonl(require_file(self.root / "semantic" / f"{language}.jsonl", "answer_seed"))
             stats[language] = write_jsonl(

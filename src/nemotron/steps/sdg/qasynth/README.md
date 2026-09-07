@@ -34,27 +34,27 @@ Start with the smoke profile:
 
 ```bash
 uv run nemotron steps run sdg/qasynth -c tiny \
-  run.experiment_name=my-smoke
+  pipeline.experiment_name=my-smoke
 ```
 
 Run production-shaped defaults only after inspecting the smoke artifacts:
 
 ```bash
 uv run nemotron steps run sdg/qasynth -c default \
-  run.experiment_name=my-run
+  pipeline.experiment_name=my-run
 ```
 
 Run or resume selected stages with an OmegaConf list override:
 
 ```bash
 uv run nemotron steps run sdg/qasynth -c default \
-  run.experiment_name=my-run 'run.stages=[answers,build_sft,sample]'
+  pipeline.experiment_name=my-run 'pipeline.stages=[answers,build_sft,sample]'
 ```
 
 Stages always follow this order: `questions`, `lexical_dedup`,
 `semantic_dedup`, `answer_seed`, `answers`, `build_sft`, `sample`. Inputs for a
 selected stage must already exist. Reusing an experiment name with a different
-configuration is rejected unless `run.overwrite=true` is explicit.
+configuration is rejected unless `pipeline.overwrite=true` is explicit.
 
 Use `sdg/qasynth` for persona-grounded MCQ-shaped **SFT training data**. Use
 `byob/mcq` instead when the output is a held-out benchmark or evaluation set.

@@ -12,8 +12,11 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 import yaml
+from omegaconf import OmegaConf
 from typer.testing import CliRunner
 
+from nemo_runspec.cli_context import GlobalContext
+from nemo_runspec.config import build_job_config, extract_train_config
 from nemotron.cli.bin.nemotron import app
 from nemotron.steps.sdg.plugins.qasynth.parsing import parse_question
 from nemotron.steps.sdg.qasynth.runtime.answers import parse_answer_letter
@@ -86,6 +89,22 @@ def test_cli_show_resolves_qasynth() -> None:
     assert result.exit_code == 0, result.output
     assert "sdg/qasynth" in result.output
     assert "default" in result.output
+
+
+def test_cli_train_config_preserves_pipeline_controls() -> None:
+    raw = OmegaConf.load(STEP / "config" / "tiny.yaml")
+    context = GlobalContext(config="tiny")
+    job = build_job_config(
+        raw,
+        context,
+        "steps/sdg/qasynth",
+        str(STEP / "step.py"),
+        [],
+    )
+    train = extract_train_config(job)
+
+    assert train.pipeline.experiment_name == "persona-mcq-smoke"
+    assert list(train.pipeline.stages) == ["all"]
 
 
 def test_qasynth_entry_point_is_installed() -> None:
@@ -218,18 +237,18 @@ def test_shipped_configs_validate() -> None:
 
 def test_cli_stage_list_string_is_normalized(tmp_path) -> None:
     config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
-    config["run"].update(output_root=str(tmp_path), stages="[answers,build_sft,sample]")
+    config["pipeline"].update(output_root=str(tmp_path), stages="[answers,build_sft,sample]")
     pipeline = QASynthPipeline(config)
-    assert pipeline.config["run"]["stages"] == ["answers", "build_sft", "sample"]
+    assert pipeline.config["pipeline"]["stages"] == ["answers", "build_sft", "sample"]
 
 
 def test_stage_selection_does_not_change_experiment_identity(tmp_path) -> None:
     base = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
-    base["run"].update(output_root=str(tmp_path), experiment_name="resume-test", stages=["questions"])
+    base["pipeline"].update(output_root=str(tmp_path), experiment_name="resume-test", stages=["questions"])
     QASynthPipeline(base)._prepare_experiment()
 
     resumed = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
-    resumed["run"].update(
+    resumed["pipeline"].update(
         output_root=str(tmp_path),
         experiment_name="resume-test",
         stages="[answers,build_sft]",
