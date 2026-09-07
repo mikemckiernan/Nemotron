@@ -62,6 +62,7 @@ RULE = "=" * 60
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
@@ -69,37 +70,51 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
 
     paths = parser.add_argument_group("paths")
-    paths.add_argument("--base-model", default=DEFAULT_BASE_MODEL,
-                       help="Model whose embedding matrices are extended.")
-    paths.add_argument("--extended-tokenizer", required=True,
-                       help="Tokenizer containing the base vocabulary plus the new tokens.")
-    paths.add_argument("--output-dir", required=True,
-                       help="Directory to save the extended model and tokenizer to.")
-    paths.add_argument("--trust-remote-code", action="store_true",
-                       help="Execute custom modeling code shipped in the model repo. "
-                            "Off by default; required by architectures whose code lives there.")
-    paths.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
-                       help="Precision to load the base model in.")
+    paths.add_argument("--base-model", default=DEFAULT_BASE_MODEL, help="Model whose embedding matrices are extended.")
+    paths.add_argument(
+        "--extended-tokenizer", required=True, help="Tokenizer containing the base vocabulary plus the new tokens."
+    )
+    paths.add_argument("--output-dir", required=True, help="Directory to save the extended model and tokenizer to.")
+    paths.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Execute custom modeling code shipped in the model repo. "
+        "Off by default; required by architectures whose code lives there.",
+    )
+    paths.add_argument(
+        "--dtype", choices=sorted(DTYPES), default="bfloat16", help="Precision to load the base model in."
+    )
 
     init = parser.add_argument_group("initialization")
-    init.add_argument("--language", default=None,
-                      help="Target language (see languages.py); selects the script "
-                           "used to find the base model's existing target-language "
-                           "rows. Omit for legacy Hindi/Devanagari.")
-    init.add_argument("--mode", choices=("hf_default", "mean_all", "mean_target", "mean_hindi"),
-                      default="hf_default",
-                      help="How to initialize the new token embeddings.")
-    init.add_argument("--norm-correction", action=argparse.BooleanOptionalAction, default=False,
-                      help="Rescale the new input embeddings to the median original norm; "
-                           "output embeddings are never rescaled.")
-    init.add_argument("--num-samples", type=int, default=10,
-                      help="Target-language tokens to list in mean_target mode.")
+    init.add_argument(
+        "--language",
+        default=None,
+        help="Target language (see languages.py); selects the script "
+        "used to find the base model's existing target-language "
+        "rows. Omit for legacy Hindi/Devanagari.",
+    )
+    init.add_argument(
+        "--mode",
+        choices=("hf_default", "mean_all", "mean_target", "mean_hindi"),
+        default="hf_default",
+        help="How to initialize the new token embeddings.",
+    )
+    init.add_argument(
+        "--norm-correction",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Rescale the new input embeddings to the median original norm; output embeddings are never rescaled.",
+    )
+    init.add_argument(
+        "--num-samples", type=int, default=10, help="Target-language tokens to list in mean_target mode."
+    )
 
     args = parser.parse_args(argv)
     # Apply the language profile before anything reads the target script.
     if args.language:
         from languages import profile as _lp
         from script_ranges import set_target_script
+
         set_target_script(_lp(args.language).script)
     return args
 
@@ -107,6 +122,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 # Reporting helpers
 # ---------------------------------------------------------------------------
+
 
 @contextmanager
 def phase(title: str) -> Iterator[None]:
@@ -120,9 +136,11 @@ def phase(title: str) -> Iterator[None]:
 
 
 def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
-    parts = [f"median: {norms.median().item():.4f}",
-             f"mean: {norms.mean().item():.4f}",
-             f"std: {norms.std().item():.4f}"]
+    parts = [
+        f"median: {norms.median().item():.4f}",
+        f"mean: {norms.mean().item():.4f}",
+        f"std: {norms.std().item():.4f}",
+    ]
     if extremes:
         parts += [f"min: {norms.min().item():.4f}", f"max: {norms.max().item():.4f}"]
     return ", ".join(parts)
@@ -132,12 +150,15 @@ def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
 # Vocabulary helpers
 # ---------------------------------------------------------------------------
 
+
 def is_devanagari(text: str) -> bool:
     """Deprecated name. Delegates to the active target script (default
     Devanagari), so this is unchanged for Hindi and correct for any language
     selected via --language / set_target_script()."""
     from script_ranges import is_target
+
     return is_target(text)
+
 
 def find_devanagari_token_ids(tokenizer, vocab_size: int) -> list[int]:
     token_ids = []
@@ -155,13 +176,15 @@ def find_devanagari_token_ids(tokenizer, vocab_size: int) -> list[int]:
 # Initialization modes
 # ---------------------------------------------------------------------------
 
+
 def initialize_hf_default(model, new_vocab_size: int) -> None:
     print("Resizing with HuggingFace's multivariate-normal initialization...")
     model.resize_token_embeddings(new_vocab_size)
 
 
-def initialize_with_vector(model, new_vocab_size: int, original_vocab_size: int,
-                           source_ids: torch.Tensor | None, label: str) -> None:
+def initialize_with_vector(
+    model, new_vocab_size: int, original_vocab_size: int, source_ids: torch.Tensor | None, label: str
+) -> None:
     """Fill every new row with the mean over `source_ids`, or over the whole vocabulary."""
     with torch.no_grad():
         input_embeddings = model.get_input_embeddings().weight
@@ -186,21 +209,20 @@ def initialize_mean_all(model, new_vocab_size: int, original_vocab_size: int) ->
     initialize_with_vector(model, new_vocab_size, original_vocab_size, None, "all-token")
 
 
-def initialize_mean_hindi(model, tokenizer, new_vocab_size: int, original_vocab_size: int,
-                          num_samples: int) -> None:
+def initialize_mean_hindi(model, tokenizer, new_vocab_size: int, original_vocab_size: int, num_samples: int) -> None:
     print("Initializing every new token with the mean of the Hindi embeddings...")
     hindi_ids = find_devanagari_token_ids(tokenizer, original_vocab_size)
     if not hindi_ids:
-        raise SystemExit("No Devanagari tokens in the original vocabulary; "
-                         "mean_hindi initialization is not possible.")
+        raise SystemExit("No Devanagari tokens in the original vocabulary; mean_hindi initialization is not possible.")
 
     share = 100.0 * len(hindi_ids) / original_vocab_size
     print(f"  Found {len(hindi_ids)} Hindi tokens ({share:.2f}% of the vocabulary)")
     for token_id in hindi_ids[:num_samples]:
         print(f"    ID {token_id}: {tokenizer.decode([token_id])!r}")
 
-    initialize_with_vector(model, new_vocab_size, original_vocab_size,
-                           torch.tensor(hindi_ids, dtype=torch.long), "Hindi")
+    initialize_with_vector(
+        model, new_vocab_size, original_vocab_size, torch.tensor(hindi_ids, dtype=torch.long), "Hindi"
+    )
 
 
 def apply_input_norm_correction(model, original_vocab_size: int) -> None:
@@ -217,14 +239,14 @@ def apply_input_norm_correction(model, original_vocab_size: int) -> None:
         new_rows.mul_(scale.unsqueeze(1))
 
         print(f"  New input norms before - {describe_tensor(before, extremes=False)}")
-        print(f"  New input norms after  - "
-              f"{describe_tensor(new_rows.norm(dim=1), extremes=False)}")
+        print(f"  New input norms after  - {describe_tensor(new_rows.norm(dim=1), extremes=False)}")
         print("  Output embeddings left untouched by design")
 
 
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
@@ -238,12 +260,12 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     with phase("Phase 1: Loading model and tokenizers"):
         model = AutoModelForCausalLM.from_pretrained(
-            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=args.trust_remote_code,
+            args.base_model,
+            dtype=DTYPES[args.dtype],
+            trust_remote_code=args.trust_remote_code,
         )
-        extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer,
-                                                           fix_mistral_regex=True)
-        original_tokenizer = AutoTokenizer.from_pretrained(args.base_model,
-                                                           fix_mistral_regex=True)
+        extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer, fix_mistral_regex=True)
+        original_tokenizer = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
 
     original_vocab_size = model.get_input_embeddings().weight.shape[0]
     new_vocab_size = len(extended_tokenizer)
@@ -265,8 +287,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         elif args.mode == "mean_all":
             initialize_mean_all(model, new_vocab_size, original_vocab_size)
         else:
-            initialize_mean_hindi(model, original_tokenizer, new_vocab_size,
-                                  original_vocab_size, args.num_samples)
+            initialize_mean_hindi(model, original_tokenizer, new_vocab_size, original_vocab_size, args.num_samples)
 
     if args.norm_correction and args.mode == "hf_default":
         print("\nIgnoring --norm-correction: hf_default leaves initialization to HuggingFace.")
@@ -279,7 +300,8 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     with phase(f"Phase 4: Saving to {args.output_dir}"):
         from vocab_pad import pad_vocab_to_multiple
-        pad_vocab_to_multiple(model, 4)   # TP-safe: divisible by TP (=4); minimal padding across all arms/methods
+
+        pad_vocab_to_multiple(model, 4)  # TP-safe: divisible by TP (=4); minimal padding across all arms/methods
         model.save_pretrained(args.output_dir)
         extended_tokenizer.save_pretrained(args.output_dir)
 

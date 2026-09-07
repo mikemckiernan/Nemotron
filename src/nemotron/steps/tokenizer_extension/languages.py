@@ -34,6 +34,7 @@ restating the same two values in every config.
     language: vietnamese      # -> normalizer=none, remove_script=vietnamese
     language: hindi           # -> normalizer=devanagari, remove_script=devanagari
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -42,9 +43,9 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class LanguageProfile:
     normalizer: str  # key into NORMALIZERS ("none" = NFKC only)
-    script: str      # key into SCRIPT_UNICODE_RANGES
-    fasttext: str    # fastText cc.<code>.300 code, for the FOCUS init
-    encoder: str     # encoder covering this language, for the bert init
+    script: str  # key into SCRIPT_UNICODE_RANGES
+    fasttext: str  # fastText cc.<code>.300 code, for the FOCUS init
+    encoder: str  # encoder covering this language, for the bert init
 
 
 # MuRIL covers 17 Indian languages and nothing else, so it is the right
@@ -55,19 +56,19 @@ _XLMR = "FacebookAI/xlm-roberta-base"
 
 LANGUAGES: dict[str, LanguageProfile] = {
     # Devanagari-block languages share both the normalizer and the prune set.
-    "hindi":      LanguageProfile("devanagari", "devanagari", "hi", _MURIL),
-    "marathi":    LanguageProfile("devanagari", "devanagari", "mr", _MURIL),
-    "nepali":     LanguageProfile("devanagari", "devanagari", "ne", _MURIL),
-    "sanskrit":   LanguageProfile("devanagari", "devanagari", "sa", _MURIL),
-    "bengali":    LanguageProfile("none", "bengali", "bn", _MURIL),
-    "punjabi":    LanguageProfile("none", "gurmukhi", "pa", _MURIL),
-    "gujarati":   LanguageProfile("none", "gujarati", "gu", _MURIL),
-    "odia":       LanguageProfile("none", "oriya", "or", _MURIL),
-    "tamil":      LanguageProfile("none", "tamil", "ta", _MURIL),
-    "telugu":     LanguageProfile("none", "telugu", "te", _MURIL),
-    "kannada":    LanguageProfile("none", "kannada", "kn", _MURIL),
-    "malayalam":  LanguageProfile("none", "malayalam", "ml", _MURIL),
-    "urdu":       LanguageProfile("none", "arabic", "ur", _MURIL),
+    "hindi": LanguageProfile("devanagari", "devanagari", "hi", _MURIL),
+    "marathi": LanguageProfile("devanagari", "devanagari", "mr", _MURIL),
+    "nepali": LanguageProfile("devanagari", "devanagari", "ne", _MURIL),
+    "sanskrit": LanguageProfile("devanagari", "devanagari", "sa", _MURIL),
+    "bengali": LanguageProfile("none", "bengali", "bn", _MURIL),
+    "punjabi": LanguageProfile("none", "gurmukhi", "pa", _MURIL),
+    "gujarati": LanguageProfile("none", "gujarati", "gu", _MURIL),
+    "odia": LanguageProfile("none", "oriya", "or", _MURIL),
+    "tamil": LanguageProfile("none", "tamil", "ta", _MURIL),
+    "telugu": LanguageProfile("none", "telugu", "te", _MURIL),
+    "kannada": LanguageProfile("none", "kannada", "kn", _MURIL),
+    "malayalam": LanguageProfile("none", "malayalam", "ml", _MURIL),
+    "urdu": LanguageProfile("none", "arabic", "ur", _MURIL),
     # Latin-script: no extra normalizer, and "its own tokens" are the ones
     # carrying codepoints only this language uses. MuRIL has no Vietnamese.
     "vietnamese": LanguageProfile("none", "vietnamese", "vi", _XLMR),
@@ -79,8 +80,9 @@ FASTTEXT_URL = "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.{code}.
 def profile(name: str) -> LanguageProfile:
     key = (name or "").strip().lower()
     if key not in LANGUAGES:
-        raise ValueError(f"Unknown language {name!r}. Known: {sorted(LANGUAGES)}. "
-                         "Add a LanguageProfile in languages.py.")
+        raise ValueError(
+            f"Unknown language {name!r}. Known: {sorted(LANGUAGES)}. Add a LanguageProfile in languages.py."
+        )
     return LANGUAGES[key]
 
 
@@ -95,6 +97,7 @@ def script_ranges(name: str) -> list[tuple[int, int]]:
     both the norm correction and the FOCUS candidate pool.
     """
     from script_ranges import SCRIPT_UNICODE_RANGES
+
     return SCRIPT_UNICODE_RANGES[profile(name).script]
 
 
@@ -116,8 +119,7 @@ def get_normalizer(name: str):
                 "normalization, which produces a different tokenizer)."
             ) from exc
         return DevanagariNormalizer()
-    raise ValueError(f"Unknown script_normalizer {name!r}. "
-                     f"Known: none, nfkc, devanagari.")
+    raise ValueError(f"Unknown script_normalizer {name!r}. Known: none, nfkc, devanagari.")
 
 
 def resolve(cfg: dict) -> tuple[str, str]:
@@ -133,7 +135,8 @@ def resolve(cfg: dict) -> tuple[str, str]:
             raise ValueError(
                 f"Unknown language {lang!r}. Known: {sorted(LANGUAGES)}. "
                 "Add a LanguageProfile in languages.py, or set script_normalizer "
-                "and remove_script explicitly.")
+                "and remove_script explicitly."
+            )
         prof = LANGUAGES[key]
         norm, script = prof.normalizer, prof.script
     else:
@@ -146,5 +149,4 @@ def resolve(cfg: dict) -> tuple[str, str]:
         val = cfg.get(key)
         return fallback if val is None else str(val)
 
-    return (_override("script_normalizer", norm).lower(),
-            _override("remove_script", script))
+    return (_override("script_normalizer", norm).lower(), _override("remove_script", script))

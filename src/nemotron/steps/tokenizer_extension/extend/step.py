@@ -37,6 +37,7 @@ Trains one BPE on the configured corpus and splices it into the base tokenizer
 (Add) and/or a pruned base (Replace). The splice is rank-dead-safe. YAML drives
 everything; see config/default.yaml.
 """
+
 from __future__ import annotations
 
 import argparse

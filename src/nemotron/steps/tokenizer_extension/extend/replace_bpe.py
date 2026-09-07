@@ -97,6 +97,7 @@ MULTISPACE_RE = re.compile(r"[ \t]+")
 def get_devanagari_normalizer() -> Any:
     try:
         from indicnlp.normalize.indic_normalize import DevanagariNormalizer
+
         return DevanagariNormalizer()
     except ImportError:
         logger.warning("indic-nlp-library missing; skipping Devanagari Normalizer.")
@@ -157,8 +158,11 @@ def _derive_language(example: dict[str, Any], split_name: str) -> str:
 
 
 def mixed_language_text_stream(
-    languages: list[str], max_samples_per_lang: int, devanagari_norm: Any,
-    pbar: tqdm | None, dataset_config: str,
+    languages: list[str],
+    max_samples_per_lang: int,
+    devanagari_norm: Any,
+    pbar: tqdm | None,
+    dataset_config: str,
     doc_id_to_language: dict[str, str] | None = None,
 ) -> Iterator[str]:
     source_splits = _resolve_sangraha_splits(languages, dataset_config)
@@ -255,8 +259,11 @@ def _apply_merges(symbols: list[str], ranks: dict[tuple[str, str], int]) -> list
 
 
 def _apply_bpe_extension_backend(
-    base_backend: Tokenizer, new_vocab: dict[str, int], new_merges: list[str] | None,
-    n_tokens: int, keep_added_token_positions: bool
+    base_backend: Tokenizer,
+    new_vocab: dict[str, int],
+    new_merges: list[str] | None,
+    n_tokens: int,
+    keep_added_token_positions: bool,
 ) -> Tokenizer:
     """Splice `new_vocab` in so that every added token is actually producible.
 
@@ -320,19 +327,26 @@ def _apply_bpe_extension_backend(
 
 
 def extend_tokenizer(
-    tokenizer: PreTrainedTokenizerBase, new_vocab: dict[str, int], new_merges: list[tuple[str, str]] | None,
-    n_tokens: int, keep_added_token_positions: bool = False
+    tokenizer: PreTrainedTokenizerBase,
+    new_vocab: dict[str, int],
+    new_merges: list[tuple[str, str]] | None,
+    n_tokens: int,
+    keep_added_token_positions: bool = False,
 ) -> PreTrainedTokenizerFast:
     merges_list = [" ".join(x) for x in new_merges] if new_merges else None
     updated_backend = _apply_bpe_extension_backend(
         base_backend=Tokenizer.from_str(tokenizer.backend_tokenizer.to_str()),
-        new_vocab=new_vocab, new_merges=merges_list, n_tokens=n_tokens,
+        new_vocab=new_vocab,
+        new_merges=merges_list,
+        n_tokens=n_tokens,
         keep_added_token_positions=keep_added_token_positions,
     )
     return PreTrainedTokenizerFast(
         tokenizer_object=updated_backend,
-        unk_token=getattr(tokenizer, "unk_token", None), bos_token=getattr(tokenizer, "bos_token", None),
-        eos_token=getattr(tokenizer, "eos_token", None), pad_token=getattr(tokenizer, "pad_token", None),
+        unk_token=getattr(tokenizer, "unk_token", None),
+        bos_token=getattr(tokenizer, "bos_token", None),
+        eos_token=getattr(tokenizer, "eos_token", None),
+        pad_token=getattr(tokenizer, "pad_token", None),
     )
 
 
@@ -357,9 +371,7 @@ def find_unreachable_tokens_merges(tokenizer: PreTrainedTokenizerBase) -> list[s
     return sorted(vocab_tokens - reachable)
 
 
-def find_rank_dead_tokens(
-    tokenizer: PreTrainedTokenizerBase, tokens: Iterable[str] | None = None
-) -> list[str]:
+def find_rank_dead_tokens(tokenizer: PreTrainedTokenizerBase, tokens: Iterable[str] | None = None) -> list[str]:
     """Vocab tokens the merge table can never emit, accounting for merge priority.
 
     `find_unreachable_tokens_merges` only asks whether *some* merge chain exists.
@@ -373,7 +385,7 @@ def find_rank_dead_tokens(
     alphabet = {tok for tok in vocab if len(tok) == 1}
     special = {entry.get("content") for entry in obj.get("added_tokens", [])}
     dead: list[str] = []
-    for tok in (vocab.keys() if tokens is None else tokens):
+    for tok in vocab.keys() if tokens is None else tokens:
         if len(tok) < 2 or tok in special:
             continue
         if any(symbol not in alphabet for symbol in tok):
@@ -381,6 +393,7 @@ def find_rank_dead_tokens(
         if _apply_merges(list(tok), ranks) != [tok]:
             dead.append(tok)
     return sorted(dead)
+
 
 # =============================================================================
 # 1. TARGET-SCRIPT DEFINITIONS
@@ -391,9 +404,7 @@ def find_rank_dead_tokens(
 from script_ranges import SCRIPT_UNICODE_RANGES, resolve_ranges  # noqa: E402,F401
 
 
-def identify_script_tokens(
-    tokenizer: PreTrainedTokenizerBase, ranges: list[tuple[int, int]]
-) -> set[str]:
+def identify_script_tokens(tokenizer: PreTrainedTokenizerBase, ranges: list[tuple[int, int]]) -> set[str]:
     """Vocab tokens whose decoded surface contains a codepoint in `ranges`.
 
     Mirrors remove_hindi_tokens.py: byte-level pieces that decode to the target
@@ -444,9 +455,7 @@ def prune_backend(
     old2new = {old: new for new, old in enumerate(survivor_old_ids)}
 
     # rebuild vocab
-    model["vocab"] = {
-        tok: old2new[old] for tok, old in vocab.items() if old not in removed_ids
-    }
+    model["vocab"] = {tok: old2new[old] for tok, old in vocab.items() if old not in removed_ids}
 
     # filter merges: drop any whose left, right, or merged result is removed.
     # preserve the original element type (list or "a b" string) of each kept rule.
@@ -471,8 +480,7 @@ def prune_backend(
     # tokens that decode to the target script cannot trigger this (their outputs
     # decode to the script too), so treat it as a bad removal set, not a repair job.
     orphaned = sorted(
-        tok for tok in model["vocab"]
-        if len(tok) > 1 and tok in produced_before and tok not in produced_after
+        tok for tok in model["vocab"] if len(tok) > 1 and tok in produced_before and tok not in produced_after
     )
     if orphaned:
         raise ValueError(
@@ -483,9 +491,7 @@ def prune_backend(
     # re-point added/special token ids (all survive: none are target-script)
     for a in obj.get("added_tokens", []):
         if a["id"] in removed_ids:
-            raise ValueError(
-                f"Refusing to remove a special/added token: {a.get('content')!r}"
-            )
+            raise ValueError(f"Refusing to remove a special/added token: {a.get('content')!r}")
         a["id"] = old2new[a["id"]]
 
     pruned = Tokenizer.from_str(json.dumps(obj))
@@ -515,8 +521,15 @@ def wrap_fast(backend: Tokenizer, base_tok: PreTrainedTokenizerBase) -> PreTrain
     # tokenizer silently changes behaviour versus the base — model_max_length falls
     # back to the unlimited sentinel and the padding/truncation sides flip — so it
     # is not a drop-in replacement even though the vocabulary is correct.
-    for attr in ("model_max_length", "padding_side", "truncation_side",
-                 "clean_up_tokenization_spaces", "sep_token", "cls_token", "mask_token"):
+    for attr in (
+        "model_max_length",
+        "padding_side",
+        "truncation_side",
+        "clean_up_tokenization_spaces",
+        "sep_token",
+        "cls_token",
+        "mask_token",
+    ):
         value = getattr(base_tok, attr, None)
         if value is not None:
             try:
@@ -529,10 +542,10 @@ def wrap_fast(backend: Tokenizer, base_tok: PreTrainedTokenizerBase) -> PreTrain
     # NFKC normalizer so inference matches the NFKC decomposition clean_text()
     # applies during BPE training (fixes nukta byte-fragmentation: पड़/मरीज़/...).
     from tokenizers import normalizers
+
     existing = fast.backend_tokenizer.normalizer
     fast.backend_tokenizer.normalizer = (
-        normalizers.NFKC() if existing is None
-        else normalizers.Sequence([normalizers.NFKC(), existing])
+        normalizers.NFKC() if existing is None else normalizers.Sequence([normalizers.NFKC(), existing])
     )
     return fast
 
@@ -757,14 +770,12 @@ def main() -> None:
 
     # -------------------------------------------------- Phase 2: prune
     logger.info("Phase 2: pruning + dense re-index...")
-    pruned_backend, old2new, removed_ids, removed_list = prune_backend(
-        base_tok.backend_tokenizer, remove_tokens
-    )
+    pruned_backend, old2new, removed_ids, removed_list = prune_backend(base_tok.backend_tokenizer, remove_tokens)
     pruned_base_tok = wrap_fast(pruned_backend, base_tok)
     pruned_size = len(pruned_base_tok)
     logger.info(
         f"Base {base_size:,} -> pruned {pruned_size:,} "
-        f"(removed {len(removed_ids):,}, survivors re-indexed 0..{pruned_size-1:,})"
+        f"(removed {len(removed_ids):,}, survivors re-indexed 0..{pruned_size - 1:,})"
     )
 
     # -------------------------------------------------- Phase 3: train fresh BPE
@@ -773,9 +784,7 @@ def main() -> None:
         total = args.samples_per_lang
         logger.info(f"Phase 3: training fresh BPE on local jsonl {args.corpus_jsonl} ...")
         with tqdm(total=total, desc="Corpus", unit="docs") as pbar:
-            stream = local_jsonl_text_stream(
-                args.corpus_jsonl, args.text_field, total, devanagari_norm, pbar
-            )
+            stream = local_jsonl_text_stream(args.corpus_jsonl, args.text_field, total, devanagari_norm, pbar)
             trained_tok = base_tok.train_new_from_iterator(
                 batch_iterator(stream, args.batch_size),
                 vocab_size=base_size + args.extension_size,
@@ -783,14 +792,17 @@ def main() -> None:
     else:
         total = len(langs) * args.samples_per_lang
         logger.info(
-            f"Phase 3: training fresh BPE on Sangraha {args.dataset_config} "
-            f"splits={langs} (~{total:,} docs)..."
+            f"Phase 3: training fresh BPE on Sangraha {args.dataset_config} splits={langs} (~{total:,} docs)..."
         )
         doc_id_to_language: dict[str, str] = {}
         with tqdm(total=total, desc="Corpus", unit="docs") as pbar:
             stream = mixed_language_text_stream(
-                langs, args.samples_per_lang, devanagari_norm, pbar,
-                dataset_config=args.dataset_config, doc_id_to_language=doc_id_to_language,
+                langs,
+                args.samples_per_lang,
+                devanagari_norm,
+                pbar,
+                dataset_config=args.dataset_config,
+                doc_id_to_language=doc_id_to_language,
             )
             trained_tok = base_tok.train_new_from_iterator(
                 batch_iterator(stream, args.batch_size),
@@ -801,16 +813,14 @@ def main() -> None:
 
     # -------------------------------------------------- Phase 4: diff + splice
     logger.info("Phase 4: diffing fresh vs pruned base, splicing merges...")
-    artifacts = compute_continued_bpe_artifacts(
-        pruned_base_tok.backend_tokenizer, trained_tok.backend_tokenizer
-    )
+    artifacts = compute_continued_bpe_artifacts(pruned_base_tok.backend_tokenizer, trained_tok.backend_tokenizer)
     merges_pairs = [tuple(x.split(" ")) for x in artifacts.new_merges if len(x.split(" ")) == 2]
-    logger.info(
-        f"New candidate tokens: {len(artifacts.new_vocab):,} | new merges: {len(artifacts.new_merges):,}"
-    )
+    logger.info(f"New candidate tokens: {len(artifacts.new_vocab):,} | new merges: {len(artifacts.new_merges):,}")
 
     final_tok = extend_tokenizer(
-        pruned_base_tok, artifacts.new_vocab, merges_pairs,
+        pruned_base_tok,
+        artifacts.new_vocab,
+        merges_pairs,
         n_tokens=args.extension_size,
         keep_added_token_positions=args.keep_added_token_positions,
     )
@@ -850,10 +860,7 @@ def main() -> None:
     if args.benchmark:
         unreachable = find_unreachable_tokens_merges(final_tok)
         rank_dead = find_rank_dead_tokens(final_tok)
-        logger.info(
-            f"Unreachable BPE-graph tokens: {len(unreachable):,} | "
-            f"rank-dead tokens: {len(rank_dead):,}"
-        )
+        logger.info(f"Unreachable BPE-graph tokens: {len(unreachable):,} | rank-dead tokens: {len(rank_dead):,}")
         with open(os.path.join(args.out_dir, "unreachable.json"), "w") as f:
             json.dump({"graph_unreachable": unreachable, "rank_dead": rank_dead}, f, ensure_ascii=False)
 
@@ -864,12 +871,18 @@ def main() -> None:
     # -------------------------------------------------- Phase 5: model embeddings
     logger.info(f"Phase 5: loading model & remapping embeddings ('{args.init_method}')...")
     model = AutoModelForCausalLM.from_pretrained(
-        args.model_id, torch_dtype=torch.bfloat16, device_map="auto",
+        args.model_id,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
         trust_remote_code=args.trust_remote_code,
     )
     emb_report = remap_and_init_embeddings(
-        model, base_tok=base_tok, final_tok=final_tok,
-        old2new=old2new, pruned_size=pruned_size, init_method=args.init_method,
+        model,
+        base_tok=base_tok,
+        final_tok=final_tok,
+        old2new=old2new,
+        pruned_size=pruned_size,
+        init_method=args.init_method,
     )
     logger.info("Embedding report: " + json.dumps(emb_report))
     model.save_pretrained(args.out_dir)

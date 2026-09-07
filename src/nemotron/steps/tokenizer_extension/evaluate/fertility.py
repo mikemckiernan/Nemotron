@@ -20,6 +20,7 @@ Fertility = sum(tokens)/sum(words), tokenized on RAW text (the tokenizer applies
 its own normalization). Same flexible corpus input as the extend step. Streams,
 so it is memory-safe on 10M+ rows.
 """
+
 from __future__ import annotations
 
 import glob as _glob
@@ -55,15 +56,19 @@ def _raw_stream(corpus: dict) -> Iterator[str]:
     if corpus.get("hf_dataset"):
         from datasets import load_dataset
 
-        ld = {"path": corpus["hf_dataset"],
-              "name": corpus.get("hf_config", corpus.get("hf_name")),
-              "split": corpus.get("hf_split", "train"),
-              "streaming": bool(corpus.get("streaming", True))}
+        ld = {
+            "path": corpus["hf_dataset"],
+            "name": corpus.get("hf_config", corpus.get("hf_name")),
+            "split": corpus.get("hf_split", "train"),
+            "streaming": bool(corpus.get("streaming", True)),
+        }
         # Pinning explicit shards keeps the eval slice byte-identical across arms
         # and lets it be held out from the extend corpus.
-        for key, val in (("data_dir", corpus.get("hf_data_dir")),
-                         ("data_files", corpus.get("hf_data_files")),
-                         ("revision", corpus.get("hf_revision"))):
+        for key, val in (
+            ("data_dir", corpus.get("hf_data_dir")),
+            ("data_files", corpus.get("hf_data_files")),
+            ("revision", corpus.get("hf_revision")),
+        ):
             if val is not None:
                 ld[key] = val
         if not ld["streaming"]:
@@ -85,9 +90,11 @@ def _raw_stream(corpus: dict) -> Iterator[str]:
     if not files:
         raise FileNotFoundError(
             f"corpus.path matched no files: {path!r} (glob {pattern!r}). A silent empty "
-            f"corpus would report fertility 0.0 as if it were a result.")
+            f"corpus would report fertility 0.0 as if it were a result."
+        )
     if files and files[0].endswith(".parquet"):
         import pyarrow.parquet as pq
+
         for f in files:
             for b in pq.ParquetFile(f).iter_batches(batch_size=8192, columns=[text_field]):
                 for v in b.column(0).to_pylist():
@@ -119,7 +126,8 @@ def run_fertility(cfg: dict) -> dict:
     trust = cfg.get("trust_remote_code", False)
     try:
         tok = AutoTokenizer.from_pretrained(
-            cfg["tokenizer"], use_fast=True, trust_remote_code=trust, fix_mistral_regex=True)
+            cfg["tokenizer"], use_fast=True, trust_remote_code=trust, fix_mistral_regex=True
+        )
         used_fix = True
     except TypeError:
         tok = AutoTokenizer.from_pretrained(cfg["tokenizer"], use_fast=True, trust_remote_code=trust)
@@ -151,11 +159,14 @@ def run_fertility(cfg: dict) -> dict:
     if not tot_words:
         raise RuntimeError(
             "no words were scored — the corpus yielded no documents. Check corpus.path / "
-            "glob / text_field (a 0.0 fertility is not a valid measurement).")
+            "glob / text_field (a 0.0 fertility is not a valid measurement)."
+        )
     fert = tot_tokens / tot_words
     report = {
         "label": cfg.get("label", cfg["tokenizer"]),
-        "tokenizer": cfg["tokenizer"], "vocab_size": len(tok), "fix_mistral_regex": used_fix,
+        "tokenizer": cfg["tokenizer"],
+        "vocab_size": len(tok),
+        "fix_mistral_regex": used_fix,
         "eval_corpus": cfg["corpus"],
         "fertility_definition": "sum(tokens)/sum(words)",
         "totals": {"docs": n, "words": tot_words, "tokens": tot_tokens, "chars": tot_chars},

@@ -79,6 +79,7 @@ RULE = "=" * 60
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
@@ -86,50 +87,74 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
 
     paths = parser.add_argument_group("paths")
-    paths.add_argument("--base-model", default=DEFAULT_BASE_MODEL,
-                       help="Model whose embedding matrices are extended.")
-    paths.add_argument("--extended-tokenizer", required=True,
-                       help="Tokenizer containing the base vocabulary plus the new tokens.")
-    paths.add_argument("--output-dir", required=True,
-                       help="Directory to save the extended model and tokenizer to.")
-    paths.add_argument("--trust-remote-code", action="store_true",
-                       help="Execute custom modeling code shipped in the model repo. "
-                            "Off by default; required by architectures whose code lives there.")
-    paths.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
-                       help="Precision to load the base model in.")
+    paths.add_argument("--base-model", default=DEFAULT_BASE_MODEL, help="Model whose embedding matrices are extended.")
+    paths.add_argument(
+        "--extended-tokenizer", required=True, help="Tokenizer containing the base vocabulary plus the new tokens."
+    )
+    paths.add_argument("--output-dir", required=True, help="Directory to save the extended model and tokenizer to.")
+    paths.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Execute custom modeling code shipped in the model repo. "
+        "Off by default; required by architectures whose code lives there.",
+    )
+    paths.add_argument(
+        "--dtype", choices=sorted(DTYPES), default="bfloat16", help="Precision to load the base model in."
+    )
 
     averaging = parser.add_argument_group("averaging")
     averaging.add_argument("--input-averaging", choices=AVERAGING_METHODS, default="uniform")
     averaging.add_argument("--output-averaging", choices=AVERAGING_METHODS, default="uniform")
 
     norms = parser.add_argument_group("norm correction")
-    norms.add_argument("--input-norm-correction", action=argparse.BooleanOptionalAction, default=True,
-                       help="Rescale averaged input embeddings to the median original norm.")
-    norms.add_argument("--output-norm-correction", action=argparse.BooleanOptionalAction, default=False,
-                       help="Rescale averaged output embeddings; risks loss explosion.")
-    norms.add_argument("--input-hindi-norm", action=argparse.BooleanOptionalAction, default=True,
-                       help="Take the target input norm over Devanagari tokens only.")
-    norms.add_argument("--output-hindi-norm", action=argparse.BooleanOptionalAction, default=False,
-                       help="Take the target output norm over Devanagari tokens only.")
+    norms.add_argument(
+        "--input-norm-correction",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Rescale averaged input embeddings to the median original norm.",
+    )
+    norms.add_argument(
+        "--output-norm-correction",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Rescale averaged output embeddings; risks loss explosion.",
+    )
+    norms.add_argument(
+        "--input-hindi-norm",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Take the target input norm over Devanagari tokens only.",
+    )
+    norms.add_argument(
+        "--output-hindi-norm",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Take the target output norm over Devanagari tokens only.",
+    )
 
     semantic = parser.add_argument_group("semantic weighting")
-    semantic.add_argument("--bert-model", default=None,
-                          help="Auxiliary encoder for *_weighted averaging. "
-                               "Default: from --language, else MuRIL (Indic-only).")
+    semantic.add_argument(
+        "--bert-model",
+        default=None,
+        help="Auxiliary encoder for *_weighted averaging. Default: from --language, else MuRIL (Indic-only).",
+    )
     semantic.add_argument("--gemma-model", default=DEFAULT_GEMMA_MODEL)
-    semantic.add_argument("--temperature", type=float, default=0.1,
-                          help="Softmax temperature; lower is sharper (0.05 is near-argmax).")
+    semantic.add_argument(
+        "--temperature", type=float, default=0.1, help="Softmax temperature; lower is sharper (0.05 is near-argmax)."
+    )
     semantic.add_argument("--bert-batch-size", type=int, default=128)
     semantic.add_argument("--gemma-batch-size", type=int, default=64)
     semantic.add_argument("--semantic-device", default="cuda" if torch.cuda.is_available() else "cpu")
 
-    parser.add_argument("--num-samples", type=int, default=10,
-                        help="Multi-subword tokens to report weights for.")
+    parser.add_argument("--num-samples", type=int, default=10, help="Multi-subword tokens to report weights for.")
 
-    parser.add_argument("--language", default=None,
-                        help="Target language (see languages.py). Selects the script used to find "
-                             "the base model's existing target-language rows, and supplies defaults "
-                             "for the auxiliary encoder / fastText vectors. Omit for legacy Hindi.")
+    parser.add_argument(
+        "--language",
+        default=None,
+        help="Target language (see languages.py). Selects the script used to find "
+        "the base model's existing target-language rows, and supplies defaults "
+        "for the auxiliary encoder / fastText vectors. Omit for legacy Hindi.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -138,6 +163,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         from languages import fasttext_url as _fu
         from languages import profile as _lp
         from script_ranges import set_target_script
+
         _prof = _lp(args.language)
         set_target_script(_prof.script)
         if getattr(args, "bert_model", None) is None:
@@ -158,8 +184,9 @@ def semantic_methods_in_use(args: argparse.Namespace) -> set[str]:
 
 
 def hindi_norm_in_use(args: argparse.Namespace) -> bool:
-    return ((args.input_norm_correction and args.input_hindi_norm)
-            or (args.output_norm_correction and args.output_hindi_norm))
+    return (args.input_norm_correction and args.input_hindi_norm) or (
+        args.output_norm_correction and args.output_hindi_norm
+    )
 
 
 def print_configuration(args: argparse.Namespace) -> None:
@@ -172,10 +199,14 @@ def print_configuration(args: argparse.Namespace) -> None:
     print(f"  Output averaging:        {args.output_averaging}")
     print(f"  Input  norm correction:  {args.input_norm_correction}")
     print(f"  Output norm correction:  {args.output_norm_correction}")
-    print(f"  Input  Hindi norm:       {args.input_hindi_norm}"
-          f"{effectiveness(args.input_hindi_norm, args.input_norm_correction)}")
-    print(f"  Output Hindi norm:       {args.output_hindi_norm}"
-          f"{effectiveness(args.output_hindi_norm, args.output_norm_correction)}")
+    print(
+        f"  Input  Hindi norm:       {args.input_hindi_norm}"
+        f"{effectiveness(args.input_hindi_norm, args.input_norm_correction)}"
+    )
+    print(
+        f"  Output Hindi norm:       {args.output_hindi_norm}"
+        f"{effectiveness(args.output_hindi_norm, args.output_norm_correction)}"
+    )
     if args.output_norm_correction:
         print("  WARNING: output norm correction is ON, which can cause loss explosion.")
     methods = semantic_methods_in_use(args)
@@ -190,6 +221,7 @@ def print_configuration(args: argparse.Namespace) -> None:
 # ---------------------------------------------------------------------------
 # Data containers
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class TokenPlan:
@@ -261,6 +293,7 @@ class InitResult:
 # Reporting helpers
 # ---------------------------------------------------------------------------
 
+
 @contextmanager
 def phase(title: str) -> Iterator[None]:
     print("\n" + RULE)
@@ -281,9 +314,11 @@ def step(message: str) -> Iterator[None]:
 
 
 def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
-    parts = [f"median: {norms.median().item():.4f}",
-             f"mean: {norms.mean().item():.4f}",
-             f"std: {norms.std().item():.4f}"]
+    parts = [
+        f"median: {norms.median().item():.4f}",
+        f"mean: {norms.mean().item():.4f}",
+        f"std: {norms.std().item():.4f}",
+    ]
     if extremes:
         parts += [f"min: {norms.min().item():.4f}", f"max: {norms.max().item():.4f}"]
     return ", ".join(parts)
@@ -291,8 +326,7 @@ def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
 
 def describe_values(values: Sequence[float]) -> str:
     std = statistics.stdev(values) if len(values) > 1 else 0.0
-    return (f"median: {statistics.median(values):.4f}, "
-            f"mean: {statistics.mean(values):.4f}, std: {std:.4f}")
+    return f"median: {statistics.median(values):.4f}, mean: {statistics.mean(values):.4f}, std: {std:.4f}"
 
 
 def format_weights(weights: Sequence[float]) -> str:
@@ -308,11 +342,13 @@ def free_cuda() -> None:
 # Weighting
 # ---------------------------------------------------------------------------
 
+
 def is_devanagari(text: str) -> bool:
     """Deprecated name. Delegates to the active target script (default
     Devanagari), so this is unchanged for Hindi and correct for any language
     selected via --language / set_target_script()."""
     from script_ranges import is_target
+
     return is_target(text)
 
 
@@ -333,8 +369,9 @@ def decoded_char_lengths(subword_ids: Sequence[int], tokenizer) -> list[int]:
     return [max(len(tokenizer.decode([sid])), 1) for sid in subword_ids]
 
 
-def length_based_weights(subword_ids: Sequence[int], method: str, tokenizer,
-                         dtype: torch.dtype, device: torch.device) -> torch.Tensor:
+def length_based_weights(
+    subword_ids: Sequence[int], method: str, tokenizer, dtype: torch.dtype, device: torch.device
+) -> torch.Tensor:
     count = len(subword_ids)
     if method == "uniform":
         return torch.full((count,), 1.0 / count, dtype=dtype, device=device)
@@ -357,10 +394,14 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(a, b) / (norm_a * norm_b))
 
 
-def semantic_similarity_weights(subword_ids: Sequence[int], full_token_vector: np.ndarray,
-                                subword_vectors: dict[int, np.ndarray], temperature: float,
-                                dtype: torch.dtype,
-                                device: torch.device) -> tuple[torch.Tensor, list[float]]:
+def semantic_similarity_weights(
+    subword_ids: Sequence[int],
+    full_token_vector: np.ndarray,
+    subword_vectors: dict[int, np.ndarray],
+    temperature: float,
+    dtype: torch.dtype,
+    device: torch.device,
+) -> tuple[torch.Tensor, list[float]]:
     sims = [cosine_similarity(full_token_vector, subword_vectors[sid]) for sid in subword_ids]
     scaled = np.array(sims, dtype=np.float64) / temperature
     exponentiated = np.exp(scaled - scaled.max())
@@ -368,15 +409,26 @@ def semantic_similarity_weights(subword_ids: Sequence[int], full_token_vector: n
     return torch.tensor(weights, dtype=dtype, device=device), sims
 
 
-def subword_weights(method: str, token_id: int, subword_ids: Sequence[int], tokenizer,
-                    semantic: dict[str, SemanticEmbeddings], temperature: float,
-                    dtype: torch.dtype,
-                    device: torch.device) -> tuple[torch.Tensor, list[float] | None]:
+def subword_weights(
+    method: str,
+    token_id: int,
+    subword_ids: Sequence[int],
+    tokenizer,
+    semantic: dict[str, SemanticEmbeddings],
+    temperature: float,
+    dtype: torch.dtype,
+    device: torch.device,
+) -> tuple[torch.Tensor, list[float] | None]:
     if method in SEMANTIC_METHODS:
         embeddings = semantic[method]
         full_token_vector = embeddings.full_token[embeddings.token_id_to_row[token_id]]
         return semantic_similarity_weights(
-            subword_ids, full_token_vector, embeddings.subword, temperature, dtype, device,
+            subword_ids,
+            full_token_vector,
+            embeddings.subword,
+            temperature,
+            dtype,
+            device,
         )
     return length_based_weights(subword_ids, method, tokenizer, dtype, device), None
 
@@ -385,20 +437,20 @@ def subword_weights(method: str, token_id: int, subword_ids: Sequence[int], toke
 # Semantic embeddings
 # ---------------------------------------------------------------------------
 
-def bert_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
-                    device: str) -> np.ndarray:
+
+def bert_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int, device: str) -> np.ndarray:
     """Mean-pooled last hidden states, one row per text."""
     total_batches = (len(texts) + batch_size - 1) // batch_size
     print(f"  {len(texts)} texts in {total_batches} batches of {batch_size}")
 
     embeddings = []
     with torch.no_grad():
-        for start in tqdm(range(0, len(texts), batch_size), desc="BERT embeddings",
-                          total=total_batches, unit="batch"):
-            batch = texts[start:start + batch_size]
+        for start in tqdm(range(0, len(texts), batch_size), desc="BERT embeddings", total=total_batches, unit="batch"):
+            batch = texts[start : start + batch_size]
             try:
-                inputs = tokenizer(batch, return_tensors="pt", padding=True,
-                                   truncation=True, max_length=512).to(device)
+                inputs = tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=512).to(
+                    device
+                )
                 hidden = model(**inputs).last_hidden_state
                 mask = inputs["attention_mask"].unsqueeze(-1)
                 pooled = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1.0)
@@ -424,8 +476,7 @@ def input_embedding_layer(model):
     return model.get_input_embeddings()
 
 
-def gemma_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
-                     device: str) -> np.ndarray:
+def gemma_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int, device: str) -> np.ndarray:
     """Mean-pooled embed_tokens lookups, one row per text (no forward pass)."""
     total_batches = (len(texts) + batch_size - 1) // batch_size
     print(f"  {len(texts)} texts in {total_batches} batches of {batch_size}")
@@ -433,17 +484,18 @@ def gemma_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
     embed_tokens = input_embedding_layer(model)
     embeddings: list[np.ndarray] = []
     with torch.no_grad():
-        for start in tqdm(range(0, len(texts), batch_size), desc="Gemma embeddings",
-                          total=total_batches, unit="batch"):
-            for text in texts[start:start + batch_size]:
+        for start in tqdm(
+            range(0, len(texts), batch_size), desc="Gemma embeddings", total=total_batches, unit="batch"
+        ):
+            for text in texts[start : start + batch_size]:
                 try:
-                    inputs = tokenizer(text, return_tensors="pt", padding=True,
-                                       truncation=True, max_length=512).to(device)
+                    inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(
+                        device
+                    )
                     token_embeddings = embed_tokens(inputs.input_ids)
                     if "attention_mask" in inputs:
                         mask = inputs.attention_mask.unsqueeze(-1)
-                        pooled = ((token_embeddings * mask).sum(dim=1)
-                                  / mask.sum(dim=1).clamp(min=1.0))
+                        pooled = (token_embeddings * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1.0)
                     else:
                         pooled = token_embeddings.mean(dim=1)
                     embeddings.append(pooled[0].float().cpu().numpy())
@@ -456,8 +508,7 @@ def gemma_embeddings(texts: Sequence[str], model, tokenizer, batch_size: int,
     return np.array(embeddings)
 
 
-def collect_semantic_inputs(extended_tokenizer, original_tokenizer,
-                            decomposition: Decomposition) -> SemanticInputs:
+def collect_semantic_inputs(extended_tokenizer, original_tokenizer, decomposition: Decomposition) -> SemanticInputs:
     token_texts = []
     for token_id in decomposition.multi_token_ids:
         try:
@@ -484,8 +535,7 @@ def collect_semantic_inputs(extended_tokenizer, original_tokenizer,
     )
 
 
-def build_bert_semantics(args: argparse.Namespace,
-                         inputs: SemanticInputs) -> SemanticEmbeddings:
+def build_bert_semantics(args: argparse.Namespace, inputs: SemanticInputs) -> SemanticEmbeddings:
     with phase("Phase 3a: BERT semantic embeddings"):
         print(f"  Model:       {args.bert_model}")
         print(f"  Temperature: {args.temperature}")
@@ -500,13 +550,15 @@ def build_bert_semantics(args: argparse.Namespace,
         print(f"  Hidden size: {model.config.hidden_size}")
 
         with step(f"Embedding {len(inputs.token_texts)} full token strings"):
-            full_token = bert_embeddings(inputs.token_texts, model, tokenizer,
-                                         args.bert_batch_size, args.semantic_device)
+            full_token = bert_embeddings(
+                inputs.token_texts, model, tokenizer, args.bert_batch_size, args.semantic_device
+            )
             print(f"  Shape: {full_token.shape}")
 
         with step(f"Embedding {len(inputs.subword_texts)} unique subwords"):
-            subwords = bert_embeddings(inputs.subword_texts, model, tokenizer,
-                                       args.bert_batch_size, args.semantic_device)
+            subwords = bert_embeddings(
+                inputs.subword_texts, model, tokenizer, args.bert_batch_size, args.semantic_device
+            )
             print(f"  Shape: {subwords.shape}")
 
         del model, tokenizer
@@ -521,8 +573,7 @@ def build_bert_semantics(args: argparse.Namespace,
     )
 
 
-def build_gemma_semantics(args: argparse.Namespace,
-                          inputs: SemanticInputs) -> SemanticEmbeddings:
+def build_gemma_semantics(args: argparse.Namespace, inputs: SemanticInputs) -> SemanticEmbeddings:
     on_cuda = args.semantic_device == "cuda"
     dtype = torch.bfloat16 if on_cuda else torch.float32
 
@@ -547,13 +598,15 @@ def build_gemma_semantics(args: argparse.Namespace,
         print(f"  Hidden size: {model.config.hidden_size}")
 
         with step(f"Embedding {len(inputs.token_texts)} full token strings"):
-            full_token = gemma_embeddings(inputs.token_texts, model, tokenizer,
-                                          args.gemma_batch_size, args.semantic_device)
+            full_token = gemma_embeddings(
+                inputs.token_texts, model, tokenizer, args.gemma_batch_size, args.semantic_device
+            )
             print(f"  Shape: {full_token.shape}")
 
         with step(f"Embedding {len(inputs.subword_texts)} unique subwords"):
-            subwords = gemma_embeddings(inputs.subword_texts, model, tokenizer,
-                                        args.gemma_batch_size, args.semantic_device)
+            subwords = gemma_embeddings(
+                inputs.subword_texts, model, tokenizer, args.gemma_batch_size, args.semantic_device
+            )
             print(f"  Shape: {subwords.shape}")
 
         del model, tokenizer
@@ -572,8 +625,10 @@ def build_gemma_semantics(args: argparse.Namespace,
 # Decomposition
 # ---------------------------------------------------------------------------
 
-def decompose_new_tokens(new_token_ids: Sequence[int], extended_tokenizer, original_tokenizer,
-                         original_vocab_size: int) -> Decomposition:
+
+def decompose_new_tokens(
+    new_token_ids: Sequence[int], extended_tokenizer, original_tokenizer, original_vocab_size: int
+) -> Decomposition:
     plans: dict[int, TokenPlan] = {}
     multi_token_ids: list[int] = []
     unique_subword_ids: set[int] = set()
@@ -632,9 +687,10 @@ def report_decomposition(decomposition: Decomposition) -> None:
 # Initialization
 # ---------------------------------------------------------------------------
 
-def resolve_target_norm(all_norms: torch.Tensor, hindi_norms: torch.Tensor | None,
-                        use_hindi: bool, correction_enabled: bool,
-                        side: str) -> tuple[torch.Tensor, str]:
+
+def resolve_target_norm(
+    all_norms: torch.Tensor, hindi_norms: torch.Tensor | None, use_hindi: bool, correction_enabled: bool, side: str
+) -> tuple[torch.Tensor, str]:
     if use_hindi and hindi_norms is not None and hindi_norms.numel() > 0:
         return hindi_norms.median(), "Hindi tokens"
     if use_hindi and correction_enabled:
@@ -642,10 +698,14 @@ def resolve_target_norm(all_norms: torch.Tensor, hindi_norms: torch.Tensor | Non
     return all_norms.median(), "all tokens"
 
 
-def report_original_norms(input_norms: torch.Tensor, output_norms: torch.Tensor,
-                          hindi_input_norms: torch.Tensor | None,
-                          hindi_output_norms: torch.Tensor | None,
-                          result: InitResult, args: argparse.Namespace) -> None:
+def report_original_norms(
+    input_norms: torch.Tensor,
+    output_norms: torch.Tensor,
+    hindi_input_norms: torch.Tensor | None,
+    hindi_output_norms: torch.Tensor | None,
+    result: InitResult,
+    args: argparse.Namespace,
+) -> None:
     print("\n" + RULE)
     print("Original embedding norm statistics")
     print(RULE)
@@ -657,22 +717,31 @@ def report_original_norms(input_norms: torch.Tensor, output_norms: torch.Tensor,
         print(f"  Hindi output embeddings ({count} tokens) - {describe_tensor(hindi_output_norms)}")
 
     if args.input_norm_correction:
-        print(f"\n  Input norm correction ON, target (median of {result.input_norm_source}): "
-              f"{result.target_input_norm:.4f}")
+        print(
+            f"\n  Input norm correction ON, target (median of {result.input_norm_source}): "
+            f"{result.target_input_norm:.4f}"
+        )
     else:
         print("\n  Input norm correction OFF")
     if args.output_norm_correction:
-        print(f"  Output norm correction ON, target (median of {result.output_norm_source}): "
-              f"{result.target_output_norm:.4f}")
+        print(
+            f"  Output norm correction ON, target (median of {result.output_norm_source}): "
+            f"{result.target_output_norm:.4f}"
+        )
     else:
         print("  Output norm correction OFF")
     print(RULE)
 
 
-def build_sample_record(token_id: int, plan: TokenPlan, original_tokenizer,
-                        input_weights: torch.Tensor, output_weights: torch.Tensor,
-                        input_sims: list[float] | None,
-                        output_sims: list[float] | None) -> SampleRecord:
+def build_sample_record(
+    token_id: int,
+    plan: TokenPlan,
+    original_tokenizer,
+    input_weights: torch.Tensor,
+    output_weights: torch.Tensor,
+    input_sims: list[float] | None,
+    output_sims: list[float] | None,
+) -> SampleRecord:
     subword_ids = plan.subword_ids
     try:
         decoded_text = original_tokenizer.decode(subword_ids)
@@ -701,11 +770,16 @@ def build_sample_record(token_id: int, plan: TokenPlan, original_tokenizer,
     )
 
 
-def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence[int],
-                              original_vocab_size: int, decomposition: Decomposition,
-                              hindi_token_ids: Sequence[int],
-                              semantic: dict[str, SemanticEmbeddings],
-                              args: argparse.Namespace) -> InitResult:
+def initialize_new_embeddings(
+    model,
+    original_tokenizer,
+    new_token_ids: Sequence[int],
+    original_vocab_size: int,
+    decomposition: Decomposition,
+    hindi_token_ids: Sequence[int],
+    semantic: dict[str, SemanticEmbeddings],
+    args: argparse.Namespace,
+) -> InitResult:
     result = InitResult()
 
     print("\nResizing token embeddings...")
@@ -728,16 +802,17 @@ def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence
             hindi_output_norms = output_embeddings[hindi_ids].norm(dim=1)
 
         target_input_norm, result.input_norm_source = resolve_target_norm(
-            original_input_norms, hindi_input_norms, args.input_hindi_norm,
-            args.input_norm_correction, "input")
+            original_input_norms, hindi_input_norms, args.input_hindi_norm, args.input_norm_correction, "input"
+        )
         target_output_norm, result.output_norm_source = resolve_target_norm(
-            original_output_norms, hindi_output_norms, args.output_hindi_norm,
-            args.output_norm_correction, "output")
+            original_output_norms, hindi_output_norms, args.output_hindi_norm, args.output_norm_correction, "output"
+        )
         result.target_input_norm = target_input_norm.item()
         result.target_output_norm = target_output_norm.item()
 
-        report_original_norms(original_input_norms, original_output_norms,
-                              hindi_input_norms, hindi_output_norms, result, args)
+        report_original_norms(
+            original_input_norms, original_output_norms, hindi_input_norms, hindi_output_norms, result, args
+        )
 
         for token_id in tqdm(new_token_ids, desc="Initializing embeddings"):
             plan = decomposition.plans[token_id]
@@ -756,18 +831,28 @@ def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence
                     continue
 
                 input_weights, input_sims = subword_weights(
-                    args.input_averaging, token_id, plan.subword_ids, original_tokenizer,
-                    semantic, args.temperature, input_embeddings.dtype, input_embeddings.device,
+                    args.input_averaging,
+                    token_id,
+                    plan.subword_ids,
+                    original_tokenizer,
+                    semantic,
+                    args.temperature,
+                    input_embeddings.dtype,
+                    input_embeddings.device,
                 )
                 output_weights, output_sims = subword_weights(
-                    args.output_averaging, token_id, plan.subword_ids, original_tokenizer,
-                    semantic, args.temperature, output_embeddings.dtype, output_embeddings.device,
+                    args.output_averaging,
+                    token_id,
+                    plan.subword_ids,
+                    original_tokenizer,
+                    semantic,
+                    args.temperature,
+                    output_embeddings.dtype,
+                    output_embeddings.device,
                 )
 
-                averaged_input = (input_embeddings[plan.subword_ids]
-                                  * input_weights.unsqueeze(1)).sum(dim=0)
-                averaged_output = (output_embeddings[plan.subword_ids]
-                                   * output_weights.unsqueeze(1)).sum(dim=0)
+                averaged_input = (input_embeddings[plan.subword_ids] * input_weights.unsqueeze(1)).sum(dim=0)
+                averaged_output = (output_embeddings[plan.subword_ids] * output_weights.unsqueeze(1)).sum(dim=0)
 
                 if args.input_norm_correction:
                     result.input_norms_before.append(averaged_input.norm().item())
@@ -788,10 +873,17 @@ def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence
                 result.from_subwords += 1
 
                 if len(result.samples) < args.num_samples:
-                    result.samples.append(build_sample_record(
-                        token_id, plan, original_tokenizer, input_weights, output_weights,
-                        input_sims, output_sims,
-                    ))
+                    result.samples.append(
+                        build_sample_record(
+                            token_id,
+                            plan,
+                            original_tokenizer,
+                            input_weights,
+                            output_weights,
+                            input_sims,
+                            output_sims,
+                        )
+                    )
 
             except Exception as error:
                 print(f"Warning: token {token_id} failed ({error}), falling back to mean")
@@ -806,8 +898,10 @@ def initialize_new_embeddings(model, original_tokenizer, new_token_ids: Sequence
 # Post-initialization reports
 # ---------------------------------------------------------------------------
 
-def report_samples(samples: Sequence[SampleRecord], args: argparse.Namespace,
-                   semantic: dict[str, SemanticEmbeddings]) -> None:
+
+def report_samples(
+    samples: Sequence[SampleRecord], args: argparse.Namespace, semantic: dict[str, SemanticEmbeddings]
+) -> None:
     if not samples:
         return
 
@@ -823,8 +917,7 @@ def report_samples(samples: Sequence[SampleRecord], args: argparse.Namespace,
         max_char = [0.0] * count
         max_char[sample.char_lengths.index(max(sample.char_lengths))] = 1.0
 
-        print(f"\n  Sample {index}: {sample.token_str!r} (ID {sample.token_id}, "
-              f"{count} subwords)")
+        print(f"\n  Sample {index}: {sample.token_str!r} (ID {sample.token_id}, {count} subwords)")
         print(f"    Decoded text:      {sample.decoded_text!r}")
         print(f"    Subword tokens:    {sample.subword_tokens}")
         print(f"    Subword texts:     {sample.subword_texts}")
@@ -837,14 +930,11 @@ def report_samples(samples: Sequence[SampleRecord], args: argparse.Namespace,
             print(f"    {input_label} cosine sims (input):  {format_weights(sample.input_sims)}")
         if sample.output_sims is not None:
             print(f"    {output_label} cosine sims (output): {format_weights(sample.output_sims)}")
-        print(f"    Input  weights used ({args.input_averaging:>14s}): "
-              f"{format_weights(sample.input_weights)}")
-        print(f"    Output weights used ({args.output_averaging:>14s}): "
-              f"{format_weights(sample.output_weights)}")
+        print(f"    Input  weights used ({args.input_averaging:>14s}): {format_weights(sample.input_weights)}")
+        print(f"    Output weights used ({args.output_averaging:>14s}): {format_weights(sample.output_weights)}")
 
 
-def report_norm_analysis(model, original_vocab_size: int, result: InitResult,
-                         args: argparse.Namespace) -> None:
+def report_norm_analysis(model, original_vocab_size: int, result: InitResult, args: argparse.Namespace) -> None:
     print("\n" + RULE)
     print("Embedding norm analysis")
     print(RULE)
@@ -880,17 +970,19 @@ def report_norm_analysis(model, original_vocab_size: int, result: InitResult,
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     script_start = time.time()
 
     with phase("Phase 1: Loading model and tokenizers"):
         model = AutoModelForCausalLM.from_pretrained(
-            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=args.trust_remote_code,
+            args.base_model,
+            dtype=DTYPES[args.dtype],
+            trust_remote_code=args.trust_remote_code,
         )
         original_tokenizer = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
-        extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer,
-                                                           fix_mistral_regex=True)
+        extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer, fix_mistral_regex=True)
 
     original_vocab_size = model.get_input_embeddings().weight.shape[0]
     new_vocab_size = len(extended_tokenizer)
@@ -918,16 +1010,16 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     new_token_ids = list(range(original_vocab_size, new_vocab_size))
     with phase("Phase 2: Decomposing new tokens into original subwords"):
-        decomposition = decompose_new_tokens(new_token_ids, extended_tokenizer,
-                                             original_tokenizer, original_vocab_size)
+        decomposition = decompose_new_tokens(
+            new_token_ids, extended_tokenizer, original_tokenizer, original_vocab_size
+        )
         report_decomposition(decomposition)
 
     semantic: dict[str, SemanticEmbeddings] = {}
     methods = semantic_methods_in_use(args)
     if methods:
         with phase("Phase 3: Decoding texts for semantic embedding"):
-            semantic_inputs = collect_semantic_inputs(extended_tokenizer, original_tokenizer,
-                                                      decomposition)
+            semantic_inputs = collect_semantic_inputs(extended_tokenizer, original_tokenizer, decomposition)
         if "bert_weighted" in methods:
             semantic["bert_weighted"] = build_bert_semantics(args, semantic_inputs)
         if "gemma_weighted" in methods:
@@ -937,9 +1029,16 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     with phase("Phase 4: Initializing new token embeddings"):
         print_configuration(args)
-        result = initialize_new_embeddings(model, original_tokenizer, new_token_ids,
-                                           original_vocab_size, decomposition,
-                                           hindi_token_ids, semantic, args)
+        result = initialize_new_embeddings(
+            model,
+            original_tokenizer,
+            new_token_ids,
+            original_vocab_size,
+            decomposition,
+            hindi_token_ids,
+            semantic,
+            args,
+        )
 
         print("\nInitialization statistics:")
         print(f"  From subword averaging:   {result.from_subwords}")
@@ -952,7 +1051,8 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     with phase(f"Phase 5: Saving to {args.output_dir}"):
         from vocab_pad import pad_vocab_to_multiple
-        pad_vocab_to_multiple(model, 4)   # TP-safe: divisible by TP (=4); minimal padding across all arms/methods
+
+        pad_vocab_to_multiple(model, 4)  # TP-safe: divisible by TP (=4); minimal padding across all arms/methods
         model.save_pretrained(args.output_dir)
         extended_tokenizer.save_pretrained(args.output_dir)
 

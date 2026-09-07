@@ -40,6 +40,7 @@ metric: per-token loss/PPL are NOT comparable across different vocabularies,
 BPB (normalized by UTF-8 bytes) is. Wraps the bpb.py engine via its argparse
 main().
 """
+
 from __future__ import annotations
 
 import logging
@@ -66,8 +67,10 @@ def _build_argv(cfg: dict) -> list[str]:
     data_file = cfg.get("data_file") or corpus.get("path")
     hf_dataset = cfg.get("hf_dataset") or corpus.get("hf_dataset")
     if not data_file and not hf_dataset:
-        raise ValueError("config must set `data_file` (local .jsonl/.txt) or a `corpus.hf_dataset` "
-                         "(streamed HF validation corpus, e.g. ai4bharat/samanantar).")
+        raise ValueError(
+            "config must set `data_file` (local .jsonl/.txt) or a `corpus.hf_dataset` "
+            "(streamed HF validation corpus, e.g. ai4bharat/samanantar)."
+        )
 
     argv: list[str] = ["--models", *[str(m) for m in models]]
     # Off by default: executing model-repo code is opt-in, set it in the config.

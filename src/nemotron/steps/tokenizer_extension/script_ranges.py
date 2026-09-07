@@ -25,19 +25,20 @@ A token "belongs to" a language if any character of its *decoded* surface falls
 in one of these ranges. The byte alphabet decodes into none of them and so is
 never captured -- which is what lets a pruned script be rebuilt from bytes.
 """
+
 from __future__ import annotations
 
 SCRIPT_UNICODE_RANGES: dict[str, list[tuple[int, int]]] = {
-    "devanagari": [(0x0900, 0x097F)],   # Hindi, Marathi, Sanskrit, Nepali, ...
-    "bengali":    [(0x0980, 0x09FF)],   # Bengali, Assamese
-    "gurmukhi":   [(0x0A00, 0x0A7F)],   # Punjabi
-    "gujarati":   [(0x0A80, 0x0AFF)],
-    "oriya":      [(0x0B00, 0x0B7F)],
-    "tamil":      [(0x0B80, 0x0BFF)],
-    "telugu":     [(0x0C00, 0x0C7F)],
-    "kannada":    [(0x0C80, 0x0CFF)],
-    "malayalam":  [(0x0D00, 0x0D7F)],
-    "arabic":     [(0x0600, 0x06FF)],   # Urdu, Sindhi, Kashmiri
+    "devanagari": [(0x0900, 0x097F)],  # Hindi, Marathi, Sanskrit, Nepali, ...
+    "bengali": [(0x0980, 0x09FF)],  # Bengali, Assamese
+    "gurmukhi": [(0x0A00, 0x0A7F)],  # Punjabi
+    "gujarati": [(0x0A80, 0x0AFF)],
+    "oriya": [(0x0B00, 0x0B7F)],
+    "tamil": [(0x0B80, 0x0BFF)],
+    "telugu": [(0x0C00, 0x0C7F)],
+    "kannada": [(0x0C80, 0x0CFF)],
+    "malayalam": [(0x0D00, 0x0D7F)],
+    "arabic": [(0x0600, 0x06FF)],  # Urdu, Sindhi, Kashmiri
     # Vietnamese is Latin-script, so it has no block of its own. These are the
     # codepoints that are effectively Vietnamese-only: the precomposed
     # vowel+tone forms, the horned o/u, and the combining horn. A token is
@@ -47,8 +48,14 @@ SCRIPT_UNICODE_RANGES: dict[str, list[tuple[int, int]]] = {
     "vietnamese": [(0x1EA0, 0x1EFF), (0x01A0, 0x01A1), (0x01AF, 0x01B0), (0x031B, 0x031B)],
     # Same, plus d-stroke and a-breve. Those two are shared with other
     # languages (Romanian, Sami), so pruning them reaches slightly wider.
-    "vietnamese_broad": [(0x1EA0, 0x1EFF), (0x01A0, 0x01A1), (0x01AF, 0x01B0),
-                         (0x031B, 0x031B), (0x0110, 0x0111), (0x0102, 0x0103)],
+    "vietnamese_broad": [
+        (0x1EA0, 0x1EFF),
+        (0x01A0, 0x01A1),
+        (0x01AF, 0x01B0),
+        (0x031B, 0x031B),
+        (0x0110, 0x0111),
+        (0x0102, 0x0103),
+    ],
 }
 
 
@@ -57,9 +64,7 @@ def resolve_ranges(names: list[str]) -> list[tuple[int, int]]:
     for name in names:
         key = name.strip().lower()
         if key not in SCRIPT_UNICODE_RANGES:
-            raise ValueError(
-                f"Unknown script {name!r}. Choose from: {sorted(SCRIPT_UNICODE_RANGES)}"
-            )
+            raise ValueError(f"Unknown script {name!r}. Choose from: {sorted(SCRIPT_UNICODE_RANGES)}")
         ranges.extend(SCRIPT_UNICODE_RANGES[key])
     return ranges
 
@@ -81,8 +86,7 @@ def set_target_script(name: str) -> None:
     global _TARGET, _TARGET_NAME
     key = (name or "").strip().lower()
     if key not in SCRIPT_UNICODE_RANGES:
-        raise ValueError(f"Unknown script {name!r}. "
-                         f"Choose from: {sorted(SCRIPT_UNICODE_RANGES)}")
+        raise ValueError(f"Unknown script {name!r}. Choose from: {sorted(SCRIPT_UNICODE_RANGES)}")
     _TARGET, _TARGET_NAME = list(SCRIPT_UNICODE_RANGES[key]), key
 
 

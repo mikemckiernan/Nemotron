@@ -70,13 +70,16 @@ URL_RE = re.compile(r"(?i)\b(?:https?://|www\.)[^\s<>\[\]{}|\\^`\"']+")
 EMAIL_RE = re.compile(r"(?i)\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b")
 MULTISPACE_RE = re.compile(r"[ \t]+")
 
+
 def get_devanagari_normalizer() -> Any:
     try:
         from indicnlp.normalize.indic_normalize import DevanagariNormalizer
+
         return DevanagariNormalizer()
     except ImportError:
         logger.warning("indic-nlp-library missing; skipping Devanagari Normalizer.")
         return None
+
 
 def clean_text(text: str, devanagari_norm: Any) -> str:
     if not text:
@@ -89,6 +92,7 @@ def clean_text(text: str, devanagari_norm: Any) -> str:
     text = EMAIL_RE.sub(" ", text)
     text = MULTISPACE_RE.sub(" ", text)
     return text.strip()
+
 
 def _normalize_lang(tag: str) -> str:
     return tag.strip().lower().replace("-", "_")
@@ -170,6 +174,7 @@ def mixed_language_text_stream(
 
     logger.info(f"Collected doc_id->language mappings: {len(doc_id_to_language)}")
 
+
 def batch_iterator(stream: Iterable[str], batch_size: int = 1000) -> Iterator[list[str]]:
     batch: list[str] = []
     for item in stream:
@@ -180,6 +185,7 @@ def batch_iterator(stream: Iterable[str], batch_size: int = 1000) -> Iterator[li
     if batch:
         yield batch
 
+
 # =============================================================================
 # 2. BPE ARTIFACTS EXTRACTION
 # =============================================================================
@@ -187,6 +193,7 @@ def batch_iterator(stream: Iterable[str], batch_size: int = 1000) -> Iterator[li
 class ExtensionArtifacts:
     new_vocab: dict[str, int]
     new_merges: list[str]
+
 
 def _get_bpe_state(tokenizer_backend_str: str) -> tuple[dict[str, int], list[str]]:
     obj = json.loads(tokenizer_backend_str)
@@ -204,6 +211,7 @@ def _get_bpe_state(tokenizer_backend_str: str) -> tuple[dict[str, int], list[str
             merges.append(f"{m[0]} {m[1]}")
     return vocab, merges
 
+
 def compute_continued_bpe_artifacts(base_backend: Tokenizer, trained_backend: Tokenizer) -> ExtensionArtifacts:
     base_vocab, base_merges = _get_bpe_state(base_backend.to_str())
     trained_vocab, trained_merges = _get_bpe_state(trained_backend.to_str())
@@ -214,6 +222,7 @@ def compute_continued_bpe_artifacts(base_backend: Tokenizer, trained_backend: To
     base_vocab_set = set(base_vocab.keys())
     new_vocab = {t: int(trained_vocab[t]) for t in trained_vocab.keys() if t not in base_vocab_set}
     return ExtensionArtifacts(new_vocab=new_vocab, new_merges=new_merges)
+
 
 # =============================================================================
 # 3. EXTENSION APPLICATION & DEPENDENCY RESOLUTION
@@ -245,8 +254,11 @@ def _apply_merges(symbols: list[str], ranks: dict[tuple[str, str], int]) -> list
 
 
 def _apply_bpe_extension_backend(
-    base_backend: Tokenizer, new_vocab: dict[str, int], new_merges: list[str] | None,
-    n_tokens: int, keep_added_token_positions: bool
+    base_backend: Tokenizer,
+    new_vocab: dict[str, int],
+    new_merges: list[str] | None,
+    n_tokens: int,
+    keep_added_token_positions: bool,
 ) -> Tokenizer:
     """Splice `new_vocab` in so that every added token is actually producible.
 
@@ -318,30 +330,43 @@ def _apply_bpe_extension_backend(
     model["merges"] = merges
     return Tokenizer.from_str(json.dumps(obj))
 
+
 def extend_tokenizer(
-    tokenizer: PreTrainedTokenizerBase, new_vocab: dict[str, int], new_merges: list[tuple[str, str]] | None,
-    n_tokens: int, keep_added_token_positions: bool = False
+    tokenizer: PreTrainedTokenizerBase,
+    new_vocab: dict[str, int],
+    new_merges: list[tuple[str, str]] | None,
+    n_tokens: int,
+    keep_added_token_positions: bool = False,
 ) -> PreTrainedTokenizerFast:
     merges_list = [" ".join(x) for x in new_merges] if new_merges else None
     updated_backend = _apply_bpe_extension_backend(
         base_backend=Tokenizer.from_str(tokenizer.backend_tokenizer.to_str()),
-        new_vocab=new_vocab, new_merges=merges_list, n_tokens=n_tokens,
+        new_vocab=new_vocab,
+        new_merges=merges_list,
+        n_tokens=n_tokens,
         keep_added_token_positions=keep_added_token_positions,
     )
     return PreTrainedTokenizerFast(
         tokenizer_object=updated_backend,
-        unk_token=getattr(tokenizer, "unk_token", None), bos_token=getattr(tokenizer, "bos_token", None),
-        eos_token=getattr(tokenizer, "eos_token", None), pad_token=getattr(tokenizer, "pad_token", None)
+        unk_token=getattr(tokenizer, "unk_token", None),
+        bos_token=getattr(tokenizer, "bos_token", None),
+        eos_token=getattr(tokenizer, "eos_token", None),
+        pad_token=getattr(tokenizer, "pad_token", None),
     )
+
 
 # =============================================================================
 # 4. MODEL MODIFICATION
 # =============================================================================
 InitMethod = Literal["mean", "mean_of_constituents"]
 
+
 def modify_embeddings(
-    model: PreTrainedModel, old_tokenizer: PreTrainedTokenizerBase, new_tokenizer: PreTrainedTokenizerBase,
-    init_method: InitMethod = "mean_of_constituents", ignore_size_mismatch: bool = False
+    model: PreTrainedModel,
+    old_tokenizer: PreTrainedTokenizerBase,
+    new_tokenizer: PreTrainedTokenizerBase,
+    init_method: InitMethod = "mean_of_constituents",
+    ignore_size_mismatch: bool = False,
 ) -> dict[str, Any]:
     old_n, new_n = len(old_tokenizer), len(new_tokenizer)
 
@@ -387,6 +412,7 @@ def modify_embeddings(
 
     return changes
 
+
 # =============================================================================
 # 5. BENCHMARKING & PRUNING
 # =============================================================================
@@ -413,9 +439,8 @@ def find_unreachable_tokens_merges(tokenizer: PreTrainedTokenizerBase) -> list[s
 
     return sorted(vocab_tokens - reachable)
 
-def find_rank_dead_tokens(
-    tokenizer: PreTrainedTokenizerBase, tokens: Iterable[str] | None = None
-) -> list[str]:
+
+def find_rank_dead_tokens(tokenizer: PreTrainedTokenizerBase, tokens: Iterable[str] | None = None) -> list[str]:
     """Vocab tokens the merge table can never emit, accounting for merge priority.
 
     `find_unreachable_tokens_merges` only asks whether *some* merge chain exists.
@@ -431,7 +456,7 @@ def find_rank_dead_tokens(
     special = {entry.get("content") for entry in obj.get("added_tokens", [])}
 
     dead: list[str] = []
-    for tok in (vocab.keys() if tokens is None else tokens):
+    for tok in vocab.keys() if tokens is None else tokens:
         if len(tok) < 2 or tok in special:
             continue
         if any(symbol not in alphabet for symbol in tok):
@@ -440,6 +465,7 @@ def find_rank_dead_tokens(
             dead.append(tok)
     return sorted(dead)
 
+
 class BasePruner(ABC):
     @abstractmethod
     def train(self, tokenizer: PreTrainedTokenizerBase, corpus: Iterable[str] | None = None) -> None: ...
@@ -447,6 +473,7 @@ class BasePruner(ABC):
     def prune(self, tokenizer: PreTrainedTokenizerBase, n_tokens: int) -> None: ...
     @abstractmethod
     def save(self, path: str | Path) -> None: ...
+
 
 @dataclass
 class FrequencyPruner(BasePruner):
@@ -465,6 +492,7 @@ class FrequencyPruner(BasePruner):
 
     def save(self, path: str | Path) -> None:
         Path(path).write_text(json.dumps({"token_ids_to_prune": getattr(self, "token_ids_to_prune", [])}, indent=2))
+
 
 # =============================================================================
 # 6. MAIN ORCHESTRATOR
@@ -488,31 +516,17 @@ def main():
     )
     parser.add_argument("--tokenizer-only", action="store_true")
 
-    parser.add_argument("--keep-added-token-positions", action="store_true",
-        help="Preserve dense relative ID placements.")
+    parser.add_argument(
+        "--keep-added-token-positions", action="store_true", help="Preserve dense relative ID placements."
+    )
     parser.add_argument("--init-method", choices=["mean", "mean_of_constituents"], default="mean_of_constituents")
     parser.add_argument("--benchmark", action="store_true", help="Calculate and print unreachable tokens.")
-    parser.add_argument("--prune-size", type=int, default=0, help="If >0, calculates the "
-        "lowest-frequency N tokens to prune "
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  ""
-                                                                  "downstream.")
+    parser.add_argument(
+        "--prune-size",
+        type=int,
+        default=0,
+        help="If >0, calculates the lowest-frequency N tokens to prune downstream.",
+    )
 
     args = parser.parse_args()
     if not args.out_dir:
@@ -530,8 +544,7 @@ def main():
     base_tok = AutoTokenizer.from_pretrained(args.model_id, use_fast=True, trust_remote_code=True)
 
     logger.info(
-        f"Phase 1: Streaming ~{total_docs} docs from {DATASET_ID}/{args.dataset_config} "
-        "to learn optimal subwords..."
+        f"Phase 1: Streaming ~{total_docs} docs from {DATASET_ID}/{args.dataset_config} to learn optimal subwords..."
     )
     with tqdm(total=total_docs, desc="Corpus Streaming", unit="docs") as pbar:
         stream = mixed_language_text_stream(
@@ -542,8 +555,9 @@ def main():
             dataset_config=args.dataset_config,
             doc_id_to_language=doc_id_to_language,
         )
-        trained_tok = base_tok.train_new_from_iterator(batch_iterator(stream, args.batch_size),
-            vocab_size=len(base_tok) + args.extension_size)
+        trained_tok = base_tok.train_new_from_iterator(
+            batch_iterator(stream, args.batch_size), vocab_size=len(base_tok) + args.extension_size
+        )
 
     logger.info("Phase 2: Extracting Diff Artifacts...")
     artifacts = compute_continued_bpe_artifacts(base_tok.backend_tokenizer, trained_tok.backend_tokenizer)
@@ -558,8 +572,11 @@ def main():
 
     logger.info("Phase 3: Splicing merges into base tokenizer...")
     expanded_tok = extend_tokenizer(
-        base_tok, artifacts.new_vocab, merges_pairs,
-        n_tokens=args.extension_size, keep_added_token_positions=args.keep_added_token_positions
+        base_tok,
+        artifacts.new_vocab,
+        merges_pairs,
+        n_tokens=args.extension_size,
+        keep_added_token_positions=args.keep_added_token_positions,
     )
     expanded_tok.save_pretrained(args.out_dir)
 
@@ -590,13 +607,15 @@ def main():
         return
 
     logger.info(f"Phase 4: Loading Model & Applying '{args.init_method}' embeddings...")
-    model = AutoModelForCausalLM.from_pretrained(args.model_id, torch_dtype=torch.bfloat16, device_map="auto",
-        trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model_id, torch_dtype=torch.bfloat16, device_map="auto", trust_remote_code=True
+    )
 
     modify_embeddings(model, old_tokenizer=base_tok, new_tokenizer=expanded_tok, init_method=args.init_method)
 
     model.save_pretrained(args.out_dir)
     logger.info(f"Success! Model and Tokenizer fully extended and saved to: {args.out_dir}")
+
 
 if __name__ == "__main__":
     main()

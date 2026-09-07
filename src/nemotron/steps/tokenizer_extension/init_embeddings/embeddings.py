@@ -44,6 +44,7 @@ Domain note — ADD vs REPLACE:
   must permute survivor rows before the append-style init runs). `run_init`
   refuses a replace tokenizer rather than silently producing a wrong checkpoint.
 """
+
 from __future__ import annotations
 
 import logging
@@ -68,10 +69,14 @@ def _pick(d: dict, new: str, old: str, default):
 
 def _common_argv(cfg: dict) -> list[str]:
     argv = [
-        "--base-model", str(cfg["base_model"]),
-        "--extended-tokenizer", str(cfg["extended_tokenizer"]),
-        "--output-dir", str(cfg["output_dir"]),
-        "--dtype", str(cfg.get("dtype", "bfloat16")),
+        "--base-model",
+        str(cfg["base_model"]),
+        "--extended-tokenizer",
+        str(cfg["extended_tokenizer"]),
+        "--output-dir",
+        str(cfg["output_dir"]),
+        "--dtype",
+        str(cfg.get("dtype", "bfloat16")),
     ]
     # Every engine accepts --language; it selects the target script used to find
     # the base model's existing target-language rows, and supplies the auxiliary
@@ -114,9 +119,11 @@ def _subword_argv(cfg: dict) -> list[str]:
 def _focus_argv(cfg: dict) -> list[str]:
     f = cfg.get("focus", {}) or {}
     if not f.get("fasttext_model") and not cfg.get("language"):
-        raise ValueError("method=focus needs focus.fasttext_model (a fastText .bin), "
-                         "or a top-level `language:` so the cc.<code>.300 vectors "
-                         "can be resolved and fetched automatically.")
+        raise ValueError(
+            "method=focus needs focus.fasttext_model (a fastText .bin), "
+            "or a top-level `language:` so the cc.<code>.300 vectors "
+            "can be resolved and fetched automatically."
+        )
     argv = _common_argv(cfg)
     if f.get("fasttext_model"):
         argv += ["--fasttext-model", str(f["fasttext_model"])]
@@ -145,21 +152,30 @@ def _replace_argv(cfg: dict) -> list[str]:
             # replace_init has no target-script-mean engine, so mean_target /
             # mean_hindi cannot be honoured here. Do NOT quietly substitute
             # mean_all: that would report a different init than was configured.
-            extra = (" 'mean_target'/'mean_hindi' average the base model's target-script "
-                     "rows, which replace_init does not implement — use arm=add for that, "
-                     "or method=subword with input_averaging=uniform (mean of constituents)."
-                     if mode in ("mean_target", "mean_hindi") else "")
-            raise ValueError(
-                f"arm=replace baseline supports mode hf_default|mean_all, got {mode!r}.{extra}")
+            extra = (
+                " 'mean_target'/'mean_hindi' average the base model's target-script "
+                "rows, which replace_init does not implement — use arm=add for that, "
+                "or method=subword with input_averaging=uniform (mean of constituents)."
+                if mode in ("mean_target", "mean_hindi")
+                else ""
+            )
+            raise ValueError(f"arm=replace baseline supports mode hf_default|mean_all, got {mode!r}.{extra}")
         argv += ["--method", mode]
     elif method == "focus":
         f = cfg.get("focus") or {}
         if not f.get("fasttext_model") and not cfg.get("language"):
-            raise ValueError("arm=replace method=focus needs focus.fasttext_model, "
-                             "or a top-level `language:` to resolve cc.<code>.300")
-        argv += ["--method", "focus",
-                 "--candidate-pool", str(f.get("candidate_pool", "target")),
-                 "--sparsemax-temperature", str(float(f.get("sparsemax_temperature", 0.05)))]
+            raise ValueError(
+                "arm=replace method=focus needs focus.fasttext_model, "
+                "or a top-level `language:` to resolve cc.<code>.300"
+            )
+        argv += [
+            "--method",
+            "focus",
+            "--candidate-pool",
+            str(f.get("candidate_pool", "target")),
+            "--sparsemax-temperature",
+            str(float(f.get("sparsemax_temperature", 0.05))),
+        ]
         if f.get("fasttext_model"):
             argv += ["--fasttext-model", str(f["fasttext_model"])]
         if f.get("fasttext_url"):
@@ -174,13 +190,15 @@ def _replace_argv(cfg: dict) -> list[str]:
             raise ValueError(
                 "arm=replace does not support subword.input_averaging=gemma_weighted "
                 "(replace_init has no gemma path). Use bert_weighted, or a length-based "
-                "averaging (uniform | char_weighted | max_char), or run arm=add.")
+                "averaging (uniform | char_weighted | max_char), or run arm=add."
+            )
         oa = str(s.get("output_averaging", "uniform"))
         if oa == "gemma_weighted":
             raise ValueError(
                 "arm=replace does not support subword.output_averaging=gemma_weighted "
                 "(replace_init has no gemma path). Use bert_weighted, or a length-based "
-                "averaging (uniform | char_weighted | max_char), or run arm=add.")
+                "averaging (uniform | char_weighted | max_char), or run arm=add."
+            )
         # The bert engine is required whenever EITHER side is encoder-weighted; the
         # length-based engine rejects semantic methods. Both sides are always
         # forwarded so input and output are weighted independently, as in arm=add.
@@ -232,6 +250,7 @@ def run_init(cfg: dict) -> None:
         argv = _replace_argv(cfg)
         log.info("MILESTONE: REPLACE init (survivor remap, method=%s) | argv=%s", method, " ".join(argv))
         import replace_init as engine
+
         engine.main(argv)
         log.info("MILESTONE: DONE — resized HF checkpoint -> %s", cfg["output_dir"])
         return

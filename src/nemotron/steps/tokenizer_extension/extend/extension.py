@@ -26,6 +26,7 @@ Reuses the standalone cores (continued_bpe.py = Add core + splice,
 replace_bpe.py = prune + NFKC wrap). The splice is the constructive/rank-dead-safe
 one, and every built arm is asserted free of rank-dead tokens.
 """
+
 from __future__ import annotations
 
 import glob as _glob
@@ -87,10 +88,13 @@ def corpus_stream(corpus: dict, normalizer: Any) -> Iterator[str]:
         streaming = bool(corpus.get("streaming", True))
         ld: dict[str, Any] = {"path": corpus["hf_dataset"], "streaming": streaming}
         name = corpus.get("hf_name", corpus.get("hf_config"))  # the config/subset level
-        for key, val in (("name", name), ("split", corpus.get("hf_split")),
-                         ("data_dir", corpus.get("hf_data_dir")),
-                         ("data_files", corpus.get("hf_data_files")),
-                         ("revision", corpus.get("hf_revision"))):
+        for key, val in (
+            ("name", name),
+            ("split", corpus.get("hf_split")),
+            ("data_dir", corpus.get("hf_data_dir")),
+            ("data_files", corpus.get("hf_data_files")),
+            ("revision", corpus.get("hf_revision")),
+        ):
             if val is not None:
                 ld[key] = val
         if not streaming:
@@ -104,6 +108,7 @@ def corpus_stream(corpus: dict, normalizer: Any) -> Iterator[str]:
             hint = ""
             try:
                 from datasets import get_dataset_config_names, get_dataset_split_names
+
                 cfgs = get_dataset_config_names(corpus["hf_dataset"])
                 hint = f" | available name(config)= {cfgs}"
                 if name in cfgs:
@@ -112,8 +117,11 @@ def corpus_stream(corpus: dict, normalizer: Any) -> Iterator[str]:
                 pass
             raise SystemExit(f"load_dataset failed for {ld}: {e}.{hint}")
         if not streaming:
-            log.info("MILESTONE: dataset ready (%s rows cached); iterating first %s...",
-                     f"{ds.num_rows:,}" if hasattr(ds, "num_rows") else "?", f"{max_samples:,}")
+            log.info(
+                "MILESTONE: dataset ready (%s rows cached); iterating first %s...",
+                f"{ds.num_rows:,}" if hasattr(ds, "num_rows") else "?",
+                f"{max_samples:,}",
+            )
         for ex in ds:
             raw = next((ex[f] for f in fields if isinstance(ex.get(f), str) and ex[f].strip()), "")
             c = emit(raw)
@@ -217,9 +225,7 @@ def run_extension(cfg: dict) -> dict:
     root_dir = Path(cfg.get("output_dir", "./output/tokenizer_extension"))
     method = cfg.get("method")
     if method not in ("add", "replace", "expand"):
-        raise ValueError(
-            f"method must be 'add', 'replace', or 'expand', got {method!r}"
-        )
+        raise ValueError(f"method must be 'add', 'replace', or 'expand', got {method!r}")
 
     # One arm per job, each in its own subdirectory: `add` and `replace` are built
     # from the same corpus and would otherwise overwrite each other in a shared
@@ -233,14 +239,23 @@ def run_extension(cfg: dict) -> dict:
     # `script_normalizer:` / `remove_script:` still override either one.
     script_norm, remove_script = resolve_language(cfg)
     normalizer = get_normalizer(script_norm)
-    log.info("language=%s -> script_normalizer=%s remove_script=%s",
-             cfg.get("language", "(legacy devanagari default)"), script_norm, remove_script)
+    log.info(
+        "language=%s -> script_normalizer=%s remove_script=%s",
+        cfg.get("language", "(legacy devanagari default)"),
+        script_norm,
+        remove_script,
+    )
 
     log.info("MILESTONE: loading base tokenizer %s ...", cfg.get("model_id"))
     base_tok = _load_base(cfg.get("model_id"), cfg.get("trust_remote_code", False))
     base_size = len(base_tok)
-    log.info("MILESTONE: base loaded (vocab=%d) | method=%s ext_size=%d min_frequency=%d",
-             base_size, method, ext_size, min_freq)
+    log.info(
+        "MILESTONE: base loaded (vocab=%d) | method=%s ext_size=%d min_frequency=%d",
+        base_size,
+        method,
+        ext_size,
+        min_freq,
+    )
 
     log.info("MILESTONE: corpus + BPE training start (target vocab=%d)...", base_size + ext_size)
     t_train = time.time()
@@ -255,8 +270,12 @@ def run_extension(cfg: dict) -> dict:
     log.info("MILESTONE: BPE training done in %ss (trained vocab=%d).", train_sec, len(trained_tok))
 
     summary: dict[str, Any] = {
-        "model_id": cfg.get("model_id"), "method": method, "extension_size": ext_size,
-        "corpus": corpus, "base_vocab_size": base_size, "timings_sec": {"train": train_sec},
+        "model_id": cfg.get("model_id"),
+        "method": method,
+        "extension_size": ext_size,
+        "corpus": corpus,
+        "base_vocab_size": base_size,
+        "timings_sec": {"train": train_sec},
     }
 
     log.info("MILESTONE: building %s tokenizer (splice + rank-dead check)...", method)
@@ -278,12 +297,12 @@ def run_extension(cfg: dict) -> dict:
         # bare decoded surface orphans that space (stray `Ġ`), inflating fertility ~+0.24.
         # Add with lstrip=True + stripped surface so the token absorbs the preceding space.
         from tokenizers import AddedToken
+
         # add_tokens() silently drops surfaces already present in the base vocab, so
         # a single pass can splice fewer than ext_size rows. Keep pulling candidates
         # in rank order until ext_size are actually spliced (or we run out).
         def _mk(surface: str) -> AddedToken:
-            return AddedToken(surface, lstrip=True, rstrip=False,
-                              normalized=False, single_word=False)
+            return AddedToken(surface, lstrip=True, rstrip=False, normalized=False, single_word=False)
 
         seen: set[str] = set()
         pending = iter(new_keys)
@@ -305,10 +324,15 @@ def run_extension(cfg: dict) -> dict:
             spliced += added
         cand = len(new_unicode)
         if spliced < ext_size:
-            log.warning("expand: spliced %d of the requested %d tokens from %d novel "
-                        "candidates (%d distinct surfaces tried; the rest collided with "
-                        "the base vocab). Widen the corpus or lower extension_size.",
-                        spliced, ext_size, len(new_keys), cand)
+            log.warning(
+                "expand: spliced %d of the requested %d tokens from %d novel "
+                "candidates (%d distinct surfaces tried; the rest collided with "
+                "the base vocab). Widen the corpus or lower extension_size.",
+                spliced,
+                ext_size,
+                len(new_keys),
+                cand,
+            )
         arm_tok = base_tok
         arm_tok.save_pretrained(out_dir)
     else:  # replace
@@ -321,21 +345,38 @@ def run_extension(cfg: dict) -> dict:
         (out_dir / "id_remap.json").write_text(json.dumps({str(k): v for k, v in old2new.items()}))
         (out_dir / "removed_tokens.txt").write_text("\n".join(removed_list))
         summary["removed"] = len(removed_ids)
-    summary.update({"final_vocab_size": len(arm_tok), "new_candidates": cand,
-                    "tokens_requested": int(ext_size), "tokens_spliced": spliced,
-                    "output": str(out_dir)})
+    summary.update(
+        {
+            "final_vocab_size": len(arm_tok),
+            "new_candidates": cand,
+            "tokens_requested": int(ext_size),
+            "tokens_spliced": spliced,
+            "output": str(out_dir),
+        }
+    )
     # Record the budget alongside the result so any artifact can be audited after
     # the fact. Constructive merging can add intermediate tokens as well as the
     # target, so `spliced` is not guaranteed to equal the request; comparisons
     # across arms are only valid at a matched budget.
     if spliced != ext_size:
-        log.warning("tokens_spliced (%d) != extension_size (%d) for method=%s. Fertility "
-                    "and BPB comparisons are only valid between arms with the same "
-                    "tokens_spliced.", spliced, ext_size, method)
+        log.warning(
+            "tokens_spliced (%d) != extension_size (%d) for method=%s. Fertility "
+            "and BPB comparisons are only valid between arms with the same "
+            "tokens_spliced.",
+            spliced,
+            ext_size,
+            method,
+        )
     summary["timings_sec"]["build"] = round(time.time() - t_build, 1)
     summary["timings_sec"]["total"] = round(time.time() - t0, 1)
 
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
-    log.info("MILESTONE: DONE — %s tokenizer saved -> %s (vocab=%d, spliced=%d, total=%ss).",
-             method, out_dir, summary["final_vocab_size"], spliced, summary["timings_sec"]["total"])
+    log.info(
+        "MILESTONE: DONE — %s tokenizer saved -> %s (vocab=%d, spliced=%d, total=%ss).",
+        method,
+        out_dir,
+        summary["final_vocab_size"],
+        spliced,
+        summary["timings_sec"]["total"],
+    )
     return summary

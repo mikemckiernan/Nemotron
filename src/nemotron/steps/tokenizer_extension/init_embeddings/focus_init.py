@@ -108,6 +108,7 @@ def ensure_fasttext(path: str, url: str | None) -> str:
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
@@ -115,50 +116,72 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
 
     paths = parser.add_argument_group("paths")
-    paths.add_argument("--base-model", default=DEFAULT_BASE_MODEL,
-                       help="Model whose embedding matrices are extended.")
-    paths.add_argument("--extended-tokenizer", required=True,
-                       help="Tokenizer containing the base vocabulary plus the new tokens.")
-    paths.add_argument("--output-dir", required=True,
-                       help="Directory to save the extended model and tokenizer to.")
+    paths.add_argument("--base-model", default=DEFAULT_BASE_MODEL, help="Model whose embedding matrices are extended.")
+    paths.add_argument(
+        "--extended-tokenizer", required=True, help="Tokenizer containing the base vocabulary plus the new tokens."
+    )
+    paths.add_argument("--output-dir", required=True, help="Directory to save the extended model and tokenizer to.")
     # Both default to None so --language can supply them below. --fasttext-model
     # used to be required=True, which made argparse reject any language-driven
     # config before the profile was ever applied; --fasttext-url used to default
     # to the *Hindi* cc.hi.300 URL, which meant the `args.fasttext_url is None`
     # override never fired and a Vietnamese run would have silently trained on
     # Hindi vectors. Same failure shape as the MuRIL-for-Vietnamese bug.
-    paths.add_argument("--fasttext-model", default=None,
-                       help="fastText binary model (.bin) used as the auxiliary space. "
-                            "If absent and --fasttext-url is set, it is downloaded here (on the "
-                            "compute node). Defaults to $FASTTEXT_CACHE_DIR/cc.<code>.300.bin "
-                            "resolved from --language.")
-    paths.add_argument("--fasttext-url", default=None,
-                       help="Source to fetch the fastText .bin from if --fasttext-model is missing. "
-                            ".gz is auto-decompressed. Defaults to the cc.<code>.300 URL for "
-                            "--language, or Hindi when neither is given (legacy).")
-    paths.add_argument("--trust-remote-code", action="store_true",
-                       help="Execute custom modeling code shipped in the model repo. "
-                            "Off by default; required by architectures whose code lives there.")
-    paths.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
-                       help="Precision to load the base model in.")
+    paths.add_argument(
+        "--fasttext-model",
+        default=None,
+        help="fastText binary model (.bin) used as the auxiliary space. "
+        "If absent and --fasttext-url is set, it is downloaded here (on the "
+        "compute node). Defaults to $FASTTEXT_CACHE_DIR/cc.<code>.300.bin "
+        "resolved from --language.",
+    )
+    paths.add_argument(
+        "--fasttext-url",
+        default=None,
+        help="Source to fetch the fastText .bin from if --fasttext-model is missing. "
+        ".gz is auto-decompressed. Defaults to the cc.<code>.300 URL for "
+        "--language, or Hindi when neither is given (legacy).",
+    )
+    paths.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Execute custom modeling code shipped in the model repo. "
+        "Off by default; required by architectures whose code lives there.",
+    )
+    paths.add_argument(
+        "--dtype", choices=sorted(DTYPES), default="bfloat16", help="Precision to load the base model in."
+    )
 
     focus = parser.add_argument_group("FOCUS")
-    focus.add_argument("--candidate-pool", choices=("hindi", "target", "all"), default="target",
-                       help="Base tokens eligible to contribute: Devanagari only, or all.")
-    focus.add_argument("--sparsemax-temperature", type=float, default=0.05,
-                       help="Similarities are divided by this before Sparsemax; "
-                            "smaller is sparser (0.01 to 0.1 is the useful range).")
+    focus.add_argument(
+        "--candidate-pool",
+        choices=("hindi", "target", "all"),
+        default="target",
+        help="Base tokens eligible to contribute: Devanagari only, or all.",
+    )
+    focus.add_argument(
+        "--sparsemax-temperature",
+        type=float,
+        default=0.05,
+        help="Similarities are divided by this before Sparsemax; "
+        "smaller is sparser (0.01 to 0.1 is the useful range).",
+    )
 
     report = parser.add_argument_group("reporting")
-    report.add_argument("--num-samples", type=int, default=10,
-                        help="New tokens to report contributing base tokens for.")
-    report.add_argument("--top-contributors", type=int, default=5,
-                        help="Contributing base tokens listed per reported sample.")
+    report.add_argument(
+        "--num-samples", type=int, default=10, help="New tokens to report contributing base tokens for."
+    )
+    report.add_argument(
+        "--top-contributors", type=int, default=5, help="Contributing base tokens listed per reported sample."
+    )
 
-    parser.add_argument("--language", default=None,
-                        help="Target language (see languages.py). Selects the script used to find "
-                             "the base model's existing target-language rows, and supplies defaults "
-                             "for the auxiliary encoder / fastText vectors. Omit for legacy Hindi.")
+    parser.add_argument(
+        "--language",
+        default=None,
+        help="Target language (see languages.py). Selects the script used to find "
+        "the base model's existing target-language rows, and supplies defaults "
+        "for the auxiliary encoder / fastText vectors. Omit for legacy Hindi.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -167,6 +190,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         from languages import fasttext_url as _fu
         from languages import profile as _lp
         from script_ranges import set_target_script
+
         _prof = _lp(args.language)
         set_target_script(_prof.script)
         if getattr(args, "bert_model", None) is None:
@@ -178,6 +202,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
             # ~7 GB download instead of re-fetching it (ensure_fasttext is
             # idempotent and writes atomically).
             import os
+
             cache = os.environ.get("FASTTEXT_CACHE_DIR") or "/tmp/fasttext"
             os.makedirs(cache, exist_ok=True)
             args.fasttext_model = str(Path(cache) / f"cc.{_prof.fasttext}.300.bin")
@@ -197,6 +222,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 # Data containers
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class CandidatePool:
@@ -231,6 +257,7 @@ class FocusResult:
 # Reporting helpers
 # ---------------------------------------------------------------------------
 
+
 @contextmanager
 def phase(title: str) -> Iterator[None]:
     print("\n" + RULE)
@@ -251,9 +278,11 @@ def step(message: str) -> Iterator[None]:
 
 
 def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
-    parts = [f"median: {norms.median().item():.4f}",
-             f"mean: {norms.mean().item():.4f}",
-             f"std: {norms.std().item():.4f}"]
+    parts = [
+        f"median: {norms.median().item():.4f}",
+        f"mean: {norms.mean().item():.4f}",
+        f"std: {norms.std().item():.4f}",
+    ]
     if extremes:
         parts += [f"min: {norms.min().item():.4f}", f"max: {norms.max().item():.4f}"]
     return ", ".join(parts)
@@ -262,6 +291,7 @@ def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
 # ---------------------------------------------------------------------------
 # Sparsemax
 # ---------------------------------------------------------------------------
+
 
 def sparsemax(scores: np.ndarray) -> np.ndarray:
     """Euclidean projection of `scores` onto the probability simplex.
@@ -287,12 +317,15 @@ def sparsemax(scores: np.ndarray) -> np.ndarray:
 # Vocabulary and fastText helpers
 # ---------------------------------------------------------------------------
 
+
 def is_devanagari(text: str) -> bool:
     """Deprecated name. Delegates to the active target script (default
     Devanagari), so this is unchanged for Hindi and correct for any language
     selected via --language / set_target_script()."""
     from script_ranges import is_target
+
     return is_target(text)
+
 
 def decode_vocabulary(tokenizer, vocab_size: int, desc: str) -> list[str]:
     texts = []
@@ -325,8 +358,7 @@ def fasttext_vectors(texts: Sequence[str], ft_model) -> np.ndarray:
     vectors = []
     for text in tqdm(texts, desc="Getting fastText vectors", unit="token"):
         cleaned = clean_token_text(text)
-        vectors.append(ft_model.get_word_vector(cleaned) if cleaned
-                       else np.zeros(dimension, dtype=np.float32))
+        vectors.append(ft_model.get_word_vector(cleaned) if cleaned else np.zeros(dimension, dtype=np.float32))
     return np.array(vectors, dtype=np.float32)
 
 
@@ -336,15 +368,12 @@ def unit_normalize(vectors: np.ndarray) -> np.ndarray:
 
 def build_candidate_pool(pool: str, base_texts: Sequence[str], ft_model) -> CandidatePool:
     if pool in ("hindi", "target"):
-        token_ids = np.array([i for i, text in enumerate(base_texts) if is_devanagari(text)],
-                             dtype=np.int64)
+        token_ids = np.array([i for i, text in enumerate(base_texts) if is_devanagari(text)], dtype=np.int64)
         if token_ids.size == 0:
-            raise SystemExit("No Devanagari tokens in the base vocabulary; "
-                             "rerun with --candidate-pool all")
+            raise SystemExit("No Devanagari tokens in the base vocabulary; rerun with --candidate-pool all")
         share = 100.0 * token_ids.size / len(base_texts)
         label = f"{token_ids.size} Devanagari tokens"
-        print(f"  Devanagari candidates: {token_ids.size} of {len(base_texts)} "
-              f"base tokens ({share:.2f}%)")
+        print(f"  Devanagari candidates: {token_ids.size} of {len(base_texts)} base tokens ({share:.2f}%)")
     else:
         token_ids = np.arange(len(base_texts), dtype=np.int64)
         label = f"all {token_ids.size} base tokens"
@@ -360,8 +389,7 @@ def decode_for_display(tokenizer, token_id: int) -> str:
     """Best-effort readable form of a token, for logging only."""
     token_id = int(token_id)
     try:
-        text = tokenizer.decode([token_id], skip_special_tokens=False,
-                                clean_up_tokenization_spaces=False)
+        text = tokenizer.decode([token_id], skip_special_tokens=False, clean_up_tokenization_spaces=False)
         if text:
             return text
     except Exception:
@@ -377,11 +405,17 @@ def decode_for_display(tokenizer, token_id: int) -> str:
 # Initialization
 # ---------------------------------------------------------------------------
 
-def initialize_focus_embeddings(model, original_tokenizer, extended_tokenizer,
-                                new_token_ids: Sequence[int], new_vectors: np.ndarray,
-                                pool: CandidatePool, original_vocab_size: int,
-                                args: argparse.Namespace) -> tuple[FocusResult, torch.Tensor,
-                                                                   torch.Tensor]:
+
+def initialize_focus_embeddings(
+    model,
+    original_tokenizer,
+    extended_tokenizer,
+    new_token_ids: Sequence[int],
+    new_vectors: np.ndarray,
+    pool: CandidatePool,
+    original_vocab_size: int,
+    args: argparse.Namespace,
+) -> tuple[FocusResult, torch.Tensor, torch.Tensor]:
     result = FocusResult(total=len(new_token_ids))
 
     with torch.no_grad():
@@ -393,8 +427,7 @@ def initialize_focus_embeddings(model, original_tokenizer, extended_tokenizer,
         mean_input = original_input.mean(dim=0)
         mean_output = original_output.mean(dim=0)
 
-        for index, token_id in enumerate(tqdm(new_token_ids, desc="FOCUS initialization",
-                                              unit="token")):
+        for index, token_id in enumerate(tqdm(new_token_ids, desc="FOCUS initialization", unit="token")):
             try:
                 query = new_vectors[index]
                 query = query / (np.linalg.norm(query) + 1e-8)
@@ -406,27 +439,27 @@ def initialize_focus_embeddings(model, original_tokenizer, extended_tokenizer,
                 selected_token_ids = pool.token_ids[selected]
                 result.nonzero_counts.append(selected.size)
 
-                weight_tensor = torch.tensor(selected_weights, dtype=input_embeddings.dtype,
-                                             device=input_embeddings.device).unsqueeze(1)
-                input_embeddings[token_id] = (
-                    input_embeddings[selected_token_ids] * weight_tensor).sum(dim=0)
-                output_embeddings[token_id] = (
-                    output_embeddings[selected_token_ids] * weight_tensor).sum(dim=0)
+                weight_tensor = torch.tensor(
+                    selected_weights, dtype=input_embeddings.dtype, device=input_embeddings.device
+                ).unsqueeze(1)
+                input_embeddings[token_id] = (input_embeddings[selected_token_ids] * weight_tensor).sum(dim=0)
+                output_embeddings[token_id] = (output_embeddings[selected_token_ids] * weight_tensor).sum(dim=0)
                 result.successful += 1
 
                 if len(result.samples) < args.num_samples:
-                    order = np.argsort(selected_weights)[::-1][:args.top_contributors]
+                    order = np.argsort(selected_weights)[::-1][: args.top_contributors]
                     top_ids = selected_token_ids[order]
-                    result.samples.append(FocusSample(
-                        token_id=token_id,
-                        token_text=decode_for_display(extended_tokenizer, token_id),
-                        nonzero_count=int(selected.size),
-                        top_token_ids=top_ids.tolist(),
-                        top_token_texts=[decode_for_display(original_tokenizer, i)
-                                         for i in top_ids],
-                        top_similarities=similarities[selected[order]].tolist(),
-                        top_weights=selected_weights[order].tolist(),
-                    ))
+                    result.samples.append(
+                        FocusSample(
+                            token_id=token_id,
+                            token_text=decode_for_display(extended_tokenizer, token_id),
+                            nonzero_count=int(selected.size),
+                            top_token_ids=top_ids.tolist(),
+                            top_token_texts=[decode_for_display(original_tokenizer, i) for i in top_ids],
+                            top_similarities=similarities[selected[order]].tolist(),
+                            top_weights=selected_weights[order].tolist(),
+                        )
+                    )
 
             except Exception as error:
                 print(f"Warning: token {token_id} failed ({error}), falling back to mean")
@@ -441,9 +474,15 @@ def initialize_focus_embeddings(model, original_tokenizer, extended_tokenizer,
 # Validation
 # ---------------------------------------------------------------------------
 
-def validate_embeddings(model, original_input: torch.Tensor, original_output: torch.Tensor,
-                        original_vocab_size: int, new_token_ids: Sequence[int],
-                        samples: Sequence[FocusSample]) -> None:
+
+def validate_embeddings(
+    model,
+    original_input: torch.Tensor,
+    original_output: torch.Tensor,
+    original_vocab_size: int,
+    new_token_ids: Sequence[int],
+    samples: Sequence[FocusSample],
+) -> None:
     """Report and raise on anything that indicates a broken initialization."""
     print("\n" + RULE)
     print("Validation")
@@ -454,12 +493,16 @@ def validate_embeddings(model, original_input: torch.Tensor, original_output: to
 
     input_embeddings = model.get_input_embeddings().weight
     output_embeddings = model.get_output_embeddings().weight
-    sides = (("input", input_embeddings[original_vocab_size:], original_input),
-             ("output", output_embeddings[original_vocab_size:], original_output))
+    sides = (
+        ("input", input_embeddings[original_vocab_size:], original_input),
+        ("output", output_embeddings[original_vocab_size:], original_output),
+    )
 
     print("\n1. Original embeddings unchanged")
-    for name, original, current in (("input", original_input, input_embeddings),
-                                    ("output", original_output, output_embeddings)):
+    for name, original, current in (
+        ("input", original_input, input_embeddings),
+        ("output", original_output, output_embeddings),
+    ):
         difference = (current[:original_vocab_size] - original).abs().max().item()
         if difference > 1e-6:
             errors.append(f"original {name} embeddings changed, max difference {difference:.2e}")
@@ -481,13 +524,15 @@ def validate_embeddings(model, original_input: torch.Tensor, original_output: to
 
     print("\n3. Distribution against the originals")
     for name, new, original in sides:
-        print(f"   new {name}      - mean: {new.mean().item():.4f}, std: {new.std().item():.4f}, "
-              f"range: [{new.min().item():.4f}, {new.max().item():.4f}]")
-        print(f"   original {name} - mean: {original.mean().item():.4f}, "
-              f"std: {original.std().item():.4f}")
+        print(
+            f"   new {name}      - mean: {new.mean().item():.4f}, std: {new.std().item():.4f}, "
+            f"range: [{new.min().item():.4f}, {new.max().item():.4f}]"
+        )
+        print(f"   original {name} - mean: {original.mean().item():.4f}, std: {original.std().item():.4f}")
         if abs(new.mean().item() - original.mean().item()) > 10 * original.std().item():
-            warnings.append(f"new {name} mean {new.mean().item():.4f} is far from the "
-                            f"original mean {original.mean().item():.4f}")
+            warnings.append(
+                f"new {name} mean {new.mean().item():.4f} is far from the original mean {original.mean().item():.4f}"
+            )
 
     print("\n4. Shapes")
     expected_dim = original_input.shape[1]
@@ -506,11 +551,11 @@ def validate_embeddings(model, original_input: torch.Tensor, original_output: to
         if new_variance < 1e-6:
             errors.append(f"new {name} variance {new_variance:.2e} suggests uninitialized rows")
         elif new_variance < 0.1 * original_variance:
-            warnings.append(f"new {name} variance {new_variance:.4f} is much lower than the "
-                            f"original {original_variance:.4f}")
+            warnings.append(
+                f"new {name} variance {new_variance:.4f} is much lower than the original {original_variance:.4f}"
+            )
         else:
-            print(f"   new {name} variance {new_variance:.4f} "
-                  f"(original {original_variance:.4f})")
+            print(f"   new {name} variance {new_variance:.4f} (original {original_variance:.4f})")
 
     print("\n6. Sampled tokens")
     if not samples:
@@ -518,15 +563,21 @@ def validate_embeddings(model, original_input: torch.Tensor, original_output: to
     for position, sample in enumerate(samples[:5], 1):
         input_norm = input_embeddings[sample.token_id].norm().item()
         output_norm = output_embeddings[sample.token_id].norm().item()
-        if torch.isnan(input_embeddings[sample.token_id]).any() or \
-                torch.isnan(output_embeddings[sample.token_id]).any():
+        if (
+            torch.isnan(input_embeddings[sample.token_id]).any()
+            or torch.isnan(output_embeddings[sample.token_id]).any()
+        ):
             errors.append(f"sample token {sample.token_id} ({sample.token_text!r}) has NaN values")
         elif min(input_norm, output_norm) < 1e-6:
-            warnings.append(f"sample token {sample.token_id} ({sample.token_text!r}) has a tiny "
-                            f"norm (input {input_norm:.2e}, output {output_norm:.2e})")
+            warnings.append(
+                f"sample token {sample.token_id} ({sample.token_text!r}) has a tiny "
+                f"norm (input {input_norm:.2e}, output {output_norm:.2e})"
+            )
         else:
-            print(f"   sample {position} {sample.token_text!r}: input norm {input_norm:.4f}, "
-                  f"output norm {output_norm:.4f}")
+            print(
+                f"   sample {position} {sample.token_text!r}: input norm {input_norm:.4f}, "
+                f"output norm {output_norm:.4f}"
+            )
 
     print("\n" + RULE)
     if errors:
@@ -544,6 +595,7 @@ def validate_embeddings(model, original_input: torch.Tensor, original_output: to
 # Post-initialization reports
 # ---------------------------------------------------------------------------
 
+
 def report_sparsity(result: FocusResult, pool: CandidatePool) -> None:
     print("\nInitialization statistics:")
     print(f"  Total new tokens:            {result.total}")
@@ -555,9 +607,11 @@ def report_sparsity(result: FocusResult, pool: CandidatePool) -> None:
         return
     deviation = statistics.stdev(counts) if len(counts) > 1 else 0.0
     print(f"\nSparsemax support over {pool.label}:")
-    print(f"  Non-zero weights per token - median: {statistics.median(counts):.0f}, "
-          f"mean: {statistics.mean(counts):.1f}, std: {deviation:.1f}, "
-          f"min: {min(counts)}, max: {max(counts)}")
+    print(
+        f"  Non-zero weights per token - median: {statistics.median(counts):.0f}, "
+        f"mean: {statistics.mean(counts):.1f}, std: {deviation:.1f}, "
+        f"min: {min(counts)}, max: {max(counts)}"
+    )
     sparsity = 100.0 * (1.0 - statistics.mean(counts) / pool.token_ids.size)
     print(f"  Average sparsity: {sparsity:.2f}%")
 
@@ -567,17 +621,17 @@ def report_samples(result: FocusResult, pool: CandidatePool) -> None:
         return
     print(f"\nFirst {len(result.samples)} initialized tokens:")
     for position, sample in enumerate(result.samples, 1):
-        print(f"\n  Sample {position}: {sample.token_text!r} (ID {sample.token_id}), "
-              f"Sparsemax kept {sample.nonzero_count} of {pool.token_ids.size} candidates")
+        print(
+            f"\n  Sample {position}: {sample.token_text!r} (ID {sample.token_id}), "
+            f"Sparsemax kept {sample.nonzero_count} of {pool.token_ids.size} candidates"
+        )
         for rank, (token_id, text, similarity, weight) in enumerate(
-                zip(sample.top_token_ids, sample.top_token_texts,
-                    sample.top_similarities, sample.top_weights), 1):
-            print(f"    {rank}. {text!r} (ID {token_id}) - fastText similarity "
-                  f"{similarity:.4f}, weight {weight:.4f}")
+            zip(sample.top_token_ids, sample.top_token_texts, sample.top_similarities, sample.top_weights), 1
+        ):
+            print(f"    {rank}. {text!r} (ID {token_id}) - fastText similarity {similarity:.4f}, weight {weight:.4f}")
 
 
-def report_norms(model, original_input: torch.Tensor, original_output: torch.Tensor,
-                 original_vocab_size: int) -> None:
+def report_norms(model, original_input: torch.Tensor, original_output: torch.Tensor, original_vocab_size: int) -> None:
     print("\n" + RULE)
     print("Embedding norm analysis")
     print(RULE)
@@ -599,17 +653,19 @@ def report_norms(model, original_input: torch.Tensor, original_output: torch.Ten
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     script_start = time.time()
 
     with phase("Phase 1: Loading model and tokenizers"):
         model = AutoModelForCausalLM.from_pretrained(
-            args.base_model, dtype=DTYPES[args.dtype], trust_remote_code=args.trust_remote_code,
+            args.base_model,
+            dtype=DTYPES[args.dtype],
+            trust_remote_code=args.trust_remote_code,
         )
         original_tokenizer = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
-        extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer,
-                                                           fix_mistral_regex=True)
+        extended_tokenizer = AutoTokenizer.from_pretrained(args.extended_tokenizer, fix_mistral_regex=True)
 
     original_vocab_size = model.get_input_embeddings().weight.shape[0]
     new_vocab_size = len(extended_tokenizer)
@@ -638,11 +694,11 @@ def main(argv: Sequence[str] | None = None) -> None:
             raise SystemExit(
                 "method=focus requires fastText. Install it with:  "
                 "pip install 'nemotron[tokenizer-extension]'  (or pip install "
-                "fasttext-wheel). Other init methods do not need it.") from exc
+                "fasttext-wheel). Other init methods do not need it."
+            ) from exc
         ft_model = fasttext.load_model(args.fasttext_model)
         print(f"  fastText dimension: {ft_model.get_dimension()}")
-        base_texts = decode_vocabulary(original_tokenizer, original_vocab_size,
-                                       "Decoding base vocabulary")
+        base_texts = decode_vocabulary(original_tokenizer, original_vocab_size, "Decoding base vocabulary")
         pool = build_candidate_pool(args.candidate_pool, base_texts, ft_model)
 
     with phase("Phase 3: Embedding the new tokens in fastText space"):
@@ -650,9 +706,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         new_vectors = fasttext_vectors(new_texts, ft_model)
         print(f"  fastText matrix shape: {new_vectors.shape}")
         if new_vectors.shape[1] != pool.unit_vectors.shape[1]:
-            raise SystemExit(f"fastText dimension mismatch: candidates have "
-                             f"{pool.unit_vectors.shape[1]}, new tokens have "
-                             f"{new_vectors.shape[1]}")
+            raise SystemExit(
+                f"fastText dimension mismatch: candidates have "
+                f"{pool.unit_vectors.shape[1]}, new tokens have "
+                f"{new_vectors.shape[1]}"
+            )
         del ft_model
         print("  Released the fastText model")
 
@@ -660,18 +718,24 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(f"  Candidate pool:          {pool.label}")
         print(f"  Sparsemax temperature:   {args.sparsemax_temperature}")
         result, original_input, original_output = initialize_focus_embeddings(
-            model, original_tokenizer, extended_tokenizer, new_token_ids, new_vectors,
-            pool, original_vocab_size, args,
+            model,
+            original_tokenizer,
+            extended_tokenizer,
+            new_token_ids,
+            new_vectors,
+            pool,
+            original_vocab_size,
+            args,
         )
         report_sparsity(result, pool)
         report_samples(result, pool)
-        validate_embeddings(model, original_input, original_output, original_vocab_size,
-                            new_token_ids, result.samples)
+        validate_embeddings(model, original_input, original_output, original_vocab_size, new_token_ids, result.samples)
         report_norms(model, original_input, original_output, original_vocab_size)
 
     with phase(f"Phase 5: Saving to {args.output_dir}"):
         from vocab_pad import pad_vocab_to_multiple
-        pad_vocab_to_multiple(model, 4)   # TP-safe: divisible by TP (=4); minimal padding across all arms/methods
+
+        pad_vocab_to_multiple(model, 4)  # TP-safe: divisible by TP (=4); minimal padding across all arms/methods
         model.save_pretrained(args.output_dir)
         extended_tokenizer.save_pretrained(args.output_dir)
 

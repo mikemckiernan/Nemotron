@@ -34,6 +34,7 @@ The survivor/padding/validation scaffolding is method-independent; only the
 fresh-token step changes. focus/bert reuse focus_init/subword_init helpers so the
 math matches the ADD arm exactly. Mirrors the init engines' argparse main(argv).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -70,18 +71,29 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--base-model", required=True)
     p.add_argument("--extended-tokenizer", required=True)
     p.add_argument("--output-dir", required=True)
-    p.add_argument("--trust-remote-code", action="store_true",
-                   help="Execute custom modeling code shipped in the model repo. "
-                        "Off by default; required by architectures whose code lives there.")
+    p.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Execute custom modeling code shipped in the model repo. "
+        "Off by default; required by architectures whose code lives there.",
+    )
     p.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16")
-    p.add_argument("--id-remap", default=None,
-                   help="id_remap.json (old_id->new_id). Default: <extended-tokenizer>/id_remap.json")
-    p.add_argument("--language", default=None,
-                   help="Target language (see languages.py). Sets the target script used to "
-                        "find the base model's existing rows, and the defaults for "
-                        "--bert-model and --fasttext-url. Omit for the legacy Hindi behaviour.")
-    p.add_argument("--method", choices=METHODS, default="subword",
-                   help="Fresh-token init: subword | mean_all | hf_default | focus | bert")
+    p.add_argument(
+        "--id-remap", default=None, help="id_remap.json (old_id->new_id). Default: <extended-tokenizer>/id_remap.json"
+    )
+    p.add_argument(
+        "--language",
+        default=None,
+        help="Target language (see languages.py). Sets the target script used to "
+        "find the base model's existing rows, and the defaults for "
+        "--bert-model and --fasttext-url. Omit for the legacy Hindi behaviour.",
+    )
+    p.add_argument(
+        "--method",
+        choices=METHODS,
+        default="subword",
+        help="Fresh-token init: subword | mean_all | hf_default | focus | bert",
+    )
     # subword (length-based) options
     p.add_argument("--input-averaging", choices=AVERAGING_METHODS, default="uniform")
     p.add_argument("--output-averaging", choices=AVERAGING_METHODS, default="uniform")
@@ -90,26 +102,40 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--input-hindi-norm", action=argparse.BooleanOptionalAction, default=True)
     p.add_argument("--output-hindi-norm", action=argparse.BooleanOptionalAction, default=False)
     p.add_argument("--num-samples", type=int, default=10)
-    p.add_argument("--pad-vocab-to", type=int, default=4,
-                   help="Pad the final row count up to a multiple of this for TP divisibility "
-                        "(Megatron VocabParallelEmbedding). Padding rows are never indexed. 0 disables.")
+    p.add_argument(
+        "--pad-vocab-to",
+        type=int,
+        default=4,
+        help="Pad the final row count up to a multiple of this for TP divisibility "
+        "(Megatron VocabParallelEmbedding). Padding rows are never indexed. 0 disables.",
+    )
     # bert (semantic) options
-    p.add_argument("--bert-model", default=None,
-                   help="Auxiliary encoder for --method bert. Default: from --language, "
-                       "else google/muril-base-cased (Indic-only; wrong for non-Indic targets).")
+    p.add_argument(
+        "--bert-model",
+        default=None,
+        help="Auxiliary encoder for --method bert. Default: from --language, "
+        "else google/muril-base-cased (Indic-only; wrong for non-Indic targets).",
+    )
     p.add_argument("--temperature", type=float, default=0.1)
     p.add_argument("--bert-batch-size", type=int, default=128)
     p.add_argument("--gemma-model", default=None)  # parity; unused
     p.add_argument("--semantic-device", default="cuda" if torch.cuda.is_available() else "cpu")
     # focus options
-    p.add_argument("--fasttext-model", default=None,
-                   help="fastText .bin (e.g. cc.hi.300.bin); required for --method focus")
-    p.add_argument("--fasttext-url", default=None,
-                   help="Fetch fastText here (on the compute node) if "
-                       "--fasttext-model is missing (.gz auto-decompressed).")
-    p.add_argument("--candidate-pool", choices=("hindi", "target", "all"), default="target",
-                   help="FOCUS candidates: the base model's target-language "
-                       "rows, or all rows. 'hindi' is the old name for 'target'.")
+    p.add_argument(
+        "--fasttext-model", default=None, help="fastText .bin (e.g. cc.hi.300.bin); required for --method focus"
+    )
+    p.add_argument(
+        "--fasttext-url",
+        default=None,
+        help="Fetch fastText here (on the compute node) if --fasttext-model is missing (.gz auto-decompressed).",
+    )
+    p.add_argument(
+        "--candidate-pool",
+        choices=("hindi", "target", "all"),
+        default="target",
+        help="FOCUS candidates: the base model's target-language "
+        "rows, or all rows. 'hindi' is the old name for 'target'.",
+    )
     p.add_argument("--sparsemax-temperature", type=float, default=0.05)
     args = p.parse_args(argv)
 
@@ -118,6 +144,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     from languages import fasttext_url as _ft_url
     from languages import profile as _lang_profile
     from script_ranges import set_target_script
+
     if args.language:
         prof = _lang_profile(args.language)
         set_target_script(prof.script)
@@ -133,16 +160,19 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     if args.method == "subword":
         for side in ("input_averaging", "output_averaging"):
             if getattr(args, side) not in LENGTH_METHODS:
-                p.error(f"--method subword supports only {LENGTH_METHODS}; use "
-                        f"--method bert when either side is bert_weighted")
+                p.error(
+                    f"--method subword supports only {LENGTH_METHODS}; use "
+                    f"--method bert when either side is bert_weighted"
+                )
     if args.method == "focus" and not args.fasttext_model:
         if not args.language:
-            p.error("--method focus requires --fasttext-model, or --language so the "
-                    "cc.<code>.300 vectors can be resolved and fetched")
+            p.error(
+                "--method focus requires --fasttext-model, or --language so the "
+                "cc.<code>.300 vectors can be resolved and fetched"
+            )
         # ensure_fasttext() downloads --fasttext-url here if the file is absent.
         cache = os.environ.get("FASTTEXT_CACHE_DIR", "/tmp")
-        args.fasttext_model = os.path.join(
-            cache, os.path.basename(args.fasttext_url).replace(".gz", ""))
+        args.fasttext_model = os.path.join(cache, os.path.basename(args.fasttext_url).replace(".gz", ""))
     return args
 
 
@@ -192,8 +222,9 @@ def _init_hf_default(fresh_ids, in_emb, out_emb, base_in, base_out):
     return {"hf_default": len(fresh_ids)}
 
 
-def _init_subword(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, mean_out,
-                  base_tok, args, target_in, target_out):
+def _init_subword(
+    fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, mean_out, base_tok, args, target_in, target_out
+):
     stats = {"copy": 0, "mean": 0, "multi": 0}
     with torch.no_grad():
         for tid in tqdm(fresh_ids, desc="Init fresh (mean-of-constituents)"):
@@ -210,8 +241,9 @@ def _init_subword(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in
                 stats["copy"] += 1
                 continue
             w_in = length_based_weights(plan.subword_ids, args.input_averaging, base_tok, in_emb.dtype, in_emb.device)
-            w_out = length_based_weights(plan.subword_ids, args.output_averaging, base_tok, out_emb.dtype,
-                out_emb.device)
+            w_out = length_based_weights(
+                plan.subword_ids, args.output_averaging, base_tok, out_emb.dtype, out_emb.device
+            )
             avg_in = (base_in[plan.subword_ids] * w_in.unsqueeze(1)).sum(dim=0)
             avg_out = (base_out[plan.subword_ids] * w_out.unsqueeze(1)).sum(dim=0)
             in_emb[tid] = _norm_correct(avg_in, args.input_norm_correction, target_in)
@@ -220,11 +252,23 @@ def _init_subword(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in
     return stats
 
 
-def _init_bert(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, mean_out,
-               ext_tok, base_tok, args, target_in, target_out):
+def _init_bert(
+    fresh_ids,
+    decomp,
+    in_emb,
+    out_emb,
+    base_in,
+    base_out,
+    mean_in,
+    mean_out,
+    ext_tok,
+    base_tok,
+    args,
+    target_in,
+    target_out,
+):
     """Encoder-weighted mean of base subword rows (reuses subword_init semantics)."""
-    needed = {m for m in (args.input_averaging, args.output_averaging)
-              if m in SEMANTIC_METHODS}
+    needed = {m for m in (args.input_averaging, args.output_averaging) if m in SEMANTIC_METHODS}
     semantic = {}
     if needed:
         inputs = collect_semantic_inputs(ext_tok, base_tok, decomp)
@@ -244,13 +288,15 @@ def _init_bert(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, m
                 out_emb[tid] = base_out[sid]
                 stats["copy"] += 1
                 continue
+
             # Input and output are weighted INDEPENDENTLY, matching the Add arm
             # (subword_init) and _init_subword above. Reusing w_in for the output
             # matrix silently ignored --output-averaging.
             def _weights(method, dtype, device):
                 if method in SEMANTIC_METHODS:
-                    w, _ = subword_weights(method, tid, plan.subword_ids, base_tok,
-                                           semantic, args.temperature, dtype, device)
+                    w, _ = subword_weights(
+                        method, tid, plan.subword_ids, base_tok, semantic, args.temperature, dtype, device
+                    )
                     return w
                 return length_based_weights(plan.subword_ids, method, base_tok, dtype, device)
 
@@ -264,8 +310,7 @@ def _init_bert(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, m
     return stats
 
 
-def _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out,
-                ext_tok, base_tok, base_vocab, args):
+def _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out, ext_tok, base_tok, base_vocab, args):
     """FOCUS: sparsemax blend of nearest base tokens in fastText space."""
     import fasttext
     import numpy as np
@@ -281,7 +326,7 @@ def _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out
     ensure_fasttext(args.fasttext_model, getattr(args, "fasttext_url", None))
     ft = fasttext.load_model(args.fasttext_model)
     base_texts = decode_vocabulary(base_tok, base_vocab, "Decoding base vocab")
-    pool = build_candidate_pool(args.candidate_pool, base_texts, ft)          # base candidate rows + ft unit vecs
+    pool = build_candidate_pool(args.candidate_pool, base_texts, ft)  # base candidate rows + ft unit vecs
     new_texts = decode_new_tokens(ext_tok, fresh_ids)
     new_vecs = fasttext_vectors(new_texts, ft)
     del ft
@@ -323,15 +368,18 @@ def main(argv: Sequence[str] | None = None) -> None:
     remap = {int(k): int(v) for k, v in json.loads(remap_path.read_text()).items()}
     print(f"  id_remap survivors: {len(remap):,} (from {remap_path})")
 
-    model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=dtype,
-        trust_remote_code=args.trust_remote_code)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.base_model, dtype=dtype, trust_remote_code=args.trust_remote_code
+    )
     base_tok = AutoTokenizer.from_pretrained(args.base_model, fix_mistral_regex=True)
     ext_tok = AutoTokenizer.from_pretrained(args.extended_tokenizer, fix_mistral_regex=True)
 
     base_vocab = model.get_input_embeddings().weight.shape[0]
     new_vocab = len(ext_tok)
-    print(f"  Base vocab: {base_vocab:,} | new vocab: {new_vocab:,} | survivors: {len(remap):,} | "
-          f"fresh: {new_vocab - len(remap):,}")
+    print(
+        f"  Base vocab: {base_vocab:,} | new vocab: {new_vocab:,} | survivors: {len(remap):,} | "
+        f"fresh: {new_vocab - len(remap):,}"
+    )
     if max(remap.values()) >= new_vocab or max(remap.keys()) >= base_vocab:
         raise SystemExit("id_remap indices out of range for the given model/tokenizer.")
 
@@ -346,10 +394,12 @@ def main(argv: Sequence[str] | None = None) -> None:
     with torch.no_grad():
         h_in = base_in[hindi_ids].norm(dim=1) if hindi_ids else None
         h_out = base_out[hindi_ids].norm(dim=1) if hindi_ids else None
-        target_in, src_in = resolve_target_norm(base_in.norm(dim=1), h_in,
-                                                args.input_hindi_norm, args.input_norm_correction, "input")
-        target_out, src_out = resolve_target_norm(base_out.norm(dim=1), h_out,
-                                                  args.output_hindi_norm, args.output_norm_correction, "output")
+        target_in, src_in = resolve_target_norm(
+            base_in.norm(dim=1), h_in, args.input_hindi_norm, args.input_norm_correction, "input"
+        )
+        target_out, src_out = resolve_target_norm(
+            base_out.norm(dim=1), h_out, args.output_hindi_norm, args.output_norm_correction, "output"
+        )
     print(f"  Target-language base tokens: {len(hindi_ids):,} | target input norm ({src_in}): {target_in.item():.4f}")
 
     print("\nResizing (mean_resizing=False; every row is written explicitly)...")
@@ -374,16 +424,42 @@ def main(argv: Sequence[str] | None = None) -> None:
     elif args.method == "hf_default":
         stats = _init_hf_default(fresh_ids, in_emb, out_emb, base_in, base_out)
     elif args.method == "focus":
-        stats = _init_focus(fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out,
-                            ext_tok, base_tok, base_vocab, args)
+        stats = _init_focus(
+            fresh_ids, in_emb, out_emb, base_in, base_out, mean_in, mean_out, ext_tok, base_tok, base_vocab, args
+        )
     else:  # subword or bert -> need the base-subword decomposition
         decomp = decompose_new_tokens(fresh_ids, ext_tok, base_tok, base_vocab)
         if args.method == "bert":
-            stats = _init_bert(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, mean_out,
-                               ext_tok, base_tok, args, target_in, target_out)
+            stats = _init_bert(
+                fresh_ids,
+                decomp,
+                in_emb,
+                out_emb,
+                base_in,
+                base_out,
+                mean_in,
+                mean_out,
+                ext_tok,
+                base_tok,
+                args,
+                target_in,
+                target_out,
+            )
         else:
-            stats = _init_subword(fresh_ids, decomp, in_emb, out_emb, base_in, base_out, mean_in, mean_out,
-                                  base_tok, args, target_in, target_out)
+            stats = _init_subword(
+                fresh_ids,
+                decomp,
+                in_emb,
+                out_emb,
+                base_in,
+                base_out,
+                mean_in,
+                mean_out,
+                base_tok,
+                args,
+                target_in,
+                target_out,
+            )
 
     # Validation: no NaN, survivor rows byte-identical to base.
     with torch.no_grad():

@@ -37,6 +37,7 @@ Reports corpus-level fertility (sum(tokens)/sum(words)) for a tokenizer on an
 eval corpus (HF dataset or local). This is a TOKENIZER-level metric only; model /
 downstream evaluation post-CPT is handled by the existing steps/eval catalog.
 """
+
 from __future__ import annotations
 
 import argparse

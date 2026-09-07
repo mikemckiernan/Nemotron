@@ -78,6 +78,7 @@ class EvalResult:
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
@@ -85,54 +86,63 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--trust-remote-code", action="store_true",
+        "--trust-remote-code",
+        action="store_true",
         help="Execute custom modeling code shipped in the model repo. Off by default; "
-             "required by architectures whose code lives in the repo rather than in "
-             "transformers.")
+        "required by architectures whose code lives in the repo rather than in "
+        "transformers.",
+    )
 
     models = parser.add_argument_group("models")
-    models.add_argument("--models", nargs="+", required=True,
-                        help="Paths to one or more extended models to evaluate.")
-    models.add_argument("--base-model",
-                        help="Unextended model to score first as a reference baseline.")
+    models.add_argument("--models", nargs="+", required=True, help="Paths to one or more extended models to evaluate.")
+    models.add_argument("--base-model", help="Unextended model to score first as a reference baseline.")
 
     data = parser.add_argument_group("data")
-    data.add_argument("--data-file", default=None,
-                      help="Local validation corpus (.txt or .jsonl). Path-first: used when "
-                           "given, otherwise fall back to the --hf-dataset stream.")
-    data.add_argument("--hf-dataset", default=None,
-                      help="HF dataset id to stream as the validation corpus when no local "
-                           "--data-file is given (e.g. ai4bharat/samanantar).")
-    data.add_argument("--hf-config", default=None,
-                      help="HF dataset config / subset (e.g. hi).")
-    data.add_argument("--hf-split", default="train",
-                      help="HF dataset split to stream.")
-    data.add_argument("--skip-docs", type=int, default=0,
-                      help="Skip this many leading docs (held-out slice offset) when streaming HF.")
-    data.add_argument("--text-field", default="text",
-                      help="JSONL / HF field holding the document text.")
-    data.add_argument("--allow-token-cap-comparison", action="store_true",
-                      help="Score several models under --max-tokens anyway. The BPB "
-                           "values will NOT be comparable across tokenizers; only use "
-                           "this for within-tokenizer perplexity or to reproduce a "
-                           "historical run.")
-    data.add_argument("--max-docs", type=int, default=-1,
-                      help="Stop after this many documents (-1 for all).")
-    data.add_argument("--max-tokens", type=int, default=-1,
-                      help="Stop after scoring this many tokens (-1 for all).")
+    data.add_argument(
+        "--data-file",
+        default=None,
+        help="Local validation corpus (.txt or .jsonl). Path-first: used when "
+        "given, otherwise fall back to the --hf-dataset stream.",
+    )
+    data.add_argument(
+        "--hf-dataset",
+        default=None,
+        help="HF dataset id to stream as the validation corpus when no local "
+        "--data-file is given (e.g. ai4bharat/samanantar).",
+    )
+    data.add_argument("--hf-config", default=None, help="HF dataset config / subset (e.g. hi).")
+    data.add_argument("--hf-split", default="train", help="HF dataset split to stream.")
+    data.add_argument(
+        "--skip-docs",
+        type=int,
+        default=0,
+        help="Skip this many leading docs (held-out slice offset) when streaming HF.",
+    )
+    data.add_argument("--text-field", default="text", help="JSONL / HF field holding the document text.")
+    data.add_argument(
+        "--allow-token-cap-comparison",
+        action="store_true",
+        help="Score several models under --max-tokens anyway. The BPB "
+        "values will NOT be comparable across tokenizers; only use "
+        "this for within-tokenizer perplexity or to reproduce a "
+        "historical run.",
+    )
+    data.add_argument("--max-docs", type=int, default=-1, help="Stop after this many documents (-1 for all).")
+    data.add_argument("--max-tokens", type=int, default=-1, help="Stop after scoring this many tokens (-1 for all).")
 
     scoring = parser.add_argument_group("scoring")
-    scoring.add_argument("--max-length", type=int, default=2048,
-                         help="Context window for each forward pass.")
-    scoring.add_argument("--stride", type=int, default=512,
-                         help="Sliding-window step; overlapping tokens are scored once.")
+    scoring.add_argument("--max-length", type=int, default=2048, help="Context window for each forward pass.")
+    scoring.add_argument(
+        "--stride", type=int, default=512, help="Sliding-window step; overlapping tokens are scored once."
+    )
 
     hardware = parser.add_argument_group("hardware")
-    hardware.add_argument("--dtype", choices=sorted(DTYPES), default="bfloat16",
-                          help="Precision to load the models in.")
-    hardware.add_argument("--device",
-                          help="Device string such as cuda, cuda:0, or cpu "
-                               "(default: cuda when available).")
+    hardware.add_argument(
+        "--dtype", choices=sorted(DTYPES), default="bfloat16", help="Precision to load the models in."
+    )
+    hardware.add_argument(
+        "--device", help="Device string such as cuda, cuda:0, or cpu (default: cuda when available)."
+    )
 
     parser.add_argument("--output-json", help="Write the results to this JSON file.")
 
@@ -150,6 +160,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 # Reporting helpers
 # ---------------------------------------------------------------------------
 
+
 def report_hardware(device: str, dtype_name: str) -> None:
     print("=" * 70)
     print("Hardware")
@@ -159,7 +170,7 @@ def report_hardware(device: str, dtype_name: str) -> None:
         print(f"  CUDA GPUs available: {count}")
         total_memory = 0.0
         for index in range(count):
-            memory = torch.cuda.get_device_properties(index).total_memory / (1024 ** 3)
+            memory = torch.cuda.get_device_properties(index).total_memory / (1024**3)
             total_memory += memory
             print(f"    GPU {index}: {torch.cuda.get_device_name(index)} ({memory:.1f} GB)")
         print(f"  Total GPU memory: {total_memory:.1f} GB")
@@ -171,11 +182,10 @@ def report_hardware(device: str, dtype_name: str) -> None:
 
 def report_gpu_memory() -> None:
     for index in range(torch.cuda.device_count()):
-        allocated = torch.cuda.memory_allocated(index) / (1024 ** 3)
-        reserved = torch.cuda.memory_reserved(index) / (1024 ** 3)
+        allocated = torch.cuda.memory_allocated(index) / (1024**3)
+        reserved = torch.cuda.memory_reserved(index) / (1024**3)
         if allocated > 0:
-            print(f"  GPU {index} memory: {allocated:.1f} GB allocated / "
-                  f"{reserved:.1f} GB reserved")
+            print(f"  GPU {index} memory: {allocated:.1f} GB allocated / {reserved:.1f} GB reserved")
 
 
 def fmt(value: float, spec: str) -> str:
@@ -201,8 +211,8 @@ def unique_labels(paths: Sequence[str]) -> list[str]:
 # Data streaming
 # ---------------------------------------------------------------------------
 
-def stream_texts(data_path: str, text_field: str = "text",
-                 max_docs: int = -1) -> Iterator[str]:
+
+def stream_texts(data_path: str, text_field: str = "text", max_docs: int = -1) -> Iterator[str]:
     """Yield documents from a plain-text or JSONL file without pre-loading."""
     is_json = Path(data_path).suffix.lower() in (".jsonl", ".json")
     yielded = 0
@@ -228,9 +238,14 @@ def stream_texts(data_path: str, text_field: str = "text",
                     return
 
 
-def stream_hf(hf_dataset: str, hf_config: str | None, hf_split: str,
-              text_field: str = "text", max_docs: int = -1,
-              skip_docs: int = 0) -> Iterator[str]:
+def stream_hf(
+    hf_dataset: str,
+    hf_config: str | None,
+    hf_split: str,
+    text_field: str = "text",
+    max_docs: int = -1,
+    skip_docs: int = 0,
+) -> Iterator[str]:
     """Yield documents from a streamed HF dataset (held-out slice via skip_docs)."""
     from datasets import load_dataset
 
@@ -250,23 +265,33 @@ def stream_hf(hf_dataset: str, hf_config: str | None, hf_split: str,
 def make_text_stream(args) -> tuple[callable, str]:
     """Return (factory, source_label): path-first local file, else HF stream."""
     if args.data_file:
-        return (lambda: stream_texts(args.data_file, args.text_field, args.max_docs),
-                args.data_file)
+        return (lambda: stream_texts(args.data_file, args.text_field, args.max_docs), args.data_file)
     label = f"hf:{args.hf_dataset}:{args.hf_config or '-'}:{args.hf_split}"
-    return (lambda: stream_hf(args.hf_dataset, args.hf_config, args.hf_split,
-                              args.text_field, args.max_docs, args.skip_docs),
-            label)
+    return (
+        lambda: stream_hf(
+            args.hf_dataset, args.hf_config, args.hf_split, args.text_field, args.max_docs, args.skip_docs
+        ),
+        label,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Scoring
 # ---------------------------------------------------------------------------
 
+
 @torch.no_grad()
-def evaluate_perplexity(model, tokenizer, make_stream, total: int | None = None,
-                        max_length: int = 2048, stride: int = 512,
-                        max_tokens: int = -1, device: str = "cuda",
-                        desc: str = "Evaluating") -> EvalResult:
+def evaluate_perplexity(
+    model,
+    tokenizer,
+    make_stream,
+    total: int | None = None,
+    max_length: int = 2048,
+    stride: int = 512,
+    max_tokens: int = -1,
+    device: str = "cuda",
+    desc: str = "Evaluating",
+) -> EvalResult:
     """Score a corpus with a sliding window, counting every token exactly once.
 
     `make_stream` is a zero-arg factory returning a fresh iterator of document
@@ -282,8 +307,7 @@ def evaluate_perplexity(model, tokenizer, make_stream, total: int | None = None,
     progress = tqdm(make_stream(), desc=desc, unit="doc", total=total)
 
     for text in progress:
-        input_ids = tokenizer(text, return_tensors="pt", truncation=False,
-                              add_special_tokens=False).input_ids[0]
+        input_ids = tokenizer(text, return_tensors="pt", truncation=False, add_special_tokens=False).input_ids[0]
         sequence_length = input_ids.size(0)
         if sequence_length == 0:
             continue
@@ -338,8 +362,7 @@ def evaluate_perplexity(model, tokenizer, make_stream, total: int | None = None,
     progress.close()
 
     if total_tokens == 0:
-        return EvalResult(float("inf"), float("inf"), float("inf"), 0, total_bytes,
-                          docs_processed)
+        return EvalResult(float("inf"), float("inf"), float("inf"), 0, total_bytes, docs_processed)
 
     mean_loss = total_loss / total_tokens
     return EvalResult(
@@ -352,8 +375,7 @@ def evaluate_perplexity(model, tokenizer, make_stream, total: int | None = None,
     )
 
 
-def load_model_and_tokenizer(model_path: str, dtype: torch.dtype, device: str,
-                             trust_remote_code: bool = False):
+def load_model_and_tokenizer(model_path: str, dtype: torch.dtype, device: str, trust_remote_code: bool = False):
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
         dtype=dtype,
@@ -373,6 +395,7 @@ def load_model_and_tokenizer(model_path: str, dtype: torch.dtype, device: str,
 # Result reports
 # ---------------------------------------------------------------------------
 
+
 def report_summary(results: dict[str, EvalResult], args: argparse.Namespace) -> None:
     print("\n\n" + "=" * 90)
     print("SUMMARY - embedding initialization comparison")
@@ -381,20 +404,20 @@ def report_summary(results: dict[str, EvalResult], args: argparse.Namespace) -> 
     print(f"max_length: {args.max_length} | stride: {args.stride}")
     print()
 
-    header = (f"{'Model':<55} {'Loss':>10} {'PPL':>12} {'BPB':>10} "
-              f"{'Tokens':>12} {'Docs':>8}")
+    header = f"{'Model':<55} {'Loss':>10} {'PPL':>12} {'BPB':>10} {'Tokens':>12} {'Docs':>8}"
     print(header)
     print("-" * len(header))
 
-    comparable = {label: result.bpb for label, result in results.items()
-                  if result.finite and label != BASE_LABEL}
+    comparable = {label: result.bpb for label, result in results.items() if result.finite and label != BASE_LABEL}
     best_label = min(comparable, key=comparable.get) if comparable else None
 
     for label, result in results.items():
         marker = "  <- best BPB" if label == best_label else ""
-        print(f"{label:<55} {fmt(result.loss, '.4f'):>10} {fmt(result.perplexity, '.2f'):>12} "
-              f"{fmt(result.bpb, '.4f'):>10} {result.num_tokens:>12,} "
-              f"{result.num_docs:>8,}{marker}")
+        print(
+            f"{label:<55} {fmt(result.loss, '.4f'):>10} {fmt(result.perplexity, '.2f'):>12} "
+            f"{fmt(result.bpb, '.4f'):>10} {result.num_tokens:>12,} "
+            f"{result.num_docs:>8,}{marker}"
+        )
 
     print("-" * len(header))
     if best_label:
@@ -425,14 +448,22 @@ def report_tsv(results: dict[str, EvalResult]) -> None:
     print("=" * 90)
     print("\t".join(["Model", "Loss", "PPL", "BPB", "Tokens", "Docs"]))
     for label, result in results.items():
-        print("\t".join([label, fmt(result.loss, ".4f"), fmt(result.perplexity, ".2f"),
-                         fmt(result.bpb, ".4f"), str(result.num_tokens),
-                         str(result.num_docs)]))
+        print(
+            "\t".join(
+                [
+                    label,
+                    fmt(result.loss, ".4f"),
+                    fmt(result.perplexity, ".2f"),
+                    fmt(result.bpb, ".4f"),
+                    str(result.num_tokens),
+                    str(result.num_docs),
+                ]
+            )
+        )
     print("=" * 90)
 
 
-def save_results(path: str, results: dict[str, EvalResult],
-                 args: argparse.Namespace) -> None:
+def save_results(path: str, results: dict[str, EvalResult], args: argparse.Namespace) -> None:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -452,13 +483,14 @@ def save_results(path: str, results: dict[str, EvalResult],
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     dtype = DTYPES[args.dtype]
 
     make_stream, data_source = make_text_stream(args)
-    args.data_file = data_source   # normalize for reporting / save_results
+    args.data_file = data_source  # normalize for reporting / save_results
 
     report_hardware(device, args.dtype)
     print(f"\nData source: {data_source}")
@@ -482,18 +514,23 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "BPB values are not comparable. Set --max-docs "
                     "(tokenizer-independent), or --max-tokens -1 to score the whole "
                     "corpus, or run one model per job if you truly want a token cap. "
-                    "Pass --allow-token-cap-comparison to override deliberately.")
-            print("  WARNING: a token budget stops each tokenizer after a "
-                  "DIFFERENT amount of source text, so this BPB is NOT comparable "
-                  "with any other tokenizer's. Use --max-docs (or score the whole "
-                  "corpus) for cross-tokenizer comparison.")
+                    "Pass --allow-token-cap-comparison to override deliberately."
+                )
+            print(
+                "  WARNING: a token budget stops each tokenizer after a "
+                "DIFFERENT amount of source text, so this BPB is NOT comparable "
+                "with any other tokenizer's. Use --max-docs (or score the whole "
+                "corpus) for cross-tokenizer comparison."
+            )
         elif len(args.models) + (1 if args.base_model else 0) > 1:
             # Both caps set: whichever binds first decides. If max_tokens binds, the
             # models still see different document counts, so say so up front.
-            print("  NOTE: both --max-tokens and --max-docs are set. If the token "
-                  "budget binds first, each tokenizer will have scored a different "
-                  "number of documents and the BPB values are again not comparable; "
-                  "the per-model 'documents' count below tells you which bound.")
+            print(
+                "  NOTE: both --max-tokens and --max-docs are set. If the token "
+                "budget binds first, each tokenizer will have scored a different "
+                "number of documents and the BPB values are again not comparable; "
+                "the per-model 'documents' count below tells you which bound."
+            )
 
     queue: list[tuple[str, str]] = []
     if args.base_model:
@@ -510,27 +547,35 @@ def main(argv: Sequence[str] | None = None) -> None:
         started = time.time()
         print("  Loading model and tokenizer...")
         model, tokenizer = load_model_and_tokenizer(
-            model_path, dtype, device, getattr(args, "trust_remote_code", False))
-        print(f"  Loaded in {time.time() - started:.1f}s | "
-              f"vocab size: {len(tokenizer):,} | dtype: {dtype}")
+            model_path, dtype, device, getattr(args, "trust_remote_code", False)
+        )
+        print(f"  Loaded in {time.time() - started:.1f}s | vocab size: {len(tokenizer):,} | dtype: {dtype}")
         if getattr(model, "hf_device_map", None):
             print(f"  Sharded across: {sorted({str(v) for v in model.hf_device_map.values()})}")
 
         print(f"\n  Streaming documents from {data_source} ...")
         started = time.time()
         result = evaluate_perplexity(
-            model=model, tokenizer=tokenizer, make_stream=make_stream,
+            model=model,
+            tokenizer=tokenizer,
+            make_stream=make_stream,
             total=args.max_docs if args.max_docs > 0 else None,
-            max_length=args.max_length, stride=args.stride,
-            max_tokens=args.max_tokens, device=device,
+            max_length=args.max_length,
+            stride=args.stride,
+            max_tokens=args.max_tokens,
+            device=device,
             desc=f"  [{position}/{len(queue)}] {label}",
         )
         results[label] = result
 
-        print(f"\n  Loss: {fmt(result.loss, '.4f')} | PPL: {fmt(result.perplexity, '.2f')} "
-              f"| BPB: {fmt(result.bpb, '.4f')}")
-        print(f"  Tokens: {result.num_tokens:,} | Bytes: {result.num_bytes:,} "
-              f"| Docs: {result.num_docs:,} | Time: {time.time() - started:.1f}s")
+        print(
+            f"\n  Loss: {fmt(result.loss, '.4f')} | PPL: {fmt(result.perplexity, '.2f')} "
+            f"| BPB: {fmt(result.bpb, '.4f')}"
+        )
+        print(
+            f"  Tokens: {result.num_tokens:,} | Bytes: {result.num_bytes:,} "
+            f"| Docs: {result.num_docs:,} | Time: {time.time() - started:.1f}s"
+        )
 
         if device == "cuda":
             report_gpu_memory()
