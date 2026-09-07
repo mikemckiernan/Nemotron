@@ -1,4 +1,19 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Derive a reviewable BFCL pack draft and evidence bundle from an MCP server.
 
 Exit codes: 0 when the draft needs no human attention, 2 when hygiene flagged text a
@@ -12,6 +27,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import sys
 from pathlib import Path
 
 from nemotron.steps.byob.runtime.authoring_workflow.resolved_config import (
@@ -221,13 +237,19 @@ async def _run(args: argparse.Namespace) -> IntakeResult:
 def _print(document: dict) -> None:
     print(json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True))
 
+def _fail(document: dict) -> None:
+    print(
+        json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True),
+        file=sys.stderr,
+    )
+
 
 def main() -> None:
     args = _parser().parse_args()
     try:
         result = asyncio.run(_run(args))
     except (McpIntegrationError, ProseHygieneError, OSError, ValueError) as exc:
-        _print(
+        _fail(
             {
                 "status": "fail",
                 "error_type": type(exc).__name__,
