@@ -458,6 +458,38 @@ def _descriptor(timeout_s: float) -> AdapterDescriptor:
     )
 
 
+def _validate_fixture_shape(fixtures: dict[str, Any]) -> None:
+    """The two things every reader of a fixture collection already takes for granted.
+
+    A collection is indexed by row and a row is read by field. The probe planner does it,
+    the template slot resolver does it, and so does whatever the backend makes of what
+    `reset` hands it. Each of them guards against the other shapes separately today, which
+    means a source can be certified, assembled and shipped before anyone reads far enough
+    to find out that a collection is a string.
+
+    Checked here because this is where the digest is taken, and a digest over a blob whose
+    shape was never read certifies nothing about the data the probes ran against.
+
+    Nothing beyond those two. In particular the rows of one collection are free to disagree
+    about their fields: the packs that ship today already contain collections with two
+    field shapes, and a source's data is its own business past the point where the
+    framework has to read it.
+    """
+    for collection, rows in sorted(fixtures.items()):
+        if not isinstance(rows, list):
+            raise LocalPythonError(
+                "fixture_metadata_invalid",
+                f"fixtures.json collection {collection!r} must be a list of objects, not {type(rows).__name__}",
+            )
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                raise LocalPythonError(
+                    "fixture_metadata_invalid",
+                    f"fixtures.json row {index} of collection {collection!r} must be an "
+                    f"object, not {type(row).__name__}",
+                )
+
+
 def inspect_local_python_package(
     package_path: Path,
     *,
@@ -515,6 +547,7 @@ def inspect_local_python_package(
                 "fixture_metadata_invalid",
                 "fixtures.json must be an object",
             )
+        _validate_fixture_shape(fixtures)
         fixtures_digest = sha256_json(fixtures)
 
     runtime = _runtime_identity()

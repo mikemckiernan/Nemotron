@@ -13,7 +13,13 @@ Required files:
 
 Optional:
 
-- `fixtures.json`: deterministic fixture metadata represented as one JSON object.
+- `fixtures.json`: deterministic fixture metadata represented as one JSON object, whose
+  every value is a list of objects. That much is required because it is what every reader
+  of a collection assumes: rows are indexed and fields are read off them. Nothing further
+  is required of the rows, which are free to disagree about which fields they carry. A
+  collection that is not a list, or a row that is not an object, fails
+  `fixture_metadata_invalid` at inspection rather than at whichever reader reaches it
+  first.
 
 The dependency lock has exactly `schema_version` and `dependencies`. Dependencies are
 sorted by `import_name`; each entry has `import_name`, `distribution`, `version`, and a
