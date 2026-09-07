@@ -289,7 +289,7 @@ def test_author_refuses_held_out_content_without_its_policy(
         )
 
     assert exited.value.code == 1
-    assert json.loads(capsys.readouterr().out)["code"] == "held_out_content_unbound"
+    assert json.loads(capsys.readouterr().err)["code"] == "held_out_content_unbound"
 
 
 def test_evidence_approval_is_distinct_and_digest_bound(
@@ -710,6 +710,6 @@ def test_author_fails_before_adapter_when_rollout_is_omitted(
     with pytest.raises(SystemExit) as exited:
         bfcl_author.main()
 
-    result = json.loads(capsys.readouterr().out)
+    result = json.loads(capsys.readouterr().err)
     assert exited.value.code == 1
     assert result["code"] == "adapter_rollout_disabled"

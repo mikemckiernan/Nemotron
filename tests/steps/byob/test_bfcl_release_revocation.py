@@ -305,7 +305,7 @@ def test_publish_cli_blocks_a_revoked_release_from_registry_flags(
         publish_script.main()
 
     assert exited.value.code == 1
-    assert json.loads(capsys.readouterr().out)["code"] == "release_revoked"
+    assert json.loads(capsys.readouterr().err)["code"] == "release_revoked"
 
 
 def test_publish_cli_refuses_partial_revocation_flags(
@@ -331,7 +331,7 @@ def test_publish_cli_refuses_partial_revocation_flags(
         publish_script.main()
 
     assert exited.value.code == 1
-    payload = json.loads(capsys.readouterr().out)
+    payload = json.loads(capsys.readouterr().err)
     assert payload["error_type"] == "ValueError"
     assert "must be supplied together" in payload["reason"]
 
