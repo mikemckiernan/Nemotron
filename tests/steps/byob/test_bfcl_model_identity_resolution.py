@@ -266,5 +266,6 @@ def test_the_cli_refuses_to_overwrite_a_fragment_and_fails_with_a_reason(
     )
 
     assert completed.returncode == 1
-    assert json.loads(completed.stdout)["status"] == "fail"
+    assert completed.stdout == ""
+    assert json.loads(completed.stderr)["status"] == "fail"
     assert fragment.read_text(encoding="utf-8") == "model_identity: {}\n"
