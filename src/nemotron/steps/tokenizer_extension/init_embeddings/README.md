@@ -4,9 +4,12 @@ Attach an extended tokenizer to the base model, initialize the new embedding (an
 LM-head) rows, and save a **resized HF checkpoint** for CPT.
 
 The base model is embedding surgery only (no forward pass) and is loaded
-**host-resident**, not on GPU. GPUs are used only by the auxiliary encoders:
-`bert_weighted` (MuRIL-class) and `gemma_weighted` (Gemma, sharded via
-`device_map='auto'`). The step requests 8 GPUs, which only the gemma path uses.
+**host-resident**, not on GPU. A GPU is used only by the auxiliary encoders:
+`bert_weighted` (MuRIL-class) and `gemma_weighted`.
+
+The step and the shipped profiles both request **one** GPU, which is enough for
+every method except `gemma_weighted` on a large Gemma — that path shards with
+`device_map='auto'`, so give it a multi-GPU profile if you use it.
 
 ## Files
 - `step.py` — executor (loads YAML, calls `embeddings.run_init`)

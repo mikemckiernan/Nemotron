@@ -93,7 +93,7 @@ then = "set arm=replace and method=subword; replace_init.py copies survivor rows
 
 [[strategies]]
 when = "iterating cheaply"
-then = "use config/tiny.yaml (4B, shares the Nano3 tokenizer, ~1 GPU) to validate before the 30B run"
+then = "run -c default against a smaller base model that shares the tokenizer (override base_model=), and cap the work with a small extension_size, to validate the wiring before committing to the full-size run"
 
 [[errors]]
 name = "unknown_method"

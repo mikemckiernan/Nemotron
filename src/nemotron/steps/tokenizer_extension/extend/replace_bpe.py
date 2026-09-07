@@ -35,10 +35,9 @@ Where `continued_bpe.py` *adds* fresh Indic subwords on top of the base vocab
 
 Design notes
 ------------
-* The base tokenizer is loaded with `fix_mistral_regex=True` -- the fix
-  documented in `../shreyans_codes/Tokenizer/report.txt` that `continued_bpe.py`
-  omits (Nemotron is a Mistral derivative; without it the pre-tokenizer shatters
-  Indic words during BPE training).
+* The base tokenizer is loaded with `fix_mistral_regex=True`. Nemotron is a
+  Mistral derivative, and without this the pre-tokenizer shatters Indic words
+  during BPE training.
 * Self-contained: the shared continued-BPE core (Sangraha streaming, merge-diff,
   constructive splice, rank-dead check) is inlined below, so this script runs on
   its own with no dependency on continued_bpe.py.
@@ -48,7 +47,7 @@ Design notes
   follow-up -- `--init-method` is the hook.
 
 Compared to the *add* path, this trades a few pre-trained embedding rows for
-reclaimed vocab slots; see ../METHODS.md for the add-vs-replace ablation design.
+reclaimed vocab slots. See `../README.md` for when to choose each arm.
 """
 
 from __future__ import annotations

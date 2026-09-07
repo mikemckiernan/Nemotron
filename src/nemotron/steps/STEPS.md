@@ -83,7 +83,7 @@
 | [sft/automodel](sft/automodel/) | Supervised fine-tuning with the AutoModel stack for HF-format models and JSONL datasets that already use OpenAI chat-format messages. Supports full SFT and LoRA-style adapter tuning from the same step. | training_jsonl | checkpoint_hf |
 | [sft/megatron_bridge](sft/megatron_bridge/) | Supervised fine-tuning using NVIDIA Megatron-Bridge. Best for large-scale distributed training with tensor/pipeline/context parallelism. Requires packed Parquet data from data_prep/sft_packing. | packed_parquet, checkpoint_megatron (optional) | checkpoint_megatron |
 
-## tokenizer_extension
+## tokenizer_extension — Tokenizer Extension
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
