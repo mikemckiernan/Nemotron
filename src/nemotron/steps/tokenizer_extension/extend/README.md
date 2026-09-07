@@ -13,15 +13,15 @@ Train one BPE on a corpus and splice it into the base tokenizer as **Add** and/o
 Provide **either** an HF dataset **or** a local path, plus the text column:
 ```yaml
 corpus:
-  hf_dataset: ai4bharat/sangraha   # streamed;  OR set path: below
-  hf_config: verified
-  hf_split: hin_Deva
+  hf_dataset: ai4bharat/sangraha   # OR set path: below for local data
+  hf_name: verified                # dataset config/subset
+  hf_split: hin
   path: null                       # local parquet dir/glob or jsonl
   glob: "*.parquet"
   text_field: text                 # the text column
   samples: 1000000
   max_doc_chars: 20000
-  min_frequency: 3
+  min_frequency: 0                 # 0 = keep all merges
 ```
 
 ## Add vs Replace vs Expand

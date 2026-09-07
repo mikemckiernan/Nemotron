@@ -1,6 +1,6 @@
 # Embedding init -> resized HF checkpoint for CPT. Needs a GPU node (loads the model).
 #
-# Dispatches to a vendored engine (embeddings.py):
+# Dispatches to an init engine (embeddings.py):
 #   method: baseline | subword | focus
 # The default is subword/uniform (a.k.a. mean-of-constituents): every new token
 # is initialized from the uniform mean of its base-vocabulary subword rows, with

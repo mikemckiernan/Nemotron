@@ -94,6 +94,10 @@ Add `-d` to any command to print the compiled config without running it.
 | `replace` | first prunes the base's existing target-script tokens, then splices | one target language, want the smallest vocab |
 | `expand` | registers decoded surfaces via `add_tokens()`, **no merge rules** | baseline for comparison only — atomic tokens do not compose, so extra vocabulary buys little |
 
+The init step's `arm:` must match: `add` and `expand` are both append-style so
+both use `arm=add`; only `replace` uses `arm=replace`. Not every init method is
+available on `replace` — see `init_embeddings/README.md`.
+
 ## Adapting to your language
 
 Only three things are language-specific:
@@ -119,16 +123,6 @@ deliberately overriding the profile — an explicit value silently wins over
 | `eval_init` | BPB/perplexity JSON | — |
 
 `summary.json` records `tokens_spliced`; check it equals `extension_size`.
-
-## Dependencies
-
-Two packages are not in the base install; the shipped profiles install them.
-Running elsewhere: `uv pip install -e '.[tokenizer-extension]'`.
-
-| Package | Needed by | If missing |
-|---|---|---|
-| `indic-nlp-library` | `extend` when `language:` uses a script normalizer (Devanagari family) | hard error — it will not silently fall back to NFKC, which would train a different tokenizer |
-| `fasttext-wheel` | `init_embeddings` with `method: focus` | hard error at point of use; other methods unaffected |
 
 ## Troubleshooting
 

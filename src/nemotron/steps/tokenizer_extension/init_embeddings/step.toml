@@ -5,7 +5,7 @@ category = "tokenizer_extension"
 description = """\
 Attach an extended (append-style) tokenizer to the base model and initialize the
 new embedding (and LM-head) rows, producing a resized HF checkpoint ready for
-continued pretraining. embeddings.py dispatches to one of three vendored engines
+continued pretraining. embeddings.py dispatches to one of three init engines
 selected by `method`: baseline (hf_default/mean_all/mean_hindi), subword
 (uniform/char/max_char/bert/gemma weighted subword averaging), or focus
 (FOCUS + fastText + sparsemax)."""
@@ -33,7 +33,7 @@ min_gpus = 8
 
 [[parameters]]
 name = "arm"
-description = "'add' (append-style: base rows unchanged) or 'replace' (survivor rows copied via id_remap.json, fresh rows initialised by the chosen method). Both arms support baseline, subword and focus; on replace, baseline is limited to hf_default|mean_all and gemma_weighted is unavailable."
+description = "Must match how the tokenizer was built by extend: 'add' for extend method=add OR method=expand (both append-style, base rows unchanged); 'replace' for extend method=replace (survivor rows permuted via id_remap.json, which only the replace output carries). Both arms support baseline, subword and focus; on replace, baseline is limited to hf_default|mean_all and gemma_weighted is unavailable."
 default = "add"
 choices = ["add", "replace"]
 
@@ -43,7 +43,7 @@ description = "Target language. Selects the target script used to locate the bas
 
 [[parameters]]
 name = "method"
-description = "Which vendored init engine to dispatch to."
+description = "Which init engine to dispatch to."
 default = "subword"
 choices = ["baseline", "subword", "focus"]
 

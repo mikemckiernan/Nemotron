@@ -1,4 +1,19 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Embedding init for the REPLACE arm — survivor remap + a choice of fresh-token init.
 
 The replace tokenizer prunes the base residual Devanagari tokens and DENSELY
@@ -17,7 +32,7 @@ ids. This engine rebuilds the resized matrix explicitly:
 
 The survivor/padding/validation scaffolding is method-independent; only the
 fresh-token step changes. focus/bert reuse focus_init/subword_init helpers so the
-math matches the ADD arm exactly. Mirrors the vendored engines' argparse main(argv).
+math matches the ADD arm exactly. Mirrors the init engines' argparse main(argv).
 """
 from __future__ import annotations
 

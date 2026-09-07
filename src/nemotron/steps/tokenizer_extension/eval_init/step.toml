@@ -7,7 +7,7 @@ Score one or more extended checkpoints (freshly resized, or after CPT) for
 embedding-initialization quality: cross-entropy loss, perplexity, and
 bits-per-byte (BPB) on a validation corpus, with an optional base-model
 reference and a regression check. BPB is the only cross-vocabulary-comparable
-metric here. Wraps the vendored bpb.py engine."""
+metric here. Wraps the bpb.py engine."""
 tags = ["tokenizer", "embeddings", "evaluation", "bpb", "perplexity"]
 
 [[consumes]]

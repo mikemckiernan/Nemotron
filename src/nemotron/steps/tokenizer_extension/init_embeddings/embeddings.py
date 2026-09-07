@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Config-driven embedding initialization -> resized HF checkpoint for CPT.
 
-This is a thin dispatcher over three vendored, self-contained init engines
-(Ravi Rajaj's tokeniser-extend reference), kept verbatim so their tested
-norm-correction / validation logic is preserved:
+A thin dispatcher over three self-contained initialization engines. Each is
+kept intact so its norm-correction and validation logic stays verified:
 
   * baseline_init.py  (method: baseline)
         hf_default | mean_all | mean_hindi   [+ optional input norm-correction]
@@ -218,7 +232,7 @@ def run_init(cfg: dict) -> None:
         log.info("MILESTONE: DONE — resized HF checkpoint -> %s", cfg["output_dir"])
         return
 
-    # ADD (append-style): the vendored engines assume base rows are unchanged.
+    # ADD (append-style): the init engines assume base rows are unchanged.
     _guard_add(cfg)
     if method == "baseline":
         argv = _baseline_argv(cfg)
