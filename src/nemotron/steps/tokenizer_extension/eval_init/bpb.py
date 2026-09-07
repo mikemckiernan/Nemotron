@@ -84,6 +84,11 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         epilog=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument(
+        "--trust-remote-code", action="store_true",
+        help="Execute custom modeling code shipped in the model repo. Off by default; "
+             "required by architectures whose code lives in the repo rather than in "
+             "transformers.")
 
     models = parser.add_argument_group("models")
     models.add_argument("--models", nargs="+", required=True,
@@ -347,17 +352,18 @@ def evaluate_perplexity(model, tokenizer, make_stream, total: Optional[int] = No
     )
 
 
-def load_model_and_tokenizer(model_path: str, dtype: torch.dtype, device: str):
+def load_model_and_tokenizer(model_path: str, dtype: torch.dtype, device: str,
+                             trust_remote_code: bool = False):
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
         dtype=dtype,
         device_map="auto" if device == "cuda" else None,
-        trust_remote_code=True,
+        trust_remote_code=trust_remote_code,
     )
     if device != "cuda":
         model = model.to(device)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=trust_remote_code)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     return model, tokenizer
@@ -503,7 +509,8 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
 
         started = time.time()
         print("  Loading model and tokenizer...")
-        model, tokenizer = load_model_and_tokenizer(model_path, dtype, device)
+        model, tokenizer = load_model_and_tokenizer(
+            model_path, dtype, device, getattr(args, "trust_remote_code", False))
         print(f"  Loaded in {time.time() - started:.1f}s | "
               f"vocab size: {len(tokenizer):,} | dtype: {dtype}")
         if getattr(model, "hf_device_map", None):

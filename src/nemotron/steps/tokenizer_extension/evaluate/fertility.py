@@ -82,6 +82,10 @@ def _raw_stream(corpus: dict) -> Iterator[str]:
     path = corpus["path"]
     pattern = corpus.get("glob", "*.parquet")
     files = sorted(_glob.glob(os.path.join(path, pattern))) if os.path.isdir(path) else sorted(_glob.glob(path))
+    if not files:
+        raise FileNotFoundError(
+            f"corpus.path matched no files: {path!r} (glob {pattern!r}). A silent empty "
+            f"corpus would report fertility 0.0 as if it were a result.")
     if files and files[0].endswith(".parquet"):
         import pyarrow.parquet as pq
         for f in files:
@@ -112,7 +116,7 @@ def _raw_stream(corpus: dict) -> Iterator[str]:
 
 def run_fertility(cfg: dict) -> dict:
     t0 = time.time()
-    trust = cfg.get("trust_remote_code", True)
+    trust = cfg.get("trust_remote_code", False)
     try:
         tok = AutoTokenizer.from_pretrained(cfg["tokenizer"], use_fast=True, trust_remote_code=trust, fix_mistral_regex=True)
         used_fix = True
@@ -143,7 +147,11 @@ def run_fertility(cfg: dict) -> dict:
             batch = []
     flush(batch)
 
-    fert = tot_tokens / tot_words if tot_words else 0.0
+    if not tot_words:
+        raise RuntimeError(
+            "no words were scored — the corpus yielded no documents. Check corpus.path / "
+            "glob / text_field (a 0.0 fertility is not a valid measurement).")
+    fert = tot_tokens / tot_words
     report = {
         "label": cfg.get("label", cfg["tokenizer"]),
         "tokenizer": cfg["tokenizer"], "vocab_size": len(tok), "fix_mistral_regex": used_fix,

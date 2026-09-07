@@ -18,12 +18,14 @@
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
+| [curate/dedup](curate/dedup/) | Exact and MinHash/LSH fuzzy deduplication of a text corpus using NeMo Curator's ExactDeduplicationWorkflow and FuzzyDeduplicationWorkflow. Reads parquet or JSONL directly and optionally exports JSONL for curate/nemo_curator. | raw_jsonl | filtered_jsonl |
 | [curate/nemo_curator](curate/nemo_curator/) | Read JSONL text with NeMo Curator, optionally hydrate a Hugging Face snapshot, apply light language, word-count, and domain filters, and write downstream-ready JSONL. | raw_jsonl | filtered_jsonl |
 
 ## data_prep — Data Preparation
 
 | Step | Description | Consumes | Produces |
 | --- | --- | --- | --- |
+| [data_prep/inspect_binidx](data_prep/inspect_binidx/) | - | - | - |
 | [data_prep/pretrain_prep](data_prep/pretrain_prep/) | Tokenise raw text (HF datasets or local parquet/jsonl) into Megatron bin/idx shards and emit a blend.json that pretrain/megatron_bridge and pretrain/automodel can ingest directly. | filtered_jsonl | binidx |
 | [data_prep/rl_prep](data_prep/rl_prep/) | Resolve HuggingFace dataset references in an RL data blend and shard the output JSONL into the prompt / preference layout expected by rl/nemo_rl/*. | training_jsonl | training_jsonl |
 | [data_prep/sft_packing](data_prep/sft_packing/) | Apply the chat template, tokenize training JSONL, and pack examples into Megatron-Bridge-compatible Parquet shards for SFT. | training_jsonl | packed_parquet |
@@ -82,6 +84,15 @@
 | --- | --- | --- | --- |
 | [sft/automodel](sft/automodel/) | Supervised fine-tuning with the AutoModel stack for HF-format models and JSONL datasets that already use OpenAI chat-format messages. Supports full SFT and LoRA-style adapter tuning from the same step. | training_jsonl | checkpoint_hf |
 | [sft/megatron_bridge](sft/megatron_bridge/) | Supervised fine-tuning using NVIDIA Megatron-Bridge. Best for large-scale distributed training with tensor/pipeline/context parallelism. Requires packed Parquet data from data_prep/sft_packing. | packed_parquet, checkpoint_megatron (optional) | checkpoint_megatron |
+
+## tokenizer_extension
+
+| Step | Description | Consumes | Produces |
+| --- | --- | --- | --- |
+| [tokenizer_extension/eval_init](tokenizer_extension/eval_init/) | Score one or more extended checkpoints (freshly resized, or after CPT) for embedding-initialization quality: cross-entropy loss, perplexity, and bits-per-byte (BPB) on a validation corpus, with an optional base-model reference and a regression check. BPB is the only cross-vocabulary-comparable metric here. Wraps the bpb.py engine. | checkpoint_hf | eval_results |
+| [tokenizer_extension/evaluate](tokenizer_extension/evaluate/) | Report corpus-level token fertility (sum(tokens)/sum(words)) for a tokenizer on an eval corpus (HF dataset or local parquet/jsonl). TOKENIZER-level only — model and downstream evaluation after CPT is handled by the existing steps/eval catalog. CPU-only; streams so it is memory-safe on 10M+ rows. | tokenizer | eval_results |
+| [tokenizer_extension/extend](tokenizer_extension/extend/) | Extend a base tokenizer with target-language subwords. Trains one BPE on a corpus (HF dataset or local parquet/jsonl) and splices it in two ways: Add (keep the base's residual script tokens and append new ones) and/or Replace (prune the target script's residual tokens, then splice fresh corpus-optimal ones into the pruned base). CPU-only; the splice is rank-dead-safe. | checkpoint_hf | tokenizer |
+| [tokenizer_extension/init_embeddings](tokenizer_extension/init_embeddings/) | Attach an extended (append-style) tokenizer to the base model and initialize the new embedding (and LM-head) rows, producing a resized HF checkpoint ready for continued pretraining. embeddings.py dispatches to one of three init engines selected by `method`: baseline (hf_default/mean_all/mean_hindi), subword (uniform/char/max_char/bert/gemma weighted subword averaging), or focus (FOCUS + fastText + sparsemax). | tokenizer, checkpoint_hf | checkpoint_hf |
 
 ## translate — Translation
 

@@ -213,13 +213,18 @@ def run_extension(cfg: dict) -> dict:
     import time
 
     t0 = time.time()
-    out_dir = Path(cfg.get("output_dir", "./output/tokenizer_extension"))
-    out_dir.mkdir(parents=True, exist_ok=True)
+    root_dir = Path(cfg.get("output_dir", "./output/tokenizer_extension"))
     method = cfg.get("method")
     if method not in ("add", "replace", "expand"):
         raise ValueError(
             f"method must be 'add', 'replace', or 'expand', got {method!r}"
         )
+
+    # One arm per job, each in its own subdirectory: `add` and `replace` are built
+    # from the same corpus and would otherwise overwrite each other in a shared
+    # output_dir. Downstream configs reference output_dir/<method>.
+    out_dir = root_dir / method
+    out_dir.mkdir(parents=True, exist_ok=True)
     ext_size = int(cfg.get("extension_size", 30000))
     corpus = cfg["corpus"]
     min_freq = int(corpus.get("min_frequency", 0))
@@ -231,7 +236,7 @@ def run_extension(cfg: dict) -> dict:
              cfg.get("language", "(legacy devanagari default)"), script_norm, remove_script)
 
     log.info("MILESTONE: loading base tokenizer %s ...", cfg.get("model_id"))
-    base_tok = _load_base(cfg.get("model_id"), cfg.get("trust_remote_code", True))
+    base_tok = _load_base(cfg.get("model_id"), cfg.get("trust_remote_code", False))
     base_size = len(base_tok)
     log.info("MILESTONE: base loaded (vocab=%d) | method=%s ext_size=%d min_frequency=%d",
              base_size, method, ext_size, min_freq)
@@ -259,8 +264,8 @@ def run_extension(cfg: dict) -> dict:
         arm_tok, cand, spliced = _build_arm(base_tok, trained_tok, base_tok, ext_size)
         arm_tok.save_pretrained(out_dir)
     elif method == "expand":
-        # Strategy B (Indic Token Expansion): decode the novel BPE tokens to Unicode and
-        # add_tokens() them ATOMICALLY (no merge rules) — the gnani "Strategy B" baseline.
+        # Naive expansion: decode the novel BPE tokens to Unicode and add_tokens()
+        # them ATOMICALLY (no merge rules) — the baseline arm.
         base_keys = set(base_tok.get_vocab().keys())
         tvocab = trained_tok.get_vocab()
         # Rank order over ALL novel tokens, not a pre-truncated slice: the strip()

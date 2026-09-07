@@ -70,6 +70,9 @@ def _build_argv(cfg: dict) -> list[str]:
                          "(streamed HF validation corpus, e.g. ai4bharat/samanantar).")
 
     argv: list[str] = ["--models", *[str(m) for m in models]]
+    # Off by default: executing model-repo code is opt-in, set it in the config.
+    if bool(cfg.get("trust_remote_code", False)):
+        argv += ["--trust-remote-code"]
     if cfg.get("base_model"):
         argv += ["--base-model", str(cfg["base_model"])]
     if data_file:
