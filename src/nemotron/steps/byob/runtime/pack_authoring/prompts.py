@@ -41,7 +41,10 @@ COVERAGE_PROMPT_VERSION = "2.1.0"
 # Bumped again where the instruction to declare `blocked_on` became conditional on the
 # bundle still listing the field as unknown. Stated unconditionally, it contradicted the
 # grounding rule on any bundle whose probes had observed the thing being declared.
-VALIDATION_CASE_PROMPT_VERSION = "2.2.0"
+# Bumped again where a value the tool must reject got its own source. Every earlier draft
+# spelled one as `unresolved`, which reads exactly like a value nobody has observed, so
+# neither the reviewer nor grounding could tell a deliberate refusal probe from an open gap.
+VALIDATION_CASE_PROMPT_VERSION = "2.3.0"
 # Bumped where the task prompt began stating that a task needs a tool. The schema now
 # refuses a toolless task outright, but providers differ on whether they honour an array
 # minimum, so the instruction is stated as well as constrained.
@@ -88,7 +91,11 @@ For every argument, name where its value comes from instead of writing a value: 
 "fixture" for domain data that reviewed fixtures will supply, "absent_id" for an identifier
 that must not exist, "confirmation_flag" for the pack's confirmation parameter, and
 "literal" ONLY when the parameter's own schema pins the value set with an enum or a boolean.
-Use "unresolved" when none of those fit. Include every required parameter.
+When an error probe has to send a value the tool must reject, use "invalid_literal" and put
+that value in `literal`; the parameter's own schema has to be what refuses it, so this works
+only where that schema pins an enum, a boolean, or a numeric type. Use "unresolved" when
+none of those fit, and say in that argument's note what value the case still needs. Include
+every required parameter.
 
 Each kind of probe rests on a particular observation: a success probe on
 observed_result_shapes, an error probe on observed_error_codes, a confirmation probe on

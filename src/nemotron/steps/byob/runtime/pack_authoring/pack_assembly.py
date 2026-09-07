@@ -398,7 +398,15 @@ def _compiled_assertion_names(assertions_path: Path) -> frozenset[str]:
     return frozenset(declared)
 
 
-def _bind_drafts(draft_root: Path, evidence: SourceEvidenceDocument) -> Path:
+@dataclass(frozen=True)
+class _BoundDrafts:
+    """The compiled assertions, and the drafting record they are accountable to."""
+
+    assertions_path: Path
+    provenance_digest: str
+
+
+def _bind_drafts(draft_root: Path, evidence: SourceEvidenceDocument) -> _BoundDrafts:
     """Return the compiled assertions of a drafting run of this exact evidence."""
     provenance_path = draft_root.parent / DRAFT_PROVENANCE_FILE_NAME
     if not provenance_path.is_file():
@@ -438,7 +446,13 @@ def _bind_drafts(draft_root: Path, evidence: SourceEvidenceDocument) -> Path:
             f"no compiled assertions in the draft root: {assertions_path}",
             recovery="redraft so compilation writes assertions.py",
         )
-    return assertions_path
+    # The record digests this rather than each draft in turn: the drafting record already
+    # carries `artifact_digests` for all four plans, so one digest here makes the whole set
+    # tamper-evident, and a pack can name which proposals it was assembled from.
+    return _BoundDrafts(
+        assertions_path=assertions_path,
+        provenance_digest=_digest_file(provenance_path),
+    )
 
 
 def _referenced_tools(supplement: CandidatePackSupplement) -> set[str]:
@@ -607,8 +621,8 @@ def assemble_candidate_pack(
                 recovery="assemble a local source without --probe-plan",
             )
         _bind_source(source, evidence)
-    assertions_path = _bind_drafts(draft_root.resolve(), evidence)
-    assertion_names = _compiled_assertion_names(assertions_path)
+    drafts = _bind_drafts(draft_root.resolve(), evidence)
+    assertion_names = _compiled_assertion_names(drafts.assertions_path)
     supplement = load_candidate_pack_supplement(supplement_path)
     _check_supplement_references(
         supplement,
@@ -651,7 +665,7 @@ def assemble_candidate_pack(
         if fixtures is not None:
             write_canonical_json(fixtures, pack_root / FIXTURES_FILE_NAME)
             copied.append(FIXTURES_FILE_NAME)
-        shutil.copyfile(assertions_path, pack_root / ASSERTIONS_FILE_NAME)
+        shutil.copyfile(drafts.assertions_path, pack_root / ASSERTIONS_FILE_NAME)
         _write_yaml(
             [dict(template) for template in supplement.task_templates],
             pack_root / "task_templates.yaml",
@@ -674,6 +688,7 @@ def assemble_candidate_pack(
             source=source,
             supplement_path=supplement_path.resolve(),
             assertion_names=assertion_names,
+            draft_provenance_digest=drafts.provenance_digest,
             probe_plan_path=(
                 probe_plan_path.resolve() if probe_plan_path is not None else None
             ),
@@ -699,6 +714,7 @@ def _record_document(
     source: Path,
     supplement_path: Path,
     assertion_names: Sequence[str] | frozenset[str],
+    draft_provenance_digest: str,
     probe_plan_path: Path | None = None,
 ) -> dict[str, Any]:
     document: dict[str, Any] = {
@@ -710,6 +726,7 @@ def _record_document(
             evidence.identity.model_dump(mode="json")
         ),
         "source_root": str(source),
+        "draft_provenance_digest": draft_provenance_digest,
         "supplement_digest": _digest_file(supplement_path),
         "probe_plan_digest": (
             _digest_file(probe_plan_path) if probe_plan_path is not None else None
