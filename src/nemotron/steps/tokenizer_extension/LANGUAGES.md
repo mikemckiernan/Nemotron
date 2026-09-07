@@ -85,9 +85,9 @@ Config keys were renamed language-neutrally, with the old names still accepted:
 | `baseline.mode: mean_hindi` | `baseline.mode: mean_target` |
 | `focus.candidate_pool: hindi` | `focus.candidate_pool: target` |
 
-The `--input-hindi-norm` / `--output-hindi-norm` CLI flags keep their names, and
-`is_devanagari()` survives as a deprecated alias that delegates to the active
-target script.
+The `--input-hindi-norm` / `--output-hindi-norm` CLI flags keep their names for
+backward compatibility. The internal script test is `is_target_script()`, which
+delegates to the active target script.
 
 ## Caveats
 

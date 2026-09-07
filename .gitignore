@@ -126,3 +126,6 @@ skills/*/evals/tier3-reports/
 /spec/
 /tests/skills/
 /tools/fetch_sample_corpus.py
+
+# Guidebook figure generators are kept local, not shipped with the docs.
+src/nemotron/steps/*/guidebook/generate_assets.py

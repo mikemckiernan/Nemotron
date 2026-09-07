@@ -50,7 +50,7 @@ from subword_init import (
     build_bert_semantics,
     collect_semantic_inputs,
     decompose_new_tokens,
-    find_devanagari_tokens,
+    find_target_script_tokens,
     length_based_weights,
     resolve_target_norm,
     subword_weights,
@@ -390,7 +390,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         mean_out = base_out.mean(dim=0)
 
     print("\nLocating base target-language rows for norm correction...")
-    hindi_ids = [tid for tid, _ in find_devanagari_tokens(base_tok, base_vocab)]
+    hindi_ids = [tid for tid, _ in find_target_script_tokens(base_tok, base_vocab)]
     with torch.no_grad():
         h_in = base_in[hindi_ids].norm(dim=1) if hindi_ids else None
         h_out = base_out[hindi_ids].norm(dim=1) if hindi_ids else None

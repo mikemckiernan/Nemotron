@@ -20,12 +20,12 @@ A thin dispatcher over three self-contained initialization engines. Each is
 kept intact so its norm-correction and validation logic stays verified:
 
   * baseline_init.py  (method: baseline)
-        hf_default | mean_all | mean_hindi   [+ optional input norm-correction]
+        hf_default | mean_all | mean_target  [+ optional input norm-correction]
   * subword_init.py   (method: subword)
         decompose every new token into base subwords and average their rows;
         averaging = uniform | char_weighted | max_char | bert_weighted |
         gemma_weighted, chosen independently for the input and output side,
-        with per-side (optionally Hindi-only) norm correction.
+        with per-side (optionally target-script-only) norm correction.
   * focus_init.py     (method: focus)
         FOCUS (Dobler & de Melo 2023): sparsemax-weighted combination of the
         base tokens closest to each new token in a fastText auxiliary space.
@@ -149,11 +149,11 @@ def _replace_argv(cfg: dict) -> list[str]:
     if method == "baseline":
         mode = str((cfg.get("baseline") or {}).get("mode", "mean_all"))
         if mode not in ("hf_default", "mean_all"):
-            # replace_init has no target-script-mean engine, so mean_target /
-            # mean_hindi cannot be honoured here. Do NOT quietly substitute
+            # replace_init has no target-script-mean engine, so mean_target
+            # cannot be honoured here. Do NOT quietly substitute
             # mean_all: that would report a different init than was configured.
             extra = (
-                " 'mean_target'/'mean_hindi' average the base model's target-script "
+                " 'mean_target' averages the base model's target-script "
                 "rows, which replace_init does not implement — use arm=add for that, "
                 "or method=subword with input_averaging=uniform (mean of constituents)."
                 if mode in ("mean_target", "mean_hindi")

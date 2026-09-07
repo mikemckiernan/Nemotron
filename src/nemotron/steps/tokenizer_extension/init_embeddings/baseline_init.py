@@ -24,7 +24,7 @@ Three initialization modes for the new token rows:
     mean_all     the mean of every existing embedding
     mean_target  the mean of the base model's existing target-language token
                  embeddings only (Devanagari unless --language says otherwise).
-                 "mean_hindi" is the old name and still accepted.
+                 "mean_hindi" is a deprecated alias, still accepted.
 
 With --norm-correction the new input embeddings are rescaled so their L2 norm
 matches the median norm of the original input embeddings.  Output (LM head)
@@ -37,7 +37,7 @@ Example
     python extend_model.py \
         --extended-tokenizer /path/to/merged_tokenizer \
         --output-dir /path/to/extended_model \
-        --mode mean_hindi \
+        --mode mean_target \
         --norm-correction
 """
 
@@ -151,23 +151,22 @@ def describe_tensor(norms: torch.Tensor, extremes: bool = True) -> str:
 # ---------------------------------------------------------------------------
 
 
-def is_devanagari(text: str) -> bool:
-    """Deprecated name. Delegates to the active target script (default
-    Devanagari), so this is unchanged for Hindi and correct for any language
-    selected via --language / set_target_script()."""
+def is_target_script(text: str) -> bool:
+    """True if ``text`` lies in the active target script, which defaults to
+    Devanagari and is selected by --language / set_target_script()."""
     from script_ranges import is_target
 
     return is_target(text)
 
 
-def find_devanagari_token_ids(tokenizer, vocab_size: int) -> list[int]:
+def find_target_script_token_ids(tokenizer, vocab_size: int) -> list[int]:
     token_ids = []
-    for token_id in tqdm(range(vocab_size), desc="Scanning vocabulary for Hindi tokens"):
+    for token_id in tqdm(range(vocab_size), desc="Scanning vocabulary for target-script tokens"):
         try:
             text = tokenizer.decode([token_id])
         except Exception:
             continue
-        if is_devanagari(text):
+        if is_target_script(text):
             token_ids.append(token_id)
     return token_ids
 
@@ -209,19 +208,25 @@ def initialize_mean_all(model, new_vocab_size: int, original_vocab_size: int) ->
     initialize_with_vector(model, new_vocab_size, original_vocab_size, None, "all-token")
 
 
-def initialize_mean_hindi(model, tokenizer, new_vocab_size: int, original_vocab_size: int, num_samples: int) -> None:
-    print("Initializing every new token with the mean of the Hindi embeddings...")
-    hindi_ids = find_devanagari_token_ids(tokenizer, original_vocab_size)
-    if not hindi_ids:
-        raise SystemExit("No Devanagari tokens in the original vocabulary; mean_hindi initialization is not possible.")
+def initialize_mean_target(model, tokenizer, new_vocab_size: int, original_vocab_size: int, num_samples: int) -> None:
+    from script_ranges import target_script_name
 
-    share = 100.0 * len(hindi_ids) / original_vocab_size
-    print(f"  Found {len(hindi_ids)} Hindi tokens ({share:.2f}% of the vocabulary)")
-    for token_id in hindi_ids[:num_samples]:
+    script = target_script_name()
+    print(f"Initializing every new token with the mean of the existing {script} embeddings...")
+    target_ids = find_target_script_token_ids(tokenizer, original_vocab_size)
+    if not target_ids:
+        raise SystemExit(
+            f"No {script} tokens in the original vocabulary, so mean_target has nothing to average. "
+            "Check that --language matches the tokenizer, or use --mode mean_all."
+        )
+
+    share = 100.0 * len(target_ids) / original_vocab_size
+    print(f"  Found {len(target_ids)} {script} tokens ({share:.2f}% of the vocabulary)")
+    for token_id in target_ids[:num_samples]:
         print(f"    ID {token_id}: {tokenizer.decode([token_id])!r}")
 
     initialize_with_vector(
-        model, new_vocab_size, original_vocab_size, torch.tensor(hindi_ids, dtype=torch.long), "Hindi"
+        model, new_vocab_size, original_vocab_size, torch.tensor(target_ids, dtype=torch.long), script
     )
 
 
@@ -287,7 +292,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         elif args.mode == "mean_all":
             initialize_mean_all(model, new_vocab_size, original_vocab_size)
         else:
-            initialize_mean_hindi(model, original_tokenizer, new_vocab_size, original_vocab_size, args.num_samples)
+            initialize_mean_target(model, original_tokenizer, new_vocab_size, original_vocab_size, args.num_samples)
 
     if args.norm_correction and args.mode == "hf_default":
         print("\nIgnoring --norm-correction: hf_default leaves initialization to HuggingFace.")

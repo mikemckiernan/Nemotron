@@ -318,10 +318,9 @@ def sparsemax(scores: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def is_devanagari(text: str) -> bool:
-    """Deprecated name. Delegates to the active target script (default
-    Devanagari), so this is unchanged for Hindi and correct for any language
-    selected via --language / set_target_script()."""
+def is_target_script(text: str) -> bool:
+    """True if ``text`` lies in the active target script, which defaults to
+    Devanagari and is selected by --language / set_target_script()."""
     from script_ranges import is_target
 
     return is_target(text)
@@ -368,7 +367,7 @@ def unit_normalize(vectors: np.ndarray) -> np.ndarray:
 
 def build_candidate_pool(pool: str, base_texts: Sequence[str], ft_model) -> CandidatePool:
     if pool in ("hindi", "target"):
-        token_ids = np.array([i for i, text in enumerate(base_texts) if is_devanagari(text)], dtype=np.int64)
+        token_ids = np.array([i for i, text in enumerate(base_texts) if is_target_script(text)], dtype=np.int64)
         if token_ids.size == 0:
             raise SystemExit("No Devanagari tokens in the base vocabulary; rerun with --candidate-pool all")
         share = 100.0 * token_ids.size / len(base_texts)

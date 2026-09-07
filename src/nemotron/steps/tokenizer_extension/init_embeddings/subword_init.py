@@ -343,23 +343,22 @@ def free_cuda() -> None:
 # ---------------------------------------------------------------------------
 
 
-def is_devanagari(text: str) -> bool:
-    """Deprecated name. Delegates to the active target script (default
-    Devanagari), so this is unchanged for Hindi and correct for any language
-    selected via --language / set_target_script()."""
+def is_target_script(text: str) -> bool:
+    """True if ``text`` lies in the active target script, which defaults to
+    Devanagari and is selected by --language / set_target_script()."""
     from script_ranges import is_target
 
     return is_target(text)
 
 
-def find_devanagari_tokens(tokenizer, vocab_size: int) -> list[tuple[int, str]]:
+def find_target_script_tokens(tokenizer, vocab_size: int) -> list[tuple[int, str]]:
     found = []
     for token_id in tqdm(range(vocab_size), desc="Scanning vocabulary for target-language tokens"):
         try:
             text = tokenizer.decode([token_id])
         except Exception:
             continue
-        if is_devanagari(text):
+        if is_target_script(text):
             found.append((token_id, text))
     return found
 
@@ -776,7 +775,7 @@ def initialize_new_embeddings(
     new_token_ids: Sequence[int],
     original_vocab_size: int,
     decomposition: Decomposition,
-    hindi_token_ids: Sequence[int],
+    target_token_ids: Sequence[int],
     semantic: dict[str, SemanticEmbeddings],
     args: argparse.Namespace,
 ) -> InitResult:
@@ -796,8 +795,8 @@ def initialize_new_embeddings(
 
         hindi_input_norms = None
         hindi_output_norms = None
-        if hindi_token_ids:
-            hindi_ids = list(hindi_token_ids)
+        if target_token_ids:
+            hindi_ids = list(target_token_ids)
             hindi_input_norms = input_embeddings[hindi_ids].norm(dim=1)
             hindi_output_norms = output_embeddings[hindi_ids].norm(dim=1)
 
@@ -998,14 +997,14 @@ def main(argv: Sequence[str] | None = None) -> None:
     print(f"Input  embeddings:   {tuple(model.get_input_embeddings().weight.shape)}")
     print(f"Output embeddings:   {tuple(model.get_output_embeddings().weight.shape)}")
 
-    hindi_token_ids: list[int] = []
+    target_token_ids: list[int] = []
     if hindi_norm_in_use(args):
-        with phase("Phase 1b: Locating Hindi tokens in the original vocabulary"):
-            hindi_tokens = find_devanagari_tokens(original_tokenizer, original_vocab_size)
-            hindi_token_ids = sorted(token_id for token_id, _ in hindi_tokens)
-            share = 100.0 * len(hindi_token_ids) / original_vocab_size
-            print(f"Found {len(hindi_token_ids)} Hindi tokens ({share:.2f}% of the vocabulary)")
-            for token_id, text in hindi_tokens[:10]:
+        with phase("Phase 1b: Locating target-script tokens in the original vocabulary"):
+            target_tokens = find_target_script_tokens(original_tokenizer, original_vocab_size)
+            target_token_ids = sorted(token_id for token_id, _ in target_tokens)
+            share = 100.0 * len(target_token_ids) / original_vocab_size
+            print(f"Found {len(target_token_ids)} target-script tokens ({share:.2f}% of the vocabulary)")
+            for token_id, text in target_tokens[:10]:
                 print(f"    ID {token_id}: {text!r}")
 
     new_token_ids = list(range(original_vocab_size, new_vocab_size))
@@ -1035,7 +1034,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             new_token_ids,
             original_vocab_size,
             decomposition,
-            hindi_token_ids,
+            target_token_ids,
             semantic,
             args,
         )
