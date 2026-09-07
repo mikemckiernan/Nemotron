@@ -12,7 +12,7 @@ A model in this flow may propose a tool coverage plan, validation cases, task-te
 This page is the walkthrough. `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` is the matching command-level reference: it lists every subcommand and refusal code, and its invocations are executed as smoke cases by the test suite, so consult it when you need exact arguments rather than the shape of the flow.
 
 :::{tip}
-To watch the whole flow run before you prepare a source of your own, use the bundled demo. It needs no credentials and no endpoint: the authoring model is scripted and the candidate is served on loopback, while intake probes a real package and validation derives its own tier unmocked.
+To watch the whole flow run before you prepare a source of your own, use the bundled demo. It needs no credentials and no endpoint: the authoring model is scripted and the candidate is served on loopback, while intake probes a real package and validation derives its own tier unmocked. Run it from the repository root, because the script path is relative:
 
 ```bash
 uv run python scripts/bfcl_assisted_authoring_demo.py --workdir /tmp/bfcl-demo

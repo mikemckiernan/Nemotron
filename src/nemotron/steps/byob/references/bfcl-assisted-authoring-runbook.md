@@ -1,6 +1,6 @@
 # Assisted authoring runbook: source intake to evaluation
 
-This is the step-by-step runbook for the supported LLM-assisted conventional-source flow.
+This is the step-by-step runbook for the supported assisted-authoring conventional-source flow.
 It carries every command, refusal, and recovery. For a short orientation to the same flow —
 what the bundled demo simulates, what it executes for real, and how to read its scores —
 read [bfcl-assisted-authoring-walkthrough.md](bfcl-assisted-authoring-walkthrough.md) first.
@@ -12,7 +12,7 @@ reviewed local Python source + domain brief + probe plan
   -> transport-neutral evidence and A2 certification
   -> model-exposure authorization
   -> evidence approval
-  -> LLM-authored coverage/case/template/assertion proposals
+  -> model-authored coverage/case/template/assertion proposals
   -> reviewed semantic supplement
   -> candidate Oracle Pack assembly
   -> fresh Gold validation
@@ -216,7 +216,7 @@ Do not reuse either file after source, brief, redaction, observations,
 certification, or resolved authoring config changes. Digest drift makes the
 approval stale.
 
-## 8. Step 4 — LLM drafting
+## 8. Step 4 — Model drafting
 
 Drafting issues four bounded structured requests:
 

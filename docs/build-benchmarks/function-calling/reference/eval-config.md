@@ -13,11 +13,13 @@ models in the sibling `eval/schemas.py`. For what the numbers mean, see
 
 ## The Three Files
 
+All three ship under `src/nemotron/steps/byob/bfcl/config/`.
+
 | File | Role |
 | --- | --- |
-| `config/eval.default.yaml` | The scoring template. Copy it, fill in every `REPLACE_ME_*` value, set `config_status: resolved`, and keep it outside the generation output tree. Everything on this page describes this file. |
-| `config/eval.cli.yaml` | The direct envelope. It carries `family: bfcl`, `stage: eval`, `eval_config_path` pointing at the resolved scoring config, `execution_backend: direct`, `output_format`, `probe_oracle`, and `dry_run`. |
-| `config/eval.launcher.yaml` | The Launcher envelope. Same envelope keys with `execution_backend: nemo_launcher`, plus a `launcher` block naming the bundle root, materialized adapter, framework, task, and Launcher configs, the dataset mount, container mounts, and `submit`. |
+| `eval.default.yaml` | The scoring template. Copy it, fill in every `REPLACE_ME_*` value, set `config_status: resolved`, and keep it outside the generation output tree. Everything on this page describes this file. |
+| `eval.cli.yaml` | The direct envelope. It carries `family: bfcl`, `stage: eval`, `eval_config_path` pointing at the resolved scoring config, `execution_backend: direct`, `output_format`, `probe_oracle`, and `dry_run`. |
+| `eval.launcher.yaml` | The Launcher envelope. Same envelope keys with `execution_backend: nemo_launcher`, plus a `launcher` block naming the bundle root, materialized adapter, framework, task, and Launcher configs, the dataset mount, container mounts, and `submit`. |
 
 The split is deliberate: operational CLI choices belong in an envelope so that selecting
 a backend, changing output rendering, or doing a dry run never changes

@@ -103,8 +103,11 @@ reference. A gateway process must be treated as part of the fingerprinted execut
 
 The first gateway starts at L0. Use it to validate the provisional pack and retain
 `mcp_probe_report` from `oracle_validation_report.json`. Run the BFCL-owned controlled hanging
-fixture through `run_gateway_timeout_conformance` and write its returned suite to
-`gateway_suite.json`. Restart the same pinned gateway artifact with this operator template:
+fixture through `run_gateway_timeout_conformance`
+(`../runtime/mcp/gateway/conformance.py`) and write its returned suite to
+`gateway_suite.json`. No CLI wraps that helper yet, so drive it through the Python API; see
+[`test_bfcl_mcp_gateway.py`](../../../../../tests/steps/byob/test_bfcl_mcp_gateway.py) for a
+worked invocation. Restart the same pinned gateway artifact with this operator template:
 
 ```text
 python -m nemotron.steps.byob.scripts.run_mcp_gateway \
@@ -129,7 +132,7 @@ The artifact sequence is:
 ```text
 discovery report
   -> sanitized evidence bundle + intake provenance
-  -> evidence-bound LLM draft + draft provenance
+  -> evidence-bound model draft + draft provenance
   -> canonical Oracle Pack
   -> fresh validation evidence
   -> deterministic review packet
@@ -145,7 +148,9 @@ published in `run_manifest.json`.
 
 ## 6. Publication status
 
-A discovery-only gateway truthfully attains `L0`. A Mode-A gateway with a complete ordered probe
+A discovery-only gateway truthfully attains `L0`. A gateway whose control plane works and whose
+result mapping is total attains `L1`, which is executable but restricted to
+`lineage.policy: smoke_no_publication`. A Mode-A gateway with a complete ordered probe
 report and a passing P9 build suite may attest `L2`, but publication still requires final BFCL
 validation to reproduce the target report, verify both evidence digests, produce complete call
 and state-delta logs, pass review, and freeze the exact pack. Do not bypass this by editing an
