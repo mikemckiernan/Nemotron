@@ -309,6 +309,28 @@ def _apply_bpe_extension_backend(
             continue
 
         pieces = _apply_merges(list(tok), ranks)
+
+        # Building `tok` may also have to add the intermediate pieces it merges
+        # through. Price the whole chain before committing to it: stopping
+        # part-way would leave an intermediate in the vocab with no rule that
+        # produces `tok`, which is the unreachable-token failure this function
+        # exists to avoid. In trained-priority order a token's pieces are
+        # already in the vocab, so `cost` is normally 1 and this never binds.
+        chain: list[str] = []
+        left = pieces[0]
+        for right in pieces[1:]:
+            left = left + right
+            chain.append(left)
+        if not chain:
+            chain = [left]
+        cost = sum(1 for piece in chain if piece not in vocab)
+
+        if added + cost > budget:
+            # The next token does not fit. Later candidates are lower priority
+            # and cannot be cheaper in a useful way, so stop rather than skip
+            # ahead and silently reorder the vocabulary.
+            break
+
         left = pieces[0]
         for right in pieces[1:]:
             if (left, right) not in ranks:
