@@ -1,7 +1,7 @@
 # Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Sampling weights for persona-grounded QASynth generation."""
+"""Sampling weights for persona-grounded MCQ generation."""
 
 from __future__ import annotations
 

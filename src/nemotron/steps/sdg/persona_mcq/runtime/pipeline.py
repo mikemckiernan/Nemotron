@@ -1,7 +1,7 @@
 # Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Orchestrate the config-driven persona QASynth pipeline."""
+"""Orchestrate the config-driven Persona MCQ pipeline."""
 
 from __future__ import annotations
 
@@ -14,11 +14,17 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any
 
-from nemotron.steps.sdg.qasynth.runtime.answers import generate_answers
-from nemotron.steps.sdg.qasynth.runtime.io import canonical_hash, read_jsonl, redact_config, require_file, write_jsonl
-from nemotron.steps.sdg.qasynth.runtime.lexical import deduplicate as lexical_deduplicate
-from nemotron.steps.sdg.qasynth.runtime.semantic import deduplicate_embeddings, embed_questions
-from nemotron.steps.sdg.qasynth.runtime.sft import build_sft_records, prepare_answer_seed, sample_aligned_datasets
+from nemotron.steps.sdg.persona_mcq.runtime.answers import generate_answers
+from nemotron.steps.sdg.persona_mcq.runtime.io import (
+    canonical_hash,
+    read_jsonl,
+    redact_config,
+    require_file,
+    write_jsonl,
+)
+from nemotron.steps.sdg.persona_mcq.runtime.lexical import deduplicate as lexical_deduplicate
+from nemotron.steps.sdg.persona_mcq.runtime.semantic import deduplicate_embeddings, embed_questions
+from nemotron.steps.sdg.persona_mcq.runtime.sft import build_sft_records, prepare_answer_seed, sample_aligned_datasets
 
 STAGES = (
     "questions",
@@ -59,7 +65,7 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ValueError("pipeline.stages must select 'all' or at least one named stage")
     unknown = set(stages) - set(STAGES) - {"all"}
     if unknown:
-        raise ValueError(f"Unknown QASynth stages: {sorted(unknown)}")
+        raise ValueError(f"Unknown Persona MCQ stages: {sorted(unknown)}")
     if "all" in stages and len(stages) != 1:
         raise ValueError("pipeline.stages may contain 'all' or named stages, not both")
     languages = config.get("languages") or {}
@@ -77,15 +83,14 @@ def validate_config(config: dict[str, Any]) -> None:
         if missing:
             raise ValueError(f"{group} references unknown models: {sorted(missing)}")
     if len(config["answer_models"]) < 3:
-        raise ValueError("persona QASynth requires at least three answer models for voting")
+        raise ValueError("Persona MCQ requires at least three answer models for voting")
     response_teachers = (config.get("sft") or {}).get("response_teachers") or []
     if not response_teachers:
         raise ValueError("sft.response_teachers must select at least one answer model")
     missing_teachers = set(response_teachers) - set(config["answer_models"])
     if missing_teachers:
         raise ValueError(
-            "sft.response_teachers references models not selected in answer_models: "
-            f"{sorted(missing_teachers)}"
+            f"sft.response_teachers references models not selected in answer_models: {sorted(missing_teachers)}"
         )
     for key, model in models.items():
         for field in ("model", "endpoint", "api_key_env"):
@@ -129,10 +134,10 @@ def generate_questions(
     from data_designer.config.models import ModelProvider
     from data_designer.interface import DataDesigner
 
-    from nemotron.steps.sdg.plugins.qasynth.config import QASynthMCQConfig
+    from nemotron.steps.sdg.plugins.persona_mcq.config import PersonaMCQConfig
 
     inference = dict((model.get("question") or {}).get("inference") or {})
-    provider_name = f"qasynth-{model_key}"
+    provider_name = f"persona-mcq-{model_key}"
     provider = ModelProvider(
         name=provider_name,
         endpoint=model["endpoint"],
@@ -157,7 +162,7 @@ def generate_questions(
         )
     )
     builder.add_column(
-        QASynthMCQConfig(
+        PersonaMCQConfig(
             name="conversation",
             drop=False,
             model_alias="question_model",
@@ -184,8 +189,8 @@ def generate_questions(
     return records
 
 
-class QASynthPipeline:
-    """Run selected QASynth stages against one immutable experiment configuration."""
+class PersonaMCQPipeline:
+    """Run selected Persona MCQ stages against one immutable experiment configuration."""
 
     def __init__(self, config: dict[str, Any]) -> None:
         config.setdefault("pipeline", {})["stages"] = _stage_list((config.get("pipeline") or {}).get("stages"))
@@ -212,7 +217,7 @@ class QASynthPipeline:
         }
         for stage in STAGES:
             if stage in selected:
-                print(f"[qasynth] starting stage: {stage}", flush=True)
+                print(f"[persona_mcq] starting stage: {stage}", flush=True)
                 functions[stage]()
                 self._write_summary()
 
@@ -408,9 +413,7 @@ class QASynthPipeline:
         cfg = self.config["sampling"]
         datasets = {
             teacher: {
-                language: read_jsonl(
-                    require_file(self.root / "sft" / teacher / f"{language}.jsonl", "sample")
-                )
+                language: read_jsonl(require_file(self.root / "sft" / teacher / f"{language}.jsonl", "sample"))
                 for language in self.config["languages"]
             }
             for teacher in self.config["sft"]["response_teachers"]

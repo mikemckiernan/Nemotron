@@ -57,7 +57,7 @@ audio = [
     "webdataset>=0.2.86",
     "imageio-ffmpeg>=0.5.1",
 ]
-# Synthetic data generation pipelines, including QASynth and the recipes under
+# Synthetic data generation pipelines, including Persona MCQ and the recipes under
 # `nemotron data sdg ...`. Installing this extra provides Data Designer plus
 # the embedding runtime used for semantic deduplication. Long-document recipe
 # scripts also work standalone via `uv run --no-project` using PEP 723 deps.
@@ -180,7 +180,7 @@ nemotron = "nemotron.__main__:main"
 art = "nemo_runspec.filesystem:ArtifactFileSystem"
 
 [project.entry-points."data_designer.plugins"]
-qasynth-mcq = "nemotron.steps.sdg.plugins.qasynth.plugin:qasynth_mcq"
+persona-mcq = "nemotron.steps.sdg.plugins.persona_mcq.plugin:persona_mcq"
 
 [build-system]
 requires = ["hatchling"]

@@ -11,7 +11,7 @@ import re
 from collections import Counter
 from typing import Any
 
-from nemotron.steps.sdg.qasynth.runtime.answers import INSTRUCTIONS
+from nemotron.steps.sdg.persona_mcq.runtime.answers import INSTRUCTIONS
 
 DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 LATIN = re.compile(r"[A-Za-z]")

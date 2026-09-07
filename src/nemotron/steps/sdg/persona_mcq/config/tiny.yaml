@@ -1,6 +1,6 @@
 pipeline:
   experiment_name: persona-mcq-smoke
-  output_root: ${oc.env:NEMOTRON_RUN_DIR,./outputs}/qasynth
+  output_root: ${oc.env:NEMOTRON_RUN_DIR,./outputs}/persona_mcq
   stages: [all]
   seed: 42
   resume: true

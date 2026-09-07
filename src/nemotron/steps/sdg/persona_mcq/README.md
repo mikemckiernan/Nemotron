@@ -1,12 +1,12 @@
-# Persona QASynth SDG
+# Persona MCQ SDG
 
-`sdg/qasynth` ports the sovereign-ai-playbook persona MCQ pipeline into one
+`sdg/persona_mcq` ports the sovereign-ai-playbook persona MCQ pipeline into one
 config-driven, resumable Nemotron step. It generates India-grounded English and
 Hindi questions, removes lexical and semantic duplicates, asks three teachers
 to answer each question, applies agreement and quality gates, and writes aligned
 SFT JSONL for teacher ablations.
 
-The reusable Data Designer column lives in `sdg/plugins/qasynth`; future SDG
+The reusable Data Designer column lives in `sdg/plugins/persona_mcq`; future SDG
 steps can consume it without copying the pipeline.
 
 ## Install
@@ -23,31 +23,31 @@ endpoint URLs are retained in the redacted run configuration for provenance.
 
 ## Run
 
-The generic Nemotron step CLI discovers QASynth from its `step.toml` manifest:
+The generic Nemotron step CLI discovers Persona MCQ from its `step.toml` manifest:
 
 ```bash
 uv run nemotron steps list --category sdg
-uv run nemotron steps show sdg/qasynth
+uv run nemotron steps show sdg/persona_mcq
 ```
 
 Start with the smoke profile:
 
 ```bash
-uv run nemotron steps run sdg/qasynth -c tiny \
+uv run nemotron steps run sdg/persona_mcq -c tiny \
   pipeline.experiment_name=my-smoke
 ```
 
 Run production-shaped defaults only after inspecting the smoke artifacts:
 
 ```bash
-uv run nemotron steps run sdg/qasynth -c default \
+uv run nemotron steps run sdg/persona_mcq -c default \
   pipeline.experiment_name=my-run
 ```
 
 Run or resume selected stages with an OmegaConf list override:
 
 ```bash
-uv run nemotron steps run sdg/qasynth -c default \
+uv run nemotron steps run sdg/persona_mcq -c default \
   pipeline.experiment_name=my-run 'pipeline.stages=[answers,build_sft,sample]'
 ```
 
@@ -56,7 +56,7 @@ Stages always follow this order: `questions`, `lexical_dedup`,
 selected stage must already exist. Reusing an experiment name with a different
 configuration is rejected unless `pipeline.overwrite=true` is explicit.
 
-Use `sdg/qasynth` for persona-grounded MCQ-shaped **SFT training data**. Use
+Use `sdg/persona_mcq` for persona-grounded MCQ-shaped **SFT training data**. Use
 `byob/mcq` instead when the output is a held-out benchmark or evaluation set.
 
 ## Artifacts

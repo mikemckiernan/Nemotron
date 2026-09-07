@@ -10,10 +10,10 @@ from typing import Literal
 from data_designer.config.base import SingleColumnConfig
 
 
-class QASynthMCQConfig(SingleColumnConfig):
-    """Configure one QASynth persona-grounded question column."""
+class PersonaMCQConfig(SingleColumnConfig):
+    """Configure one persona-grounded multiple-choice question column."""
 
-    column_type: Literal["qasynth-mcq"] = "qasynth-mcq"
+    column_type: Literal["persona-mcq"] = "persona-mcq"
     model_alias: str = "question_model"
     persona_column: str = "persona"
     num_options: int = 4

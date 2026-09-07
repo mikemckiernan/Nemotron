@@ -1,7 +1,7 @@
 # Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Data Designer generator for persona-grounded QASynth MCQs."""
+"""Data Designer generator for persona-grounded MCQs."""
 
 from __future__ import annotations
 
@@ -15,14 +15,14 @@ from data_designer.engine.column_generators.generators.base import (
     ColumnGeneratorWithModelRegistry,
 )
 
-from nemotron.steps.sdg.plugins.qasynth.config import QASynthMCQConfig
-from nemotron.steps.sdg.plugins.qasynth.llm import completion_text
-from nemotron.steps.sdg.plugins.qasynth.parsing import format_question, parse_question
-from nemotron.steps.sdg.plugins.qasynth.prompts import (
+from nemotron.steps.sdg.plugins.persona_mcq.config import PersonaMCQConfig
+from nemotron.steps.sdg.plugins.persona_mcq.llm import completion_text
+from nemotron.steps.sdg.plugins.persona_mcq.parsing import format_question, parse_question
+from nemotron.steps.sdg.plugins.persona_mcq.prompts import (
     QUESTION_AUTHOR_SYSTEM_PROMPT_CONTEXTUAL,
     QUESTION_AUTHOR_SYSTEM_PROMPT_KNOWLEDGE_MCQ_FACET,
 )
-from nemotron.steps.sdg.plugins.qasynth.taxonomy import (
+from nemotron.steps.sdg.plugins.persona_mcq.taxonomy import (
     CONTEXTUAL_FACETS,
     DIFFICULTY_WEIGHTS,
     FACET_WEIGHTS,
@@ -79,9 +79,9 @@ def _weighted_choice(rng: random.Random, weights: dict[str, float]) -> str:
     return rng.choices([key for key, _ in items], weights=[weight for _, weight in items], k=1)[0]
 
 
-class QASynthMCQGenerator(
-    ColumnGeneratorCellByCell[QASynthMCQConfig],
-    ColumnGeneratorWithModelRegistry[QASynthMCQConfig],
+class PersonaMCQGenerator(
+    ColumnGeneratorCellByCell[PersonaMCQConfig],
+    ColumnGeneratorWithModelRegistry[PersonaMCQConfig],
 ):
     """Author one MCQ from a deterministic persona facet and difficulty sample."""
 
@@ -115,7 +115,7 @@ class QASynthMCQGenerator(
     @staticmethod
     def _build_prompt(
         persona: Any,
-        cfg: QASynthMCQConfig,
+        cfg: PersonaMCQConfig,
         rng: random.Random,
     ) -> tuple[str, dict[str, Any]]:
         facet_weights = cfg.facet_weights or FACET_WEIGHTS
@@ -133,7 +133,7 @@ class QASynthMCQGenerator(
                     facet_texts[fallback] = text
                     break
         if not eligible:
-            raise ValueError("persona has no usable QASynth facet")
+            raise ValueError("persona has no usable MCQ facet")
 
         facet = _weighted_choice(rng, eligible)
         difficulty = _weighted_choice(rng, cfg.difficulty_weights or DIFFICULTY_WEIGHTS)

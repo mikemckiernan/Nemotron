@@ -1,7 +1,7 @@
 # Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Artifact and configuration helpers for QASynth runs."""
+"""Artifact and configuration helpers for Persona MCQ runs."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
 # Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Crash-resumable async answer generation for QASynth teacher models."""
+"""Crash-resumable async answer generation for Persona MCQ teacher models."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from nemotron.steps.sdg.qasynth.runtime.io import read_jsonl
+from nemotron.steps.sdg.persona_mcq.runtime.io import read_jsonl
 
 ANSWER_RE = re.compile(
     r"(?:Answer|उत्तर(?:\s*है)?)\s*[:：]?\s*[$*_{}\\\s]*(?:\\?text\{)?\s*\(?\s*([ABCD])\b",

@@ -1,5 +1,5 @@
 ## Description: <br>
-Plan, configure, and chain repo-native Nemotron customization steps into single-step or multi-step pipelines: curation, translation, synthetic data generation (including persona-grounded QASynth SFT), SFT/PEFT (AutoModel or Megatron-Bridge), pretraining/CPT, RL alignment (DPO/RLVR/GRPO/RLHF), BYOB/MCQ benchmarks, checkpoint conversion, ModelOpt optimization, env profiles, and evaluation of trained checkpoints or existing/hosted endpoints. <br>
+Plan, configure, and chain repo-native Nemotron customization steps into single-step or multi-step pipelines: curation, translation, synthetic data generation (including persona-grounded MCQ SFT), SFT/PEFT (AutoModel or Megatron-Bridge), pretraining/CPT, RL alignment (DPO/RLVR/GRPO/RLHF), BYOB/MCQ benchmarks, checkpoint conversion, ModelOpt optimization, env profiles, and evaluation of trained checkpoints or existing/hosted endpoints. <br>
 
 This skill is ready for commercial/non-commercial use. <br>
 

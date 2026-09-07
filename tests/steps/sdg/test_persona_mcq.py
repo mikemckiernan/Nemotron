@@ -1,7 +1,7 @@
 # Copyright (c) 2026, NVIDIA CORPORATION.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Focused offline tests for the persona QASynth step and reusable plugin."""
+"""Focused offline tests for the Persona MCQ step and reusable plugin."""
 
 from __future__ import annotations
 
@@ -20,21 +20,21 @@ from typer.testing import CliRunner
 from nemo_runspec.cli_context import GlobalContext
 from nemo_runspec.config import build_job_config, extract_train_config
 from nemotron.cli.bin.nemotron import app
-from nemotron.steps.sdg.plugins.qasynth.parsing import parse_question
-from nemotron.steps.sdg.qasynth.runtime.answers import parse_answer_letter
-from nemotron.steps.sdg.qasynth.runtime.lexical import deduplicate, strip_latin_gloss
-from nemotron.steps.sdg.qasynth.runtime.pipeline import QASynthPipeline, validate_config
-from nemotron.steps.sdg.qasynth.runtime.semantic import deduplicate_embeddings, greedy_keep_indices
-from nemotron.steps.sdg.qasynth.runtime.sft import (
+from nemotron.steps.sdg.persona_mcq.runtime.answers import parse_answer_letter
+from nemotron.steps.sdg.persona_mcq.runtime.lexical import deduplicate, strip_latin_gloss
+from nemotron.steps.sdg.persona_mcq.runtime.pipeline import PersonaMCQPipeline, validate_config
+from nemotron.steps.sdg.persona_mcq.runtime.semantic import deduplicate_embeddings, greedy_keep_indices
+from nemotron.steps.sdg.persona_mcq.runtime.sft import (
     build_sft_records,
     prepare_answer_seed,
     sample_aligned_datasets,
     vote,
 )
+from nemotron.steps.sdg.plugins.persona_mcq.parsing import parse_question
 
 from .._step_helpers import assert_step_static, step_dir
 
-STEP = step_dir(__file__, "sdg", "qasynth")
+STEP = step_dir(__file__, "sdg", "persona_mcq")
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -72,25 +72,27 @@ def _answer(query_id: str, model: str, letter: str = "A") -> dict:
 def test_step_static() -> None:
     assert_step_static(
         STEP,
-        expected_name="steps/sdg/qasynth",
+        expected_name="steps/sdg/persona_mcq",
         expected_launch="python",
         expected_default_config="default",
     )
 
 
-def test_cli_lists_qasynth_in_sdg_catalog() -> None:
+def test_cli_lists_persona_mcq_in_sdg_catalog() -> None:
     result = CliRunner().invoke(app, ["steps", "list", "--category", "sdg", "--json"])
 
     assert result.exit_code == 0, result.output
     catalog = json.loads(result.output)
-    assert "sdg/qasynth" in {step["id"] for step in catalog}
+    step_ids = {step["id"] for step in catalog}
+    assert "sdg/persona_mcq" in step_ids
+    assert "sdg/qasynth" not in step_ids
 
 
-def test_cli_show_resolves_qasynth() -> None:
-    result = CliRunner().invoke(app, ["steps", "show", "sdg/qasynth"])
+def test_cli_show_resolves_persona_mcq() -> None:
+    result = CliRunner().invoke(app, ["steps", "show", "sdg/persona_mcq"])
 
     assert result.exit_code == 0, result.output
-    assert "sdg/qasynth" in result.output
+    assert "sdg/persona_mcq" in result.output
     assert "default" in result.output
 
 
@@ -100,7 +102,7 @@ def test_cli_train_config_preserves_pipeline_controls() -> None:
     job = build_job_config(
         raw,
         context,
-        "steps/sdg/qasynth",
+        "steps/sdg/persona_mcq",
         str(STEP / "step.py"),
         [],
     )
@@ -110,22 +112,23 @@ def test_cli_train_config_preserves_pipeline_controls() -> None:
     assert list(train.pipeline.stages) == ["all"]
 
 
-def test_qasynth_uses_shared_data_sdg_extra() -> None:
+def test_persona_mcq_uses_shared_data_sdg_extra() -> None:
     project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     extras = project["optional-dependencies"]
 
-    assert "qasynth-sdg" not in extras
+    assert "persona-mcq-sdg" not in extras
     assert any(requirement.startswith("data-designer>=0.5.9,<0.6") for requirement in extras["data-sdg"])
     assert any(requirement.startswith("sentence-transformers") for requirement in extras["data-sdg"])
     assert any(requirement.startswith("torch") for requirement in extras["data-sdg"])
 
 
-def test_qasynth_entry_point_is_installed() -> None:
+def test_persona_mcq_entry_point_is_installed() -> None:
     pytest.importorskip("data_designer")
     matches = {point.name: point for point in entry_points(group="data_designer.plugins")}
-    assert "qasynth-mcq" in matches
-    plugin = matches["qasynth-mcq"].load()
-    assert plugin.name == "qasynth-mcq"
+    assert "persona-mcq" in matches
+    assert "qasynth-mcq" not in matches
+    plugin = matches["persona-mcq"].load()
+    assert plugin.name == "persona-mcq"
 
 
 def test_parser_requires_exactly_four_distinct_options() -> None:
@@ -138,7 +141,7 @@ def test_parser_requires_exactly_four_distinct_options() -> None:
 @pytest.mark.parametrize("new_shape", [True, False])
 def test_model_facade_response_compatibility(new_shape: bool) -> None:
     pytest.importorskip("data_designer")
-    from nemotron.steps.sdg.plugins.qasynth.llm import completion_text
+    from nemotron.steps.sdg.plugins.persona_mcq.llm import completion_text
 
     message = SimpleNamespace(content="authored", role="assistant")
     choice = SimpleNamespace(message=message)
@@ -251,14 +254,14 @@ def test_shipped_configs_validate() -> None:
 def test_cli_stage_list_string_is_normalized(tmp_path) -> None:
     config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
     config["pipeline"].update(output_root=str(tmp_path), stages="[answers,build_sft,sample]")
-    pipeline = QASynthPipeline(config)
+    pipeline = PersonaMCQPipeline(config)
     assert pipeline.config["pipeline"]["stages"] == ["answers", "build_sft", "sample"]
 
 
 def test_stage_selection_does_not_change_experiment_identity(tmp_path) -> None:
     base = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
     base["pipeline"].update(output_root=str(tmp_path), experiment_name="resume-test", stages=["questions"])
-    QASynthPipeline(base)._prepare_experiment()
+    PersonaMCQPipeline(base)._prepare_experiment()
 
     resumed = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
     resumed["pipeline"].update(
@@ -267,8 +270,8 @@ def test_stage_selection_does_not_change_experiment_identity(tmp_path) -> None:
         stages="[answers,build_sft]",
         resume=False,
     )
-    QASynthPipeline(resumed)._prepare_experiment()
+    PersonaMCQPipeline(resumed)._prepare_experiment()
 
     resumed["question_generation"]["num_records"] += 1
     with pytest.raises(ValueError, match="different config"):
-        QASynthPipeline(resumed)._prepare_experiment()
+        PersonaMCQPipeline(resumed)._prepare_experiment()

@@ -1,6 +1,6 @@
 ---
 name: nemotron-customize
-description: "Plan, configure, and chain repo-native Nemotron customization steps into single-step or multi-step pipelines: curation, translation, synthetic data generation (including persona-grounded QASynth SFT), SFT/PEFT (AutoModel or Megatron-Bridge), pretraining/CPT, RL alignment (DPO/RLVR/GRPO/RLHF), BYOB/MCQ benchmarks, checkpoint conversion, ModelOpt optimization, env profiles, and evaluation of trained checkpoints or existing/hosted endpoints. Use when a request names a Nemotron step or workflow, or asks to clean, translate, generate training data, train, fine-tune, align, convert, optimize, evaluate, or compose these into a pipeline. Do NOT use for frontend/dashboard/visualization work, generic ML advice, billing/access, or non-Nemotron coding tasks."
+description: "Plan, configure, and chain repo-native Nemotron customization steps into single-step or multi-step pipelines: curation, translation, synthetic data generation (including persona-grounded MCQ SFT), SFT/PEFT (AutoModel or Megatron-Bridge), pretraining/CPT, RL alignment (DPO/RLVR/GRPO/RLHF), BYOB/MCQ benchmarks, checkpoint conversion, ModelOpt optimization, env profiles, and evaluation of trained checkpoints or existing/hosted endpoints. Use when a request names a Nemotron step or workflow, or asks to clean, translate, generate training data, train, fine-tune, align, convert, optimize, evaluate, or compose these into a pipeline. Do NOT use for frontend/dashboard/visualization work, generic ML advice, billing/access, or non-Nemotron coding tasks."
 license: Apache-2.0
 metadata:
   version: 0.1.2
@@ -145,7 +145,7 @@ only to resolve artifact, cross-step, or hardware constraints after the catalog
 narrows the route.
 
 Distinguish MCQ-shaped training data from benchmark data. Persona-grounded MCQ
-examples intended for SFT route to `sdg/qasynth`; held-out MCQ benchmark or
+examples intended for SFT route to `sdg/persona_mcq`; held-out MCQ benchmark or
 evaluation datasets route to `byob/mcq`.
 
 Each step is independent and stitching steps together is your job. Compose any
