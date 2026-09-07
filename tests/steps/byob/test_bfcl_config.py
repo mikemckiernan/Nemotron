@@ -1977,7 +1977,9 @@ def test_config_rejects_an_expt_name_that_is_not_one_directory(tmp_path: Path, e
         BfclConfig.from_yaml(config)
 
 
-def test_manifest_reports_replay_apart_from_surface_rejections(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_manifest_reports_replay_apart_from_surface_rejections(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """A guard-rejected row still replayed, and the counts must let a reader see that."""
     from nemotron.steps.byob.runtime.benchmark_families.bfcl.pipeline import (
         generate_bfcl,
@@ -2315,7 +2317,10 @@ def test_prepare_rejects_bad_plans_and_missing_fixture_primary_keys(
         oracle_runtime={"allowed_roots": [str(tmp_path)]},
     )
     plan_report = json.loads(prepare_bfcl(plan_config).read_text(encoding="utf-8"))
-    assert any(failure.get("reason") == "invalid_conversation_plan" for failure in plan_report["checks"][0]["failures"])
+    assert any(
+        failure.get("reason") == "invalid_conversation_plan"
+        for failure in plan_report["checks"][0]["failures"]
+    )
 
     key_root = tmp_path / "missing-key"
     key_root.mkdir()
@@ -2987,7 +2992,9 @@ def test_generate_revalidates_when_worker_changes(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="non-gold pack"):
         generate_bfcl(thread_config)
 
-    report_path = tmp_path / "output" / "bfcl_tiny_library_validation" / "stage_cache" / "oracle_validation_report.json"
+    report_path = (
+        tmp_path / "output" / "bfcl_tiny_library_validation" / "stage_cache" / "oracle_validation_report.json"
+    )
     thread_report = json.loads(report_path.read_text(encoding="utf-8"))
     assert thread_report["validation_config_fingerprint"] != process_report["validation_config_fingerprint"]
     isolation = next(check for check in thread_report["extra_checks"] if check["id"] == "I1")
@@ -3120,7 +3127,9 @@ def test_generate_revalidates_a_hand_edited_gold_report(tmp_path: Path) -> None:
 
     config = _write_tiny_config(tmp_path, "tampered.yaml")
     prepare_bfcl(config)
-    report_path = tmp_path / "output" / "bfcl_tiny_library_validation" / "stage_cache" / "oracle_validation_report.json"
+    report_path = (
+        tmp_path / "output" / "bfcl_tiny_library_validation" / "stage_cache" / "oracle_validation_report.json"
+    )
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["gold_eligible"] is True
     # Manufacture a passing payload while retaining public fingerprints. Generate
