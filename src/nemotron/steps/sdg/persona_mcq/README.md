@@ -1,10 +1,10 @@
 # Persona MCQ SDG
 
-`sdg/persona_mcq` ports the sovereign-ai-playbook persona MCQ pipeline into one
-config-driven, resumable Nemotron step. It generates India-grounded English and
-Hindi questions, removes lexical and semantic duplicates, asks three teachers
-to answer each question, applies agreement and quality gates, and writes aligned
-SFT JSONL for teacher ablations.
+`sdg/persona_mcq` is a config-driven, resumable Nemotron step for generating
+persona-grounded multiple-choice SFT data. It generates India-grounded English
+and Hindi questions, removes lexical and semantic duplicates, asks three
+teachers to answer each question, applies agreement and quality gates, and
+writes aligned SFT JSONL for teacher ablations.
 
 The reusable Data Designer column lives in `sdg/plugins/persona_mcq`; future SDG
 steps can consume it without copying the pipeline.
