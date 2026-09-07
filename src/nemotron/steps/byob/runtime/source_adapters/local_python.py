@@ -65,9 +65,7 @@ from nemotron.steps.byob.runtime.source_adapters.reviewed_catalog import (
     load_reviewed_tool_catalog,
 )
 
-LOCAL_PYTHON_LOCK_VERSION: Literal[
-    "bfcl-python-dependency-lock-v1"
-] = "bfcl-python-dependency-lock-v1"
+LOCAL_PYTHON_LOCK_VERSION: Literal["bfcl-python-dependency-lock-v1"] = "bfcl-python-dependency-lock-v1"
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _IMPORT_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 
@@ -315,6 +313,28 @@ def _absolute_from_import(
     return ".".join(base)
 
 
+# The closure below needs a lock, so a tool whose job is to produce one cannot call it.
+# What such a tool must not do is resolve modules its own way, because a resolver that
+# disagrees with this one reports a closure intake will not recognise. These expose the
+# three decisions that make up the resolution, so the walk can be repeated without the
+# lock and still reach exactly the files intake would.
+
+
+def resolve_local_module(root: Path, module: str) -> tuple[Path, ...]:
+    """The files a dotted import resolves to inside the source, parents included."""
+    return _resolve_local_module(root, module)
+
+
+def absolute_import_target(node: ast.ImportFrom, *, package: str, source: str) -> str:
+    """The absolute module a `from ... import` names, relative levels resolved."""
+    return _absolute_from_import(node, package=package, source=source)
+
+
+def module_identity(root: Path, path: Path) -> tuple[str, str]:
+    """The dotted module name a file carries, and the package it sits in."""
+    return _module_identity(root, path)
+
+
 def _import_closure(
     root: Path,
     backend: Path,
@@ -330,9 +350,10 @@ def _import_closure(
             queue.extend(local)
             return local
         top = module.partition(".")[0]
-        if top in sys.stdlib_module_names or top in sys.builtin_module_names or any(
-            module == allowed or module.startswith(f"{allowed}.")
-            for allowed in allowed_external
+        if (
+            top in sys.stdlib_module_names
+            or top in sys.builtin_module_names
+            or any(module == allowed or module.startswith(f"{allowed}.") for allowed in allowed_external)
         ):
             return ()
         if _resolve_local_module(root, top):
@@ -356,8 +377,7 @@ def _import_closure(
         for node in ast.walk(tree):
             if isinstance(node, ast.Call):
                 dynamic = (
-                    isinstance(node.func, ast.Name)
-                    and node.func.id in {"__import__", "compile", "eval", "exec"}
+                    isinstance(node.func, ast.Name) and node.func.id in {"__import__", "compile", "eval", "exec"}
                 ) or (
                     isinstance(node.func, ast.Attribute)
                     and isinstance(node.func.value, ast.Name)
@@ -383,9 +403,10 @@ def _import_closure(
                     package=package,
                     source=relative,
                 )
-                if base == "importlib" or base.startswith("importlib.") or (
-                    base == "builtins"
-                    and any(alias.name == "__import__" for alias in node.names)
+                if (
+                    base == "importlib"
+                    or base.startswith("importlib.")
+                    or (base == "builtins" and any(alias.name == "__import__" for alias in node.names))
                 ):
                     raise LocalPythonError(
                         "dynamic_import",
@@ -498,9 +519,7 @@ def inspect_local_python_package(
 
     runtime = _runtime_identity()
     runtime_digest = sha256_json(runtime)
-    closure_document = [
-        {"path": relative, "digest": digest} for relative, digest in closure
-    ]
+    closure_document = [{"path": relative, "digest": digest} for relative, digest in closure]
     effective_document = {
         "schema_version": "bfcl-local-python-identity-v1",
         "source_files": closure_document,
