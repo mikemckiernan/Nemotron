@@ -79,6 +79,10 @@ The final schema is `{messages, metadata}`. Reasoning-on records include
 
 - Never commit generated data, resolved secrets, or endpoint-specific configs.
 - Preserve the same model list across answering, voting, and aligned sampling.
+- Configure teacher aliases to use distinct model endpoints in production;
+  pointing several aliases at one endpoint is suitable only for smoke testing.
+- Treat teacher agreement as a consistency gate, not factual verification;
+  fact-check or separately judge generated examples before training on them.
 - Treat a low shared-teacher intersection as a quality signal, not something to
   bypass silently.
 - Use a GPU for production semantic deduplication; the tiny profile uses CPU for

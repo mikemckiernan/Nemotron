@@ -115,7 +115,7 @@ def test_qasynth_uses_shared_data_sdg_extra() -> None:
     extras = project["optional-dependencies"]
 
     assert "qasynth-sdg" not in extras
-    assert any(requirement.startswith("data-designer==0.5.9") for requirement in extras["data-sdg"])
+    assert any(requirement.startswith("data-designer>=0.5.9,<0.6") for requirement in extras["data-sdg"])
     assert any(requirement.startswith("sentence-transformers") for requirement in extras["data-sdg"])
     assert any(requirement.startswith("torch") for requirement in extras["data-sdg"])
 

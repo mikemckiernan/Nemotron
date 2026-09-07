@@ -61,8 +61,10 @@ audio = [
 # `nemotron data sdg ...`. Installing this extra provides Data Designer plus
 # the embedding runtime used for semantic deduplication. Long-document recipe
 # scripts also work standalone via `uv run --no-project` using PEP 723 deps.
+# Data Designer 0.6/0.7 have conflicting cryptography requirements; 0.8 needs
+# Starlette >=1.2 while the current NeMo-Run/LeptonAI chain requires Starlette <1.
 data-sdg = [
-    "data-designer==0.5.9; python_version>='3.11' and python_version<'3.14'",
+    "data-designer>=0.5.9,<0.6; python_version>='3.11' and python_version<'3.14'",
     "sentence-transformers>=5.0.0,<6.0.0; python_version>='3.11' and python_version<'3.14'",
     "torch>=2.10,<2.11; python_version>='3.11' and python_version<'3.14'",
 ]
@@ -142,7 +144,7 @@ all = [
     "cosmos-xenna",
     "webdataset>=0.2.86",
     "imageio-ffmpeg>=0.5.1",
-    "data-designer==0.5.9; python_version>='3.11' and python_version<'3.14'",
+    "data-designer>=0.5.9,<0.6; python_version>='3.11' and python_version<'3.14'",
     "nemo-curator[translation_all] @ git+https://github.com/NVIDIA-NeMo/Curator.git@main ; python_version>='3.11' and python_version<'3.14'",
     "pandas>=2.1.0; python_version>='3.11'",
     "sentence-transformers>=5.0.0,<6.0.0; python_version>='3.11'",
