@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import json
+import shutil
 import subprocess
 from collections.abc import Callable
 from importlib.metadata import PackageNotFoundError, version
@@ -20,8 +21,10 @@ from nemotron.steps.sdg.persona_mcq.runtime.io import (
     read_jsonl,
     redact_config,
     require_file,
+    write_json,
     write_jsonl,
 )
+from nemotron.steps.sdg.persona_mcq.runtime.languages import compile_script_pattern, validate_fraction
 from nemotron.steps.sdg.persona_mcq.runtime.lexical import deduplicate as lexical_deduplicate
 from nemotron.steps.sdg.persona_mcq.runtime.semantic import deduplicate_embeddings, embed_questions
 from nemotron.steps.sdg.persona_mcq.runtime.sft import build_sft_records, prepare_answer_seed, sample_aligned_datasets
@@ -72,8 +75,16 @@ def validate_config(config: dict[str, Any]) -> None:
     if not languages:
         raise ValueError("at least one language must be configured")
     for name, language in languages.items():
-        if not language.get("locale") or not language.get("display_name"):
-            raise ValueError(f"language {name!r} requires locale and display_name")
+        required = ("locale", "display_name", "answer_label", "script_pattern")
+        missing = [field for field in required if not language.get(field)]
+        if missing:
+            raise ValueError(f"language {name!r} requires: {', '.join(missing)}")
+        aliases = language.get("answer_label_aliases") or []
+        if not isinstance(aliases, list) or not all(isinstance(alias, str) and alias for alias in aliases):
+            raise ValueError(f"languages.{name}.answer_label_aliases must be a list of non-empty strings")
+        compile_script_pattern(str(language["script_pattern"]))
+        for field in ("question_script_fraction", "answer_script_fraction"):
+            validate_fraction(language.get(field) or {}, f"languages.{name}.{field}")
     models = config.get("models") or {}
     for group in ("question_models", "answer_models"):
         selected = config.get(group) or []
@@ -101,6 +112,21 @@ def validate_config(config: dict[str, Any]) -> None:
     semantic = config.get("semantic_dedup") or {}
     if not 0 <= float(semantic.get("threshold", 0.965)) <= 1:
         raise ValueError("semantic_dedup.threshold must be between zero and one")
+    agreement = (config.get("sft") or {}).get("agreement")
+    if agreement not in {"unanimous", "majority"}:
+        raise ValueError("sft.agreement must be 'unanimous' or 'majority'")
+    reasoning = (config.get("sft") or {}).get("reasoning") or {}
+    if not reasoning.get("display_name") or not reasoning.get("script_pattern"):
+        raise ValueError("sft.reasoning requires display_name and script_pattern")
+    compile_script_pattern(str(reasoning["script_pattern"]))
+    validate_fraction(reasoning.get("script_fraction") or {}, "sft.reasoning.script_fraction")
+    sampling = config.get("sampling") or {}
+    if int(sampling.get("per_language", 0)) <= 0:
+        raise ValueError("sampling.per_language must be greater than zero")
+    if not 0 <= float(sampling.get("reasoning_off_fraction", -1)) <= 1:
+        raise ValueError("sampling.reasoning_off_fraction must be between zero and one")
+    if sampling.get("answer_variant") not in {"full", "stripped"}:
+        raise ValueError("sampling.answer_variant must be 'full' or 'stripped'")
 
 
 def _records_from_result(result: Any) -> list[dict[str, Any]]:
@@ -228,9 +254,12 @@ class PersonaMCQPipeline:
                 self._write_summary()
 
     def _prepare_experiment(self) -> None:
-        self.root.mkdir(parents=True, exist_ok=True)
         state_path = self.root / "run.json"
         config_hash = canonical_hash(_identity_config(self.config))
+        if self.overwrite and self.root.exists():
+            shutil.rmtree(self.root)
+            self.summary = {"stages": {}}
+        self.root.mkdir(parents=True, exist_ok=True)
         if state_path.exists():
             existing = json.loads(state_path.read_text(encoding="utf-8"))
             if existing.get("config_hash") != config_hash and not self.overwrite:
@@ -238,6 +267,12 @@ class PersonaMCQPipeline:
                     f"Experiment {self.root} was created with a different config; choose a new experiment_name "
                     "or set pipeline.overwrite=true"
                 )
+            summary_path = self.root / "summary.json"
+            if self.resume and summary_path.is_file():
+                summary = json.loads(summary_path.read_text(encoding="utf-8"))
+                if not isinstance(summary, dict) or not isinstance(summary.get("stages"), dict):
+                    raise ValueError(f"Invalid Persona MCQ summary: {summary_path}")
+                self.summary = summary
         try:
             dd_version = version("data-designer")
         except PackageNotFoundError:
@@ -250,7 +285,6 @@ class PersonaMCQPipeline:
             "config": redact_config(self.config),
             "data_designer_version": dd_version,
             "nemotron_commit": commit,
-            "sovereign_source_commit": "88afa6e30ff123dd0abeba3a77555e369600c036",
         }
         state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -287,7 +321,8 @@ class PersonaMCQPipeline:
     def _lexical(self) -> None:
         cfg = self.config["lexical_dedup"]
         stage_stats: dict[str, Any] = {}
-        for language in self.config["languages"]:
+        for language, language_cfg in self.config["languages"].items():
+            question_fraction = language_cfg["question_script_fraction"]
             accepted: list[dict[str, Any]] = []
             per_model: dict[str, Any] = {}
             for model in self.config["question_models"]:
@@ -295,6 +330,10 @@ class PersonaMCQPipeline:
                 records, stats = lexical_deduplicate(
                     read_jsonl(path),
                     language=language,
+                    script_pattern=language_cfg["script_pattern"],
+                    min_script_fraction=float(question_fraction["min"]),
+                    max_script_fraction=float(question_fraction["max"]),
+                    strip_latin_glosses=bool(language_cfg.get("strip_latin_glosses", False)),
                     source_model=model,
                     threshold=float(cfg["threshold"]),
                     shingle_size=int(cfg["shingle_size"]),
@@ -320,6 +359,10 @@ class PersonaMCQPipeline:
             pooled, pooled_stats = lexical_deduplicate(
                 pooled_input,
                 language=language,
+                script_pattern=language_cfg["script_pattern"],
+                min_script_fraction=float(question_fraction["min"]),
+                max_script_fraction=float(question_fraction["max"]),
+                strip_latin_glosses=bool(language_cfg.get("strip_latin_glosses", False)),
                 source_model="pooled",
                 threshold=float(cfg["threshold"]),
                 shingle_size=int(cfg["shingle_size"]),
@@ -373,13 +416,14 @@ class PersonaMCQPipeline:
         stats: dict[str, Any] = {}
         for model_key in self.config["answer_models"]:
             model = {**self.config["models"][model_key], **(self.config["models"][model_key].get("answer") or {})}
-            for language in self.config["languages"]:
+            for language, language_cfg in self.config["languages"].items():
                 records = read_jsonl(require_file(self.root / "answer_seed" / f"{language}.jsonl", "answers"))
                 key = f"{model_key}/{language}"
                 stats[key] = asyncio.run(
                     generate_answers(
                         records,
-                        language=language,
+                        language_config=language_cfg,
+                        reasoning_config=self.config["sft"]["reasoning"],
                         model=model,
                         output_path=self.root / "answers" / model_key / language / "answers.jsonl",
                         failure_path=self.root / "answers" / model_key / language / "failures.jsonl",
@@ -401,15 +445,14 @@ class PersonaMCQPipeline:
                 )
                 for model in self.config["answer_models"]
             }
-            purity = language_cfg["assistant_devanagari_fraction"]
             for teacher in cfg["response_teachers"]:
                 records, result = build_sft_records(
                     answers,
                     response_model=teacher,
                     language=language,
+                    language_config=language_cfg,
+                    reasoning_config=cfg["reasoning"],
                     agreement=cfg["agreement"],
-                    min_devanagari_fraction=float(purity["min"]),
-                    max_devanagari_fraction=float(purity["max"]),
                 )
                 write_jsonl(self.root / "sft" / teacher / f"{language}.jsonl", records)
                 stats[f"{teacher}/{language}"] = result
@@ -431,6 +474,47 @@ class PersonaMCQPipeline:
             reasoning_off_fraction=float(cfg["reasoning_off_fraction"]),
             answer_variant=cfg["answer_variant"],
         )
+
+        def write_handoff(root: Path, name: str, records: list[dict[str, Any]]) -> dict[str, Any]:
+            training_jsonl = root / "train.jsonl"
+            blend_path = root / "blend.json"
+            count = write_jsonl(training_jsonl, records)
+            write_json(
+                blend_path,
+                {
+                    "datasets": [
+                        {
+                            "name": name,
+                            "path": str(training_jsonl.resolve()),
+                            "weight": 1.0,
+                        }
+                    ]
+                },
+            )
+            return {
+                "records": count,
+                "training_jsonl": str(training_jsonl),
+                "blend": str(blend_path),
+            }
+
+        artifacts: dict[str, dict[str, Any]] = {}
         for teacher, records in outputs.items():
-            write_jsonl(self.root / "final" / f"{teacher}.jsonl", records)
-        self.summary["stages"]["sample"] = {**stats, "teachers": {key: len(value) for key, value in outputs.items()}}
+            teacher_root = self.root / "training" / teacher
+            views = {
+                "all": write_handoff(teacher_root, f"persona-mcq-{teacher}", records),
+            }
+            if "english" in self.config["languages"]:
+                for target_language in self.config["languages"]:
+                    if target_language == "english":
+                        continue
+                    view_name = f"english_{target_language}"
+                    paired = [
+                        record for record in records if record["metadata"]["language"] in {"english", target_language}
+                    ]
+                    views[view_name] = write_handoff(
+                        teacher_root / view_name,
+                        f"persona-mcq-{teacher}-{view_name.replace('_', '-')}",
+                        paired,
+                    )
+            artifacts[teacher] = {"views": views}
+        self.summary["stages"]["sample"] = {**stats, "teachers": artifacts}

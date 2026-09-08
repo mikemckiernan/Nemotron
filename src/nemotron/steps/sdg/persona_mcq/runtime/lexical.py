@@ -13,14 +13,15 @@ from typing import Any
 
 import numpy as np
 
-DEVANAGARI = re.compile(r"[ऀ-ॿ]")
-LATIN = re.compile(r"[A-Za-z]")
+from nemotron.steps.sdg.persona_mcq.runtime.languages import compile_script_pattern, script_fraction
+
 LATIN_GLOSS = re.compile(r"\s*\([A-Za-z0-9 ,./'\-]+\)")
 PRIME = (1 << 61) - 1
 
 
-def strip_latin_gloss(text: str) -> str:
-    return LATIN_GLOSS.sub("", text).strip() if DEVANAGARI.search(text) else text
+def strip_latin_gloss(text: str, script_pattern: str, *, enabled: bool) -> str:
+    pattern = compile_script_pattern(script_pattern)
+    return LATIN_GLOSS.sub("", text).strip() if enabled and pattern.search(text) else text
 
 
 def normalize(text: str) -> str:
@@ -82,6 +83,10 @@ def deduplicate(
     records: list[dict[str, Any]],
     *,
     language: str,
+    script_pattern: str,
+    min_script_fraction: float,
+    max_script_fraction: float,
+    strip_latin_glosses: bool,
     source_model: str,
     threshold: float = 0.80,
     shingle_size: int = 4,
@@ -104,14 +109,13 @@ def deduplicate(
             stats["drop_structural"] += 1
             continue
         question, choices, metadata = extracted
-        if language.lower() == "hindi":
-            devanagari = len(DEVANAGARI.findall(question))
-            latin = len(LATIN.findall(question))
-            if devanagari + latin and devanagari / (devanagari + latin) < 0.5:
-                stats["drop_wrong_language"] += 1
-                continue
-            question = strip_latin_gloss(question)
-            choices = [strip_latin_gloss(choice) for choice in choices]
+        alphabetic = sum(character.isalpha() for character in question)
+        fraction = script_fraction(question, script_pattern)
+        if alphabetic and not min_script_fraction <= fraction <= max_script_fraction:
+            stats["drop_wrong_language"] += 1
+            continue
+        question = strip_latin_gloss(question, script_pattern, enabled=strip_latin_glosses)
+        choices = [strip_latin_gloss(choice, script_pattern, enabled=strip_latin_glosses) for choice in choices]
         exact_key = hashlib.sha256(
             (normalize(question) + "\0" + "\0".join(sorted(normalize(choice) for choice in choices))).encode()
         ).hexdigest()

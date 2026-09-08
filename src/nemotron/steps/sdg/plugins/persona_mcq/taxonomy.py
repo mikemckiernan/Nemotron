@@ -27,11 +27,11 @@ CONTEXTUAL_FACETS = {
     "finance_persona": {
         "subject": "personal finance and financial literacy",
         "subtopics": [
-            "loans & credit (Kisan Credit Card, MUDRA loan, home/gold loan)",
-            "insurance (life, health, crop PMFBY, PMJJBY)",
-            "taxation (income tax, GST, TDS, tax-saving)",
-            "government savings & pension schemes (PPF, NSC, Sukanya Samriddhi, Atal Pension)",
-            "banking & digital payments (accounts, UPI, recurring/fixed deposits)",
+            "loans & credit (agricultural, small-business, home, and secured loans)",
+            "insurance (life, health, crop, and public insurance programmes)",
+            "taxation (income, consumption, withholding, and tax-saving rules)",
+            "government savings and pension schemes",
+            "banking and digital payments",
             "investment & markets (mutual funds, shares, gold, bonds)",
             "retirement & provident fund (EPF, gratuity, pension)",
             "micro-finance & self-help groups",
@@ -49,7 +49,7 @@ CONTEXTUAL_FACETS = {
             "public health programmes & immunisation",
             "first aid & disease prevention",
             "basics of pharmacology & treatment",
-            "traditional medicine (Ayurveda/Yoga)",
+            "traditional and locally practiced medicine",
         ],
     },
 }

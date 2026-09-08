@@ -10,11 +10,28 @@ languages:
   english:
     display_name: English
     locale: en_IN
-    assistant_devanagari_fraction: {min: 0.0, max: 0.15}
+    answer_label: Answer
+    script_pattern: "[A-Za-z]"
+    question_script_fraction: {min: 0.50, max: 1.0}
+    answer_script_fraction: {min: 0.85, max: 1.0}
+    strip_latin_glosses: false
   hindi:
     display_name: Hindi
     locale: hi_Deva_IN
-    assistant_devanagari_fraction: {min: 0.70, max: 1.0}
+    answer_label: उत्तर
+    answer_label_aliases: [उत्तर है]
+    script_pattern: "[ऀ-ॿ]"
+    question_script_fraction: {min: 0.50, max: 1.0}
+    answer_script_fraction: {min: 0.70, max: 1.0}
+    strip_latin_glosses: true
+  malayalam:
+    display_name: Malayalam
+    locale: en_IN
+    answer_label: ഉത്തരം
+    script_pattern: "[ഀ-ൿ]"
+    question_script_fraction: {min: 0.50, max: 1.0}
+    answer_script_fraction: {min: 0.70, max: 1.0}
+    strip_latin_glosses: true
 
 question_models: [oss]
 answer_models: [qwen, oss, gemma]
@@ -46,5 +63,11 @@ question_generation: {num_records: 8, max_parallel_requests: 4, buffer_size: 8}
 lexical_dedup: {threshold: 0.80, shingle_size: 4, permutations: 32, bands: 4, seed: 42}
 semantic_dedup: {model: intfloat/multilingual-e5-large, device: cpu, batch_size: 8, threshold: 0.965, method: greedy, seed: 13, chunk_size: 64}
 answer_generation: {max_parallel_requests: 4, timeout: 600, max_retries: 3}
-sft: {response_teachers: [qwen, oss, gemma], agreement: unanimous}
+sft:
+  response_teachers: [qwen, oss, gemma]
+  agreement: unanimous
+  reasoning:
+    display_name: English
+    script_pattern: "[A-Za-z]"
+    script_fraction: {min: 0.85, max: 1.0}
 sampling: {per_language: 1, seed: 42, reasoning_off_fraction: 0.10, answer_variant: full}

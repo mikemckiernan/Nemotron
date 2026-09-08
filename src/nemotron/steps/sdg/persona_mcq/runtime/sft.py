@@ -7,15 +7,11 @@ from __future__ import annotations
 
 import hashlib
 import random
-import re
 from collections import Counter
 from typing import Any
 
-from nemotron.steps.sdg.persona_mcq.runtime.answers import INSTRUCTIONS
-
-DEVANAGARI = re.compile(r"[ऀ-ॿ]")
-LATIN = re.compile(r"[A-Za-z]")
-ANSWER_LINE = re.compile(r"(?:उत्तर|Answer)\s*[:：]", re.IGNORECASE)
+from nemotron.steps.sdg.persona_mcq.runtime.answers import answer_prompt, split_visible_reasoning
+from nemotron.steps.sdg.persona_mcq.runtime.languages import script_fraction
 
 
 def prepare_answer_seed(records: list[dict[str, Any]], _seed: int) -> list[dict[str, Any]]:
@@ -24,13 +20,7 @@ def prepare_answer_seed(records: list[dict[str, Any]], _seed: int) -> list[dict[
     for record in records:
         choices = list(record["choices"])
         query_id = hashlib.blake2b(
-            (
-                record["language"]
-                + "||"
-                + record["question"]
-                + "||"
-                + "|".join(choices)
-            ).encode(),
+            (record["language"] + "||" + record["question"] + "||" + "|".join(choices)).encode(),
             digest_size=12,
         ).hexdigest()
         rng = random.Random(int(query_id[:8], 16))
@@ -61,17 +51,11 @@ def vote(letters: list[str | None], agreement: str) -> str | None:
     if agreement == "unanimous":
         return valid[0] if len(valid) == len(letters) and len(set(valid)) == 1 else None
     if agreement == "majority":
-        if len(valid) < 2:
+        if not valid:
             return None
         letter, count = Counter(valid).most_common(1)[0]
-        return letter if count >= 2 else None
+        return letter if count > len(letters) / 2 else None
     raise ValueError(f"Unsupported agreement policy: {agreement!r}")
-
-
-def devanagari_fraction(value: str) -> float:
-    devanagari = len(DEVANAGARI.findall(value))
-    latin = len(LATIN.findall(value))
-    return devanagari / (devanagari + latin) if devanagari + latin else 0.0
 
 
 def build_sft_records(
@@ -79,13 +63,12 @@ def build_sft_records(
     *,
     response_model: str,
     language: str,
+    language_config: dict[str, Any],
+    reasoning_config: dict[str, Any],
     agreement: str,
-    min_devanagari_fraction: float,
-    max_devanagari_fraction: float,
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
     indexed = {
-        model: {str(record["query_id"]): record for record in records}
-        for model, records in answers_by_model.items()
+        model: {str(record["query_id"]): record for record in records} for model, records in answers_by_model.items()
     }
     if response_model not in indexed:
         raise ValueError(f"Unknown response model {response_model!r}")
@@ -104,20 +87,44 @@ def build_sft_records(
             skipped["truncated"] += 1
             continue
         answer = str(teacher.get("answer") or "").strip()
-        reasoning = str(teacher.get("reasoning") or "").strip()
+        visible_reasoning, normalized_answer = split_visible_reasoning(
+            answer,
+            language_config["answer_label"],
+            language_config.get("answer_label_aliases") or (),
+        )
+        if visible_reasoning:
+            answer = normalized_answer
         if not answer:
             skipped["empty_answer"] += 1
             continue
-        if not reasoning:
+        answer_range = language_config["answer_script_fraction"]
+        answer_fraction = script_fraction(answer, language_config["script_pattern"])
+        if not float(answer_range["min"]) <= answer_fraction <= float(answer_range["max"]):
+            skipped["answer_language_impurity"] += 1
+            continue
+        reasoning_range = reasoning_config["script_fraction"]
+        reasoning_candidates = [
+            str(teacher.get("reasoning") or "").strip(),
+            visible_reasoning,
+        ]
+        reasoning_candidates = [candidate for candidate in reasoning_candidates if candidate]
+        if not reasoning_candidates:
             skipped["empty_reasoning"] += 1
             continue
-        fraction = devanagari_fraction(answer)
-        if not min_devanagari_fraction <= fraction <= max_devanagari_fraction:
-            skipped["language_impurity"] += 1
-            continue
-        prompt = f"{INSTRUCTIONS[language]}\n\n{teacher['question']}\n\n" + "\n".join(
-            f"{chr(65 + index)}) {choice}" for index, choice in enumerate(teacher["choices"])
+        reasoning = next(
+            (
+                candidate
+                for candidate in reasoning_candidates
+                if float(reasoning_range["min"])
+                <= script_fraction(candidate, reasoning_config["script_pattern"])
+                <= float(reasoning_range["max"])
+            ),
+            None,
         )
+        if reasoning is None:
+            skipped["reasoning_language_impurity"] += 1
+            continue
+        prompt = answer_prompt(teacher, language_config, reasoning_config)
         output.append(
             {
                 "messages": [
@@ -128,6 +135,8 @@ def build_sft_records(
                 "metadata": {
                     "query_id": query_id,
                     "language": language,
+                    "answer_label": language_config["answer_label"],
+                    "reasoning_language": reasoning_config["display_name"],
                     "response_model": response_model,
                     "agreement": agreement,
                     "voted_letter": winner,
@@ -144,11 +153,8 @@ def build_sft_records(
     return output, {"kept": len(output), **dict(skipped)}
 
 
-def _final_answer(content: str, language: str, voted: str) -> str:
-    for line in reversed([line.strip() for line in content.splitlines() if line.strip()]):
-        if ANSWER_LINE.search(line):
-            return line
-    return f"{'उत्तर' if language == 'hindi' else 'Answer'}: {voted}"
+def _final_answer(answer_label: str, voted: str) -> str:
+    return f"{answer_label}: {voted}"
 
 
 def sample_aligned_datasets(
@@ -163,8 +169,7 @@ def sample_aligned_datasets(
         raise ValueError("reasoning_off_fraction must be between zero and one")
     indexed = {
         teacher: {
-            language: {str(row["metadata"]["query_id"]): row for row in rows}
-            for language, rows in by_language.items()
+            language: {str(row["metadata"]["query_id"]): row for row in rows} for language, rows in by_language.items()
         }
         for teacher, by_language in datasets.items()
     }
@@ -172,9 +177,7 @@ def sample_aligned_datasets(
     rng = random.Random(seed)
     selected: dict[str, list[str]] = {}
     for language in languages:
-        common = sorted(
-            set.intersection(*(set(by_language[language]) for by_language in indexed.values()))
-        )
+        common = sorted(set.intersection(*(set(by_language[language]) for by_language in indexed.values())))
         if len(common) < sample_per_language:
             raise ValueError(
                 f"{language}: shared teacher intersection {len(common)} is smaller than requested "
@@ -182,8 +185,16 @@ def sample_aligned_datasets(
             )
         selected[language] = rng.sample(common, sample_per_language)
 
+    reasoning_off_ids: dict[str, set[str]] = {}
+    for language, query_ids in selected.items():
+        count = int(len(query_ids) * reasoning_off_fraction)
+        ranked = sorted(
+            query_ids,
+            key=lambda query_id: hashlib.sha256(f"{seed}:{query_id}".encode()).hexdigest(),
+        )
+        reasoning_off_ids[language] = set(ranked[:count])
+
     result: dict[str, list[dict[str, Any]]] = {}
-    cutoff = int(reasoning_off_fraction * 100)
     for teacher, by_language in indexed.items():
         rows: list[dict[str, Any]] = []
         for language, query_ids in selected.items():
@@ -191,10 +202,13 @@ def sample_aligned_datasets(
                 source = by_language[language][query_id]
                 user = next(message["content"] for message in source["messages"] if message["role"] == "user")
                 assistant_source = next(message for message in source["messages"] if message["role"] == "assistant")
-                is_off = int(query_id[:8], 16) % 100 < cutoff
+                is_off = query_id in reasoning_off_ids[language]
                 content = assistant_source["content"]
                 if answer_variant == "stripped":
-                    content = _final_answer(content, language, source["metadata"]["voted_letter"])
+                    content = _final_answer(
+                        source["metadata"]["answer_label"],
+                        source["metadata"]["voted_letter"],
+                    )
                 elif answer_variant != "full":
                     raise ValueError(f"Unsupported answer variant: {answer_variant!r}")
                 assistant = {"role": "assistant", "content": content}
@@ -209,4 +223,7 @@ def sample_aligned_datasets(
                 )
         random.Random(seed).shuffle(rows)
         result[teacher] = rows
-    return result, {"selected_by_language": {language: len(ids) for language, ids in selected.items()}}
+    return result, {
+        "selected_by_language": {language: len(ids) for language, ids in selected.items()},
+        "reasoning_off_by_language": {language: len(query_ids) for language, query_ids in reasoning_off_ids.items()},
+    }

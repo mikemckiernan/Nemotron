@@ -5,12 +5,12 @@
 id = "sdg/persona_mcq"
 name = "Persona MCQ SFT Generation"
 category = "sdg"
-description = "Generate, deduplicate, answer, vote, and export English/Hindi persona-grounded MCQ SFT data."
+description = "Generate, deduplicate, answer, vote, and export English/Hindi/Malayalam persona-grounded MCQ SFT data."
 tags = ["sdg", "data-designer", "persona", "mcq", "sft", "multilingual"]
 
 [[produces]]
-type = "synthetic_jsonl"
-description = "Aligned per-teacher OpenAI messages JSONL with optional assistant reasoning content."
+type = "training_jsonl"
+description = "Aligned per-teacher all-language and English/target train.jsonl files plus SFT packing blend manifests."
 
 [[parameters]]
 name = "pipeline.experiment_name"
@@ -30,6 +30,10 @@ name = "answer_models"
 description = "At least three teacher models used to answer every deduplicated question and vote."
 
 [[parameters]]
+name = "languages"
+description = "Config-defined output languages, persona locales, answer labels, script regexes, thresholds, and gloss handling."
+
+[[parameters]]
 name = "semantic_dedup.threshold"
 description = "Cosine-similarity threshold for multilingual-E5 near-duplicate removal."
 default = 0.965
@@ -39,6 +43,10 @@ name = "sft.agreement"
 description = "Vote threshold used when selecting SFT responses."
 default = "unanimous"
 choices = ["unanimous", "majority"]
+
+[[parameters]]
+name = "sft.reasoning"
+description = "Independent reasoning-language name, script regex, and purity range; shipped configs require English reasoning."
 
 [[parameters]]
 name = "sampling.reasoning_off_fraction"
@@ -68,5 +76,3 @@ recovery = "Inspect voting and language-purity summaries, then reduce sampling.p
 [reference]
 skill = "src/nemotron/steps/sdg/persona_mcq/README.md"
 repo = "https://github.com/NVIDIA-NeMo/DataDesigner"
-source_plugin = "https://gitlab-master.nvidia.com/kanishks/sovereign-ai-playbook/-/tree/88afa6e30ff123dd0abeba3a77555e369600c036/sdg/data-designer-plugins/qasynth_plugin"
-source_pipeline = "https://gitlab-master.nvidia.com/kanishks/sovereign-ai-playbook/-/tree/88afa6e30ff123dd0abeba3a77555e369600c036/sdg/scripts/mcq_personas"

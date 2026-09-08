@@ -23,7 +23,13 @@ from typer.testing import CliRunner
 from nemo_runspec.cli_context import GlobalContext
 from nemo_runspec.config import build_job_config, extract_train_config
 from nemotron.cli.bin.nemotron import app
-from nemotron.steps.sdg.persona_mcq.runtime.answers import parse_answer_letter
+from nemotron.steps.sdg.persona_mcq.runtime.answers import (
+    answer_prompt,
+    parse_answer_letter,
+    split_visible_reasoning,
+)
+from nemotron.steps.sdg.persona_mcq.runtime.io import write_jsonl
+from nemotron.steps.sdg.persona_mcq.runtime.languages import script_fraction
 from nemotron.steps.sdg.persona_mcq.runtime.lexical import deduplicate, strip_latin_gloss
 from nemotron.steps.sdg.persona_mcq.runtime.pipeline import PersonaMCQPipeline, validate_config
 from nemotron.steps.sdg.persona_mcq.runtime.semantic import deduplicate_embeddings, greedy_keep_indices
@@ -39,6 +45,10 @@ from .._step_helpers import assert_step_static, step_dir
 
 STEP = step_dir(__file__, "sdg", "persona_mcq")
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _tiny_config() -> dict:
+    return yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
 
 
 def _conversation(question: str, choices: list[str]) -> dict:
@@ -185,6 +195,14 @@ def test_question_prompt_uses_the_persona_geography() -> None:
     assert "India" not in prompt
 
 
+def test_contextual_taxonomy_is_not_country_specific() -> None:
+    from nemotron.steps.sdg.plugins.persona_mcq.taxonomy import CONTEXTUAL_FACETS
+
+    taxonomy = json.dumps(CONTEXTUAL_FACETS, ensure_ascii=False)
+    for country_specific_term in ("Kisan", "MUDRA", "PMFBY", "PMJJBY", "UPI", "Ayurveda"):
+        assert country_specific_term not in taxonomy
+
+
 @pytest.mark.parametrize("new_shape", [True, False])
 def test_model_facade_response_compatibility(new_shape: bool) -> None:
     pytest.importorskip("data_designer")
@@ -216,6 +234,10 @@ def test_lexical_filters_and_deduplicates() -> None:
     output, stats = deduplicate(
         records,
         language="hindi",
+        script_pattern="[ऀ-ॿ]",
+        min_script_fraction=0.5,
+        max_script_fraction=1.0,
+        strip_latin_glosses=True,
         source_model="oss",
         permutations=16,
         bands=4,
@@ -223,7 +245,32 @@ def test_lexical_filters_and_deduplicates() -> None:
     assert len(output) == 1
     assert stats["drop_exact"] == 1
     assert stats["drop_wrong_language"] == 2
-    assert strip_latin_gloss("गेंदा (Marigold)") == "गेंदा"
+    assert strip_latin_gloss("गेंदा (Marigold)", "[ऀ-ॿ]", enabled=True) == "गेंदा"
+
+
+def test_malayalam_language_filter_and_gloss_removal() -> None:
+    records = [
+        _conversation(
+            "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി ഏതാണ്?",
+            ["പെരിയാർ", "പമ്പ", "ചാലക്കുടി", "കബനി"],
+        ),
+        _conversation("Which river is longest?", ["Periyar", "Pamba", "Chalakudy", "Kabani"]),
+    ]
+    output, stats = deduplicate(
+        records,
+        language="malayalam",
+        script_pattern="[ഀ-ൿ]",
+        min_script_fraction=0.5,
+        max_script_fraction=1.0,
+        strip_latin_glosses=True,
+        source_model="oss",
+        permutations=16,
+        bands=4,
+    )
+
+    assert len(output) == 1
+    assert stats["drop_wrong_language"] == 1
+    assert strip_latin_gloss("ചെണ്ട (Drum)", "[ഀ-ൿ]", enabled=True) == "ചെണ്ട"
 
 
 def test_semantic_greedy_does_not_chain() -> None:
@@ -261,10 +308,81 @@ def test_answer_seed_shuffle_is_stable() -> None:
 
 def test_answer_parser_and_vote() -> None:
     assert parse_answer_letter("Reasoning\n**Answer: $C$**") == "C"
-    assert parse_answer_letter("उत्तर: (B)") == "B"
+    assert parse_answer_letter("उत्तर: (B)", "उत्तर", ["उत्तर है"]) == "B"
+    assert parse_answer_letter("उत्तर है: (B)", "उत्तर", ["उत्तर है"]) == "B"
+    assert parse_answer_letter("ഉത്തരം: D", "ഉത്തരം") == "D"
+    assert parse_answer_letter("Answer: A\nCorrection\nAnswer: C") == "C"
     assert vote(["A", "A", "A"], "unanimous") == "A"
     assert vote(["A", "A", "B"], "majority") == "A"
+    assert vote(["A", "A", "A", "B"], "majority") == "A"
+    assert vote(["A", "A", "B", "B"], "majority") is None
+    assert vote(["A", "A", "A", "B", "C"], "majority") == "A"
+    assert vote(["A", "A", "B", "C", "D"], "majority") is None
     assert vote(["A", "A", "B"], "unanimous") is None
+
+
+def test_provider_english_reasoning_precedes_visible_target_language_rationale() -> None:
+    rationale, answer = split_visible_reasoning(
+        "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി പെരിയാറാണ്.\nഉത്തരം: A",
+        "ഉത്തരം",
+    )
+    assert rationale == "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി പെരിയാറാണ്."
+    assert answer == "ഉത്തരം: A"
+
+    query_id = "e" * 64
+    answers = {
+        model: [
+            {
+                **_answer(query_id, model),
+                "question": "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി ഏതാണ്?",
+                "choices": ["പെരിയാർ", "പമ്പ", "ചാലക്കുടി", "കബനി"],
+                "answer": "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി പെരിയാറാണ്.\nഉത്തരം: A",
+                "reasoning": "The provider emitted private reasoning in English.",
+            }
+        ]
+        for model in ("qwen", "oss", "gemma")
+    }
+    rows, stats = build_sft_records(
+        answers,
+        response_model="qwen",
+        language="malayalam",
+        language_config=_tiny_config()["languages"]["malayalam"],
+        reasoning_config=_tiny_config()["sft"]["reasoning"],
+        agreement="unanimous",
+    )
+
+    assert stats == {"kept": 1}
+    assert rows[0]["messages"][-1] == {
+        "role": "assistant",
+        "reasoning_content": "The provider emitted private reasoning in English.",
+        "content": "ഉത്തരം: A",
+    }
+
+
+def test_target_language_reasoning_is_rejected_when_english_is_required() -> None:
+    query_id = "d" * 64
+    answers = {
+        model: [
+            {
+                **_answer(query_id, model),
+                "answer": "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി പെരിയാറാണ്.\nഉത്തരം: A",
+                "reasoning": "കേരളത്തിലെ ഏറ്റവും നീളമുള്ള നദി പെരിയാറാണ്.",
+            }
+        ]
+        for model in ("qwen", "oss", "gemma")
+    }
+
+    rows, stats = build_sft_records(
+        answers,
+        response_model="qwen",
+        language="malayalam",
+        language_config=_tiny_config()["languages"]["malayalam"],
+        reasoning_config=_tiny_config()["sft"]["reasoning"],
+        agreement="unanimous",
+    )
+
+    assert rows == []
+    assert stats == {"kept": 0, "reasoning_language_impurity": 1}
 
 
 def test_sft_quality_gates_and_aligned_sampling() -> None:
@@ -274,9 +392,9 @@ def test_sft_quality_gates_and_aligned_sampling() -> None:
         answers,
         response_model="oss",
         language="english",
+        language_config=_tiny_config()["languages"]["english"],
+        reasoning_config=_tiny_config()["sft"]["reasoning"],
         agreement="unanimous",
-        min_devanagari_fraction=0.0,
-        max_devanagari_fraction=0.15,
     )
     assert stats["kept"] == 1
     datasets = {teacher: {"english": rows} for teacher in answers}
@@ -288,14 +406,153 @@ def test_sft_quality_gates_and_aligned_sampling() -> None:
         answer_variant="stripped",
     )
     assert summary["selected_by_language"] == {"english": 1}
+    assert summary["reasoning_off_by_language"] == {"english": 1}
     assert all("reasoning_content" not in data[0]["messages"][-1] for data in sampled.values())
     assert all(data[0]["messages"][-1]["content"] == "Answer: A" for data in sampled.values())
+
+
+def test_reasoning_off_fraction_is_exact_per_language() -> None:
+    teachers = ("qwen", "oss", "gemma")
+    languages = ("english", "hindi", "malayalam")
+    datasets = {
+        teacher: {
+            language: [
+                {
+                    "messages": [
+                        {"role": "system", "content": ""},
+                        {"role": "user", "content": f"{language} question {index}"},
+                        {
+                            "role": "assistant",
+                            "reasoning_content": f"{language} reasoning {index}",
+                            "content": "Answer: A",
+                        },
+                    ],
+                    "metadata": {
+                        "query_id": f"{language}-{index}",
+                        "language": language,
+                        "voted_letter": "A",
+                    },
+                }
+                for index in range(10)
+            ]
+            for language in languages
+        }
+        for teacher in teachers
+    }
+
+    sampled, summary = sample_aligned_datasets(
+        datasets,
+        sample_per_language=10,
+        seed=42,
+        reasoning_off_fraction=0.1,
+        answer_variant="full",
+    )
+
+    assert summary["reasoning_off_by_language"] == {language: 1 for language in languages}
+    for rows in sampled.values():
+        counts = {
+            language: sum(
+                row["metadata"]["language"] == language and row["metadata"]["reasoning_mode"] == "off" for row in rows
+            )
+            for language in languages
+        }
+        assert counts == {language: 1 for language in languages}
+
+
+def test_malayalam_prompt_and_script_quality() -> None:
+    config = _tiny_config()
+    prompt = answer_prompt(
+        {"question": "ചോദ്യം?", "choices": ["ഒന്ന്", "രണ്ട്", "മൂന്ന്", "നാല്"]},
+        config["languages"]["malayalam"],
+        config["sft"]["reasoning"],
+    )
+
+    assert "ഉത്തരം: $LETTER" in prompt
+    assert "reasoning step by step in English" in prompt
+    assert script_fraction("ഇത് മലയാളം ഉത്തരമാണ്", "[ഀ-ൿ]") == 1.0
+    assert script_fraction("This is English", "[ഀ-ൿ]") == 0.0
+
+
+def test_sample_writes_downstream_training_handoff(tmp_path) -> None:
+    config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
+    config["pipeline"].update(output_root=str(tmp_path), experiment_name="handoff")
+    pipeline = PersonaMCQPipeline(config)
+    query_ids = {"english": "a" * 64, "hindi": "b" * 64, "malayalam": "c" * 64}
+    for teacher in config["sft"]["response_teachers"]:
+        for language, query_id in query_ids.items():
+            row = {
+                "messages": [
+                    {"role": "system", "content": ""},
+                    {"role": "user", "content": "question"},
+                    {"role": "assistant", "reasoning_content": "reasoning", "content": "Answer: A"},
+                ],
+                "metadata": {"query_id": query_id, "language": language, "voted_letter": "A"},
+            }
+            write_jsonl(pipeline.root / "sft" / teacher / f"{language}.jsonl", [row])
+
+    pipeline._sample()
+
+    for teacher in config["sft"]["response_teachers"]:
+        training_jsonl = pipeline.root / "training" / teacher / "train.jsonl"
+        blend_path = pipeline.root / "training" / teacher / "blend.json"
+        assert training_jsonl.is_file()
+        assert len(training_jsonl.read_text(encoding="utf-8").splitlines()) == 3
+        blend = json.loads(blend_path.read_text(encoding="utf-8"))
+        assert blend == {
+            "datasets": [
+                {
+                    "name": f"persona-mcq-{teacher}",
+                    "path": str(training_jsonl.resolve()),
+                    "weight": 1.0,
+                }
+            ]
+        }
+        for view_name, expected_languages in {
+            "english_hindi": {"english", "hindi"},
+            "english_malayalam": {"english", "malayalam"},
+        }.items():
+            view_root = pipeline.root / "training" / teacher / view_name
+            view_records = [json.loads(line) for line in (view_root / "train.jsonl").read_text().splitlines()]
+            assert len(view_records) == 2
+            assert {record["metadata"]["language"] for record in view_records} == expected_languages
+            view_blend = json.loads((view_root / "blend.json").read_text(encoding="utf-8"))
+            assert view_blend["datasets"][0]["path"] == str((view_root / "train.jsonl").resolve())
+        assert not (pipeline.root / "final" / f"{teacher}.jsonl").exists()
 
 
 def test_shipped_configs_validate() -> None:
     for path in sorted((STEP / "config").glob("*.yaml")):
         config = yaml.safe_load(path.read_text(encoding="utf-8"))
         validate_config(config)
+        assert set(config["languages"]) == {"english", "hindi", "malayalam"}
+
+
+def test_language_script_contract_is_config_driven() -> None:
+    config = _tiny_config()
+    config["languages"] = {
+        "tamil_custom_key": {
+            "display_name": "Tamil",
+            "locale": "en_IN",
+            "answer_label": "பதில்",
+            "script_pattern": "[஀-௿]",
+            "question_script_fraction": {"min": 0.5, "max": 1.0},
+            "answer_script_fraction": {"min": 0.7, "max": 1.0},
+            "strip_latin_glosses": True,
+        }
+    }
+
+    validate_config(config)
+    prompt = answer_prompt(
+        {"question": "கேள்வி?", "choices": ["ஒன்று", "இரண்டு", "மூன்று", "நான்கு"]},
+        config["languages"]["tamil_custom_key"],
+        config["sft"]["reasoning"],
+    )
+
+    assert "written in Tamil" in prompt
+    assert "reasoning step by step in English" in prompt
+    assert "பதில்: $LETTER" in prompt
+    assert parse_answer_letter("பதில்: C", "பதில்") == "C"
+    assert script_fraction("தமிழ்", "[஀-௿]") == 1.0
 
 
 @pytest.mark.parametrize(
@@ -353,3 +610,66 @@ def test_stage_selection_does_not_change_experiment_identity(tmp_path) -> None:
     resumed["question_generation"]["num_records"] += 1
     with pytest.raises(ValueError, match="different config"):
         PersonaMCQPipeline(resumed)._prepare_experiment()
+
+
+def test_resume_preserves_existing_stage_summary(tmp_path) -> None:
+    config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
+    config["pipeline"].update(output_root=str(tmp_path), experiment_name="resume-summary")
+    first = PersonaMCQPipeline(config)
+    first._prepare_experiment()
+    first.summary["stages"]["questions"] = {"oss/english": 5}
+    first._write_summary()
+
+    resumed_config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
+    resumed_config["pipeline"].update(
+        output_root=str(tmp_path),
+        experiment_name="resume-summary",
+        stages=["answers"],
+        resume=True,
+    )
+    resumed = PersonaMCQPipeline(resumed_config)
+    resumed._prepare_experiment()
+
+    assert resumed.summary["stages"]["questions"] == {"oss/english": 5}
+
+
+def test_explicit_overwrite_removes_stale_artifacts(tmp_path) -> None:
+    config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
+    config["pipeline"].update(output_root=str(tmp_path), experiment_name="overwrite-clean")
+    first = PersonaMCQPipeline(config)
+    first._prepare_experiment()
+    stale = first.root / "training" / "removed-teacher" / "train.jsonl"
+    stale.parent.mkdir(parents=True)
+    stale.write_text("stale\n", encoding="utf-8")
+    first.summary["stages"]["sample"] = {"stale": True}
+    first._write_summary()
+
+    overwrite_config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
+    overwrite_config["pipeline"].update(
+        output_root=str(tmp_path),
+        experiment_name="overwrite-clean",
+        overwrite=True,
+    )
+    overwritten = PersonaMCQPipeline(overwrite_config)
+    overwritten._prepare_experiment()
+
+    assert not stale.exists()
+    assert overwritten.summary == {"stages": {}}
+    assert (overwritten.root / "run.json").is_file()
+
+
+@pytest.mark.parametrize(
+    ("path", "value", "message"),
+    [
+        (("sft", "agreement"), "plurality", "sft.agreement"),
+        (("sampling", "per_language"), 0, "sampling.per_language"),
+        (("sampling", "reasoning_off_fraction"), 1.1, "sampling.reasoning_off_fraction"),
+        (("sampling", "answer_variant"), "verbose", "sampling.answer_variant"),
+    ],
+)
+def test_config_rejects_invalid_voting_and_sampling(path, value, message) -> None:
+    config = yaml.safe_load((STEP / "config" / "tiny.yaml").read_text(encoding="utf-8"))
+    config[path[0]][path[1]] = value
+
+    with pytest.raises(ValueError, match=message):
+        validate_config(config)

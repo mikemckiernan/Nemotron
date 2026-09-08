@@ -9,38 +9,63 @@ import asyncio
 import json
 import os
 import re
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 from nemotron.steps.sdg.persona_mcq.runtime.io import read_jsonl
-
-ANSWER_RE = re.compile(
-    r"(?:Answer|उत्तर(?:\s*है)?)\s*[:：]?\s*[$*_{}\\\s]*(?:\\?text\{)?\s*\(?\s*([ABCD])\b",
-    re.IGNORECASE,
-)
-
-INSTRUCTIONS = {
-    "english": (
-        "Answer the following multiple choice question. The last line of your response should be of the "
-        "following format: 'Answer: $LETTER' (without quotes) where $LETTER is one of ABCD. "
-        "Think step by step before answering."
-    ),
-    "hindi": (
-        "निम्नलिखित बहुविकल्पीय प्रश्न का उत्तर दें। आपकी प्रतिक्रिया की अंतिम पंक्ति निम्न प्रारूप में होनी "
-        "चाहिए: 'उत्तर: $LETTER' (बिना उद्धरण चिह्न के) जहाँ $LETTER, A/B/C/D में से एक है। उत्तर देने से पहले "
-        "चरण-दर-चरण सोचें।"
-    ),
-}
+from nemotron.steps.sdg.persona_mcq.runtime.languages import answer_instruction
 
 
-def answer_prompt(record: dict[str, Any], language: str) -> str:
+def _answer_re(answer_label: str, answer_label_aliases: Iterable[str] = ()) -> re.Pattern[str]:
+    labels = sorted({answer_label, *answer_label_aliases}, key=len, reverse=True)
+    return re.compile(
+        rf"(?:{'|'.join(re.escape(label) for label in labels)})"
+        r"\s*[:：]?\s*[$*_{}\\\s]*(?:\\?text\{)?\s*\(?\s*([ABCD])\b",
+        re.IGNORECASE,
+    )
+
+
+def answer_prompt(
+    record: dict[str, Any],
+    language_config: dict[str, Any],
+    reasoning_config: dict[str, Any],
+) -> str:
     options = "\n".join(f"{chr(65 + index)}) {choice}" for index, choice in enumerate(record["choices"]))
-    return f"{INSTRUCTIONS[language]}\n\n{record['question']}\n\n{options}"
+    instruction = answer_instruction(
+        question_language=language_config["display_name"],
+        answer_label=language_config["answer_label"],
+        reasoning_language=reasoning_config["display_name"],
+    )
+    return f"{instruction}\n\n{record['question']}\n\n{options}"
 
 
-def parse_answer_letter(content: str) -> str | None:
-    match = ANSWER_RE.search(content.strip()[-300:])
-    return match.group(1).upper() if match else None
+def parse_answer_letter(
+    content: str,
+    answer_label: str = "Answer",
+    answer_label_aliases: Iterable[str] = (),
+) -> str | None:
+    matches = list(_answer_re(answer_label, answer_label_aliases).finditer(content.strip()[-300:]))
+    return matches[-1].group(1).upper() if matches else None
+
+
+def split_visible_reasoning(
+    content: str,
+    answer_label: str,
+    answer_label_aliases: Iterable[str] = (),
+) -> tuple[str, str]:
+    """Split a visible rationale from the configured final-answer marker."""
+    stripped = content.strip()
+    matches = list(_answer_re(answer_label, answer_label_aliases).finditer(stripped[-300:]))
+    if not matches:
+        return "", stripped
+    match = matches[-1]
+    absolute_start = max(0, len(stripped) - 300) + match.start()
+    rationale = stripped[:absolute_start].strip()
+    if not rationale:
+        return "", stripped
+    letter = match.group(1).upper()
+    return rationale, f"{answer_label}: {letter}"
 
 
 def _done_ids(path: Path) -> set[str]:
@@ -52,7 +77,8 @@ def _done_ids(path: Path) -> set[str]:
 async def _request(
     client: Any,
     record: dict[str, Any],
-    language: str,
+    language_config: dict[str, Any],
+    reasoning_config: dict[str, Any],
     model: dict[str, Any],
     max_retries: int,
 ) -> dict[str, Any]:
@@ -60,7 +86,7 @@ async def _request(
 
     body = {
         "model": model["model"],
-        "messages": [{"role": "user", "content": answer_prompt(record, language)}],
+        "messages": [{"role": "user", "content": answer_prompt(record, language_config, reasoning_config)}],
         "temperature": model.get("temperature", 1.0),
         "top_p": model.get("top_p", 1.0),
         "max_tokens": model.get("max_tokens", 16384),
@@ -83,7 +109,11 @@ async def _request(
                 "answer_model": model["model"],
                 "answer": content,
                 "reasoning": reasoning,
-                "parsed_letter": parse_answer_letter(content),
+                "parsed_letter": parse_answer_letter(
+                    content,
+                    language_config["answer_label"],
+                    language_config.get("answer_label_aliases") or (),
+                ),
                 "finish_reason": choice.get("finish_reason"),
                 "completion_tokens": (payload.get("usage") or {}).get("completion_tokens"),
             }
@@ -97,7 +127,8 @@ async def _request(
 async def generate_answers(
     records: list[dict[str, Any]],
     *,
-    language: str,
+    language_config: dict[str, Any],
+    reasoning_config: dict[str, Any],
     model: dict[str, Any],
     output_path: Path,
     failure_path: Path,
@@ -128,10 +159,18 @@ async def generate_answers(
     ) as client:
         mode = "a" if resume else "w"
         with output_path.open(mode, encoding="utf-8") as output, failure_path.open(mode, encoding="utf-8") as failures:
+
             async def run_one(record: dict[str, Any]) -> None:
                 async with semaphore:
                     try:
-                        result = await _request(client, record, language, model, max_retries)
+                        result = await _request(
+                            client,
+                            record,
+                            language_config,
+                            reasoning_config,
+                            model,
+                            max_retries,
+                        )
                     except Exception as exc:  # noqa: BLE001 - persist per-row failure and continue.
                         async with lock:
                             failures.write(json.dumps({"query_id": record["query_id"], "error": str(exc)}) + "\n")

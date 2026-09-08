@@ -2,21 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 # ruff: noqa: E501 -- prompt line breaks can change model behavior.
 
-"""Prompts for persona-grounded MCQ authoring (Pipeline 1, mcq_grid).
+"""Prompts for persona-grounded MCQ authoring.
 
 The production generator anchors each question on ONE persona facet:
   - KNOWLEDGE_MCQ_FACET : default facet-anchored author prompt.
   - CONTEXTUAL          : low-entropy facets (finance/health) -- rotates a
                           sub-topic and grounds in occupation/age/region.
-
-QUESTION_AUTHOR_SYSTEM_PROMPT_SUBJECT is reserved (currently unused) for the
-future source-grounded knowledge-bank pipeline (Pipeline 2).
 """
 
 from __future__ import annotations
 
 # ---------------------------------------------------------------------------
-# Author prompt — KNOWLEDGE MCQ, FACET-ANCHORED (idea 1 + 4)
+# Author prompt — KNOWLEDGE MCQ, FACET-ANCHORED
 # The generator passes ONE persona facet (not the whole persona) plus a
 # difficulty tier derived from the persona's education level. No example block.
 # ---------------------------------------------------------------------------
@@ -72,62 +69,6 @@ The person's life aspect to draw a subject from — facet type: {facet_name}
 <FACET>
 {facet_text}
 </FACET>
-"""
-
-# ---------------------------------------------------------------------------
-# Author prompt — SUBJECT-TAXONOMY (grid track B). No persona is passed.
-# Used for universal/STEM subjects (generic knowledge) and regionally applied
-# academic subjects (light persona-derived framing). Sub-topic granularity + an
-# explicit "specific, non-obvious concept" instruction prevent canonical
-# collapse (the topic-only failure mode).
-# ---------------------------------------------------------------------------
-QUESTION_AUTHOR_SYSTEM_PROMPT_SUBJECT = """You are an expert exam-question writer building a multiple-choice question bank.
-
-Write ONE multiple-choice question on the following subject and sub-topic.
-
-SUBJECT: {subject}
-SUB-TOPIC: {subtopic}
-DIFFICULTY (audience level): {difficulty}
-
-<HOW_TO_CHOOSE_THE_QUESTION>
-- Stay within the SUB-TOPIC above.
-- Choose a SPECIFIC, precise concept within the sub-topic and test real understanding of it. Avoid the single most clichéd, over-tested textbook fact for this subject — prefer a sharper, less-obvious point appropriate to the difficulty.
-- VARY THE PHRASING across questions: do NOT reuse a fixed question template or always open with the same words (e.g. not every question as "Which of the following ..."). Change the sentence structure, opening, and angle of inquiry from one question to the next.
-- The question must require genuine subject knowledge or reasoning; it must be self-contained and not give away its own answer.
-{context_line}
-</HOW_TO_CHOOSE_THE_QUESTION>
-
-<DIFFICULTY_GUIDE>
-Calibrate to the audience level above: easy = widely-known facts; medium = solid school/undergraduate understanding; hard = precise undergraduate/graduate-level reasoning; expert = specialised, postgraduate-level depth.
-</DIFFICULTY_GUIDE>
-
-<WRITING_THE_QUESTION>
-- Exactly ONE question with exactly {num_options} options, exactly ONE clearly correct.
-- Clear, factually correct, unambiguous.
-- TARGET LANGUAGE: write the ENTIRE question stem and ALL {num_options} options in {language} only.
-- NEVER add a parenthetical gloss, translation, transliteration, or explanation in another language after any term. Write every term in {language} ONLY — e.g. write "गेंदा", and NEVER "गेंदा (Marigold)" or "गेंदा (marigold)". This rule is absolute and applies even to borrowed, technical, or modern terms: there must be no bracketed "(English)" text after any word, anywhere in the question or in any option.
-- ONLY exception: a term that has no standard {language} form (scientific binomials such as Oryza sativa, chemical/gene symbols such as CYP2D6, mathematical notation, units, formulae, or globally-standard proper nouns/brand names) may stay in its conventional form — on its own, with no added gloss.
-</WRITING_THE_QUESTION>
-
-<OPTIONS>
-- Exactly {num_options} options, labeled A, B, C, ... in order.
-- Put options ONLY inside the <options> block. The <question> block must contain the stem ALONE — no "A)", "B)", ... and no option text inside it.
-- HOMOGENEOUS OPTIONS: all {num_options} options must be the SAME type and granularity as the correct answer — e.g. all rivers, all exact years, all people, all instruments, all diseases. Never mix categories or levels of generality (no continent beside a country, no decade beside an exact year, no broad class beside a specific instance).
-- Every distractor must be plausible and wrong for a real reason, and mutually exclusive from the others — no two options meaning the same thing, and no option that is a subset or superset of another.
-- Keep all options similar in length, specificity, and style to the correct option. Do not give the answer away through option length, format, or tell-tale absolute words.
-</OPTIONS>
-
-<FORMAT>
-Respond with ONLY the following and nothing else — no greetings, explanations, analysis, or answer key:
-<question>
-[The question stem only, in {language}. No option letters here.]
-</question>
-<options>
-A) [option A text — in {language} only; no parenthetical translation or transliteration]
-B) [option B text]
-[continue through {num_options} options total]
-</options>
-</FORMAT>
 """
 
 # ---------------------------------------------------------------------------
