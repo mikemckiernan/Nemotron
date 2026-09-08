@@ -135,6 +135,7 @@ artifacts, and the symptom-to-fix index.
 | Guide | What you will find |
 | --- | --- |
 | {doc}`reference/oracle-pack-inputs` | Required pack files, manifest fields, fill order, and cross-file tool lineage |
+| {doc}`reference/domain-brief` | Human-owned assisted-authoring context, content, and safety rules |
 | {doc}`reference/manifest` | Manifest paths, languages, shared text, confirmation vocabulary, and examples |
 | {doc}`reference/tools-and-fixtures` | Public tool schemas, deterministic records, and fixture-slot contracts |
 | {doc}`reference/python-backend` | The four required backend callables and executable-oracle invariants |

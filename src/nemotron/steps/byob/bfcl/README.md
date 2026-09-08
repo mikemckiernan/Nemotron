@@ -148,6 +148,7 @@ Operator guides on the documentation site, ordered from first run to release:
 | [Publish a release](../../../../../docs/build-benchmarks/function-calling/how-to/publish-a-release.md) | Choose a budget and challenge mix, then verify the artifacts |
 | [Evaluate a candidate model](../../../../../docs/build-benchmarks/function-calling/how-to/run-evaluation.md) | Score models and read the report |
 | [Oracle Pack inputs](../../../../../docs/build-benchmarks/function-calling/reference/oracle-pack-inputs.md) | Find the required files, manifest fields, fill order, and cross-file tool lineage |
+| [Domain brief](../../../../../docs/build-benchmarks/function-calling/reference/domain-brief.md) | Prepare the human-owned domain context required by assisted authoring |
 | [Manifest fields](../../../../../docs/build-benchmarks/function-calling/reference/manifest.md) | Configure identity, paths, languages, shared text, and confirmation vocabulary |
 | [Tool catalog and fixtures](../../../../../docs/build-benchmarks/function-calling/reference/tools-and-fixtures.md) | Define public schemas and deterministic reset records |
 | [Python backend contract](../../../../../docs/build-benchmarks/function-calling/reference/python-backend.md) | Implement the four required local-oracle callables |
