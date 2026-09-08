@@ -73,7 +73,7 @@ A probe plan may be written from the reviewed source contract or drafted by a mo
 for human review:
 
 ```text
-python -m nemotron.steps.byob.scripts.draft_probe_plan \
+uv run python -m nemotron.steps.byob.scripts.draft_probe_plan \
   --source /srv/sources/warehouse-package \
   --domain-brief /srv/sources/domain-brief.txt \
   --output /srv/sources/probe-plan.json \
@@ -86,7 +86,7 @@ It does not certify the plan or its source. Check the reviewed plan without exec
 probes:
 
 ```bash
-python -m nemotron.steps.byob.scripts.check_probe_plan \
+uv run python -m nemotron.steps.byob.scripts.check_probe_plan \
   --source /srv/sources/warehouse-package \
   --probe-plan /srv/sources/probe-plan.json
 ```
@@ -101,7 +101,7 @@ If no independently implemented local source exists, generate the mechanical
 four-function interface and fill its domain decisions manually:
 
 ```bash
-python -m nemotron.steps.byob.scripts.scaffold_source_package \
+uv run python -m nemotron.steps.byob.scripts.scaffold_source_package \
   --tools /srv/sources/warehouse-package/tools.json \
   --output /srv/sources/warehouse-package \
   --collection assets \
@@ -131,7 +131,7 @@ semantics.
 Check the result against its own catalogue before spending an intake run on it:
 
 ```bash
-python -m nemotron.steps.byob.scripts.check_source_package \
+uv run python -m nemotron.steps.byob.scripts.check_source_package \
   --source /srv/sources/warehouse-package
 ```
 
@@ -156,7 +156,7 @@ Publication currently supports `local_python`. An `http_package` source reaches 
 `author` runs source intake and produces transport-neutral evidence. Two decisions are required at this first command rather than deferred, because evidence that has already been collected cannot be retroactively declared clean.
 
 ```bash
-python -m nemotron.steps.byob.scripts.bfcl_author \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author \
   --ci author \
   --workspace /srv/bfcl/authoring/warehouse \
   --source /srv/sources/warehouse-package \
@@ -181,7 +181,7 @@ The probe plan is one transport-neutral document. It names a case per published 
 Intake may raise digest-bound open questions about the source. Apply the reviewed answers as a new evidence revision:
 
 ```bash
-python -m nemotron.steps.byob.scripts.bfcl_author answer \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author answer \
   --workspace /srv/bfcl/authoring/warehouse \
   --evidence <EVIDENCE_BUNDLE_JSON> \
   --questions <OPEN_QUESTIONS_JSON> \
@@ -197,12 +197,12 @@ the evidence bundle is sanitized before anything is sent anywhere. Supply either
 record to a path you choose.
 
 ```bash
-python -m nemotron.steps.byob.scripts.bfcl_author authorize \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author authorize \
   --workspace /srv/bfcl/authoring/warehouse \
   --subject <MODEL_EXPOSURE_SUBJECT_JSON> \
   --authorized-by reviewer@example.test
 
-python -m nemotron.steps.byob.scripts.bfcl_author approve \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author approve \
   --workspace /srv/bfcl/authoring/warehouse \
   --boundary evidence \
   --approved-by reviewer@example.test \
@@ -245,7 +245,7 @@ sequence.
 ## Step 4: Draft
 
 ```text
-python -m nemotron.steps.byob.scripts.bfcl_author draft \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author draft \
   --workspace /srv/bfcl/authoring/warehouse \
   <artifact, certification, approval, key, output, and model arguments>
 ```
@@ -255,7 +255,7 @@ Drafting issues bounded, cached, structured model requests and stops at proposal
 ## Step 5: Assemble the Candidate Pack
 
 ```bash
-python -m nemotron.steps.byob.scripts.bfcl_author assemble \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author assemble \
   --workspace /srv/bfcl/authoring/warehouse \
   --supplement /srv/bfcl/authoring/warehouse/reviewed-supplement.yaml \
   --output /srv/bfcl/authoring/warehouse/candidate-pack
@@ -271,7 +271,7 @@ in a child revision.
 ## Step 6: Build the Review Packet
 
 ```text
-python -m nemotron.steps.byob.scripts.bfcl_author review \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author review \
   --workspace /srv/bfcl/authoring/warehouse \
   --adapter-kind local_python \
   <review-packet input and output arguments>
@@ -282,13 +282,13 @@ Review assembles independently verified certification, fresh validation, the ans
 ## Step 7: Approve the Release, Then Freeze
 
 ```text
-python -m nemotron.steps.byob.scripts.bfcl_author approve \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author approve \
   --workspace /srv/bfcl/authoring/warehouse \
   --boundary release \
   --approved-by reviewer@example.test \
   <review packet, checklist, and output arguments>
 
-python -m nemotron.steps.byob.scripts.bfcl_author freeze \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author freeze \
   --workspace /srv/bfcl/authoring/warehouse \
   <freeze inputs, approval, and output arguments>
 ```
@@ -298,7 +298,7 @@ Release approval binds the exact review packet, so a rebuilt packet needs its ne
 ## Step 8: Publish
 
 ```text
-python -m nemotron.steps.byob.scripts.bfcl_author publish \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author publish \
   --workspace /srv/bfcl/authoring/warehouse \
   --adapter-kind local_python \
   <frozen release, generation config, and output arguments>
