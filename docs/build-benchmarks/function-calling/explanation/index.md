@@ -14,6 +14,7 @@ Start with {doc}`../getting-started` if you have not produced a `benchmark.parqu
 :hidden:
 
 Pipeline Overview <pipeline-overview>
+Pipeline Worked Example <pipeline-worked-example>
 The Oracle Pack <oracle-pack>
 Authoring Flows <authoring-flows>
 Evaluation <evaluation>
@@ -28,6 +29,15 @@ Evaluation <evaluation>
 Stage order from prepare through publication, what is checkpointed, and why the pipeline refuses configuration it will not honor.
 +++
 {bdg-secondary}`stages`
+:::
+
+:::{grid-item-card} {octicon}`play;1.5em;sd-mr-1` Pipeline worked example
+:link: pipeline-worked-example
+:link-type: doc
+Follow one missing-slot transfer-fee task from an abstract template through binding,
+conversation planning, executable replay, selection, and publication.
++++
+{bdg-secondary}`worked example`
 :::
 
 :::{grid-item-card} {octicon}`package;1.5em;sd-mr-1` The Oracle Pack

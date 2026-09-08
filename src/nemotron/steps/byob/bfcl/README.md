@@ -88,6 +88,10 @@ Both shapes are drawn rather than only described:
 diagrams the three routes converging on the gold gate, and
 [pipeline overview](../../../../../docs/build-benchmarks/function-calling/explanation/pipeline-overview.md)
 expands the twelve stages with the artifact each one writes.
+The adjacent
+[worked example](../../../../../docs/build-benchmarks/function-calling/explanation/pipeline-worked-example.md)
+follows one missing-slot task from its template through binding, conversation planning,
+executable replay, selection, and publication.
 
 ## Bundled Configurations
 
@@ -137,11 +141,15 @@ Operator guides on the documentation site, ordered from first run to release:
 | --- | --- |
 | [About building function-calling benchmarks](../../../../../docs/build-benchmarks/function-calling/index.md) | Orient yourself and pick a path |
 | [Getting started](../../../../../docs/build-benchmarks/function-calling/getting-started.md) | Run the tiny pack end to end and inspect what it wrote |
+| [Start from domain data](../../../../../docs/build-benchmarks/function-calling/how-to/start-from-domain-data.md) | Choose manual or model-assisted authoring and take your own executable domain to a reviewed pack |
 | [Hand-author an oracle pack](../../../../../docs/build-benchmarks/function-calling/how-to/author-a-pack.md) | Scaffold, fill in, validate, and smoke-run a pack of your own |
 | [Assisted authoring](../../../../../docs/build-benchmarks/function-calling/how-to/assisted-authoring.md) | Draft a pack from a Python package or HTTPS service with model assistance |
 | [Onboard an MCP server](../../../../../docs/build-benchmarks/function-calling/how-to/mcp-server.md) | Use a running MCP server as the oracle |
 | [Publish a release](../../../../../docs/build-benchmarks/function-calling/how-to/publish-a-release.md) | Choose a budget and challenge mix, then verify the artifacts |
 | [Evaluate a candidate model](../../../../../docs/build-benchmarks/function-calling/how-to/run-evaluation.md) | Score models and read the report |
+| [Oracle Pack inputs](../../../../../docs/build-benchmarks/function-calling/reference/oracle-pack-inputs.md) | Find the required files, manifest fields, fill order, and cross-file tool lineage |
+| [Python backend contract](../../../../../docs/build-benchmarks/function-calling/reference/python-backend.md) | Implement the four required local-oracle callables |
+| [Task template fields](../../../../../docs/build-benchmarks/function-calling/reference/task-templates.md) | Look up slots, milestones, policies, and worked conversation shapes |
 | [Generation config reference](../../../../../docs/build-benchmarks/function-calling/reference/generate-config.md) | Look up a generation YAML field |
 | [Evaluation config reference](../../../../../docs/build-benchmarks/function-calling/reference/eval-config.md) | Look up an evaluation YAML field |
 | [Output files](../../../../../docs/build-benchmarks/function-calling/reference/output-files.md) | Find what every written path contains |
@@ -149,6 +157,7 @@ Operator guides on the documentation site, ordered from first run to release:
 
 Concept pages explain why the pipeline is shaped the way it is:
 [pipeline overview](../../../../../docs/build-benchmarks/function-calling/explanation/pipeline-overview.md),
+[pipeline worked example](../../../../../docs/build-benchmarks/function-calling/explanation/pipeline-worked-example.md),
 [the oracle pack](../../../../../docs/build-benchmarks/function-calling/explanation/oracle-pack.md),
 [authoring flows](../../../../../docs/build-benchmarks/function-calling/explanation/authoring-flows.md),
 and [evaluation](../../../../../docs/build-benchmarks/function-calling/explanation/evaluation.md).

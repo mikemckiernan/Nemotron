@@ -9,7 +9,9 @@ Every path on this page is relative to `output_dir/expt_name` from the generatio
 config, except the evaluation artifacts, which land in `outputs.output_dir` from the
 eval config and must sit outside the generation tree. The groups appear in the order a
 run produces them. For the stages behind each group, see
-{doc}`../explanation/pipeline-overview`.
+{doc}`../explanation/pipeline-overview`. To see representative values change across
+these files, follow the transfer-fee task in
+{doc}`../explanation/pipeline-worked-example`.
 
 ## Pack Preparation
 

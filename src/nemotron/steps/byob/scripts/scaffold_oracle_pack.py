@@ -188,10 +188,12 @@ _STATE: dict[str, Any] = {}
 
 
 def list_tools() -> list[str]:
+    """Return public names that must match tools.json exactly."""
     return ["get_record"]
 
 
 def reset(*, ctx: Any, fixtures: dict | None = None) -> None:
+    """Start one deterministic episode from a defensive fixture snapshot."""
     del ctx
     global _SNAPSHOT, _STATE
     if fixtures is not None:
@@ -202,10 +204,12 @@ def reset(*, ctx: Any, fixtures: dict | None = None) -> None:
 
 
 def get_state() -> dict:
+    """Return a copy of the complete state that assertions may inspect."""
     return copy.deepcopy(_STATE)
 
 
 def call_tool(name: str, arguments: dict, *, ctx: Any) -> dict:
+    """Dispatch one public tool; return expected business failures as data."""
     del ctx
     if name != "get_record":
         return _error("invalid_argument", "name", None, f"unknown tool {name!r}")
@@ -430,6 +434,30 @@ business names and values while preserving the contracts demonstrated here.
 - `validation_cases.yaml`: direct success and business-error probes.
 - `validate.yaml`: standalone validation and smoke-generation configuration.
 {endpoint_note}{held_out_note}
+## Fill order and contracts
+
+Work in this order: public tool schemas, executable oracle, fixtures, manifest,
+conversation templates, assertions, then validation cases. For a Python oracle,
+`backend.py` must expose these four functions:
+
+```python
+def list_tools() -> list[str]: ...
+def reset(*, ctx, fixtures=None) -> None: ...
+def call_tool(name: str, arguments: dict, *, ctx) -> dict: ...
+def get_state() -> dict: ...
+```
+
+`list_tools()` must match the public names in `tools.json`. Tool calls return
+JSON-serializable values; expected business errors use
+`{{"error": {{"code": "..."}}}}` rather than raising. Keep reset and state
+deterministic and return defensive copies.
+
+From a Nemotron checkout, the operator-facing references are:
+
+- `docs/build-benchmarks/function-calling/reference/oracle-pack-inputs.md`
+- `docs/build-benchmarks/function-calling/reference/python-backend.md`
+- `docs/build-benchmarks/function-calling/reference/task-templates.md`
+
 ## Validate and generate
 
 Run from this pack directory:

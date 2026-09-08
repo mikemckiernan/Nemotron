@@ -65,6 +65,39 @@ It declares `tool_selection` and `arguments`, and `call_ordering` only when some
 It does not declare `results` or `task_success`, because both would require the pack's tools to be re-executed against oracle state, and no file in a dataset bundle provides that.
 A recorded oracle result is provenance, not an answer key: scoring against a snapshot of one backend revision would measure agreement with that snapshot instead of whether the call worked.
 
+## Calls And Text Use Different Matching Rules
+
+There is no single exact-match rule for a conversation:
+
+- A predicted tool name must match the expected public function name.
+- Arguments first pass the declared schema and are then compared as canonical JSON.
+  JSON types remain meaningful: `500000`, `"500000"`, and `500000.0` are different
+  argument values.
+- Publication scoring uses `intermediate_text_matching: structural` for a
+  clarification, confirmation, decline, or other text-only assistant turn. The
+  candidate must answer in non-empty words and must not make a tool call on that turn;
+  it does not need to reproduce the pack's sentence verbatim.
+- `verbatim` text matching exists as a debug setting, not the locked publication
+  behavior.
+
+The distinction matters for no-call tasks. `clarify_only` ends by asking for a slot,
+and `irrelevant` ends by declining; neither expects a tool call. A candidate that
+correctly makes no call passes tool selection, while the argument gate is skipped
+because there are no arguments to compare. The text-turn gate still requires the
+expected text behavior.
+
+For `missing_slot` and confirmation conversations, the next scripted user message is
+released only after the candidate passes the preceding text turn. A model that calls
+straight through therefore never receives the hidden slot or confirmation it failed
+to request.
+
+Structural matching proves that the candidate respected the text-versus-call shape. It
+does not by itself judge whether a clarification asked for the semantically correct
+slot or used domain-appropriate wording. Executable assertions can add domain behavior
+checks; any stronger language-quality judgment must be declared separately rather than
+reported as exact match. See {doc}`pipeline-worked-example` for a missing-slot
+conversation and {doc}`../reference/eval-config` for the scoring fields.
+
 ## Artifacts
 
 Both modes publish through one writer, and the file set is immutable.

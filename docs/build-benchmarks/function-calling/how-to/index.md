@@ -13,6 +13,7 @@ Start with {doc}`../getting-started` if you have not produced a `benchmark.parqu
 :maxdepth: 1
 :hidden:
 
+Start From Domain Data <start-from-domain-data>
 Author a Pack <author-a-pack>
 Assisted Authoring <assisted-authoring>
 Onboard an MCP Server <mcp-server>
@@ -24,8 +25,23 @@ Run an Evaluation <run-evaluation>
 
 Everything downstream depends on the pack, so start by choosing how you will produce one. All three routes end at the same generation pipeline and the same Gold gate; see {doc}`../explanation/authoring-flows` for the trade-offs.
 
+:::{admonition} Starting with your own domain?
+:class: tip
+Follow {doc}`start-from-domain-data` for a compact example that shows the manual and
+model-assisted conventional-source paths, from tool interface and deterministic state
+to a reviewed Oracle Pack. MCP onboarding remains a third route below.
+:::
+
 ::::{grid} 1 1 2 2
 :gutter: 1 1 1 2
+
+:::{grid-item-card} {octicon}`workflow;1.5em;sd-mr-1` Start from domain data
+:link: start-from-domain-data
+:link-type: doc
+Map an executable domain onto the manual and model-assisted paths, then converge on the same Gold pack.
++++
+{bdg-secondary}`choose a route`
+:::
 
 :::{grid-item-card} {octicon}`pencil;1.5em;sd-mr-1` Author a pack by hand
 :link: author-a-pack
