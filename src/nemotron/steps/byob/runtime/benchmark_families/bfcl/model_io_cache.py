@@ -21,6 +21,7 @@ import fcntl
 import hashlib
 import json
 import os
+import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -42,9 +43,7 @@ def exclusive_model_io_cache_lock(path: Path) -> Iterator[None]:
     descriptor = os.open(lock_path, flags, 0o600)
     try:
         if os.fstat(descriptor).st_mode & 0o077:
-            raise PermissionError(
-                "model I/O cache lock must not grant group or other access"
-            )
+            raise PermissionError("model I/O cache lock must not grant group or other access")
         fcntl.flock(descriptor, fcntl.LOCK_EX)
         yield
     finally:
@@ -98,14 +97,9 @@ class ImmutableModelIOCache:
             if "response" not in entry:
                 raise ValueError(f"model I/O cache entry {self.path}:{line_number} has no response")
             response_hash = entry.get("response_hash")
-            actual_response_hash = (
-                "sha256:"
-                + hashlib.sha256(canonical_json(entry["response"]).encode()).hexdigest()
-            )
+            actual_response_hash = "sha256:" + hashlib.sha256(canonical_json(entry["response"]).encode()).hexdigest()
             if response_hash != actual_response_hash:
-                raise ValueError(
-                    f"model I/O cache entry {self.path}:{line_number} has an invalid response_hash"
-                )
+                raise ValueError(f"model I/O cache entry {self.path}:{line_number} has an invalid response_hash")
             if key in entries and entries[key] != entry:
                 raise ValueError(f"model I/O cache contains conflicting entries for {key}")
             entries[key] = entry
@@ -114,6 +108,43 @@ class ImmutableModelIOCache:
     def get(self, key: str) -> Any | None:
         entry = self._entries.get(key)
         return None if entry is None else entry["response"]
+
+    def invalidate(self, key: str, *, expected_response: Any) -> bool:
+        """Remove one exact unusable response without permitting arbitrary replacement."""
+        with exclusive_model_io_cache_lock(self.path):
+            self._entries = self._read_entries()
+            existing = self._entries.get(key)
+            if existing is None:
+                return False
+            if canonical_json(existing["response"]) != canonical_json(expected_response):
+                raise ValueError(f"refusing to invalidate changed model I/O cache entry {key}")
+            retained = [self._entries[item] for item in sorted(self._entries) if item != key]
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            descriptor, temporary_name = tempfile.mkstemp(
+                dir=self.path.parent,
+                prefix=f".{self.path.name}.invalidating-",
+            )
+            temporary = Path(temporary_name)
+            try:
+                with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                    for entry in retained:
+                        handle.write(
+                            json.dumps(
+                                entry,
+                                sort_keys=True,
+                                ensure_ascii=False,
+                                allow_nan=False,
+                            )
+                            + "\n"
+                        )
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.chmod(temporary, 0o600)
+                os.replace(temporary, self.path)
+            finally:
+                temporary.unlink(missing_ok=True)
+            self._entries.pop(key, None)
+            return True
 
     def entry_documents(self) -> tuple[dict[str, Any], ...]:
         """Return validated entries for workspace retention under an external lock."""
@@ -141,9 +172,7 @@ class ImmutableModelIOCache:
             existing = self._entries.get(key)
             if existing is not None:
                 if existing != entry:
-                    raise ValueError(
-                        f"refusing to replace immutable model I/O cache entry {key}"
-                    )
+                    raise ValueError(f"refusing to replace immutable model I/O cache entry {key}")
                 return existing
 
             encoded = (

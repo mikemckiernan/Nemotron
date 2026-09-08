@@ -34,12 +34,18 @@ from nemotron.steps.byob.runtime.authoring_release.revocation import (
     RevocationRegistryVerifier,
     load_trusted_revocation_key,
 )
+from nemotron.steps.byob.runtime.release_seal import (
+    load_trusted_release_seal_key,
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--release", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--seal-issuer", required=True)
+    parser.add_argument("--seal-public-key", type=Path, required=True)
+    parser.add_argument("--seal-key-id", required=True)
     parser.add_argument("--revocation-registry", type=Path)
     parser.add_argument("--revocation-issuer")
     parser.add_argument("--revocation-public-key", type=Path)
@@ -56,10 +62,7 @@ def main() -> None:
         if any(value is not None for value in revocation_values) and not all(
             value is not None for value in revocation_values
         ):
-            raise ValueError(
-                "revocation registry, issuer, public key, and key ID "
-                "must be supplied together"
-            )
+            raise ValueError("revocation registry, issuer, public key, and key ID must be supplied together")
         revocation_check = None
         if args.revocation_registry is not None:
             revocation_check = RevocationRegistryVerifier(
@@ -71,11 +74,21 @@ def main() -> None:
                 ),
                 minimum_generation=args.revocation_minimum_generation,
             )
-        adapter = publication_adapter_for_release(args.release)
+        trusted_seal_keys = load_trusted_release_seal_key(
+            args.seal_public_key,
+            key_id=args.seal_key_id,
+        )
+        adapter = publication_adapter_for_release(
+            args.release,
+            trusted_seal_keys=trusted_seal_keys,
+            expected_seal_issuer=args.seal_issuer,
+        )
         result = handoff_frozen_release(
             args.release,
             args.config,
             adapter=adapter,
+            trusted_seal_keys=trusted_seal_keys,
+            expected_seal_issuer=args.seal_issuer,
             revocation_check=revocation_check,
         )
     except (AuthoringHandoffError, OSError, ValueError) as exc:

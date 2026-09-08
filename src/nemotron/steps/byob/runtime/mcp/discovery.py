@@ -70,35 +70,21 @@ def _resolve_loaded_paths(
     transport = config.transport
     if isinstance(transport, StdioTransportConfig):
         cwd = transport.cwd
-        resolved_cwd = (
-            cwd if cwd.is_absolute() else source_directory / cwd
-        ).resolve()
-        return config.model_copy(
-            update={
-                "transport": transport.model_copy(update={"cwd": resolved_cwd})
-            }
-        )
+        resolved_cwd = (cwd if cwd.is_absolute() else source_directory / cwd).resolve()
+        return config.model_copy(update={"transport": transport.model_copy(update={"cwd": resolved_cwd})})
     if isinstance(transport, StreamableHttpTransportConfig):
         ca_bundle = transport.tls.ca_bundle_path
         if ca_bundle is None:
             return config
-        resolved_ca = (
-            ca_bundle if ca_bundle.is_absolute() else source_directory / ca_bundle
-        ).resolve()
+        resolved_ca = (ca_bundle if ca_bundle.is_absolute() else source_directory / ca_bundle).resolve()
         return config.model_copy(
             update={
                 "transport": transport.model_copy(
-                    update={
-                        "tls": transport.tls.model_copy(
-                            update={"ca_bundle_path": resolved_ca}
-                        )
-                    }
+                    update={"tls": transport.tls.model_copy(update={"ca_bundle_path": resolved_ca})}
                 )
             }
         )
-    raise McpConfigError(
-        f"unsupported MCP transport model {type(transport).__name__}"
-    )
+    raise McpConfigError(f"unsupported MCP transport model {type(transport).__name__}")
 
 
 def _verify_loaded_config(loaded: LoadedMcpOracleConfig) -> None:
@@ -106,9 +92,7 @@ def _verify_loaded_config(loaded: LoadedMcpOracleConfig) -> None:
     try:
         parsed = McpOracleConfig.model_validate(loaded.raw_document)
     except ValueError as exc:
-        raise McpConfigError(
-            "loaded MCP raw_document no longer satisfies the strict profile"
-        ) from exc
+        raise McpConfigError("loaded MCP raw_document no longer satisfies the strict profile") from exc
     expected = _resolve_loaded_paths(
         parsed,
         source_directory=loaded.path.parent,
@@ -131,12 +115,25 @@ def catalog_identity_document(
     """Build the exact §9 catalog identity document."""
     control = config.control
     return {
+        "digest_schema_version": "bfcl-mcp-tool-catalog-digest-v2",
         "profile_version": config.profile_version,
         "mode": config.mode,
         "negotiated_mcp_version": negotiated_mcp_version,
         "server_name": server_name,
         "server_version": server_version,
         "tools": catalog.bfcl_tools,
+        # The gateway validates results against outputSchema and may derive runtime
+        # mutation behavior from annotations under an explicitly reviewed policy.
+        # They are therefore contract identity even though they are not model-facing.
+        "runtime_contracts": [
+            {
+                "published_name": tool.published_name,
+                "output_schema": tool.output_schema,
+                "annotations": tool.annotations,
+                "mutation_source": tool.mutation_source,
+            }
+            for tool in catalog.tools
+        ],
         "control": {
             "reset_strategy": control.reset_strategy,
             "state_strategy": control.state_strategy,
@@ -146,9 +143,7 @@ def catalog_identity_document(
             "end_episode": control.end_episode,
             "episode_binding": control.episode_binding,
             "episode_argument": control.episode_argument,
-            "state_projection": [
-                call.model_dump(mode="json") for call in control.state_projection
-            ],
+            "state_projection": [call.model_dump(mode="json") for call in control.state_projection],
         },
     }
 
@@ -194,9 +189,7 @@ def _verify_described_identity(
         )
     absent = [name for name in required if name not in described]
     if absent:
-        raise McpProtocolError(
-            f"describe_oracle omitted required identity field(s) {absent}"
-        )
+        raise McpProtocolError(f"describe_oracle omitted required identity field(s) {absent}")
     content_digest = described.get("content_digest")
     if not isinstance(content_digest, str):
         raise McpProtocolError("describe_oracle content_digest must be a string")
@@ -220,11 +213,7 @@ def _verify_described_identity(
         expected_value = getattr(config.expected, name)
         if expected_value is not None:
             observed_value = described.get(name)
-            observed[name] = (
-                observed_value.strip().lower()
-                if isinstance(observed_value, str)
-                else observed_value
-            )
+            observed[name] = observed_value.strip().lower() if isinstance(observed_value, str) else observed_value
             expected[name] = expected_value
     if observed != expected:
         raise McpIdentityMismatchError(
@@ -244,11 +233,7 @@ class DiscoveryReport:
 
     def verify_digest(self) -> None:
         claimed = self.document.get("report_digest")
-        unsigned = {
-            key: value
-            for key, value in self.document.items()
-            if key != "report_digest"
-        }
+        unsigned = {key: value for key, value in self.document.items() if key != "report_digest"}
         observed = _sha256_json(unsigned)
         if claimed != observed:
             raise McpProtocolError(
@@ -274,24 +259,18 @@ async def _list_complete_catalog(
     pages = 0
     while True:
         if pages >= config.limits.max_catalog_pages:
-            raise McpCatalogError(
-                f"tools/list exceeded max_catalog_pages={config.limits.max_catalog_pages}"
-            )
+            raise McpCatalogError(f"tools/list exceeded max_catalog_pages={config.limits.max_catalog_pages}")
         try:
             page = await asyncio.wait_for(
                 client.list_tools(cursor),
                 timeout=float(config.limits.tool_timeout_s),
             )
         except TimeoutError as exc:
-            raise McpCatalogError(
-                f"tools/list page {pages + 1} exceeded tool_timeout_s"
-            ) from exc
+            raise McpCatalogError(f"tools/list page {pages + 1} exceeded tool_timeout_s") from exc
         pages += 1
         tools.extend(page.tools)
         if len(tools) > config.limits.max_tools:
-            raise McpCatalogError(
-                f"tools/list exceeded max_tools={config.limits.max_tools}"
-            )
+            raise McpCatalogError(f"tools/list exceeded max_tools={config.limits.max_tools}")
         next_cursor = page.next_cursor
         if next_cursor is None:
             return tools, pages

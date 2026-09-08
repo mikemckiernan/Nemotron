@@ -22,6 +22,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, cast
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
 from nemotron.steps.byob.runtime.authoring_release.contracts import PublicationAdapter
 from nemotron.steps.byob.runtime.authoring_release.freeze import (
     FrozenReleaseV2,
@@ -87,10 +89,7 @@ class BfclPublicationAdapter:
     ) -> None:
         config = BfclConfig.from_yaml(config_path)
         paths = resolve_pack_paths(config)
-        if (
-            paths.pack_root != pack_root.resolve()
-            or f"sha256:{pack_fingerprint(paths)}" != frozen_pack_fingerprint
-        ):
+        if paths.pack_root != pack_root.resolve() or f"sha256:{pack_fingerprint(paths)}" != frozen_pack_fingerprint:
             raise AuthoringHandoffError(
                 "publication_config_mismatch",
                 "BFCL config does not resolve the exact frozen pack",
@@ -145,9 +144,18 @@ class BfclPublicationAdapter:
             )
 
 
-def publication_adapter_for_release(release_root: Path) -> PublicationAdapter:
+def publication_adapter_for_release(
+    release_root: Path,
+    *,
+    trusted_seal_keys: Mapping[str, Ed25519PublicKey],
+    expected_seal_issuer: str,
+) -> PublicationAdapter:
     """Resolve a built-in publication adapter without contacting the source."""
-    release = load_frozen_release(release_root)
+    release = load_frozen_release(
+        release_root,
+        trusted_seal_keys=trusted_seal_keys,
+        expected_seal_issuer=expected_seal_issuer,
+    )
     if not isinstance(release, FrozenReleaseV2):
         raise AuthoringHandoffError(
             "release_version_mismatch",

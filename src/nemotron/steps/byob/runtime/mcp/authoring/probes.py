@@ -13,24 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The MCP half of the probe ladder: reviewed sessions against the live gateway.
-
-MCP intake could only ever reach A0. Not because Mode A cannot be reset or isolated — it
-is required to be, that is what mode A means — but because intake never called a tool.
-Discovery answers P1 through P3 and defers P4 through P11, so the certification report had
-nothing above identity and catalog to project, and the tier followed from that silence.
-
-The gateway, though, already serves BFCL Oracle HTTP v1: sessions, calls, state, and
-delete. That is the same surface the endpoint transport is probed through, so the ladder
-does not need an MCP-shaped copy of itself. This module supplies only what Mode A means —
-one episode is one gateway session that pushes fixtures into the reset control tool, the
-catalog is what the gateway publishes, identity is the discovery pin the gateway attested
-to — and `probe_engine.py` asks the questions.
-
-Two hops make drift a live concern rather than a theoretical one: the gateway can stay up
-while the MCP server behind it is replaced. Identity is therefore re-checked after the
-probes, and the check goes through the gateway rather than around it.
-"""
+"""Run reviewed source-adapter probes through a Mode A gateway."""
 
 from __future__ import annotations
 
@@ -84,9 +67,7 @@ def reviewed_probe_tools(
             GatewayProbeTool(
                 published_name=str(function["name"]),
                 mutates=bool(definition.get("x-mutates", False)),
-                requires_confirmation=bool(
-                    definition.get("x-requires-confirmation", False)
-                ),
+                requires_confirmation=bool(definition.get("x-requires-confirmation", False)),
             )
         )
     return tuple(tools)
@@ -174,9 +155,7 @@ def run_mcp_gateway_probes(
             reset_timeout_s=timeout_s,
             tool_timeout_s=deadline,
             assertion_timeout_s=timeout_s,
-            episode_timeout_s=(
-                worker_startup_s + timeout_s + deadline * max(1, len(steps))
-            ),
+            episode_timeout_s=(worker_startup_s + timeout_s + deadline * max(1, len(steps))),
         )
 
     def catalog_probe() -> tuple[bool, dict[str, Any], int]:

@@ -40,7 +40,10 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.row_schema import canonical_json
+from nemotron.steps.byob.runtime.release_seal import verify_release_digest
 
 ATTESTATION_KIND = "bfcl-endpoint-conformance-v1"
 MCP_PROFILE_VERSION = "bfcl-mcp-oracle-v1"
@@ -132,9 +135,7 @@ class ConformanceProfile:
         if self.publishable_level not in self.levels:
             raise ValueError("publishable level must belong to the profile")
         probe_levels = [level for level, _ in self.required_probes]
-        if len(probe_levels) != len(set(probe_levels)) or any(
-            level not in self.levels for level in probe_levels
-        ):
+        if len(probe_levels) != len(set(probe_levels)) or any(level not in self.levels for level in probe_levels):
             raise ValueError("required probe levels must be unique profile levels")
         for _, probes in self.required_probes:
             if len(probes) != len(set(probes)) or any(not probe.strip() for probe in probes):
@@ -191,9 +192,7 @@ HTTP_CONFORMANCE_PROFILE = ConformanceProfile(
     enforce_snapshot_identity=False,
     cap_without_server_content=False,
 )
-DEFAULT_CONFORMANCE_PROFILES: Mapping[
-    tuple[str, str], ConformanceProfile
-] = MappingProxyType(
+DEFAULT_CONFORMANCE_PROFILES: Mapping[tuple[str, str], ConformanceProfile] = MappingProxyType(
     {
         HTTP_CONFORMANCE_PROFILE.key: HTTP_CONFORMANCE_PROFILE,
         MCP_CONFORMANCE_PROFILE.key: MCP_CONFORMANCE_PROFILE,
@@ -205,9 +204,7 @@ def resolve_conformance_profile(
     *,
     provider_kind: Any,
     profile_version: Any,
-    profiles: Mapping[
-        tuple[str, str], ConformanceProfile
-    ] = DEFAULT_CONFORMANCE_PROFILES,
+    profiles: Mapping[tuple[str, str], ConformanceProfile] = DEFAULT_CONFORMANCE_PROFILES,
 ) -> ConformanceProfile:
     if not isinstance(provider_kind, str) or not isinstance(profile_version, str):
         raise AttestationError(
@@ -311,9 +308,7 @@ class ConformanceAttestation:
         *,
         source: str = "endpoint conformance",
         profile: ConformanceProfile | None = None,
-        profiles: Mapping[
-            tuple[str, str], ConformanceProfile
-        ] = DEFAULT_CONFORMANCE_PROFILES,
+        profiles: Mapping[tuple[str, str], ConformanceProfile] = DEFAULT_CONFORMANCE_PROFILES,
     ) -> ConformanceAttestation:
         if not isinstance(value, dict):
             raise AttestationError(f"{source} must be a JSON object")
@@ -425,6 +420,8 @@ def _evidence_findings(
     *,
     probe_report: Mapping[str, Any] | None,
     gateway_conformance_report: Mapping[str, Any] | None,
+    trusted_evidence_keys: Mapping[str, Ed25519PublicKey] | None,
+    expected_evidence_issuer: str | None,
 ) -> list[str]:
     """Verify the artifacts whose digests the attestation cites.
 
@@ -451,49 +448,55 @@ def _evidence_findings(
 
     if gateway_conformance_report is None:
         findings.append("gateway_conformance_report_missing")
-    elif (
-        _document_digest(gateway_conformance_report)
-        != attestation.gateway_conformance_report_digest
-    ):
+    elif _document_digest(gateway_conformance_report) != attestation.gateway_conformance_report_digest:
         findings.append("gateway_conformance_report_digest_mismatch")
     else:
-        if (
-            gateway_conformance_report.get("gateway_artifact_digest")
-            != attestation.gateway_artifact_digest
-        ):
+        if gateway_conformance_report.get("gateway_artifact_digest") != attestation.gateway_artifact_digest:
             findings.append("gateway_report_artifact_mismatch")
-        if (
-            gateway_conformance_report.get("effective_content_digest")
-            != attestation.effective_content_digest
-        ):
+        if gateway_conformance_report.get("effective_content_digest") != attestation.effective_content_digest:
             findings.append("gateway_report_effective_digest_mismatch")
-        if (
-            gateway_conformance_report.get("tool_catalog_digest")
-            != attestation.tool_catalog_digest
-        ):
+        if gateway_conformance_report.get("tool_catalog_digest") != attestation.tool_catalog_digest:
             findings.append("gateway_report_catalog_digest_mismatch")
-        if (
-            gateway_conformance_report.get("issuer")
-            != attestation.gateway_evidence_issuer
-        ):
+        if gateway_conformance_report.get("issuer") != attestation.gateway_evidence_issuer:
             findings.append("gateway_report_issuer_mismatch")
         suite = gateway_conformance_report.get("suite")
         p9 = suite.get("p9") if isinstance(suite, Mapping) else None
         if (
             not isinstance(suite, Mapping)
             or suite.get("kind") != attestation.profile.report_suite_kind
-            or suite.get("profile_version")
-            != attestation.profile.report_suite_version
+            or suite.get("profile_version") != attestation.profile.report_suite_version
         ):
             findings.append("gateway_report_suite_invalid")
         required_p9 = dict(attestation.profile.timeout_probe_requirements)
         if required_p9 and (
-            not isinstance(p9, Mapping)
-            or any(
-                p9.get(field) != expected for field, expected in required_p9.items()
-            )
+            not isinstance(p9, Mapping) or any(p9.get(field) != expected for field, expected in required_p9.items())
         ):
             findings.append("gateway_report_timeout_probe_invalid")
+        producer = suite.get("producer") if isinstance(suite, Mapping) else None
+        if not isinstance(producer, Mapping) or trusted_evidence_keys is None or expected_evidence_issuer is None:
+            findings.append("gateway_evidence_signature_missing")
+        else:
+            unsigned_suite = {
+                key: value for key, value in suite.items() if key not in {"evidence_digest", "signature"}
+            }
+            digest = attestation_digest(unsigned_suite)
+            if (
+                producer.get("gateway_artifact_digest") != attestation.gateway_artifact_digest
+                or suite.get("evidence_digest") != digest
+            ):
+                findings.append("gateway_evidence_binding_mismatch")
+            else:
+                try:
+                    verify_release_digest(
+                        issuer=str(producer.get("issuer")),
+                        expected_issuer=expected_evidence_issuer,
+                        key_id=str(producer.get("signing_key_id")),
+                        digest=digest,
+                        signature=str(suite.get("signature")),
+                        trusted_public_keys=trusted_evidence_keys,
+                    )
+                except ValueError:
+                    findings.append("gateway_evidence_signature_invalid")
     return findings
 
 
@@ -550,10 +553,10 @@ def verify_conformance(
     expected_identity: Mapping[str, str | None] | None = None,
     probe_report: Mapping[str, Any] | None = None,
     gateway_conformance_report: Mapping[str, Any] | None = None,
+    trusted_evidence_keys: Mapping[str, Ed25519PublicKey] | None = None,
+    expected_evidence_issuer: str | None = None,
     profile: ConformanceProfile | None = None,
-    profiles: Mapping[
-        tuple[str, str], ConformanceProfile
-    ] = DEFAULT_CONFORMANCE_PROFILES,
+    profiles: Mapping[tuple[str, str], ConformanceProfile] = DEFAULT_CONFORMANCE_PROFILES,
 ) -> ConformanceVerdict:
     """Decide which level an attestation earns, and whether it may publish.
 
@@ -597,22 +600,18 @@ def verify_conformance(
     findings.extend(_probe_coverage_findings(attestation))
     findings.extend(_identity_semantic_findings(attestation))
 
-    if attestation.gateway_evidence_kind == "locally_verified":
-        findings.extend(
-            _evidence_findings(
-                attestation,
-                probe_report=probe_report,
-                gateway_conformance_report=gateway_conformance_report,
-            )
+    findings.extend(
+        _evidence_findings(
+            attestation,
+            probe_report=probe_report,
+            gateway_conformance_report=gateway_conformance_report,
+            trusted_evidence_keys=trusted_evidence_keys,
+            expected_evidence_issuer=expected_evidence_issuer,
         )
-    else:
-        # Issuer names are not signatures. Signed releases remain L1 until a verifier backed
-        # by a configured trust root returns the verified payload and report documents.
-        caps.append("signed_release_verification_unavailable")
+    )
 
     immutable_snapshot = (
-        attestation.snapshot_digest is not None
-        and attestation.read_only_boundary == "immutable_snapshot_sandbox"
+        attestation.snapshot_digest is not None and attestation.read_only_boundary == "immutable_snapshot_sandbox"
     )
     if (
         attestation.profile.cap_without_server_content
@@ -623,17 +622,12 @@ def verify_conformance(
         # catalog drift, but not the server's own business logic changing underneath. An
         # immutable local snapshot is the one contract-defined exception.
         caps.append("server_content_digest_absent")
-    if (
-        attestation.profile.cap_without_complete_state
-        and attestation.state_observability != "complete"
-    ):
+    if attestation.profile.cap_without_complete_state and attestation.state_observability != "complete":
         caps.append("state_observability_incomplete")
 
     effective = attestation.level
     if caps and effective == attestation.profile.publishable_level:
-        publishable_index = attestation.profile.levels.index(
-            attestation.profile.publishable_level
-        )
+        publishable_index = attestation.profile.levels.index(attestation.profile.publishable_level)
         effective = attestation.profile.levels[max(0, publishable_index - 1)]
     if findings:
         effective = attestation.profile.levels[0]

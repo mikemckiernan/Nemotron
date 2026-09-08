@@ -101,7 +101,11 @@ def test_signed_registry_blocks_publication_and_consumer_reject_policy(
             "adapter_kind": "local_python",
         },
     )
-    monkeypatch.setattr(handoff_module, "load_frozen_release", lambda _path: release)
+    monkeypatch.setattr(
+        handoff_module,
+        "load_frozen_release",
+        lambda _path, **_kwargs: release,
+    )
     with pytest.raises(ReleaseRevocationError, match="release_revoked"):
         handoff_frozen_release(
             release.root,
@@ -278,11 +282,15 @@ def test_publish_cli_blocks_a_revoked_release_from_registry_flags(
             "adapter_kind": "local_python",
         },
     )
-    monkeypatch.setattr(handoff_module, "load_frozen_release", lambda _path: release)
+    monkeypatch.setattr(
+        handoff_module,
+        "load_frozen_release",
+        lambda _path, **_kwargs: release,
+    )
     monkeypatch.setattr(
         publish_script,
         "publication_adapter_for_release",
-        lambda _path: cast(Any, object()),
+        lambda _path, **_kwargs: cast(Any, object()),
     )
     argv = [
         "publish_authoring_release",
@@ -290,6 +298,12 @@ def test_publish_cli_blocks_a_revoked_release_from_registry_flags(
         str(release.root),
         "--config",
         str(tmp_path / "config.yaml"),
+        "--seal-issuer",
+        authority.issuer,
+        "--seal-public-key",
+        str(key_path),
+        "--seal-key-id",
+        authority.key_id,
         "--revocation-registry",
         str(registry_path),
         "--revocation-issuer",
@@ -313,6 +327,14 @@ def test_publish_cli_refuses_partial_revocation_flags(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    authority = _authority()
+    key_path = tmp_path / "seal-key.pem"
+    key_path.write_bytes(
+        authority.public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    )
     monkeypatch.setattr(
         sys,
         "argv",
@@ -322,6 +344,12 @@ def test_publish_cli_refuses_partial_revocation_flags(
             str(tmp_path / "release"),
             "--config",
             str(tmp_path / "config.yaml"),
+            "--seal-issuer",
+            authority.issuer,
+            "--seal-public-key",
+            str(key_path),
+            "--seal-key-id",
+            authority.key_id,
             "--revocation-registry",
             str(tmp_path / "registry.json"),
         ],
@@ -372,9 +400,7 @@ def test_conflicting_revocation_chain_fails_closed(tmp_path: Path) -> None:
     document = {
         **unsigned,
         "registry_digest": digest,
-        "signature": b64encode(
-            authority.private_key.sign(digest.encode("ascii"))
-        ).decode("ascii"),
+        "signature": b64encode(authority.private_key.sign(digest.encode("ascii"))).decode("ascii"),
     }
     path = tmp_path / "conflict.json"
     path.write_text(json.dumps(document), encoding="utf-8")

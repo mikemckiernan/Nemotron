@@ -68,18 +68,10 @@ from nemotron.steps.byob.runtime.source_adapters.evidence import (
 )
 from nemotron.steps.byob.runtime.source_adapters.held_out import HeldOutDecision
 
-LEGACY_MCP_EVIDENCE_VERSION: Literal[
-    "bfcl-mcp-evidence-v1"
-] = "bfcl-mcp-evidence-v1"
-MIGRATION_RECORD_VERSION: Literal[
-    "bfcl-source-evidence-migration-v1"
-] = "bfcl-source-evidence-migration-v1"
-MIGRATION_APPROVAL_VERSION: Literal[
-    "bfcl-source-evidence-approval-v2"
-] = "bfcl-source-evidence-approval-v2"
-TRANSFORMER_ID: Literal[
-    "bfcl.mcp-evidence-v1-to-source-evidence-v2"
-] = "bfcl.mcp-evidence-v1-to-source-evidence-v2"
+LEGACY_MCP_EVIDENCE_VERSION: Literal["bfcl-mcp-evidence-v1"] = "bfcl-mcp-evidence-v1"
+MIGRATION_RECORD_VERSION: Literal["bfcl-source-evidence-migration-v1"] = "bfcl-source-evidence-migration-v1"
+MIGRATION_APPROVAL_VERSION: Literal["bfcl-source-evidence-approval-v2"] = "bfcl-source-evidence-approval-v2"
+TRANSFORMER_ID: Literal["bfcl.mcp-evidence-v1-to-source-evidence-v2"] = "bfcl.mcp-evidence-v1-to-source-evidence-v2"
 TRANSFORMER_VERSION: Literal["1.0.0"] = "1.0.0"
 _TRANSFORMER_SPEC = {
     "id": TRANSFORMER_ID,
@@ -152,24 +144,17 @@ class MigrationContext(_StrictModel):
     def _descriptor_binding(self) -> MigrationContext:
         descriptor_digest = sha256_json(self.source_adapter.model_dump(mode="json"))
         if self.certification.descriptor_digest != descriptor_digest:
-            raise ValueError(
-                "migration certification does not cover the supplied adapter descriptor"
-            )
+            raise ValueError("migration certification does not cover the supplied adapter descriptor")
         if self.source_adapter.kind != "mcp_mode_a":
             raise ValueError("legacy MCP evidence requires an mcp_mode_a descriptor")
         if self.certification.profile_id != "mcp-mode-a-v1":
             raise ValueError("legacy MCP evidence requires the MCP certification profile")
         if (
-            self.domain_brief.redaction_report_digest
-            != self.domain_brief_report.record_digest
-            or self.domain_brief.source_digest
-            != self.domain_brief_report.source_digest
-            or self.domain_brief.content_digest
-            != self.domain_brief_report.sanitized_digest
+            self.domain_brief.redaction_report_digest != self.domain_brief_report.record_digest
+            or self.domain_brief.source_digest != self.domain_brief_report.source_digest
+            or self.domain_brief.content_digest != self.domain_brief_report.sanitized_digest
         ):
-            raise ValueError(
-                "migration domain brief does not match its redaction report"
-            )
+            raise ValueError("migration domain brief does not match its redaction report")
         return self
 
 
@@ -264,9 +249,7 @@ class NormalizedSourceEvidence(_StrictModel):
                 self.migration.source_digest != self.source_digest
                 or self.migration.normalized_digest != normalized_root
             ):
-                raise ValueError(
-                    "migration record does not bind source and normalized evidence"
-                )
+                raise ValueError("migration record does not bind source and normalized evidence")
         elif (
             self.migration.source_digest != self.source_digest
             or self.evidence.revision.root_bundle_digest != self.source_digest
@@ -350,33 +333,22 @@ def _require_list(value: Any, field: str) -> list[Any]:
 
 def _require_string(value: Any, field: str) -> str:
     if not isinstance(value, str) or not value.strip():
-        raise EvidenceMigrationError(
-            f"legacy evidence {field} must be a non-empty string"
-        )
+        raise EvidenceMigrationError(f"legacy evidence {field} must be a non-empty string")
     return value
 
 
 def _legacy_document(path: Path) -> dict[str, Any]:
     document = _read_document(path)
     if document.get("schema_version") != LEGACY_MCP_EVIDENCE_VERSION:
-        raise EvidenceMigrationError(
-            f"unsupported source evidence schema_version "
-            f"{document.get('schema_version')!r}"
-        )
+        raise EvidenceMigrationError(f"unsupported source evidence schema_version {document.get('schema_version')!r}")
     if set(document) != _LEGACY_FIELDS:
         missing = sorted(_LEGACY_FIELDS - set(document))
         unknown = sorted(set(document) - _LEGACY_FIELDS)
-        raise EvidenceMigrationError(
-            f"legacy evidence field mismatch; missing={missing!r}, unknown={unknown!r}"
-        )
+        raise EvidenceMigrationError(f"legacy evidence field mismatch; missing={missing!r}, unknown={unknown!r}")
     claimed = document.get("bundle_digest")
-    observed = sha256_json(
-        {key: value for key, value in document.items() if key != "bundle_digest"}
-    )
+    observed = sha256_json({key: value for key, value in document.items() if key != "bundle_digest"})
     if claimed != observed:
-        raise EvidenceMigrationError(
-            f"legacy evidence digest mismatch: claimed {claimed!r}, observed {observed!r}"
-        )
+        raise EvidenceMigrationError(f"legacy evidence digest mismatch: claimed {claimed!r}, observed {observed!r}")
     return document
 
 
@@ -386,9 +358,7 @@ def _identity(document: dict[str, Any]) -> SourceIdentity:
     effective = identity.get("effective_content_digest", oracle.get("content_digest"))
     source_config = identity.get("source_config_digest")
     if not isinstance(effective, str) or not isinstance(source_config, str):
-        raise EvidenceMigrationError(
-            "legacy identity lacks effective_content_digest or source_config_digest"
-        )
+        raise EvidenceMigrationError("legacy identity lacks effective_content_digest or source_config_digest")
     subject = oracle.get("oracle_id")
     if not isinstance(subject, str) or not subject.strip():
         raise EvidenceMigrationError("legacy oracle lacks a non-empty oracle_id")
@@ -450,9 +420,7 @@ def _tools(document: dict[str, Any]) -> tuple[ToolEvidence, ...]:
             "raw_digest",
             "trust_annotations",
         }:
-            raise EvidenceMigrationError(
-                f"legacy evidence tools[{index}] has an invalid field set"
-            )
+            raise EvidenceMigrationError(f"legacy evidence tools[{index}] has an invalid field set")
         description = _require_mapping(tool["description"], f"tools[{index}].description")
         declared = _require_mapping(tool["declared"], f"tools[{index}].declared")
         schemas = _require_mapping(
@@ -460,24 +428,16 @@ def _tools(document: dict[str, Any]) -> tuple[ToolEvidence, ...]:
             f"tools[{index}].untrusted_schemas",
         )
         if set(description) != {"untrusted_text"}:
-            raise EvidenceMigrationError(
-                f"legacy evidence tools[{index}].description is not tagged untrusted"
-            )
+            raise EvidenceMigrationError(f"legacy evidence tools[{index}].description is not tagged untrusted")
         if not {"mutates", "requires_confirmation"} <= set(declared):
-            raise EvidenceMigrationError(
-                f"legacy evidence tools[{index}].declared is incomplete"
-            )
+            raise EvidenceMigrationError(f"legacy evidence tools[{index}].declared is incomplete")
         if set(schemas) != {"parameters", "output_schema", "annotations"}:
-            raise EvidenceMigrationError(
-                f"legacy evidence tools[{index}].untrusted_schemas is incomplete"
-            )
+            raise EvidenceMigrationError(f"legacy evidence tools[{index}].untrusted_schemas is incomplete")
         converted.append(
             ToolEvidence(
                 published_name=tool["published_name"],
                 source_name=tool["source_name"],
-                description=UntrustedText(
-                    untrusted_text=description["untrusted_text"]
-                ),
+                description=UntrustedText(untrusted_text=description["untrusted_text"]),
                 parameter_schema=schemas["parameters"],
                 output_schema=schemas["output_schema"],
                 annotations=schemas["annotations"],
@@ -494,9 +454,7 @@ def _gaps(document: dict[str, Any]) -> tuple[UnresolvedGap, ...]:
     for index, raw in enumerate(_require_list(document["unknowns"], "unknowns")):
         unknown = _require_mapping(raw, f"unknowns[{index}]")
         if set(unknown) != {"field", "blocks", "resolved_by"}:
-            raise EvidenceMigrationError(
-                f"legacy evidence unknowns[{index}] has an invalid field set"
-            )
+            raise EvidenceMigrationError(f"legacy evidence unknowns[{index}] has an invalid field set")
         reason = f"Blocks: {unknown['blocks']} Resolved by: {unknown['resolved_by']}"
         converted.append(
             UnresolvedGap(
@@ -544,9 +502,7 @@ def _warnings(document: dict[str, Any]) -> tuple[MigrationWarning, ...]:
             finding.get("detail"),
             f"review.advisory[{index}].detail",
         )
-        identity = sha256_json(
-            {"location": location, "code": code, "detail": detail}
-        ).removeprefix("sha256:")[:16]
+        identity = sha256_json({"location": location, "code": code, "detail": detail}).removeprefix("sha256:")[:16]
         warnings.append(
             MigrationWarning(
                 code=f"legacy_finding_{identity}",
@@ -571,9 +527,7 @@ def migrate_legacy_mcp_evidence(
     fixtures = _require_mapping(document["fixtures"], "fixtures")
     direction = fixtures.get("direction")
     if direction not in {"none", "read_only", "pushed", "snapshot"}:
-        raise EvidenceMigrationError(
-            f"legacy fixture direction {direction!r} is unsupported"
-        )
+        raise EvidenceMigrationError(f"legacy fixture direction {direction!r} is unsupported")
     unsigned = UnsignedSourceEvidence(
         schema_version=SOURCE_EVIDENCE_VERSION,
         source_adapter=context.source_adapter,
@@ -612,9 +566,7 @@ def migrate_legacy_mcp_evidence(
         "source_digest": source_digest,
         "normalized_schema_version": SOURCE_EVIDENCE_VERSION,
         "normalized_digest": normalized.bundle_digest,
-        "warnings": [
-            warning.model_dump(mode="json") for warning in _warnings(document)
-        ],
+        "warnings": [warning.model_dump(mode="json") for warning in _warnings(document)],
     }
     record_document["record_digest"] = sha256_json(record_document)
     return NormalizedSourceEvidence(
@@ -635,20 +587,19 @@ def normalize_source_evidence(
     version = document.get("schema_version")
     if version == SOURCE_EVIDENCE_VERSION:
         evidence = load_source_evidence(path)
+        source_digest = (
+            evidence.revision.root_bundle_digest if evidence.revision is not None else evidence.bundle_digest
+        )
         return NormalizedSourceEvidence(
-            source_digest=evidence.bundle_digest,
+            source_digest=source_digest,
             evidence=evidence,
             migration=None,
         )
     if version == LEGACY_MCP_EVIDENCE_VERSION:
         if legacy_context is None:
-            raise EvidenceMigrationError(
-                "legacy evidence requires explicit migration context"
-            )
+            raise EvidenceMigrationError("legacy evidence requires explicit migration context")
         return migrate_legacy_mcp_evidence(path, context=legacy_context)
-    raise EvidenceMigrationError(
-        f"unsupported source evidence schema_version {version!r}"
-    )
+    raise EvidenceMigrationError(f"unsupported source evidence schema_version {version!r}")
 
 
 def verified_source_digest(path: Path) -> str:
@@ -657,12 +608,11 @@ def verified_source_digest(path: Path) -> str:
     document = _read_document(path)
     version = document.get("schema_version")
     if version == SOURCE_EVIDENCE_VERSION:
-        return load_source_evidence(path).bundle_digest
+        evidence = load_source_evidence(path)
+        return evidence.revision.root_bundle_digest if evidence.revision is not None else evidence.bundle_digest
     if version == LEGACY_MCP_EVIDENCE_VERSION:
         return str(_legacy_document(path)["bundle_digest"])
-    raise EvidenceMigrationError(
-        f"unsupported source evidence schema_version {version!r}"
-    )
+    raise EvidenceMigrationError(f"unsupported source evidence schema_version {version!r}")
 
 
 def write_migration_record(
@@ -701,11 +651,7 @@ def load_normalized_approval(
         approval = NormalizedEvidenceApproval.model_validate(document)
     except ValueError as exc:
         raise EvidenceMigrationError(f"invalid normalized approval: {exc}") from exc
-    expected_record_digest = (
-        normalized.migration.record_digest
-        if normalized.migration is not None
-        else None
-    )
+    expected_record_digest = normalized.migration.record_digest if normalized.migration is not None else None
     mismatches = []
     if approval.source_bundle_digest != normalized.source_digest:
         mismatches.append("source_bundle_digest")
@@ -714,10 +660,7 @@ def load_normalized_approval(
     if approval.migration_record_digest != expected_record_digest:
         mismatches.append("migration_record_digest")
     expected_warnings = (
-        {
-            f"{warning.location}:{warning.code}"
-            for warning in normalized.migration.warnings
-        }
+        {f"{warning.location}:{warning.code}" for warning in normalized.migration.warnings}
         if normalized.migration is not None
         else set()
     )
@@ -727,8 +670,5 @@ def load_normalized_approval(
     if set(approval.acknowledged_findings) != required_findings:
         mismatches.append("acknowledged_findings")
     if mismatches:
-        raise EvidenceMigrationError(
-            "normalized approval does not match evidence: "
-            + ", ".join(sorted(mismatches))
-        )
+        raise EvidenceMigrationError("normalized approval does not match evidence: " + ", ".join(sorted(mismatches)))
     return approval

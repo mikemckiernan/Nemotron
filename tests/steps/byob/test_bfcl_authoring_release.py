@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from nemotron.steps.byob.runtime.authoring_release.freeze import (
-    FREEZE_MANIFEST_VERSION_V2,
     AuthoringFreezeError,
     FreezeInputsV2,
     FrozenReleaseV2,
@@ -34,6 +34,9 @@ from nemotron.steps.byob.runtime.authoring_release.review import (
     write_review_approval,
     write_review_packet,
 )
+from nemotron.steps.byob.runtime.authoring_release.versions import (
+    FREEZE_MANIFEST_VERSION_V3,
+)
 from nemotron.steps.byob.runtime.mcp.release.adapter import McpReleaseAdapter
 from nemotron.steps.byob.runtime.mcp.release.freeze import (
     FreezeInputs as McpFreezeInputsV1,
@@ -56,11 +59,22 @@ from nemotron.steps.byob.runtime.mcp.release.review import (
 from nemotron.steps.byob.runtime.mcp.release.review import (
     load_review_packet as load_mcp_review_v1,
 )
+from nemotron.steps.byob.runtime.release_seal import ReleaseSealAuthority
 from tests.steps.byob.test_bfcl_mcp_release_review import (
     SHA_A,
     _approved_freeze_inputs,
     _inputs,
 )
+
+SEAL_AUTHORITY = ReleaseSealAuthority(
+    issuer="bfcl-release-authority",
+    key_id="release-key-1",
+    private_key=Ed25519PrivateKey.generate(),
+)
+SEAL_VERIFICATION = {
+    "trusted_seal_keys": {SEAL_AUTHORITY.key_id: SEAL_AUTHORITY.public_key},
+    "expected_seal_issuer": SEAL_AUTHORITY.issuer,
+}
 
 
 def _adapter() -> McpReleaseAdapter:
@@ -150,14 +164,13 @@ def test_v2_release_is_deterministic_and_semantically_equivalent_to_v1(
     v1_inputs = _approved_freeze_inputs(legacy_root)
     v1 = freeze_mcp_v1(v1_inputs, tmp_path / "legacy-release")
 
-    paths, packet, approval, packet_path, approval_path = _approved_v2(
-        tmp_path / "current"
-    )
+    paths, packet, approval, packet_path, approval_path = _approved_v2(tmp_path / "current")
     inputs = FreezeInputsV2(
         pack_root=paths["pack"],
         review_packet_path=packet_path,
         review_approval_path=approval_path,
         source_records=_source_records(paths),
+        seal_authority=SEAL_AUTHORITY,
     )
     first = freeze_canonical_pack(
         inputs,
@@ -171,16 +184,26 @@ def test_v2_release_is_deterministic_and_semantically_equivalent_to_v1(
     )
 
     assert first.manifest == second.manifest
-    assert first.manifest["schema_version"] == FREEZE_MANIFEST_VERSION_V2
+    assert first.manifest["schema_version"] == FREEZE_MANIFEST_VERSION_V3
     assert first.manifest["manifest_digest"] == second.manifest["manifest_digest"]
+    assert first.manifest["seal_issuer"] == SEAL_AUTHORITY.issuer
+    assert first.manifest["signing_key_id"] == SEAL_AUTHORITY.key_id
+    assert isinstance(first.manifest["signature"], str)
+    with pytest.raises(AuthoringFreezeError) as untrusted:
+        load_frozen_release(first.root, adapter=_adapter())
+    assert untrusted.value.code == "release_seal_trust_required"
     legacy_packet = load_mcp_review_v1(v1_inputs.review_packet_path)
-    assert packet.document["candidate_pack"]["fingerprint"] == legacy_packet.document[
-        "source_digests"
-    ]["canonical_pack"]
+    assert (
+        packet.document["candidate_pack"]["fingerprint"] == legacy_packet.document["source_digests"]["canonical_pack"]
+    )
     assert v1.manifest["review_packet_digest"] == legacy_packet.digest
     assert first.manifest["review_packet_digest"] == packet.digest
     assert first.manifest["review_approval_digest"] == approval.digest
-    loaded = load_frozen_release(first.root, adapter=_adapter())
+    loaded = load_frozen_release(
+        first.root,
+        adapter=_adapter(),
+        **SEAL_VERIFICATION,
+    )
     assert isinstance(loaded, FrozenReleaseV2)
     assert loaded.manifest == first.manifest
 
@@ -226,9 +249,7 @@ def test_adapter_hook_facts_are_digest_bound_and_canonical(tmp_path: Path) -> No
             approved_by="reviewer",
             reviewed_at="2026-08-26T17:00:00Z",
             checklist={name: True for name in REQUIRED_CHECKLIST_V2},
-            acknowledged_risks=[
-                risk["risk_id"] for risk in first.document["risks"]
-            ],
+            acknowledged_risks=[risk["risk_id"] for risk in first.document["risks"]],
         )
     assert raised.value.code == "review_packet_blocked"
 
@@ -276,6 +297,7 @@ def test_freeze_requires_every_reviewed_adapter_sidecar(tmp_path: Path) -> None:
                     "certification_report": paths["evidence"],
                     "model_exposure_authorization": paths["evidence"],
                 },
+                seal_authority=SEAL_AUTHORITY,
             ),
             tmp_path / "release",
             adapter=omitting,
@@ -291,6 +313,7 @@ def test_unknown_and_tampered_v2_manifests_fail_closed(tmp_path: Path) -> None:
             review_packet_path=packet_path,
             review_approval_path=approval_path,
             source_records=_source_records(paths),
+            seal_authority=SEAL_AUTHORITY,
         ),
         tmp_path / "release",
         adapter=_adapter(),
@@ -302,7 +325,11 @@ def test_unknown_and_tampered_v2_manifests_fail_closed(tmp_path: Path) -> None:
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
     with pytest.raises(AuthoringFreezeError) as raised:
-        load_frozen_release(release.root, adapter=_adapter())
+        load_frozen_release(
+            release.root,
+            adapter=_adapter(),
+            **SEAL_VERIFICATION,
+        )
     assert raised.value.code == "freeze_manifest_tampered"
 
 
@@ -314,6 +341,7 @@ def test_v2_loader_seals_every_pack_file_without_adapter(tmp_path: Path) -> None
             review_packet_path=packet_path,
             review_approval_path=approval_path,
             source_records=_source_records(paths),
+            seal_authority=SEAL_AUTHORITY,
         ),
         tmp_path / "release",
         adapter=_adapter(),
@@ -323,7 +351,7 @@ def test_v2_loader_seals_every_pack_file_without_adapter(tmp_path: Path) -> None
     tools.write_text("[]\n", encoding="utf-8")
 
     with pytest.raises(AuthoringFreezeError) as raised:
-        load_frozen_release(release.root)
+        load_frozen_release(release.root, **SEAL_VERIFICATION)
     assert raised.value.code == "frozen_release_tampered"
 
 
@@ -340,6 +368,7 @@ def test_v2_approval_cannot_float_to_changed_packet(tmp_path: Path) -> None:
                 review_packet_path=packet_path,
                 review_approval_path=approval_path,
                 source_records={},
+                seal_authority=SEAL_AUTHORITY,
             ),
             tmp_path / "release",
             adapter=_adapter(),
@@ -398,9 +427,7 @@ def test_v2_freeze_requires_a2_certification(tmp_path: Path) -> None:
     packet = build_review_packet(
         adapter=adapter,
         pack_root=paths["pack"],
-        source_digests={
-            name: _file_digest(path) for name, path in _source_records(paths).items()
-        },
+        source_digests={name: _file_digest(path) for name, path in _source_records(paths).items()},
     )
     packet_path = write_review_packet(packet, tmp_path / "packet.json")
     approval = build_review_approval(
@@ -418,6 +445,7 @@ def test_v2_freeze_requires_a2_certification(tmp_path: Path) -> None:
                 review_packet_path=packet_path,
                 review_approval_path=approval_path,
                 source_records=_source_records(paths),
+                seal_authority=SEAL_AUTHORITY,
             ),
             tmp_path / "release",
             adapter=adapter,
@@ -433,6 +461,7 @@ def test_v2_handoff_uses_typed_publication_hooks(tmp_path: Path) -> None:
             review_packet_path=packet_path,
             review_approval_path=approval_path,
             source_records=_source_records(paths),
+            seal_authority=SEAL_AUTHORITY,
         ),
         tmp_path / "release",
         adapter=_adapter(),
@@ -497,10 +526,7 @@ def test_v2_handoff_uses_typed_publication_hooks(tmp_path: Path) -> None:
             manifest: dict,
             frozen_pack_fingerprint: str,
         ) -> None:
-            assert (
-                manifest["oracle"]["mcp"]["frozen_pack_fingerprint"]
-                == frozen_pack_fingerprint
-            )
+            assert manifest["oracle"]["mcp"]["frozen_pack_fingerprint"] == frozen_pack_fingerprint
 
     config = tmp_path / "config.yaml"
     config.write_text("stage: all\n", encoding="utf-8")
@@ -508,6 +534,7 @@ def test_v2_handoff_uses_typed_publication_hooks(tmp_path: Path) -> None:
         release.root,
         config,
         adapter=RecordedPublicationAdapter(),
+        **SEAL_VERIFICATION,
     )
 
     assert handoff.benchmark_path.is_file()

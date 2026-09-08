@@ -42,6 +42,9 @@ from nemotron.steps.byob.runtime.mcp.gateway.conformance import (
     load_conformance_evidence,
 )
 from nemotron.steps.byob.runtime.mcp.rollout import require_mcp_feature
+from nemotron.steps.byob.runtime.release_seal import (
+    load_trusted_release_seal_key,
+)
 
 _LOOPBACK = frozenset({"localhost", "127.0.0.1", "::1"})
 
@@ -55,6 +58,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--snapshot-digest")
     parser.add_argument("--probe-report", type=Path)
     parser.add_argument("--gateway-suite", type=Path)
+    parser.add_argument("--evidence-issuer")
+    parser.add_argument("--evidence-public-key", type=Path)
+    parser.add_argument("--evidence-key-id")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--tls-certfile", type=Path)
@@ -87,9 +93,14 @@ def _validate_bind(args: argparse.Namespace) -> None:
     if args.max_request_bytes <= 0:
         raise ValueError("--max-request-bytes must be positive")
     if (args.probe_report is None) != (args.gateway_suite is None):
-        raise ValueError(
-            "--probe-report and --gateway-suite must be provided together"
-        )
+        raise ValueError("--probe-report and --gateway-suite must be provided together")
+    evidence_trust = (
+        args.evidence_issuer,
+        args.evidence_public_key,
+        args.evidence_key_id,
+    )
+    if any(value is not None for value in evidence_trust) and not all(value is not None for value in evidence_trust):
+        raise ValueError("evidence issuer, public key, and key ID must be supplied together")
     has_cert = args.tls_certfile is not None
     has_key = args.tls_keyfile is not None
     if has_cert != has_key:
@@ -131,9 +142,20 @@ def _build_app(args: argparse.Namespace) -> Starlette:
     )
     conformance_evidence = None
     if args.probe_report is not None and args.gateway_suite is not None:
+        trusted_keys = (
+            load_trusted_release_seal_key(
+                args.evidence_public_key,
+                key_id=args.evidence_key_id,
+            )
+            if args.evidence_public_key is not None
+            else None
+        )
         conformance_evidence = load_conformance_evidence(
             _load_unique_json(args.probe_report.resolve()),
             _load_unique_json(args.gateway_suite.resolve()),
+            trusted_public_keys=trusted_keys,
+            expected_issuer=args.evidence_issuer,
+            gateway_artifact_digest=args.gateway_artifact_digest,
         )
     service = GatewayService(
         loaded,

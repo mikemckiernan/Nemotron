@@ -3,11 +3,13 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+from base64 import b64encode
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from starlette.testclient import TestClient
 
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.conformance import (
@@ -42,10 +44,16 @@ from nemotron.steps.byob.runtime.mcp.gateway.result_mapping import (
     map_call_result,
 )
 from nemotron.steps.byob.runtime.mcp.normalization import normalize_catalog
+from nemotron.steps.byob.runtime.release_seal import ReleaseSealAuthority
 
 ZERO_DIGEST = "sha256:" + "0" * 64
 SERVER_DIGEST = "sha256:" + "a" * 64
 GATEWAY_DIGEST = "sha256:" + "b" * 64
+EVIDENCE_AUTHORITY = ReleaseSealAuthority(
+    issuer="bfcl-release-authority",
+    key_id="release-key-1",
+    private_key=Ed25519PrivateKey.generate(),
+)
 
 TOOLS = [
     {
@@ -104,7 +112,12 @@ TOOLS = [
 ]
 
 
-def _raw_config(*, tool_timeout_s: float = 1.0) -> dict[str, Any]:
+def _raw_config(
+    *,
+    tool_timeout_s: float = 1.0,
+    episode_timeout_s: float = 30.0,
+    session_idle_ttl_s: float = 10.0,
+) -> dict[str, Any]:
     return {
         "profile_version": "bfcl-mcp-oracle-v1",
         "mode": "A",
@@ -145,18 +158,29 @@ def _raw_config(*, tool_timeout_s: float = 1.0) -> dict[str, Any]:
             "handshake_timeout_s": 1,
             "tool_timeout_s": tool_timeout_s,
             "reset_timeout_s": 1,
-            "episode_timeout_s": 30,
+            "episode_timeout_s": episode_timeout_s,
             "max_response_bytes": 100_000,
             "max_tools": 16,
             "max_catalog_pages": 4,
             "max_concurrent_episodes": 2,
-            "session_idle_ttl_s": 10,
+            "session_idle_ttl_s": session_idle_ttl_s,
         },
     }
 
 
-def _loaded(*, tool_timeout_s: float = 1.0) -> LoadedMcpOracleConfig:
-    config = McpOracleConfig.model_validate(_raw_config(tool_timeout_s=tool_timeout_s))
+def _loaded(
+    *,
+    tool_timeout_s: float = 1.0,
+    episode_timeout_s: float = 30.0,
+    session_idle_ttl_s: float = 10.0,
+) -> LoadedMcpOracleConfig:
+    config = McpOracleConfig.model_validate(
+        _raw_config(
+            tool_timeout_s=tool_timeout_s,
+            episode_timeout_s=episode_timeout_s,
+            session_idle_ttl_s=session_idle_ttl_s,
+        )
+    )
     catalog = normalize_catalog(TOOLS, config)
     document = catalog_identity_document(
         config,
@@ -266,6 +290,7 @@ class _Factory:
         hang_discovery: bool = False,
         pause_reset_return: bool = False,
         close_delay_s: float = 0.0,
+        close_exception: BaseException | None = None,
     ):
         self.hang_business_call = hang_business_call
         self.hang_reset = hang_reset
@@ -273,6 +298,7 @@ class _Factory:
         self.hang_discovery = hang_discovery
         self.pause_reset_return = pause_reset_return
         self.close_delay_s = close_delay_s
+        self.close_exception = close_exception
         self.reset_started: asyncio.Event | None = None
         self.business_started: asyncio.Event | None = None
         self.release_business: asyncio.Event | None = None
@@ -305,18 +331,26 @@ class _Factory:
                 await asyncio.sleep(self.close_delay_s)
             client.closed = True
             self.context_owners.append((entered_by, asyncio.current_task()))
+            if self.close_exception is not None and client.index > 0:
+                raise self.close_exception
 
 
 def _service(
     *,
     factory: _Factory | None = None,
     tool_timeout_s: float = 1.0,
+    episode_timeout_s: float = 30.0,
+    session_idle_ttl_s: float = 10.0,
     conformance_evidence: ConformanceEvidence | None = None,
 ) -> tuple[GatewayService, _Factory]:
     factory = factory or _Factory()
     return (
         GatewayService(
-            _loaded(tool_timeout_s=tool_timeout_s),
+            _loaded(
+                tool_timeout_s=tool_timeout_s,
+                episode_timeout_s=episode_timeout_s,
+                session_idle_ttl_s=session_idle_ttl_s,
+            ),
             artifacts=GatewayArtifacts(GATEWAY_DIGEST),
             connection_factory=factory,
             conformance_evidence=conformance_evidence,
@@ -332,6 +366,30 @@ def _context(task_id: str = "task-1") -> dict[str, Any]:
         "timeout_s": 5,
         "task_id": task_id,
     }
+
+
+def _signed_gateway_suite() -> dict[str, Any]:
+    suite: dict[str, Any] = {
+        "kind": "gateway",
+        "profile_version": "bfcl-mcp-gateway-conformance-v1",
+        "p9": {
+            "timeout_observed": True,
+            "business_call_attempts": 1,
+            "episode_poisoned": True,
+            "transport_cleanup_completed": True,
+            "unknown_commit_state_preserved": True,
+        },
+        "producer": {
+            "issuer": EVIDENCE_AUTHORITY.issuer,
+            "signing_key_id": EVIDENCE_AUTHORITY.key_id,
+            "gateway_artifact_digest": GATEWAY_DIGEST,
+        },
+    }
+    suite["evidence_digest"] = attestation_digest(suite)
+    suite["signature"] = b64encode(
+        EVIDENCE_AUTHORITY.private_key.sign(suite["evidence_digest"].encode("ascii"))
+    ).decode("ascii")
+    return suite
 
 
 def test_result_mapping_covers_success_error_and_confirmation() -> None:
@@ -451,6 +509,31 @@ def test_gateway_identity_is_deterministic_and_protocol_compatible() -> None:
     asyncio.run(run())
 
 
+def test_catalog_digest_covers_output_schema_and_runtime_annotations() -> None:
+    config = _loaded().value
+
+    def digest(tools: list[dict[str, Any]]) -> str:
+        catalog = normalize_catalog(tools, config)
+        document = catalog_identity_document(
+            config,
+            negotiated_mcp_version="2026-07-28",
+            server_name="catalog",
+            server_version="1.0.0",
+            catalog=catalog,
+        )
+        return "sha256:" + hashlib.sha256(canonical_json(document).encode("utf-8")).hexdigest()
+
+    baseline = digest(TOOLS)
+    assert baseline == "sha256:6ca7d204b21701f38da881dbf187a0adfe24d95becc0bfe4571774477b56f846"
+    schema_changed = json.loads(json.dumps(TOOLS))
+    schema_changed[-1]["outputSchema"]["properties"]["item"]["type"] = "integer"
+    annotation_changed = json.loads(json.dumps(TOOLS))
+    annotation_changed[-1]["annotations"] = {"readOnlyHint": False}
+
+    assert digest(schema_changed) != baseline
+    assert digest(annotation_changed) != baseline
+
+
 def test_two_sessions_are_isolated_and_cleanup_is_idempotent() -> None:
     async def run() -> None:
         service, factory = _service()
@@ -489,6 +572,62 @@ def test_two_sessions_are_isolated_and_cleanup_is_idempotent() -> None:
             await service.shutdown()
         assert factory.context_owners
         assert all(entered is exited for entered, exited in factory.context_owners)
+
+    asyncio.run(run())
+
+
+def test_delete_reports_cancelled_transport_cleanup_as_failure() -> None:
+    async def run() -> None:
+        service, _ = _service(
+            factory=_Factory(close_exception=asyncio.CancelledError()),
+        )
+        await service.start()
+        try:
+            created = await service.create_session(context=_context(), fixtures=None)
+            with pytest.raises(GatewayError) as caught:
+                await service.delete_session(created["session_id"])
+            assert caught.value.code == "mcp_close_failed"
+        finally:
+            await service.shutdown()
+
+    asyncio.run(run())
+
+
+def test_background_reaper_reclaims_abandoned_sessions() -> None:
+    async def run() -> None:
+        service, factory = _service(
+            session_idle_ttl_s=0.02,
+            episode_timeout_s=1.0,
+        )
+        await service.start()
+        try:
+            created = await service.create_session(context=_context(), fixtures=None)
+            await asyncio.sleep(0.12)
+            assert created["session_id"] not in service._sessions
+            assert factory.clients[1].closed is True
+        finally:
+            await service.shutdown()
+
+    asyncio.run(run())
+
+
+def test_session_readiness_is_bounded_by_episode_deadline() -> None:
+    async def run() -> None:
+        factory = _Factory(pause_reset_return=True)
+        service, _ = _service(
+            factory=factory,
+            episode_timeout_s=0.02,
+        )
+        await service.start()
+        factory.reset_ready = asyncio.Event()
+        factory.release_reset = asyncio.Event()
+        try:
+            with pytest.raises(GatewayError) as caught:
+                await service.create_session(context=_context(), fixtures=None)
+            assert caught.value.code == "mcp_session_create_timeout"
+            assert service._creating_sessions == 0
+        finally:
+            await service.shutdown()
 
     asyncio.run(run())
 
@@ -542,12 +681,8 @@ def test_bfcl_owned_gateway_timeout_suite_records_p9_evidence() -> None:
             context=_context(),
             business_tool="inventory_lookup",
             arguments={"item_id": "A"},
-            business_call_attempts=lambda: sum(
-                client.business_calls for client in factory.clients
-            ),
-            transport_cleanup_completed=lambda: all(
-                client.closed for client in factory.clients
-            ),
+            business_call_attempts=lambda: sum(client.business_calls for client in factory.clients),
+            transport_cleanup_completed=lambda: all(client.closed for client in factory.clients),
         )
 
         assert suite == {
@@ -639,9 +774,7 @@ def test_the_conformance_route_serves_the_exact_bytes_its_digest_covers() -> Non
         # The pack pins a digest over the served bytes, so re-encoding on either side would
         # break verification even though the JSON is semantically identical.
         assert response.content == canonical_json(document).encode("utf-8")
-        assert attestation_digest(document) == attestation_digest(
-            json.loads(response.content)
-        )
+        assert attestation_digest(document) == attestation_digest(json.loads(response.content))
 
         # Both routes must describe the same build.
         assert document["effective_content_digest"] == client.get("/v1/metadata").json()["content_digest"]
@@ -664,42 +797,28 @@ def test_verified_probe_evidence_can_move_the_live_route_to_l2() -> None:
             )
             for index in range(1, 12)
         ),
-        suite={
-            "kind": "gateway",
-            "profile_version": "bfcl-mcp-gateway-conformance-v1",
-            "p9": {
-                "timeout_observed": True,
-                "business_call_attempts": 1,
-                "episode_poisoned": True,
-                "transport_cleanup_completed": True,
-                "unknown_commit_state_preserved": True,
-            },
-        },
+        suite=_signed_gateway_suite(),
+        trusted_producer=True,
     )
     service, _ = _service(conformance_evidence=evidence)
     with TestClient(create_gateway_app(service)) as client:
         document = client.get("/v1/conformance").json()
         metadata = client.get("/v1/metadata").json()
         probe_report = client.get("/v1/conformance/probe-report").json()
-        gateway_report = client.get(
-            "/v1/conformance/gateway-report"
-        ).json()
+        gateway_report = client.get("/v1/conformance/gateway-report").json()
 
     assert document["level"] == "L2"
-    assert {check["id"] for check in document["checks"]} == {
-        f"P{index}" for index in range(1, 12)
-    }
+    assert {check["id"] for check in document["checks"]} == {f"P{index}" for index in range(1, 12)}
     assert attestation_digest(probe_report) == document["probe_report_digest"]
-    assert (
-        attestation_digest(gateway_report)
-        == document["gateway_conformance_report_digest"]
-    )
+    assert attestation_digest(gateway_report) == document["gateway_conformance_report_digest"]
     verdict = verify_conformance(
         document,
         expected_digest=attestation_digest(document),
         metadata_content_digest=metadata["content_digest"],
         probe_report=probe_report,
         gateway_conformance_report=gateway_report,
+        trusted_evidence_keys={EVIDENCE_AUTHORITY.key_id: EVIDENCE_AUTHORITY.public_key},
+        expected_evidence_issuer=EVIDENCE_AUTHORITY.issuer,
     )
     assert verdict.publishable is True
     assert verdict.effective_level == "L2"
@@ -710,9 +829,7 @@ def test_gateway_loads_only_complete_ordered_probes_and_passing_p9_suite() -> No
         "probes": [
             {
                 "id": f"P{index}",
-                "requirement": (
-                    "conditional" if index in {7, 8} else "required"
-                ),
+                "requirement": ("conditional" if index in {7, 8} else "required"),
                 "status": "pass",
                 "reason": None,
             }
@@ -733,10 +850,30 @@ def test_gateway_loads_only_complete_ordered_probes_and_passing_p9_suite() -> No
 
     evidence = load_conformance_evidence(probes, suite)
     assert evidence.probe_report == probes
+    assert evidence.trusted_producer is False
 
     suite["p9"]["business_call_attempts"] = 2
     with pytest.raises(ValueError, match="passing P9"):
         load_conformance_evidence(probes, suite)
+
+    signed = _signed_gateway_suite()
+    trusted = load_conformance_evidence(
+        probes,
+        signed,
+        trusted_public_keys={EVIDENCE_AUTHORITY.key_id: EVIDENCE_AUTHORITY.public_key},
+        expected_issuer=EVIDENCE_AUTHORITY.issuer,
+        gateway_artifact_digest=GATEWAY_DIGEST,
+    )
+    assert trusted.trusted_producer is True
+    signed["p9"]["business_call_attempts"] = 2
+    with pytest.raises(ValueError):
+        load_conformance_evidence(
+            probes,
+            signed,
+            trusted_public_keys={EVIDENCE_AUTHORITY.key_id: EVIDENCE_AUTHORITY.public_key},
+            expected_issuer=EVIDENCE_AUTHORITY.issuer,
+            gateway_artifact_digest=GATEWAY_DIGEST,
+        )
 
 
 def test_a_gateway_attestation_cannot_publish_on_its_own_word() -> None:

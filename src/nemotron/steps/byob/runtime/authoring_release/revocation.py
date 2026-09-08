@@ -57,12 +57,8 @@ from nemotron.steps.byob.runtime.pack_authoring.artifacts import (
     write_canonical_json,
 )
 
-REVOCATION_RECORD_VERSION: Literal["bfcl-release-revocation-v1"] = (
-    "bfcl-release-revocation-v1"
-)
-REVOCATION_REGISTRY_VERSION: Literal["bfcl-release-revocation-registry-v1"] = (
-    "bfcl-release-revocation-registry-v1"
-)
+REVOCATION_RECORD_VERSION: Literal["bfcl-release-revocation-v1"] = "bfcl-release-revocation-v1"
+REVOCATION_REGISTRY_VERSION: Literal["bfcl-release-revocation-registry-v1"] = "bfcl-release-revocation-registry-v1"
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 
@@ -166,10 +162,7 @@ class ReleaseRevocationRecord(_StrictModel):
             if self.replacement_frozen_pack_fingerprint is None:
                 raise ValueError("supersede requires a replacement fingerprint")
             _require_digest(self.replacement_frozen_pack_fingerprint)
-            if (
-                self.replacement_frozen_pack_fingerprint
-                == self.target.frozen_pack_fingerprint
-            ):
+            if self.replacement_frozen_pack_fingerprint == self.target.frozen_pack_fingerprint:
                 raise ValueError("a release cannot supersede itself")
         elif self.replacement_frozen_pack_fingerprint is not None:
             raise ValueError("revoke cannot declare a replacement fingerprint")
@@ -205,10 +198,7 @@ class ReleaseRevocationRegistry(_StrictModel):
         valid_until = _require_timestamp(self.valid_until, "valid_until")
         if valid_until <= generated:
             raise ValueError("revocation registry valid_until must follow generated_at")
-        keys = tuple(
-            (record.target.frozen_pack_fingerprint, record.sequence)
-            for record in self.records
-        )
+        keys = tuple((record.target.frozen_pack_fingerprint, record.sequence) for record in self.records)
         if keys != tuple(sorted(keys)) or len(keys) != len(set(keys)):
             raise ValueError("revocation records must be sorted and unique")
         _validate_chains(self.records)
@@ -281,16 +271,25 @@ def load_trusted_revocation_key(
     return {key_id: key}
 
 
-def revocation_target_from_release(release_root: Path) -> RevocationTarget:
-    release = load_frozen_release(release_root)
+def revocation_target_from_release(
+    release_root: Path,
+    *,
+    expected_seal_issuer: str | None = None,
+    trusted_seal_keys: Mapping[str, Ed25519PublicKey] | None = None,
+) -> RevocationTarget:
+    release = load_frozen_release(
+        release_root,
+        expected_seal_issuer=expected_seal_issuer,
+        trusted_seal_keys=trusted_seal_keys,
+    )
     if isinstance(release, FrozenReleaseV2):
         return RevocationTarget(
             frozen_pack_fingerprint=release.pack_fingerprint,
             freeze_manifest_digest=str(release.manifest["manifest_digest"]),
-        adapter_kind=cast(
-            Literal["local_python", "http_package", "mcp_mode_a"],
-            release.adapter_kind,
-        ),
+            adapter_kind=cast(
+                Literal["local_python", "http_package", "mcp_mode_a"],
+                release.adapter_kind,
+            ),
         )
     return RevocationTarget(
         frozen_pack_fingerprint=release.pack_fingerprint,
@@ -321,14 +320,10 @@ def build_revocation_record(
         "sequence": 1 if prior is None else prior.sequence + 1,
         "action": action,
         "target": target.model_dump(mode="json"),
-        "replacement_frozen_pack_fingerprint": (
-            replacement_frozen_pack_fingerprint
-        ),
+        "replacement_frozen_pack_fingerprint": (replacement_frozen_pack_fingerprint),
         "reason_code": reason_code,
         "effective_at": _timestamp(effective_at),
-        "supersedes_record_digest": (
-            None if prior is None else prior.record_digest
-        ),
+        "supersedes_record_digest": (None if prior is None else prior.record_digest),
     }
     digest = sha256_json(unsigned)
     return cast(
@@ -524,9 +519,7 @@ def verify_release_revocation(
         revoked=True,
         action=record.action,
         revocation_record_digest=record.record_digest,
-        replacement_frozen_pack_fingerprint=(
-            record.replacement_frozen_pack_fingerprint
-        ),
+        replacement_frozen_pack_fingerprint=(record.replacement_frozen_pack_fingerprint),
         warnings=("release_revoked",),
     )
 
@@ -539,20 +532,13 @@ def _validate_chains(records: tuple[ReleaseRevocationRecord, ...]) -> None:
         for index, record in enumerate(chain):
             expected_sequence = index + 1
             expected_prior = None if index == 0 else chain[index - 1].record_digest
-            if (
-                record.sequence != expected_sequence
-                or record.supersedes_record_digest != expected_prior
-            ):
-                raise ValueError(
-                    "revocation chain is stale, conflicting, or incomplete"
-                )
+            if record.sequence != expected_sequence or record.supersedes_record_digest != expected_prior:
+                raise ValueError("revocation chain is stale, conflicting, or incomplete")
             if index and _require_timestamp(
                 record.effective_at,
                 "effective_at",
             ) <= _require_timestamp(chain[index - 1].effective_at, "effective_at"):
-                raise ValueError(
-                    "revocation chain effective times must increase"
-                )
+                raise ValueError("revocation chain effective times must increase")
 
 
 def _verify_signature(

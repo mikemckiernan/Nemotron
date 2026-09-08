@@ -35,6 +35,9 @@ from nemotron.steps.byob.runtime.authoring_release.review import (
     load_json_mapping,
     load_review_packet,
 )
+from nemotron.steps.byob.runtime.release_seal import (
+    load_release_seal_authority,
+)
 
 _INPUT_KEYS = frozenset(
     {
@@ -53,13 +56,15 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--freeze-inputs", type=Path, required=True)
     parser.add_argument("--approval", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--signing-key", type=Path, required=True)
+    parser.add_argument("--signing-key-id", required=True)
+    parser.add_argument("--seal-issuer", required=True)
     return parser
 
 
 def _paths(value: object, label: str) -> dict[str, Path]:
     if not isinstance(value, dict) or not all(
-        isinstance(name, str) and isinstance(path, str)
-        for name, path in value.items()
+        isinstance(name, str) and isinstance(path, str) for name, path in value.items()
     ):
         raise ValueError(f"{label} must map names to paths")
     return {name: Path(path) for name, path in value.items()}
@@ -69,10 +74,7 @@ def main() -> None:
     args = _parser().parse_args()
     try:
         document = load_json_mapping(args.freeze_inputs, "freeze inputs")
-        if (
-            set(document) != _INPUT_KEYS
-            or document.get("schema_version") != "bfcl-authoring-freeze-inputs-v1"
-        ):
+        if set(document) != _INPUT_KEYS or document.get("schema_version") != "bfcl-authoring-freeze-inputs-v1":
             raise ValueError("freeze inputs do not match the v1 handoff contract")
         packet_path = Path(str(document["review_packet"]))
         packet = load_review_packet(packet_path)
@@ -92,6 +94,11 @@ def main() -> None:
                 review_packet_path=packet_path,
                 review_approval_path=args.approval,
                 source_records=source_records,
+                seal_authority=load_release_seal_authority(
+                    args.signing_key,
+                    issuer=args.seal_issuer,
+                    key_id=args.signing_key_id,
+                ),
             ),
             args.output,
             adapter=adapter,

@@ -131,9 +131,7 @@ def _mcp_report(
         probes.append(
             {
                 "id": identifier,
-                "requirement": (
-                    "conditional" if identifier in {"P7", "P8"} else "required"
-                ),
+                "requirement": ("conditional" if identifier in {"P7", "P8"} else "required"),
                 "status": status,
                 "reason": reason,
             }
@@ -161,30 +159,19 @@ def test_published_profiles_are_complete_bounded_and_transport_specific() -> Non
     assert certification_profile_for("http_package") is profiles[0]
     for profile in profiles:
         assert profile.owner == "bfcl"
-        assert sum(item.execution.max_calls for item in profile.probes) <= (
-            profile.max_total_calls
-        )
-        assert sum(item.execution.timeout_s for item in profile.probes) <= (
-            profile.max_wall_time_s
-        )
+        assert sum(item.execution.max_calls for item in profile.probes) <= (profile.max_total_calls)
+        assert sum(item.execution.timeout_s for item in profile.probes) <= (profile.max_wall_time_s)
         for requirement in profile.probes:
             assert requirement.execution.executor == "bfcl"
-            assert requirement.execution.evidence_issuer == (
-                "bfcl-source-adapter-verifier-v1"
-            )
-            assert requirement.execution.input_binding == (
-                "bfcl-adapter-probe-input-v1"
-            )
-            assert requirement.execution.outcome_schema == (
-                "bfcl-adapter-probe-outcome-v1"
-            )
+            assert requirement.execution.evidence_issuer == ("bfcl-source-adapter-verifier-v1")
+            assert requirement.execution.input_binding == ("bfcl-adapter-probe-input-v1")
+            assert requirement.execution.outcome_schema == ("bfcl-adapter-probe-outcome-v1")
             assert requirement.execution.max_calls > 0
             assert requirement.execution.timeout_s > 0
             assert requirement.allowed_failure_reasons
 
     assert {
-        requirement.probe: requirement.execution.cleanup
-        for requirement in local_python_reference_profile().probes
+        requirement.probe: requirement.execution.cleanup for requirement in local_python_reference_profile().probes
     } == {
         probe: (
             CleanupKind.NONE
@@ -198,16 +185,13 @@ def test_published_profiles_are_complete_bounded_and_transport_specific() -> Non
         for probe in CertificationProbe
     }
     assert {
-        requirement.probe: requirement.execution.cleanup
-        for requirement in http_package_reference_profile().probes
+        requirement.probe: requirement.execution.cleanup for requirement in http_package_reference_profile().probes
     } == {probe: CleanupKind.SESSION for probe in CertificationProbe}
 
 
 def test_per_case_local_probes_are_bounded_by_their_own_call_budget() -> None:
     profile = local_python_reference_profile()
-    policies = {
-        requirement.probe: requirement.execution for requirement in profile.probes
-    }
+    policies = {requirement.probe: requirement.execution for requirement in profile.probes}
 
     # These two open one isolated episode per reviewed case, so a source is bounded by
     # the size of its own catalogue rather than by a deadline sized for a single call.
@@ -277,21 +261,15 @@ def test_adapter_observations_cannot_claim_authority_and_bfcl_binds_outcomes() -
         input_digest=SHA_A,
     )
 
-    assert derive_attained_tier(local_python_reference_profile(), outcomes) is (
-        AdapterTier.A2
-    )
+    assert derive_attained_tier(local_python_reference_profile(), outcomes) is (AdapterTier.A2)
     assert all(outcome.input_digest == SHA_A for outcome in outcomes)
-    assert all(
-        outcome.evidence_digest == sha256_json(outcome.evidence)
-        for outcome in outcomes
-    )
+    assert all(outcome.evidence_digest == sha256_json(outcome.evidence) for outcome in outcomes)
 
 
 @pytest.mark.parametrize(
     ("changes", "expected"),
     [
         ({"observed_calls": 2}, CertificationRefusalCode.PROBE_UNSAFE),
-        ({"elapsed_s": 10.1}, CertificationRefusalCode.PROBE_TIMEOUT),
         ({"cleanup_status": "failed"}, CertificationRefusalCode.CLEANUP_FAILED),
     ],
 )
@@ -330,9 +308,46 @@ def test_probe_projection_enforces_bfcl_budget_and_cleanup(
 
     assert outcomes[0].status == "fail"
     assert outcomes[0].reason == expected.value
-    assert derive_attained_tier(local_python_reference_profile(), outcomes) is (
-        AdapterTier.NONE
+    assert derive_attained_tier(local_python_reference_profile(), outcomes) is (AdapterTier.NONE)
+
+
+def test_host_elapsed_time_is_diagnostic_not_certification_identity() -> None:
+    records = [
+        ProbeExecutionRecord(
+            observation=AdapterProbeObservation(
+                probe=probe,
+                status="pass",
+                evidence={"probe": probe.value},
+            ),
+            observed_calls=1,
+            elapsed_s=0.1,
+            cleanup_status=(
+                "not_required"
+                if probe
+                in {
+                    CertificationProbe.IDENTITY_INTEGRITY,
+                    CertificationProbe.CATALOG_INTEGRITY,
+                }
+                else "passed"
+            ),
+        )
+        for probe in CertificationProbe
+    ]
+    loaded_host = [record.model_copy(update={"elapsed_s": 999.0}) for record in records]
+
+    expected = project_probe_executions(
+        local_python_reference_profile(),
+        records,
+        input_digest=SHA_A,
     )
+    observed = project_probe_executions(
+        local_python_reference_profile(),
+        loaded_host,
+        input_digest=SHA_A,
+    )
+
+    assert observed == expected
+    assert derive_attained_tier(local_python_reference_profile(), observed) is AdapterTier.A2
 
 
 def test_missing_or_unprofiled_raw_observation_uses_stable_refusal_codes() -> None:
@@ -357,9 +372,7 @@ def test_missing_or_unprofiled_raw_observation_uses_stable_refusal_codes() -> No
     )
     missing = outcomes[-1]
     assert missing.reason == CertificationRefusalCode.PROBE_MISSING.value
-    assert derive_attained_tier(http_package_reference_profile(), outcomes) is (
-        AdapterTier.A1
-    )
+    assert derive_attained_tier(http_package_reference_profile(), outcomes) is (AdapterTier.A1)
 
     invalid = (
         ProbeExecutionRecord(
@@ -528,17 +541,13 @@ def test_recomputed_self_digest_cannot_forge_bfcl_signature() -> None:
     )
     document = report.model_dump(mode="json")
     document["signing_key_id"] = attacker.key_id
-    unsigned = {
-        key: value
-        for key, value in document.items()
-        if key not in {"report_digest", "signature"}
-    }
+    unsigned = {key: value for key, value in document.items() if key not in {"report_digest", "signature"}}
     document["report_digest"] = sha256_json(unsigned)
     from base64 import b64encode
 
-    document["signature"] = b64encode(
-        attacker.private_key.sign(document["report_digest"].encode("ascii"))
-    ).decode("ascii")
+    document["signature"] = b64encode(attacker.private_key.sign(document["report_digest"].encode("ascii"))).decode(
+        "ascii"
+    )
     forged = AdapterCertificationReport.model_validate(document)
 
     with pytest.raises(CertificationError, match="not trusted"):
@@ -553,10 +562,7 @@ def test_recomputed_self_digest_cannot_forge_bfcl_signature() -> None:
 
 
 def test_probe_input_evidence_and_descriptor_ceiling_fail_closed() -> None:
-    wrong_input = tuple(
-        item.model_copy(update={"input_digest": SHA_A})
-        for item in _passing_outcomes()
-    )
+    wrong_input = tuple(item.model_copy(update={"input_digest": SHA_A}) for item in _passing_outcomes())
     with pytest.raises(CertificationError, match="do not match the certified"):
         build_certification_report(
             _descriptor(),
@@ -589,10 +595,7 @@ def test_probe_input_evidence_and_descriptor_ceiling_fail_closed() -> None:
         source_identity_digest=SHA_B,
         profile=mcp_reference_profile(),
     )
-    limited_outcomes = tuple(
-        item.model_copy(update={"input_digest": limited_input})
-        for item in _passing_outcomes()
-    )
+    limited_outcomes = tuple(item.model_copy(update={"input_digest": limited_input}) for item in _passing_outcomes())
     with pytest.raises(CertificationError, match="permit at most A0"):
         build_certification_report(
             limited,
@@ -612,10 +615,7 @@ def test_execution_inputs_are_bound_through_every_signed_probe_outcome() -> None
         profile=profile,
         execution_inputs_digest=SHA_C,
     )
-    outcomes = tuple(
-        item.model_copy(update={"input_digest": input_digest})
-        for item in _passing_outcomes()
-    )
+    outcomes = tuple(item.model_copy(update={"input_digest": input_digest}) for item in _passing_outcomes())
     report = build_certification_report(
         descriptor,
         source_identity_digest=SHA_B,
@@ -719,12 +719,8 @@ def test_mcp_conditional_probes_map_only_to_profile_owned_reasons() -> None:
     )
 
     by_probe = {item.probe: item for item in outcomes}
-    assert by_probe[CertificationProbe.STRUCTURED_ERROR_SHAPE].reason == (
-        "no_structured_error_case"
-    )
-    assert by_probe[CertificationProbe.CONFIRMATION_SAFETY].reason == (
-        "no_confirmation_tools"
-    )
+    assert by_probe[CertificationProbe.STRUCTURED_ERROR_SHAPE].reason == ("no_structured_error_case")
+    assert by_probe[CertificationProbe.CONFIRMATION_SAFETY].reason == ("no_confirmation_tools")
     assert derive_attained_tier(mcp_reference_profile(), outcomes) is AdapterTier.A2
 
     with pytest.raises(CertificationError, match="cannot be not_applicable"):
@@ -752,11 +748,7 @@ def test_missing_or_failed_mcp_probe_cannot_be_relabelled_as_a2() -> None:
     )
 
     assert derive_attained_tier(mcp_reference_profile(), outcomes) is AdapterTier.A1
-    result_shape = next(
-        item
-        for item in outcomes
-        if item.probe is CertificationProbe.RESULT_SHAPE_COVERAGE
-    )
+    result_shape = next(item for item in outcomes if item.probe is CertificationProbe.RESULT_SHAPE_COVERAGE)
     assert result_shape.status == "fail"
     assert result_shape.reason == "probe_missing"
 
@@ -792,9 +784,7 @@ def test_mcp_projection_rejects_unknown_reordered_and_malformed_probes() -> None
             confirmation_applicable=True,
         )
 
-    invalid_not_applicable = _mcp_report(
-        overrides={"P5": ("not_applicable", "source chose not to run it")}
-    )
+    invalid_not_applicable = _mcp_report(overrides={"P5": ("not_applicable", "source chose not to run it")})
     with pytest.raises(CertificationError, match="required MCP probe P5"):
         project_mcp_probe_report(
             invalid_not_applicable,

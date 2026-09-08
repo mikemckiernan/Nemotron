@@ -161,23 +161,14 @@ def run_drafting(
             answer_set_path=answer_set_path,
             expected_root_digest=evidence.source_digest,
             expected_normalized_origin_digest=(
-                evidence.migration.normalized_digest
-                if evidence.migration is not None
-                else None
+                evidence.migration.normalized_digest if evidence.migration is not None else None
             ),
         )
         if exposure_authorization_path is None:
-            raise BundleError(
-                "v2 drafting requires an explicit model exposure authorization"
-            )
-        if (
-            evidence.domain_brief_report is None
-            or evidence.held_out_redaction_report is None
-        ):
+            raise BundleError("v2 drafting requires an explicit model exposure authorization")
+        if evidence.domain_brief_report is None or evidence.held_out_redaction_report is None:
             raise BundleError("v2 evidence reports are incomplete")
-        exposure_authorization = load_exposure_authorization(
-            exposure_authorization_path
-        )
+        exposure_authorization = load_exposure_authorization(exposure_authorization_path)
         verify_exposure_authorization(
             exposure_authorization,
             expected_subject=build_exposure_subject(
@@ -190,16 +181,9 @@ def run_drafting(
         )
     else:
         if not allow_legacy_v1_model_exposure:
-            raise BundleError(
-                "legacy v1 evidence cannot reach a model implicitly; normalize to v2"
-            )
-        if (
-            exposure_authorization_path is not None
-            or organizational_policy_digest is not None
-        ):
-            raise BundleError(
-                "model exposure authorization is valid only for v2 evidence"
-            )
+            raise BundleError("legacy v1 evidence cannot reach a model implicitly; normalize to v2")
+        if exposure_authorization_path is not None or organizational_policy_digest is not None:
+            raise BundleError("model exposure authorization is valid only for v2 evidence")
     approval = load_approval(approval_path, evidence)
 
     root = output_root.resolve()
@@ -218,6 +202,10 @@ def run_drafting(
     refusals: tuple[str, ...] = ()
     try:
         source = compile_assertions(drafts.assertions)
+        compile(source, ASSERTIONS_FILE_NAME, "exec")
+    except SyntaxError as exc:
+        refusals = (f"generated assertions are not valid Python: line {exc.lineno}: {exc.msg}",)
+        source = None
     except CompilationError as exc:
         refusals = exc.reasons
 
@@ -245,9 +233,7 @@ def run_drafting(
         # Prove the file on disk is the source that was digested into provenance.
         written = assertions_path.read_text(encoding="utf-8")
         if sha256_text(written) != sha256_text(source):
-            raise CompilationError(
-                ["compiled assertions.py on disk does not match the compiled source"]
-            )
+            raise CompilationError(["compiled assertions.py on disk does not match the compiled source"])
     return DraftingResult(
         evidence=evidence,
         approval=approval,

@@ -13,13 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""BFCL-owned certification ladder for assisted-authoring source adapters.
-
-Adapters declare capabilities in :mod:`contract`; this module independently
-derives an attained tier from digest-bound probe outcomes.  A report is useful
-only after ``verify_certification_report`` rebinds it to the expected descriptor,
-source identity, and profile.
-"""
+"""BFCL-owned, signed source-adapter certification."""
 
 from __future__ import annotations
 
@@ -64,24 +58,16 @@ if TYPE_CHECKING:
     from nemotron.steps.byob.runtime.source_adapters.evidence import CertificationReference
 
 
-CERTIFICATION_PROFILE_VERSION: Literal[
+CERTIFICATION_PROFILE_VERSION: Literal["bfcl-adapter-certification-profile-v1"] = (
     "bfcl-adapter-certification-profile-v1"
-] = "bfcl-adapter-certification-profile-v1"
-CERTIFICATION_REPORT_VERSION: Literal[
-    "bfcl-adapter-certification-report-v1"
-] = "bfcl-adapter-certification-report-v1"
-CERTIFICATION_ISSUER: Literal[
-    "bfcl-source-adapter-verifier-v1"
-] = "bfcl-source-adapter-verifier-v1"
+)
+CERTIFICATION_REPORT_VERSION: Literal["bfcl-adapter-certification-report-v1"] = "bfcl-adapter-certification-report-v1"
+CERTIFICATION_ISSUER: Literal["bfcl-source-adapter-verifier-v1"] = "bfcl-source-adapter-verifier-v1"
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _REASON = re.compile(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$")
 _KEY_ID = re.compile(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$")
-PROBE_OUTCOME_VERSION: Literal[
-    "bfcl-adapter-probe-outcome-v1"
-] = "bfcl-adapter-probe-outcome-v1"
-PROBE_INPUT_BINDING_VERSION: Literal[
-    "bfcl-adapter-probe-input-v1"
-] = "bfcl-adapter-probe-input-v1"
+PROBE_OUTCOME_VERSION: Literal["bfcl-adapter-probe-outcome-v1"] = "bfcl-adapter-probe-outcome-v1"
+PROBE_INPUT_BINDING_VERSION: Literal["bfcl-adapter-probe-input-v1"] = "bfcl-adapter-probe-input-v1"
 
 
 class CertificationError(ValueError):
@@ -121,9 +107,7 @@ def load_certification_authority(
     try:
         key = load_pem_private_key(path.resolve().read_bytes(), password=password)
     except (OSError, ValueError, TypeError) as exc:
-        raise CertificationError(
-            f"cannot load certification private key {path.resolve()}: {exc}"
-        ) from exc
+        raise CertificationError(f"cannot load certification private key {path.resolve()}: {exc}") from exc
     if not isinstance(key, Ed25519PrivateKey):
         raise CertificationError("certification private key must be Ed25519")
     return CertificationAuthority(key_id=key_id, private_key=key)
@@ -137,9 +121,7 @@ def load_trusted_certification_key(
     try:
         key = load_pem_public_key(path.resolve().read_bytes())
     except (OSError, ValueError, TypeError) as exc:
-        raise CertificationError(
-            f"cannot load certification public key {path.resolve()}: {exc}"
-        ) from exc
+        raise CertificationError(f"cannot load certification public key {path.resolve()}: {exc}") from exc
     if not isinstance(key, Ed25519PublicKey):
         raise CertificationError("certification public key must be Ed25519")
     if not _KEY_ID.fullmatch(key_id):
@@ -284,9 +266,7 @@ class ProbeRequirement(_StrictModel):
     def _canonical_reasons(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         for reason in value:
             if not _REASON.fullmatch(reason):
-                raise ValueError(
-                    "not-applicable reasons must be safe machine-readable codes"
-                )
+                raise ValueError("not-applicable reasons must be safe machine-readable codes")
         if len(value) != len(set(value)):
             raise ValueError("not-applicable reasons must be unique")
         if tuple(sorted(value)) != value:
@@ -337,9 +317,7 @@ class CertificationProfile(_StrictModel):
     ) -> tuple[ProbeRequirement, ...]:
         names = tuple(item.probe for item in value)
         if names != _PROBE_ORDER:
-            raise ValueError(
-                "certification profile must contain every generic probe in canonical order"
-            )
+            raise ValueError("certification profile must contain every generic probe in canonical order")
         return value
 
     @field_validator("max_total_calls")
@@ -401,14 +379,8 @@ class ProbeOutcome(_StrictModel):
             if self.evidence_digest != observed:
                 raise ValueError("probe evidence digest mismatch")
         if self.status == "pass":
-            if (
-                self.evidence_digest is None
-                or self.evidence is None
-                or self.reason is not None
-            ):
-                raise ValueError(
-                    "passing probes require digest-bound evidence and cannot carry a reason"
-                )
+            if self.evidence_digest is None or self.evidence is None or self.reason is not None:
+                raise ValueError("passing probes require digest-bound evidence and cannot carry a reason")
         elif self.reason is None:
             raise ValueError("failed and not-applicable probes require a reason")
         if self.status == "not_applicable" and self.evidence is None:
@@ -441,15 +413,11 @@ class AdapterProbeObservation(_StrictModel):
             except (TypeError, ValueError) as exc:
                 raise ValueError("observation evidence must be canonical JSON") from exc
         if self.status == "pass" and (self.evidence is None or self.reason is not None):
-            raise ValueError(
-                "passing observations require evidence and cannot carry a reason"
-            )
+            raise ValueError("passing observations require evidence and cannot carry a reason")
         if self.status != "pass" and self.reason is None:
             raise ValueError("non-passing observations require a reason")
         if self.status == "not_applicable" and self.evidence is None:
-            raise ValueError(
-                "not-applicable observations require applicability evidence"
-            )
+            raise ValueError("not-applicable observations require applicability evidence")
         return self
 
 
@@ -509,9 +477,7 @@ class AdapterCertificationReport(_StrictModel):
         value: tuple[ProbeOutcome, ...],
     ) -> tuple[ProbeOutcome, ...]:
         if tuple(item.probe for item in value) != _PROBE_ORDER:
-            raise ValueError(
-                "certification report must contain every generic probe in canonical order"
-            )
+            raise ValueError("certification report must contain every generic probe in canonical order")
         return value
 
     @field_validator("signing_key_id")
@@ -562,21 +528,17 @@ def _validate_applicability(
         requirement = requirements[outcome.probe]
         if outcome.status == "fail":
             if outcome.reason is None:
-                raise CertificationError(
-                    f"probe {outcome.probe.value!r} has no failure reason"
-                )
+                raise CertificationError(f"probe {outcome.probe.value!r} has no failure reason")
             try:
                 refusal = CertificationRefusalCode(outcome.reason)
             except ValueError as exc:
                 raise CertificationError(
-                    f"probe {outcome.probe.value!r} uses an unknown failure reason "
-                    f"{outcome.reason!r}",
+                    f"probe {outcome.probe.value!r} uses an unknown failure reason {outcome.reason!r}",
                     code=CertificationRefusalCode.PROBE_EVIDENCE_INVALID.value,
                 ) from exc
             if refusal not in requirement.allowed_failure_reasons:
                 raise CertificationError(
-                    f"probe {outcome.probe.value!r} uses a failure reason outside "
-                    f"its profile: {outcome.reason!r}",
+                    f"probe {outcome.probe.value!r} uses a failure reason outside its profile: {outcome.reason!r}",
                     code=CertificationRefusalCode.PROFILE_MISMATCH.value,
                 )
         if outcome.status != "not_applicable":
@@ -586,8 +548,7 @@ def _validate_applicability(
             or outcome.reason not in requirement.allowed_not_applicable_reasons
         ):
             raise CertificationError(
-                f"probe {outcome.probe.value!r} uses an unapproved "
-                f"not_applicable reason {outcome.reason!r}",
+                f"probe {outcome.probe.value!r} uses an unapproved not_applicable reason {outcome.reason!r}",
                 code=CertificationRefusalCode.APPLICABILITY_MISMATCH.value,
             )
 
@@ -599,19 +560,13 @@ def derive_attained_tier(
     """Return the highest tier fully established by the supplied outcomes."""
 
     if tuple(item.probe for item in outcomes) != _PROBE_ORDER:
-        raise CertificationError(
-            "probe outcomes must contain every generic probe in canonical order"
-        )
+        raise CertificationError("probe outcomes must contain every generic probe in canonical order")
     _validate_applicability(profile, outcomes)
     by_probe = {item.probe: item for item in outcomes}
     requirements = {item.probe: item for item in profile.probes}
     attained = AdapterTier.NONE
     for tier in (AdapterTier.A0, AdapterTier.A1, AdapterTier.A2):
-        required = (
-            probe
-            for probe in _PROBE_ORDER
-            if _TIER_ORDER[_PROBE_TIER[probe]] <= _TIER_ORDER[tier]
-        )
+        required = (probe for probe in _PROBE_ORDER if _TIER_ORDER[_PROBE_TIER[probe]] <= _TIER_ORDER[tier])
         if not all(_satisfies(by_probe[probe], requirements[probe]) for probe in required):
             break
         attained = tier
@@ -631,9 +586,7 @@ def project_probe_executions(
     for execution in records:
         probe = execution.observation.probe
         if probe in indexed:
-            raise CertificationError(
-                f"probe execution records repeat probe {probe.value!r}"
-            )
+            raise CertificationError(f"probe execution records repeat probe {probe.value!r}")
         indexed[probe] = execution
     requirements = {item.probe: item for item in profile.probes}
     outcomes: list[ProbeOutcome] = []
@@ -655,22 +608,19 @@ def project_probe_executions(
             "observation": record.observation.model_dump(mode="json"),
             "execution": {
                 "observed_calls": record.observed_calls,
-                "elapsed_s": record.elapsed_s,
                 "cleanup_status": record.cleanup_status,
+                # Probe runners enforce operation deadlines at the call boundary. Raw
+                # process elapsed time is host-load diagnostics, not deterministic
+                # correctness evidence and therefore is not sealed into the report.
+                "bounded_by_policy_timeout_s": policy.timeout_s,
             },
         }
         evidence_digest = sha256_json(evidence)
         refusal: CertificationRefusalCode | None = None
         if record.observed_calls > policy.max_calls:
             refusal = CertificationRefusalCode.PROBE_UNSAFE
-        elif record.elapsed_s > policy.timeout_s:
-            refusal = CertificationRefusalCode.PROBE_TIMEOUT
-        elif (
-            policy.cleanup is CleanupKind.NONE
-            and record.cleanup_status == "failed"
-        ) or (
-            policy.cleanup is not CleanupKind.NONE
-            and record.cleanup_status != "passed"
+        elif (policy.cleanup is CleanupKind.NONE and record.cleanup_status == "failed") or (
+            policy.cleanup is not CleanupKind.NONE and record.cleanup_status != "passed"
         ):
             refusal = CertificationRefusalCode.CLEANUP_FAILED
         if refusal is not None:
@@ -709,17 +659,11 @@ def certification_input_digest(
 ) -> str:
     """Bind every probe to the exact descriptor, identity, and profile under test."""
 
-    if execution_inputs_digest is not None and not _DIGEST.fullmatch(
-        execution_inputs_digest
-    ):
-        raise CertificationError(
-            "execution_inputs_digest must be a lowercase SHA-256 value"
-        )
+    if execution_inputs_digest is not None and not _DIGEST.fullmatch(execution_inputs_digest):
+        raise CertificationError("execution_inputs_digest must be a lowercase SHA-256 value")
     return sha256_json(
         {
-            "descriptor_digest": sha256_json(
-                descriptor.model_dump(mode="json")
-            ),
+            "descriptor_digest": sha256_json(descriptor.model_dump(mode="json")),
             "source_identity_digest": source_identity_digest,
             "profile_digest": profile.digest,
             "execution_inputs_digest": execution_inputs_digest,
@@ -729,17 +673,19 @@ def certification_input_digest(
 
 def _descriptor_tier_ceiling(descriptor: AdapterDescriptor) -> AdapterTier:
     capabilities = set(descriptor.capabilities)
-    if not {
-        AdapterCapability.DESCRIBE_TOOLS,
-        AdapterCapability.PIN_IDENTITY,
-    } <= capabilities:
+    if (
+        not {
+            AdapterCapability.DESCRIBE_TOOLS,
+            AdapterCapability.PIN_IDENTITY,
+        }
+        <= capabilities
+    ):
         return AdapterTier.NONE
     ceiling = AdapterTier.A0
-    if (
-        AdapterCapability.OBSERVE in capabilities
-        and descriptor.probe_safety.kind
-        in {ProbeSafetyKind.READ_ONLY, ProbeSafetyKind.RESET_ISOLATED}
-    ):
+    if AdapterCapability.OBSERVE in capabilities and descriptor.probe_safety.kind in {
+        ProbeSafetyKind.READ_ONLY,
+        ProbeSafetyKind.RESET_ISOLATED,
+    }:
         ceiling = AdapterTier.A1
     if (
         {
@@ -774,12 +720,8 @@ def build_certification_report(
         )
     if not _DIGEST.fullmatch(source_identity_digest):
         raise CertificationError("source_identity_digest must be a lowercase SHA-256 value")
-    if execution_inputs_digest is not None and not _DIGEST.fullmatch(
-        execution_inputs_digest
-    ):
-        raise CertificationError(
-            "execution_inputs_digest must be a lowercase SHA-256 value"
-        )
+    if execution_inputs_digest is not None and not _DIGEST.fullmatch(execution_inputs_digest):
+        raise CertificationError("execution_inputs_digest must be a lowercase SHA-256 value")
     canonical_outcomes = tuple(outcomes)
     expected_input = certification_input_digest(
         descriptor,
@@ -788,15 +730,12 @@ def build_certification_report(
         execution_inputs_digest=execution_inputs_digest,
     )
     if any(item.input_digest != expected_input for item in canonical_outcomes):
-        raise CertificationError(
-            "probe outcomes do not match the certified descriptor, identity, and profile"
-        )
+        raise CertificationError("probe outcomes do not match the certified descriptor, identity, and profile")
     attained = derive_attained_tier(profile, canonical_outcomes)
     ceiling = _descriptor_tier_ceiling(descriptor)
     if _TIER_ORDER[attained] > _TIER_ORDER[ceiling]:
         raise CertificationError(
-            f"probe outcomes attain {attained.value}, but adapter declarations "
-            f"permit at most {ceiling.value}",
+            f"probe outcomes attain {attained.value}, but adapter declarations permit at most {ceiling.value}",
             code=CertificationRefusalCode.PROBE_UNSAFE.value,
         )
     document: dict[str, Any] = {
@@ -813,9 +752,7 @@ def build_certification_report(
     }
     document["report_digest"] = sha256_json(document)
     document["signature"] = b64encode(
-        authority.private_key.sign(
-            str(document["report_digest"]).encode("ascii")
-        )
+        authority.private_key.sign(str(document["report_digest"]).encode("ascii"))
     ).decode("ascii")
     return AdapterCertificationReport.model_validate(document)
 
@@ -829,9 +766,7 @@ def load_certification_report(path: Path) -> AdapterCertificationReport:
         result: dict[str, Any] = {}
         for key, value in pairs:
             if key in result:
-                raise CertificationError(
-                    f"adapter certification report repeats JSON key {key!r}"
-                )
+                raise CertificationError(f"adapter certification report repeats JSON key {key!r}")
             result[key] = value
         return result
 
@@ -844,9 +779,7 @@ def load_certification_report(path: Path) -> AdapterCertificationReport:
     except CertificationError:
         raise
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
-        raise CertificationError(
-            f"cannot load adapter certification report {source}: {exc}"
-        ) from exc
+        raise CertificationError(f"cannot load adapter certification report {source}: {exc}") from exc
 
 
 def verify_certification_report(
@@ -868,11 +801,7 @@ def verify_certification_report(
         "source_identity_digest": source_identity_digest,
         "adapter_kind": descriptor.kind,
     }
-    mismatches = [
-        name
-        for name, value in expected.items()
-        if getattr(report, name) != value
-    ]
+    mismatches = [name for name, value in expected.items() if getattr(report, name) != value]
     derived = derive_attained_tier(profile, report.outcomes)
     ceiling = _descriptor_tier_ceiling(descriptor)
     if _TIER_ORDER[derived] > _TIER_ORDER[ceiling]:
@@ -889,14 +818,11 @@ def verify_certification_report(
         mismatches.append("attained_tier")
     if mismatches:
         raise CertificationError(
-            "adapter certification report does not match trusted inputs: "
-            + ", ".join(sorted(mismatches))
+            "adapter certification report does not match trusted inputs: " + ", ".join(sorted(mismatches))
         )
     public_key = trusted_public_keys.get(report.signing_key_id)
     if public_key is None:
-        raise CertificationError(
-            f"certification signing key {report.signing_key_id!r} is not trusted"
-        )
+        raise CertificationError(f"certification signing key {report.signing_key_id!r} is not trusted")
     try:
         public_key.verify(
             b64decode(report.signature, validate=True),
@@ -953,84 +879,80 @@ _MCP_NOT_APPLICABLE = {
     CertificationProbe.CONFIRMATION_SAFETY: "no_confirmation_tools",
 }
 _MCP_NOT_APPLICABLE_SOURCE_REASON = {
-    CertificationProbe.STRUCTURED_ERROR_SHAPE: (
-        "the pack declares no structured-error validation case"
-    ),
-    CertificationProbe.CONFIRMATION_SAFETY: (
-        "the pack declares no confirmation-gated tool"
-    ),
+    CertificationProbe.STRUCTURED_ERROR_SHAPE: ("the pack declares no structured-error validation case"),
+    CertificationProbe.CONFIRMATION_SAFETY: ("the pack declares no confirmation-gated tool"),
 }
 
 
-_FAILURE_REASONS: Mapping[
-    CertificationProbe, tuple[CertificationRefusalCode, ...]
-] = MappingProxyType({
-    CertificationProbe.IDENTITY_INTEGRITY: (
-        CertificationRefusalCode.IDENTITY_DRIFT,
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-    ),
-    CertificationProbe.CATALOG_INTEGRITY: (
-        CertificationRefusalCode.CATALOG_MISMATCH,
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.REVIEWED_SCHEMA_MISSING,
-    ),
-    CertificationProbe.EXECUTABLE_OBSERVATION: (
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.PROBE_TIMEOUT,
-        CertificationRefusalCode.PROBE_UNSAFE,
-        CertificationRefusalCode.UNKNOWN_COMMIT_STATE,
-    ),
-    CertificationProbe.STRUCTURED_ERROR_SHAPE: (
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.STRUCTURED_ERROR_MISMATCH,
-    ),
-    CertificationProbe.RESET_DETERMINISM: (
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.RESET_NONDETERMINISTIC,
-    ),
-    CertificationProbe.EPISODE_ISOLATION: (
-        CertificationRefusalCode.EPISODE_STATE_LEAKAGE,
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-    ),
-    CertificationProbe.CONFIRMATION_SAFETY: (
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.PROBE_UNSAFE,
-    ),
-    CertificationProbe.TIMEOUT_CLEANUP: (
-        CertificationRefusalCode.CLEANUP_FAILED,
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.PROBE_TIMEOUT,
-        CertificationRefusalCode.UNKNOWN_COMMIT_STATE,
-    ),
-    CertificationProbe.MUTATION_DECLARATION: (
-        CertificationRefusalCode.MUTATION_DECLARATION_MISMATCH,
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-    ),
-    CertificationProbe.RESULT_SHAPE_COVERAGE: (
-        CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
-        CertificationRefusalCode.PROBE_FAILED,
-        CertificationRefusalCode.PROBE_MISSING,
-        CertificationRefusalCode.RESULT_SHAPE_INCOMPLETE,
-    ),
-})
+_FAILURE_REASONS: Mapping[CertificationProbe, tuple[CertificationRefusalCode, ...]] = MappingProxyType(
+    {
+        CertificationProbe.IDENTITY_INTEGRITY: (
+            CertificationRefusalCode.IDENTITY_DRIFT,
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+        ),
+        CertificationProbe.CATALOG_INTEGRITY: (
+            CertificationRefusalCode.CATALOG_MISMATCH,
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.REVIEWED_SCHEMA_MISSING,
+        ),
+        CertificationProbe.EXECUTABLE_OBSERVATION: (
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.PROBE_TIMEOUT,
+            CertificationRefusalCode.PROBE_UNSAFE,
+            CertificationRefusalCode.UNKNOWN_COMMIT_STATE,
+        ),
+        CertificationProbe.STRUCTURED_ERROR_SHAPE: (
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.STRUCTURED_ERROR_MISMATCH,
+        ),
+        CertificationProbe.RESET_DETERMINISM: (
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.RESET_NONDETERMINISTIC,
+        ),
+        CertificationProbe.EPISODE_ISOLATION: (
+            CertificationRefusalCode.EPISODE_STATE_LEAKAGE,
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+        ),
+        CertificationProbe.CONFIRMATION_SAFETY: (
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.PROBE_UNSAFE,
+        ),
+        CertificationProbe.TIMEOUT_CLEANUP: (
+            CertificationRefusalCode.CLEANUP_FAILED,
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.PROBE_TIMEOUT,
+            CertificationRefusalCode.UNKNOWN_COMMIT_STATE,
+        ),
+        CertificationProbe.MUTATION_DECLARATION: (
+            CertificationRefusalCode.MUTATION_DECLARATION_MISMATCH,
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+        ),
+        CertificationProbe.RESULT_SHAPE_COVERAGE: (
+            CertificationRefusalCode.PROBE_EVIDENCE_INVALID,
+            CertificationRefusalCode.PROBE_FAILED,
+            CertificationRefusalCode.PROBE_MISSING,
+            CertificationRefusalCode.RESULT_SHAPE_INCOMPLETE,
+        ),
+    }
+)
 _EXECUTION_FAILURE_REASONS = frozenset(
     {
         CertificationRefusalCode.CLEANUP_FAILED,
@@ -1056,17 +978,20 @@ def _execution_policy(
         AdapterTier.A1: ProbeSafetyKind.READ_ONLY,
         AdapterTier.A2: ProbeSafetyKind.RESET_ISOLATED,
     }[tier]
-    max_calls = max_call_overrides.get(probe, {
-        CertificationProbe.CATALOG_INTEGRITY: 2,
-        CertificationProbe.EXECUTABLE_OBSERVATION: 2,
-        CertificationProbe.STRUCTURED_ERROR_SHAPE: 2,
-        CertificationProbe.RESET_DETERMINISM: 2,
-        CertificationProbe.EPISODE_ISOLATION: 2,
-        CertificationProbe.CONFIRMATION_SAFETY: 2,
-        CertificationProbe.TIMEOUT_CLEANUP: 2,
-        CertificationProbe.MUTATION_DECLARATION: 2,
-        CertificationProbe.RESULT_SHAPE_COVERAGE: 4,
-    }.get(probe, 1))
+    max_calls = max_call_overrides.get(
+        probe,
+        {
+            CertificationProbe.CATALOG_INTEGRITY: 2,
+            CertificationProbe.EXECUTABLE_OBSERVATION: 2,
+            CertificationProbe.STRUCTURED_ERROR_SHAPE: 2,
+            CertificationProbe.RESET_DETERMINISM: 2,
+            CertificationProbe.EPISODE_ISOLATION: 2,
+            CertificationProbe.CONFIRMATION_SAFETY: 2,
+            CertificationProbe.TIMEOUT_CLEANUP: 2,
+            CertificationProbe.MUTATION_DECLARATION: 2,
+            CertificationProbe.RESULT_SHAPE_COVERAGE: 4,
+        }.get(probe, 1),
+    )
     return ProbeExecutionPolicy(
         executor="bfcl",
         evidence_issuer=CERTIFICATION_ISSUER,
@@ -1113,20 +1038,14 @@ def _reference_profile(
                     max_call_overrides=max_call_overrides or {},
                     timeout_overrides=timeout_overrides or {},
                 ),
-                requirement=(
-                    "conditional" if probe in _MCP_NOT_APPLICABLE else "required"
-                ),
+                requirement=("conditional" if probe in _MCP_NOT_APPLICABLE else "required"),
                 allowed_failure_reasons=tuple(
                     sorted(
                         set(_FAILURE_REASONS[probe]) | _EXECUTION_FAILURE_REASONS,
                         key=lambda item: item.value,
                     )
                 ),
-                allowed_not_applicable_reasons=(
-                    (_MCP_NOT_APPLICABLE[probe],)
-                    if probe in _MCP_NOT_APPLICABLE
-                    else ()
-                ),
+                allowed_not_applicable_reasons=((_MCP_NOT_APPLICABLE[probe],) if probe in _MCP_NOT_APPLICABLE else ()),
             )
             for probe in _PROBE_ORDER
         ),
@@ -1207,14 +1126,12 @@ _HTTP_PACKAGE_REFERENCE_PROFILE = _reference_profile(
         CertificationProbe.RESULT_SHAPE_COVERAGE: 16,
     },
 )
-PUBLISHED_CERTIFICATION_PROFILES: Mapping[str, CertificationProfile] = (
-    MappingProxyType(
-        {
-            "http_package": _HTTP_PACKAGE_REFERENCE_PROFILE,
-            "local_python": _LOCAL_PYTHON_REFERENCE_PROFILE,
-            "mcp_mode_a": _MCP_REFERENCE_PROFILE,
-        }
-    )
+PUBLISHED_CERTIFICATION_PROFILES: Mapping[str, CertificationProfile] = MappingProxyType(
+    {
+        "http_package": _HTTP_PACKAGE_REFERENCE_PROFILE,
+        "local_python": _LOCAL_PYTHON_REFERENCE_PROFILE,
+        "mcp_mode_a": _MCP_REFERENCE_PROFILE,
+    }
 )
 
 
@@ -1237,9 +1154,7 @@ def certification_profile_for(adapter_kind: str) -> CertificationProfile:
 def certification_profile_by_id(profile_id: str) -> CertificationProfile:
     """Resolve one published profile by its persisted identity."""
     matches = tuple(
-        profile
-        for profile in PUBLISHED_CERTIFICATION_PROFILES.values()
-        if profile.profile_id == profile_id
+        profile for profile in PUBLISHED_CERTIFICATION_PROFILES.values() if profile.profile_id == profile_id
     )
     if len(matches) != 1:
         raise CertificationError(
@@ -1290,13 +1205,9 @@ def project_mcp_probe_report(
             raise CertificationError(f"MCP probe report repeats {identifier}")
         if identifier not in {f"P{index}" for index in range(1, 12)}:
             raise CertificationError(f"MCP probe report contains unknown probe {identifier}")
-        expected_requirement = (
-            "conditional" if identifier in {"P7", "P8"} else "required"
-        )
+        expected_requirement = "conditional" if identifier in {"P7", "P8"} else "required"
         if entry.get("requirement") != expected_requirement:
-            raise CertificationError(
-                f"MCP probe {identifier} has an invalid requirement"
-            )
+            raise CertificationError(f"MCP probe {identifier} has an invalid requirement")
         if entry.get("status") not in {
             "pass",
             "fail",
@@ -1305,32 +1216,18 @@ def project_mcp_probe_report(
         }:
             raise CertificationError(f"MCP probe {identifier} has an invalid status")
         reason = entry.get("reason")
-        if reason is not None and (
-            not isinstance(reason, str) or not reason.strip()
-        ):
-            raise CertificationError(
-                f"MCP probe {identifier} reason must be null or non-empty"
-            )
+        if reason is not None and (not isinstance(reason, str) or not reason.strip()):
+            raise CertificationError(f"MCP probe {identifier} reason must be null or non-empty")
         status = entry["status"]
         if status == "pass" and reason is not None:
-            raise CertificationError(
-                f"passing MCP probe {identifier} cannot carry a reason"
-            )
+            raise CertificationError(f"passing MCP probe {identifier} cannot carry a reason")
         if status != "pass" and reason is None:
-            raise CertificationError(
-                f"non-passing MCP probe {identifier} requires a reason"
-            )
+            raise CertificationError(f"non-passing MCP probe {identifier} requires a reason")
         if status == "not_applicable" and expected_requirement != "conditional":
-            raise CertificationError(
-                f"required MCP probe {identifier} cannot be not_applicable"
-            )
+            raise CertificationError(f"required MCP probe {identifier} cannot be not_applicable")
         identifiers.append(identifier)
         indexed[identifier] = entry
-    expected_order = [
-        f"P{index}"
-        for index in range(1, 12)
-        if f"P{index}" in indexed
-    ]
+    expected_order = [f"P{index}" for index in range(1, 12) if f"P{index}" in indexed]
     if identifiers != expected_order:
         raise CertificationError("MCP probes must appear in P1 through P11 order")
 
@@ -1342,9 +1239,7 @@ def project_mcp_probe_report(
     for probe in _PROBE_ORDER:
         mapped_ids = MCP_PROBE_MAPPING[probe]
         entries = [indexed.get(identifier) for identifier in mapped_ids]
-        evidence_document = [
-            dict(entry) for entry in entries if entry is not None
-        ]
+        evidence_document = [dict(entry) for entry in entries if entry is not None]
         evidence_digest = sha256_json(evidence_document)
         if any(entry is None for entry in entries):
             outcomes.append(
@@ -1359,12 +1254,9 @@ def project_mcp_probe_report(
         statuses = [entry.get("status") for entry in entries if entry is not None]
         if probe in applicability:
             applicable = applicability[probe]
-            source_reason = next(
-                entry.get("reason") for entry in entries if entry is not None
-            )
+            source_reason = next(entry.get("reason") for entry in entries if entry is not None)
             if not applicable and (
-                statuses != ["not_applicable"]
-                or source_reason != _MCP_NOT_APPLICABLE_SOURCE_REASON[probe]
+                statuses != ["not_applicable"] or source_reason != _MCP_NOT_APPLICABLE_SOURCE_REASON[probe]
             ):
                 raise CertificationError(
                     f"MCP probe {mapped_ids[0]} contradicts BFCL-derived applicability",
@@ -1387,10 +1279,7 @@ def project_mcp_probe_report(
             )
             continue
         allowed_reason = _MCP_NOT_APPLICABLE.get(probe)
-        if (
-            allowed_reason is not None
-            and all(status == "not_applicable" for status in statuses)
-        ):
+        if allowed_reason is not None and all(status == "not_applicable" for status in statuses):
             outcomes.append(
                 ProbeOutcome(
                     probe=probe,

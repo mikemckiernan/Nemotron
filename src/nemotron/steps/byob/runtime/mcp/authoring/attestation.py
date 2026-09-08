@@ -13,14 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Fetch and bind the gateway's live attestation to the identity discovered at intake.
-
-Intake used to predict a discovery-only attestation and pin that digest. That prediction
-could never survive the transition to L2: adding P4-P11 necessarily changes the document and
-therefore its digest. The reviewed pack now pins the document the deployed gateway actually
-serves. This keeps the pin stable across prepare while still making a different deployment or
-catalog fail closed.
-"""
+"""Bind a live gateway attestation to reviewed intake identity."""
 
 from __future__ import annotations
 
@@ -112,7 +105,6 @@ def validate_gateway_attestation(
     ]
     if mismatches:
         raise McpProtocolError(
-            "gateway conformance identity does not match the reviewed intake: "
-            + "; ".join(mismatches)
+            "gateway conformance identity does not match the reviewed intake: " + "; ".join(mismatches)
         )
     return dict(attestation.document)

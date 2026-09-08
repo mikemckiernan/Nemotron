@@ -27,6 +27,8 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
 from nemotron.steps.byob.runtime.authoring_release.contracts import (
     FreezeHookContext,
     ReleaseAdapter,
@@ -40,6 +42,7 @@ from nemotron.steps.byob.runtime.authoring_release.review import (
 )
 from nemotron.steps.byob.runtime.authoring_release.versions import (
     FREEZE_MANIFEST_VERSION_V2,
+    FREEZE_MANIFEST_VERSION_V3,
     MCP_FREEZE_MANIFEST_VERSION_V1,
 )
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.origin_provenance import (
@@ -50,6 +53,11 @@ from nemotron.steps.byob.runtime.mcp.config import load_unique_yaml_mapping
 from nemotron.steps.byob.runtime.pack_authoring.artifacts import (
     sha256_json,
     write_canonical_json,
+)
+from nemotron.steps.byob.runtime.release_seal import (
+    ReleaseSealAuthority,
+    sign_release_digest,
+    verify_release_digest,
 )
 
 PACK_DIRECTORY_NAME = "pack"
@@ -69,7 +77,10 @@ _MANIFEST_KEYS = frozenset(
         "source_records",
         "adapter_sidecars",
         "pack_files",
+        "seal_issuer",
+        "signing_key_id",
         "manifest_digest",
+        "signature",
     }
 )
 
@@ -88,6 +99,7 @@ class FreezeInputsV2:
     review_packet_path: Path
     review_approval_path: Path
     source_records: Mapping[str, Path]
+    seal_authority: ReleaseSealAuthority | None = None
 
 
 @dataclass(frozen=True)
@@ -142,9 +154,7 @@ def _install_authoring_lineage(
             "version": manifest.get("version"),
         },
         "identity": {
-            "source_pack_fingerprint": packet.document["candidate_pack"][
-                "fingerprint"
-            ],
+            "source_pack_fingerprint": packet.document["candidate_pack"]["fingerprint"],
         },
         "review": {
             "packet_digest": packet.digest,
@@ -211,11 +221,7 @@ def _copy_tree(source: Path, destination: Path) -> None:
 
 def _safe_relative(value: str, label: str) -> Path:
     pure = PurePosixPath(value)
-    if (
-        pure.is_absolute()
-        or not pure.parts
-        or any(part in {"", ".", ".."} for part in pure.parts)
-    ):
+    if pure.is_absolute() or not pure.parts or any(part in {"", ".", ".."} for part in pure.parts):
         raise AuthoringFreezeError(
             "release_path_unsafe",
             f"{label} path is unsafe: {value!r}",
@@ -271,11 +277,15 @@ def freeze_canonical_pack(
     *,
     adapter: ReleaseAdapter,
 ) -> FrozenReleaseV2:
+    if inputs.seal_authority is None:
+        raise AuthoringFreezeError(
+            "release_seal_required",
+            "freeze requires a trusted Ed25519 release-seal authority",
+            recovery="provide the reviewed certification/revocation authority key",
+        )
     packet = load_review_packet(inputs.review_packet_path)
     approval = load_review_approval(inputs.review_approval_path)
-    if not isinstance(packet, ReviewPacketV2) or not isinstance(
-        approval, ReviewApprovalV2
-    ):
+    if not isinstance(packet, ReviewPacketV2) or not isinstance(approval, ReviewApprovalV2):
         raise AuthoringFreezeError(
             "release_version_mismatch",
             "v2 freeze requires a v2 review packet and approval",
@@ -401,7 +411,7 @@ def freeze_canonical_pack(
                 recovery="retry from a stable reviewed workspace",
             )
         manifest: dict[str, Any] = {
-            "schema_version": FREEZE_MANIFEST_VERSION_V2,
+            "schema_version": FREEZE_MANIFEST_VERSION_V3,
             "adapter_kind": adapter.kind,
             "frozen_pack_fingerprint": frozen_fingerprint,
             "review_packet_digest": packet.digest,
@@ -410,8 +420,14 @@ def freeze_canonical_pack(
             "source_records": sealed_records,
             "adapter_sidecars": sidecars,
             "pack_files": _pack_file_records(pack_root, staging),
+            "seal_issuer": inputs.seal_authority.issuer,
+            "signing_key_id": inputs.seal_authority.key_id,
         }
         manifest["manifest_digest"] = sha256_json(manifest)
+        manifest["signature"] = sign_release_digest(
+            inputs.seal_authority,
+            manifest["manifest_digest"],
+        )
         write_canonical_json(manifest, staging / FREEZE_MANIFEST_NAME)
         staging.replace(destination)
         _make_read_only(destination)
@@ -448,6 +464,9 @@ def load_frozen_release(
     root: Path,
     *,
     adapter: ReleaseAdapter | None = None,
+    trusted_seal_keys: Mapping[str, Ed25519PublicKey] | None = None,
+    expected_seal_issuer: str | None = None,
+    allow_legacy_unsigned: bool = False,
 ) -> Any:
     release_root = root.resolve()
     manifest = load_json_mapping(
@@ -461,26 +480,59 @@ def load_frozen_release(
         )
 
         return load_mcp_frozen_release(root)
-    if version != FREEZE_MANIFEST_VERSION_V2:
+    if version == FREEZE_MANIFEST_VERSION_V2 and not allow_legacy_unsigned:
+        raise AuthoringFreezeError(
+            "unsigned_release_unsupported",
+            "legacy v2 freeze manifests have no authenticated seal",
+            recovery="re-freeze under v3 with a trusted Ed25519 authority",
+        )
+    if version not in {FREEZE_MANIFEST_VERSION_V2, FREEZE_MANIFEST_VERSION_V3}:
         raise AuthoringFreezeError(
             "freeze_manifest_version_unsupported",
             f"unsupported freeze manifest version {version!r}",
-            recovery="use a v1 MCP or v2 authoring frozen release",
+            recovery="use a v1 MCP, explicitly migrated v2, or signed v3 release",
         )
-    if set(manifest) != _MANIFEST_KEYS:
+    expected_keys = (
+        _MANIFEST_KEYS
+        if version == FREEZE_MANIFEST_VERSION_V3
+        else _MANIFEST_KEYS - {"seal_issuer", "signing_key_id", "signature"}
+    )
+    if set(manifest) != expected_keys:
         raise AuthoringFreezeError(
             "freeze_manifest_invalid",
             "freeze manifest fields do not match the v2 contract",
             recovery="restore the immutable frozen release",
         )
     claimed = manifest.get("manifest_digest")
-    unsigned = {key: value for key, value in manifest.items() if key != "manifest_digest"}
+    unsigned = {key: value for key, value in manifest.items() if key not in {"manifest_digest", "signature"}}
     if claimed != sha256_json(unsigned):
         raise AuthoringFreezeError(
             "freeze_manifest_tampered",
             "freeze manifest digest mismatch",
             recovery="restore the immutable frozen release",
         )
+    if version == FREEZE_MANIFEST_VERSION_V3:
+        if trusted_seal_keys is None or expected_seal_issuer is None:
+            raise AuthoringFreezeError(
+                "release_seal_trust_required",
+                "signed release verification requires an external issuer and trust store",
+                recovery="configure the release authority public key outside the release",
+            )
+        try:
+            verify_release_digest(
+                issuer=str(manifest["seal_issuer"]),
+                expected_issuer=expected_seal_issuer,
+                key_id=str(manifest["signing_key_id"]),
+                digest=str(claimed),
+                signature=str(manifest["signature"]),
+                trusted_public_keys=trusted_seal_keys,
+            )
+        except ValueError as exc:
+            raise AuthoringFreezeError(
+                "release_seal_invalid",
+                str(exc),
+                recovery="restore a release signed by a trusted, non-revoked authority",
+            ) from exc
     for name, record in manifest.get("source_records", {}).items():
         _verify_file_digest(release_root, record, f"source record {name}")
     for name, record in manifest.get("adapter_sidecars", {}).items():
@@ -504,9 +556,7 @@ def load_frozen_release(
         )
     packet = load_review_packet(release_root / REVIEW_PACKET_PATH)
     approval = load_review_approval(release_root / REVIEW_APPROVAL_PATH)
-    if not isinstance(packet, ReviewPacketV2) or not isinstance(
-        approval, ReviewApprovalV2
-    ):
+    if not isinstance(packet, ReviewPacketV2) or not isinstance(approval, ReviewApprovalV2):
         raise AuthoringFreezeError(
             "release_version_mismatch",
             "v2 manifest sealed non-v2 review records",

@@ -70,6 +70,7 @@ LocalProbeCase = AdapterProbeCase
 LocalProbePlan = AdapterProbePlan
 LocalProbeError = ProbeError
 
+
 _SAFE_STDLIB = frozenset(
     {
         "__future__",
@@ -145,10 +146,7 @@ def local_runtime_descriptor(timeout_s: float = 10.0) -> AdapterDescriptor:
 
 def _validate_execution_surface(inspection: LocalPythonInspection) -> dict[str, Any]:
     root = inspection.package_root
-    local_top_levels = {
-        Path(relative).parts[0].removesuffix(".py")
-        for relative in inspection.import_closure
-    }
+    local_top_levels = {Path(relative).parts[0].removesuffix(".py") for relative in inspection.import_closure}
     checked: list[str] = []
     for relative in inspection.import_closure:
         path = root / relative
@@ -169,11 +167,7 @@ def _validate_execution_surface(inspection: LocalPythonInspection) -> dict[str, 
             if isinstance(node, ast.Import):
                 names = [alias.name.partition(".")[0] for alias in node.names]
             elif isinstance(node, ast.ImportFrom):
-                names = (
-                    []
-                    if node.level
-                    else [(node.module or "").partition(".")[0]]
-                )
+                names = [] if node.level else [(node.module or "").partition(".")[0]]
             else:
                 names = []
             for name in names:
@@ -188,11 +182,14 @@ def _validate_execution_surface(inspection: LocalPythonInspection) -> dict[str, 
                         "probe_unsafe",
                         f"execution policy rejects {node.func.id}() in {relative}",
                     )
-                if (
-                    isinstance(node.func, ast.Attribute)
-                    and node.func.attr
-                    in {"fork", "open", "popen", "run", "spawn", "system"}
-                ):
+                if isinstance(node.func, ast.Attribute) and node.func.attr in {
+                    "fork",
+                    "open",
+                    "popen",
+                    "run",
+                    "spawn",
+                    "system",
+                }:
                     raise LocalProbeError(
                         "probe_unsafe",
                         f"execution policy rejects .{node.func.attr}() in {relative}",
@@ -318,5 +315,3 @@ def run_local_python_probes(
         plan_digest=plan.digest,
         records=records,
     )
-
-

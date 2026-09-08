@@ -120,6 +120,17 @@ def _add_workspace(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--tenant-id", default="default")
     parser.add_argument("--run-id", default="authoring")
+    parser.add_argument("--recover-stale", action="store_true")
+    parser.add_argument("--recovered-by")
+    parser.add_argument("--recovery-reason")
+
+
+def _lock_recovery_kwargs(args: argparse.Namespace) -> dict[str, Any]:
+    return {
+        "recover_stale": bool(getattr(args, "recover_stale", False)),
+        "recovered_by": getattr(args, "recovered_by", None),
+        "recovery_reason": getattr(args, "recovery_reason", None),
+    }
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -191,6 +202,15 @@ def _parser() -> argparse.ArgumentParser:
     purge_cache.add_argument("--execute", action="store_true")
     purge_cache.add_argument("--expected-plan-digest")
 
+    recover = subparsers.add_parser(
+        "recover-workspace",
+        help="Audit stale-lock recovery and remove old orphan staging trees",
+    )
+    _add_workspace(recover)
+    recover.add_argument("--actor", required=True)
+    recover.add_argument("--reason", required=True)
+    recover.add_argument("--minimum-age-seconds", type=float, default=300.0)
+
     answer = subparsers.add_parser("answer", help="Apply reviewed answers as a new revision")
     _add_workspace(answer)
     answer.add_argument("--evidence", type=Path, required=True)
@@ -239,6 +259,7 @@ def _parser() -> argparse.ArgumentParser:
 
 def _print(document: dict[str, Any]) -> None:
     print(json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True))
+
 
 def _fail(document: dict[str, Any]) -> None:
     print(
@@ -296,11 +317,7 @@ def _current_session(
     command: AuthoringCommand,
 ) -> tuple[AuthoringResumeGate, ResumedAuthoringSession]:
     try:
-        head = json.loads(
-            (args.workspace.resolve() / "authoring_head.json").read_text(
-                encoding="utf-8"
-            )
-        )
+        head = json.loads((args.workspace.resolve() / "authoring_head.json").read_text(encoding="utf-8"))
         session_digest = head["session_digest"]
     except (OSError, KeyError, json.JSONDecodeError, TypeError) as exc:
         raise GuidedCliError(
@@ -313,7 +330,11 @@ def _current_session(
         tenant_id=args.tenant_id,
         run_id=args.run_id,
     )
-    return gate, gate.open(session_digest, command=command)
+    return gate, gate.open(
+        session_digest,
+        command=command,
+        **_lock_recovery_kwargs(args),
+    )
 
 
 def _commit_transition(
@@ -338,9 +359,7 @@ def _commit_transition(
     if phase == "review_ready":
         binding = state.bindings.review_packet
         assert binding is not None
-        packet = json.loads(
-            (args.workspace.resolve() / binding.path).read_text(encoding="utf-8")
-        )
+        packet = json.loads((args.workspace.resolve() / binding.path).read_text(encoding="utf-8"))
         validation = packet["adapter_review"]["validation"]
         fingerprint = str(validation["pack_fingerprint"])
         if not fingerprint.startswith("sha256:"):
@@ -353,9 +372,7 @@ def _commit_transition(
                 tier=validation["tier"],
                 gold_eligible=validation["gold"],
                 pack_fingerprint=fingerprint,
-                validation_report_digest=packet["source_digests"][
-                    "validation_report"
-                ],
+                validation_report_digest=packet["source_digests"]["validation_report"],
             ),
             tenant_id=args.tenant_id,
             run_id=args.run_id,
@@ -364,9 +381,7 @@ def _commit_transition(
     elif phase == "frozen":
         binding = state.bindings.frozen_manifest
         assert binding is not None
-        manifest = json.loads(
-            (args.workspace.resolve() / binding.path).read_text(encoding="utf-8")
-        )
+        manifest = json.loads((args.workspace.resolve() / binding.path).read_text(encoding="utf-8"))
         emit_authoring_event(
             sink,
             "release_frozen",
@@ -469,9 +484,7 @@ def _run_author(args: argparse.Namespace, remainder: list[str]) -> None:
         pack_id=args.pack_id,
         pack_version=args.pack_version,
         policy_path=args.policy,
-        required_certification_tier=(
-            AdapterTier(args.required_tier) if args.required_tier is not None else None
-        ),
+        required_certification_tier=(AdapterTier(args.required_tier) if args.required_tier is not None else None),
         confirm_pack_id=args.confirm_pack_id,
         confirm_pack_version=args.confirm_pack_version,
         ci=args.ci,
@@ -482,8 +495,7 @@ def _run_author(args: argparse.Namespace, remainder: list[str]) -> None:
             "adapter_rollout_disabled",
             f"live {adapter} authoring is not enabled",
             recovery=(
-                "enable the adapter in reviewed authoring policy or set its "
-                "documented BFCL_ENABLE_* environment flag"
+                "enable the adapter in reviewed authoring policy or set its documented BFCL_ENABLE_* environment flag"
             ),
         )
     config_path = workspace / RESOLVED_AUTHORING_CONFIG_FILE
@@ -493,7 +505,7 @@ def _run_author(args: argparse.Namespace, remainder: list[str]) -> None:
         tenant_id=args.tenant_id,
         run_id=args.run_id,
     )
-    with lock.acquire() as lease:
+    with lock.acquire(**_lock_recovery_kwargs(args)) as lease:
         write_resolved_authoring_config(resolved, config_path)
         write_canonical_json(
             {
@@ -591,9 +603,7 @@ def _commit_intake_session(
                 config_path,
                 digest_kind="canonical_json",
             ),
-            source_identity_digest=sha256_json(
-                evidence.identity.model_dump(mode="json")
-            ),
+            source_identity_digest=sha256_json(evidence.identity.model_dump(mode="json")),
             evidence_bundle_digest=evidence.bundle_digest,
         ),
     )
@@ -601,11 +611,7 @@ def _commit_intake_session(
     resolved = load_resolved_authoring_config(config_path)
     adapter_kind = cast(AdapterKind, evidence.source_adapter.kind)
     authorization_context_digest = next(
-        (
-            artifact.digest
-            for artifact in evidence.identity.artifacts
-            if artifact.role == "authorization_context"
-        ),
+        (artifact.digest for artifact in evidence.identity.artifacts if artifact.role == "authorization_context"),
         None,
     )
     sink = _event_sink(workspace)
@@ -715,11 +721,7 @@ def _run_resume(args: argparse.Namespace) -> None:
     session_digest = args.session_digest
     if session_digest is None:
         try:
-            head = json.loads(
-                (args.workspace.resolve() / "authoring_head.json").read_text(
-                    encoding="utf-8"
-                )
-            )
+            head = json.loads((args.workspace.resolve() / "authoring_head.json").read_text(encoding="utf-8"))
             session_digest = head["session_digest"]
         except (OSError, KeyError, json.JSONDecodeError, TypeError) as exc:
             raise GuidedCliError(
@@ -741,6 +743,7 @@ def _run_resume(args: argparse.Namespace) -> None:
     with gate.open(
         session_digest,
         command=args.next_command,
+        **_lock_recovery_kwargs(args),
     ) as resumed:
         _print(
             {
@@ -909,6 +912,35 @@ def main() -> None:
                     recovery="run bfcl_author.py resume --help",
                 )
             _run_resume(args)
+        elif args.command == "recover-workspace":
+            if remainder:
+                raise GuidedCliError(
+                    "unexpected_arguments",
+                    f"recover-workspace received unknown arguments: {remainder!r}",
+                    recovery="run bfcl_author.py recover-workspace --help",
+                )
+            lock = WorkspaceLock(
+                args.workspace.resolve() / ".locks",
+                tenant_id=args.tenant_id,
+                run_id=args.run_id,
+            )
+            with lock.acquire(
+                recover_stale=True,
+                recovered_by=args.actor,
+                recovery_reason=args.reason,
+            ) as lease:
+                removed = lock.cleanup_orphan_staging(
+                    args.workspace.resolve(),
+                    lease=lease,
+                    minimum_age_seconds=args.minimum_age_seconds,
+                )
+            _print(
+                {
+                    "status": "workspace_recovered",
+                    "removed_staging_directories": [str(path) for path in removed],
+                    "recovery_audit": str(lock.recovery_audit_path),
+                }
+            )
         elif args.command == "purge-cache":
             if remainder:
                 raise GuidedCliError(
@@ -945,16 +977,10 @@ def main() -> None:
                     "status": "dry_run" if audit.dry_run else "purged",
                     "cache": str(cache_path.resolve()),
                     "plan_digest": plan.plan_digest,
-                    "eligible_request_hashes": list(
-                        plan.eligible_request_hashes
-                    ),
+                    "eligible_request_hashes": list(plan.eligible_request_hashes),
                     "retained_count": audit.retained_count,
                     "purged_count": audit.purged_count,
-                    "audit": str(
-                        args.workspace.resolve()
-                        / ".events"
-                        / CACHE_PURGE_AUDIT_FILE_NAME
-                    ),
+                    "audit": str(args.workspace.resolve() / ".events" / CACHE_PURGE_AUDIT_FILE_NAME),
                     "audit_record_digest": audit.record_digest,
                 }
             )
@@ -974,9 +1000,7 @@ def main() -> None:
                             evidence_path,
                             digest_kind="canonical_json",
                         ),
-                        "source_identity_digest": sha256_json(
-                            revision.evidence.identity.model_dump(mode="json")
-                        ),
+                        "source_identity_digest": sha256_json(revision.evidence.identity.model_dump(mode="json")),
                         "evidence_bundle_digest": revision.evidence.bundle_digest,
                         "revision_content_address": revision.evidence.bundle_digest,
                     },
@@ -1076,9 +1100,7 @@ def main() -> None:
                 output = _required_path_argument(delegated, "--output")
                 draft_root = output / "drafts"
                 try:
-                    draft_relative = draft_root.relative_to(
-                        args.workspace.resolve()
-                    ).as_posix()
+                    draft_relative = draft_root.relative_to(args.workspace.resolve()).as_posix()
                 except ValueError as exc:
                     raise GuidedCliError(
                         "artifact_path_escape",
@@ -1159,9 +1181,7 @@ def main() -> None:
             gate, resumed = _current_session(args, "publish")
             with resumed:
                 _delegate(_DELEGATES["publish"], remainder)
-                config = BfclConfig.from_yaml(
-                    _required_path_argument(remainder, "--config")
-                )
+                config = BfclConfig.from_yaml(_required_path_argument(remainder, "--config"))
                 session_digest = _commit_transition(
                     args,
                     gate,
@@ -1170,26 +1190,16 @@ def main() -> None:
                     updates={
                         "publication_manifest": bind_artifact(
                             args.workspace,
-                            config.output_dir
-                            / config.expt_name
-                            / "run_manifest.json",
+                            config.output_dir / config.expt_name / "run_manifest.json",
                             digest_kind="canonical_json",
                         )
                     },
                 )
-                report_path = (
-                    config.output_dir
-                    / config.expt_name
-                    / "stage_cache"
-                    / "oracle_validation_report.json"
-                )
+                report_path = config.output_dir / config.expt_name / "stage_cache" / "oracle_validation_report.json"
                 if report_path.is_file():
                     report = json.loads(report_path.read_text(encoding="utf-8"))
                     config_fingerprint = report.get("validation_config_fingerprint")
-                    if (
-                        isinstance(config_fingerprint, str)
-                        and not config_fingerprint.startswith("sha256:")
-                    ):
+                    if isinstance(config_fingerprint, str) and not config_fingerprint.startswith("sha256:"):
                         config_fingerprint = f"sha256:{config_fingerprint}"
                     pack_fingerprint = str(report["pack_fingerprint"])
                     if not pack_fingerprint.startswith("sha256:"):
@@ -1203,8 +1213,7 @@ def main() -> None:
                             gold_eligible=report["gold_eligible"],
                             pack_fingerprint=pack_fingerprint,
                             validation_report_digest=(
-                                "sha256:"
-                                + hashlib.sha256(report_path.read_bytes()).hexdigest()
+                                "sha256:" + hashlib.sha256(report_path.read_bytes()).hexdigest()
                             ),
                             validation_config_fingerprint=config_fingerprint,
                         ),

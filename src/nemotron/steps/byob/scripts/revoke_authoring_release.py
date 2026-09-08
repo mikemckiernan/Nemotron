@@ -51,12 +51,8 @@ def main() -> None:
     try:
         if args.valid_days <= 0:
             raise ValueError("--valid-days must be positive")
-        if (args.action == "supersede") != (
-            args.replacement_release is not None
-        ):
-            raise ValueError(
-                "--replacement-release is required only for action supersede"
-            )
+        if (args.action == "supersede") != (args.replacement_release is not None):
+            raise ValueError("--replacement-release is required only for action supersede")
         authority = load_revocation_authority(
             args.private_key,
             issuer=args.issuer,
@@ -76,19 +72,26 @@ def main() -> None:
             else:
                 records = ()
                 generation = 1
-            target = revocation_target_from_release(args.release)
+            seal_verification = {
+                "expected_seal_issuer": args.issuer,
+                "trusted_seal_keys": {args.key_id: authority.public_key},
+            }
+            target = revocation_target_from_release(
+                args.release,
+                **seal_verification,
+            )
             prior = next(
                 (
                     existing
                     for existing in reversed(records)
-                    if existing.target.frozen_pack_fingerprint
-                    == target.frozen_pack_fingerprint
+                    if existing.target.frozen_pack_fingerprint == target.frozen_pack_fingerprint
                 ),
                 None,
             )
             replacement = (
                 revocation_target_from_release(
-                    args.replacement_release
+                    args.replacement_release,
+                    **seal_verification,
                 ).frozen_pack_fingerprint
                 if args.replacement_release is not None
                 else None
@@ -128,12 +131,8 @@ def main() -> None:
         json.dumps(
             {
                 "status": record.action,
-                "target_frozen_pack_fingerprint": (
-                    record.target.frozen_pack_fingerprint
-                ),
-                "replacement_frozen_pack_fingerprint": (
-                    record.replacement_frozen_pack_fingerprint
-                ),
+                "target_frozen_pack_fingerprint": (record.target.frozen_pack_fingerprint),
+                "replacement_frozen_pack_fingerprint": (record.replacement_frozen_pack_fingerprint),
                 "record_digest": record.record_digest,
                 "registry_digest": registry.registry_digest,
                 "registry_generation": registry.generation,

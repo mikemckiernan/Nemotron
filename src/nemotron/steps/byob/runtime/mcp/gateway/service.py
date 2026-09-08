@@ -135,6 +135,7 @@ class GatewayService:
         self._creating_sessions = 0
         self._starting_workers: set[asyncio.Task[None]] = set()
         self._teardown_tasks: set[asyncio.Task[None]] = set()
+        self._reaper_task: asyncio.Task[None] | None = None
         self._shutting_down = False
         self._started = False
         self._report: DiscoveryReport | None = None
@@ -186,6 +187,26 @@ class GatewayService:
             )
             self._shutting_down = False
             self._started = True
+            self._reaper_task = asyncio.create_task(
+                self._reaper_loop(),
+                name="bfcl-mcp-session-reaper",
+            )
+
+    async def _reaper_loop(self) -> None:
+        interval = max(
+            0.05,
+            min(
+                float(self.config.limits.session_idle_ttl_s),
+                float(self.config.limits.episode_timeout_s),
+            )
+            / 2.0,
+        )
+        try:
+            while True:
+                await asyncio.sleep(interval)
+                await self.reap_expired()
+        except asyncio.CancelledError:
+            raise
 
     def _load_catalog(self, report: DiscoveryReport) -> None:
         catalog = report.document["catalog"]
@@ -216,12 +237,7 @@ class GatewayService:
             )
 
     def _require_started(self) -> None:
-        if (
-            not self._started
-            or self._identity is None
-            or self._report is None
-            or self._conformance_evidence is None
-        ):
+        if not self._started or self._identity is None or self._report is None or self._conformance_evidence is None:
             raise unavailable(
                 "mcp_gateway_not_ready",
                 "gateway startup discovery has not completed",
@@ -240,11 +256,7 @@ class GatewayService:
         instead of a level someone typed in.
         """
         self._require_started()
-        assert (
-            self._identity is not None
-            and self._report is not None
-            and self._conformance_evidence is not None
-        )
+        assert self._identity is not None and self._report is not None and self._conformance_evidence is not None
         return build_attestation(
             self.config,
             self._report,
@@ -262,11 +274,7 @@ class GatewayService:
     def gateway_conformance_report(self) -> dict[str, Any]:
         """Bind the build-time suite to the live gateway and discovered target."""
         self._require_started()
-        assert (
-            self._identity is not None
-            and self._report is not None
-            and self._conformance_evidence is not None
-        )
+        assert self._identity is not None and self._report is not None and self._conformance_evidence is not None
         return self._conformance_evidence.gateway_report(
             self.artifacts.validated().gateway_artifact_digest,
             effective_content_digest=self._identity.content_digest,
@@ -497,6 +505,7 @@ class GatewayService:
             )
         await self.reap_expired()
         loop = asyncio.get_running_loop()
+        worker_started_at = time.monotonic()
         ready: asyncio.Future[str] = loop.create_future()
         commands: asyncio.Queue[_CallCommand | None] = asyncio.Queue()
         async with self._registry_lock:
@@ -522,7 +531,20 @@ class GatewayService:
             )
             self._starting_workers.add(worker)
         try:
-            episode_id = await asyncio.shield(ready)
+            episode_id = await asyncio.wait_for(
+                asyncio.shield(ready),
+                timeout=float(self.config.limits.episode_timeout_s),
+            )
+        except TimeoutError as exc:
+            worker.cancel()
+            await asyncio.gather(worker, return_exceptions=True)
+            _drain_when_done(ready)
+            await self._discard_starting_worker(worker)
+            raise upstream_failure(
+                "mcp_session_create_timeout",
+                "MCP session readiness exceeded episode_timeout_s",
+                timeout=True,
+            ) from exc
         except BaseException:
             worker.cancel()
             await asyncio.gather(worker, return_exceptions=True)
@@ -548,7 +570,7 @@ class GatewayService:
                         episode_id=episode_id,
                         worker=worker,
                         commands=commands,
-                        created_at=now,
+                        created_at=worker_started_at,
                         last_used_at=now,
                     )
         except BaseException:
@@ -816,24 +838,21 @@ class GatewayService:
     ) -> None:
         if session.closed:
             return
-        close_error: Exception | None = None
+        close_error: BaseException | None = None
         if not session.worker.done():
             # Ask for a graceful stop even when poisoned. After a failed call the worker
             # has already left the command loop and is closing its own transport, and
             # cancelling that mid-flight is what orphans an upstream episode.
             session.commands.put_nowait(None)
-            try:
-                await asyncio.wait_for(
-                    asyncio.shield(session.worker),
-                    timeout=self._close_grace_s,
-                )
-            except TimeoutError:
+            _, pending = await asyncio.wait(
+                {session.worker},
+                timeout=self._close_grace_s,
+            )
+            if pending:
                 session.worker.cancel()
-            except Exception:
-                pass  # Reported below from the worker's own result.
         result = await asyncio.gather(session.worker, return_exceptions=True)
         observed = result[0]
-        if isinstance(observed, Exception):
+        if isinstance(observed, BaseException):
             close_error = observed
         session.closed = True
         if close_error is not None and not suppress_errors:
@@ -886,6 +905,8 @@ class GatewayService:
                 starting = list(self._starting_workers)
                 sessions = list(self._sessions.values())
                 existing_teardowns = list(self._teardown_tasks)
+                reaper = self._reaper_task
+                self._reaper_task = None
                 self._sessions.clear()
                 session_teardowns = [
                     self._start_teardown(
@@ -895,6 +916,9 @@ class GatewayService:
                     )
                     for session in sessions
                 ]
+            if reaper is not None:
+                reaper.cancel()
+                await asyncio.gather(reaper, return_exceptions=True)
             for worker in starting:
                 worker.cancel()
             if starting:

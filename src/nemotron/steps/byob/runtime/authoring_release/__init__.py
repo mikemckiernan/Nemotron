@@ -70,6 +70,11 @@ from nemotron.steps.byob.runtime.authoring_release.revocation import (
     verify_release_revocation,
     write_revocation_registry,
 )
+from nemotron.steps.byob.runtime.release_seal import (
+    ReleaseSealAuthority,
+    load_release_seal_authority,
+    load_trusted_release_seal_key,
+)
 
 __all__ = [
     "REQUIRED_CHECKLIST_V2",
@@ -88,6 +93,7 @@ __all__ = [
     "ReleaseRevocationError",
     "ReleaseRevocationRecord",
     "ReleaseRevocationRegistry",
+    "ReleaseSealAuthority",
     "RevocationAuthority",
     "RevocationRegistryVerifier",
     "RevocationTarget",
@@ -106,7 +112,9 @@ __all__ = [
     "load_frozen_release",
     "load_review_approval",
     "load_review_packet",
+    "load_release_seal_authority",
     "load_revocation_registry",
+    "load_trusted_release_seal_key",
     "publication_adapter_for_release",
     "release_adapter_for_packet",
     "write_review_approval",

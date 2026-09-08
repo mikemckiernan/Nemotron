@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Transport-independent MCP SDK v2 client with BFCL trust boundaries."""
+"""Bounded MCP client transport and protocol validation."""
 
 from __future__ import annotations
 
@@ -211,9 +211,7 @@ def resolve_http_headers(
     resolver = credential_resolver or CredentialResolver(environ=environ)
     token_reference = config.auth.bearer_token_ref
     if config.auth.bearer_token_env is not None:
-        token_reference = CredentialReference.environment(
-            config.auth.bearer_token_env
-        )
+        token_reference = CredentialReference.environment(config.auth.bearer_token_env)
     if token_reference is not None:
         try:
             token = resolver.resolve(token_reference).reveal()
@@ -460,12 +458,8 @@ class SdkConnectedMcpClient:
             "next_cursor",
             label="the tools/list continuation cursor",
         )
-        if next_cursor is not None and (
-            not isinstance(next_cursor, str) or not next_cursor
-        ):
-            raise McpProtocolError(
-                "tools/list nextCursor must be a non-empty string or null"
-            )
+        if next_cursor is not None and (not isinstance(next_cursor, str) or not next_cursor):
+            raise McpProtocolError("tools/list nextCursor must be a non-empty string or null")
         payload = {
             "tools": [_model_dump(tool) for tool in tools],
             "next_cursor": next_cursor,
@@ -542,9 +536,7 @@ async def open_mcp_connection(
                 secrets.values = tuple(
                     child_env[name] for name in config.transport.env_passthrough if name in child_env
                 )
-                errlog, _captured_stderr = await stack.enter_async_context(
-                    _stdio_error_pipe(secrets.values)
-                )
+                errlog, _captured_stderr = await stack.enter_async_context(_stdio_error_pipe(secrets.values))
                 target = stdio_client(
                     StdioServerParameters(
                         command=command,

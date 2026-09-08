@@ -46,6 +46,7 @@ and the standalone check need.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
@@ -123,13 +124,12 @@ it on.
 For every argument, name where the value comes from rather than writing it:
 - source=fixture with a collection, a field, and a row index. Two arguments in the same case
   that read the same collection get the same row unless you give different indexes, so use
-  different indexes when a case needs two distinct rows, as a transfer between two accounts
-  does.
+  different indexes when a case needs two distinct records.
 - source=absent_id for an identifier that must not exist.
 - source=confirmation_flag for the confirmation parameter.
 - source=literal only when the parameter's own schema pins the value set with an enum or a
   boolean, and put the value in `literal`. Anything else must come from a fixture: an
-  invented account number or amount is not domain data, and a probe built on one tests
+  invented identifier or numeric value is not domain data, and a probe built on one tests
   whatever the source makes of a value nobody reviewed.
 
 A call often succeeds only for some rows. Where a collection carries a field saying whether
@@ -167,11 +167,9 @@ case's code instead of its own. Give such cases different row indexes.
 
 Where the earlier check reads a different collection rather than the row itself, no index
 avoids it reliably, because nothing in the row says whether that collection refers to it.
-Set `exclude_collection` and `exclude_field` there, and where only some of its rows still
-count, name the field and the values that make them count with `exclude_where_field` and
-`exclude_where_values`. A record of something already done to a row usually carries a state
-saying whether it is still in force, and one that has been settled or turned down no longer
-stands in the way.
+Set `exclude_collection` and `exclude_field` there, and where only some references still
+count, name the field and active values with `exclude_where_field` and
+`exclude_where_values`.
 
 An index counts within the rows a binding is left with, not within the collection, and a
 restriction or an exclusion usually leaves far fewer than the row count you were shown. So
@@ -289,6 +287,9 @@ class ProbePlanDraft(_Draft):
 
 class ProbePlanDraftError(ValueError):
     """Raised when a drafted plan cannot be resolved into a runnable one."""
+
+
+_CASE_IDENTIFIER = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 def tool_payload(tools: Sequence[Mapping[str, Any]]) -> str:
@@ -733,6 +734,9 @@ def materialize_plan(
         cases.append(item)
 
     identifiers = [item["case_id"] for item in cases]
+    invalid = sorted(identifier for identifier in identifiers if _CASE_IDENTIFIER.fullmatch(str(identifier)) is None)
+    if invalid:
+        raise ProbePlanDraftError("case ids must match ^[a-z][a-z0-9_]*$: " + ", ".join(invalid))
     duplicated = sorted({name for name in identifiers if identifiers.count(name) > 1})
     if duplicated:
         raise ProbePlanDraftError("duplicate case ids: " + ", ".join(duplicated))

@@ -21,8 +21,10 @@ import json
 import os
 import platform
 import re
+import shutil
 import socket
 import stat
+import threading
 import uuid
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
@@ -43,9 +45,7 @@ except ImportError:  # pragma: no cover - exercised only on unsupported platform
     fcntl = None  # type: ignore[assignment]
 
 LOCK_METADATA_VERSION: Literal["bfcl-workspace-lock-v1"] = "bfcl-workspace-lock-v1"
-RECOVERY_AUDIT_VERSION: Literal["bfcl-workspace-lock-recovery-v1"] = (
-    "bfcl-workspace-lock-recovery-v1"
-)
+RECOVERY_AUDIT_VERSION: Literal["bfcl-workspace-lock-recovery-v1"] = "bfcl-workspace-lock-recovery-v1"
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 
 Clock = Callable[[], datetime]
@@ -241,13 +241,9 @@ def _build_metadata(
         "pid": pid,
         "created_at": _json_datetime(created_at),
         "renewed_at": _json_datetime(renewed_at),
-        "lease_expires_at": _json_datetime(
-            renewed_at + timedelta(seconds=lease_seconds)
-        ),
+        "lease_expires_at": _json_datetime(renewed_at + timedelta(seconds=lease_seconds)),
     }
-    return LockMetadata.model_validate(
-        {**unsigned, "metadata_digest": sha256_json(unsigned)}
-    )
+    return LockMetadata.model_validate({**unsigned, "metadata_digest": sha256_json(unsigned)})
 
 
 def _lock_exclusive_nonblocking(descriptor: int) -> None:
@@ -308,52 +304,75 @@ class WorkspaceLease:
         self._lease_seconds = lease_seconds
         self._clock = clock
         self._released = False
+        self._metadata_lock = threading.Lock()
+        self._heartbeat_stop = threading.Event()
+        self._heartbeat_error: BaseException | None = None
+        self._heartbeat = threading.Thread(
+            target=self._renew_loop,
+            name="bfcl-workspace-lease-renewal",
+            daemon=True,
+        )
+        self._heartbeat.start()
 
     @property
     def active(self) -> bool:
         return not self._released
 
-    def renew(self) -> LockMetadata:
-        if self._released:
-            raise WorkspaceLockError(
-                "lease_released",
-                "cannot renew a released workspace lease",
-            )
-        observed = _parse_metadata(_read_descriptor(self._descriptor))
-        if observed is None or observed.lease_id != self.metadata.lease_id:
-            raise WorkspaceLockError(
-                "lease_identity_mismatch",
-                "lock metadata no longer belongs to this lease",
-            )
-        now = _normalized_now(self._clock)
-        renewed = _build_metadata(
-            tenant_id=self.metadata.tenant_id,
-            run_id=self.metadata.run_id,
-            lease_id=self.metadata.lease_id,
-            host=self.metadata.host,
-            pid=self.metadata.pid,
-            created_at=self.metadata.created_at,
-            renewed_at=now,
-            lease_seconds=self._lease_seconds,
-        )
-        _write_descriptor(
-            self._descriptor,
-            (canonical_json(renewed.model_dump(mode="json")) + "\n").encode("utf-8"),
-        )
-        self.metadata = renewed
-        return renewed
+    def _renew_loop(self) -> None:
+        interval = max(0.1, self._lease_seconds / 3.0)
+        while not self._heartbeat_stop.wait(interval):
+            try:
+                self.renew()
+            except BaseException as exc:
+                self._heartbeat_error = exc
+                return
 
-    def release(self) -> None:
-        if self._released:
-            return
-        try:
+    def renew(self) -> LockMetadata:
+        with self._metadata_lock:
+            if self._released:
+                raise WorkspaceLockError(
+                    "lease_released",
+                    "cannot renew a released workspace lease",
+                )
             observed = _parse_metadata(_read_descriptor(self._descriptor))
             if observed is None or observed.lease_id != self.metadata.lease_id:
                 raise WorkspaceLockError(
                     "lease_identity_mismatch",
-                    "refusing to clear metadata owned by another lease",
+                    "lock metadata no longer belongs to this lease",
                 )
-            _write_descriptor(self._descriptor, b"")
+            now = _normalized_now(self._clock)
+            renewed = _build_metadata(
+                tenant_id=self.metadata.tenant_id,
+                run_id=self.metadata.run_id,
+                lease_id=self.metadata.lease_id,
+                host=self.metadata.host,
+                pid=self.metadata.pid,
+                created_at=self.metadata.created_at,
+                renewed_at=now,
+                lease_seconds=self._lease_seconds,
+            )
+            _write_descriptor(
+                self._descriptor,
+                (canonical_json(renewed.model_dump(mode="json")) + "\n").encode("utf-8"),
+            )
+            self.metadata = renewed
+            return renewed
+
+    def release(self) -> None:
+        if self._released:
+            return
+        self._heartbeat_stop.set()
+        if threading.current_thread() is not self._heartbeat:
+            self._heartbeat.join()
+        try:
+            with self._metadata_lock:
+                observed = _parse_metadata(_read_descriptor(self._descriptor))
+                if observed is None or observed.lease_id != self.metadata.lease_id:
+                    raise WorkspaceLockError(
+                        "lease_identity_mismatch",
+                        "refusing to clear metadata owned by another lease",
+                    )
+                _write_descriptor(self._descriptor, b"")
         finally:
             _unlock(self._descriptor)
             os.close(self._descriptor)
@@ -416,9 +435,7 @@ class WorkspaceLock:
             )
         self.root.mkdir(parents=True, exist_ok=True)
         tenant_root = self.root / self.tenant_id
-        if tenant_root.exists() and (
-            tenant_root.is_symlink() or not tenant_root.is_dir()
-        ):
+        if tenant_root.exists() and (tenant_root.is_symlink() or not tenant_root.is_dir()):
             raise WorkspaceLockError(
                 "workspace_namespace_invalid",
                 f"tenant lock root must be a real directory: {tenant_root}",
@@ -443,12 +460,8 @@ class WorkspaceLock:
             "reason": reason.strip(),
             "recovered_at": _json_datetime(recovered_at),
         }
-        record = RecoveryAuditRecord.model_validate(
-            {**unsigned, "record_digest": sha256_json(unsigned)}
-        )
-        payload = (canonical_json(record.model_dump(mode="json")) + "\n").encode(
-            "utf-8"
-        )
+        record = RecoveryAuditRecord.model_validate({**unsigned, "record_digest": sha256_json(unsigned)})
+        payload = (canonical_json(record.model_dump(mode="json")) + "\n").encode("utf-8")
         descriptor = _open_regular(
             self.recovery_audit_path,
             os.O_WRONLY | os.O_APPEND | os.O_CREAT,
@@ -513,9 +526,7 @@ class WorkspaceLock:
             )
             _write_descriptor(
                 descriptor,
-                (canonical_json(metadata.model_dump(mode="json")) + "\n").encode(
-                    "utf-8"
-                ),
+                (canonical_json(metadata.model_dump(mode="json")) + "\n").encode("utf-8"),
             )
             return WorkspaceLease(
                 descriptor=descriptor,
@@ -528,3 +539,49 @@ class WorkspaceLock:
             _unlock(descriptor)
             os.close(descriptor)
             raise
+
+    def cleanup_orphan_staging(
+        self,
+        workspace: Path,
+        *,
+        lease: WorkspaceLease,
+        minimum_age_seconds: float,
+    ) -> tuple[Path, ...]:
+        """Remove only old staging trees while this namespace lease is held."""
+        if minimum_age_seconds <= 0:
+            raise WorkspaceLockError(
+                "staging_age_invalid",
+                "minimum_age_seconds must be positive",
+            )
+        if (
+            not lease.active
+            or lease.path != self.lock_path
+            or lease.metadata.tenant_id != self.tenant_id
+            or lease.metadata.run_id != self.run_id
+        ):
+            raise WorkspaceLockError(
+                "lease_identity_mismatch",
+                "orphan staging cleanup requires this workspace's active lease",
+            )
+        root = workspace.expanduser().absolute()
+        if root.is_symlink() or not root.is_dir():
+            raise WorkspaceLockError(
+                "workspace_namespace_invalid",
+                "staging cleanup root must be a real directory",
+            )
+        cutoff = _normalized_now(self.clock).timestamp() - minimum_age_seconds
+        removed: list[Path] = []
+        for candidate in sorted(root.rglob(".*.staging-*")):
+            if candidate.is_symlink() or not candidate.is_dir():
+                continue
+            entries = [candidate, *candidate.rglob("*")]
+            if any(path.is_symlink() for path in entries):
+                raise WorkspaceLockError(
+                    "staging_path_unsafe",
+                    f"orphan staging tree contains a symbolic link: {candidate}",
+                )
+            if max(path.stat().st_mtime for path in entries) > cutoff:
+                continue
+            shutil.rmtree(candidate)
+            removed.append(candidate)
+        return tuple(removed)

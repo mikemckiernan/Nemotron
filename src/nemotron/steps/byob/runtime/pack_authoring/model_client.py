@@ -13,17 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""One cached, structured authoring call.
-
-Reuses the pattern the generation stages already established: a content-addressed request
-hash over everything that can change an answer, an append-only cache that refuses to replace
-a prior observation, and a canonical model identity recorded alongside. The point is not to
-save tokens. It is that a reviewer can re-run authoring and get the artifact they approved,
-and that the record says which model produced it.
-
-Data Designer is imported lazily by the runner it calls, so this module stays importable in
-the environment where discovery runs and the SDK versions conflict.
-"""
+"""Validated, content-addressed structured authoring calls."""
 
 from __future__ import annotations
 
@@ -32,7 +22,7 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from nemotron.steps.byob.runtime.authoring_workflow.quota import (
     RunQuota,
@@ -190,9 +180,16 @@ def call_structured(
 
     cached = cache.get(key)
     if cached is not None:
-        if quota is not None:
-            quota.record_cache_hit(batch_size=1)
-        return dict(cached), record
+        try:
+            validated = output_format.model_validate(cached).model_dump(mode="json")
+        except ValidationError:
+            # Old clients could persist a schema-invalid provider draft. Remove only the
+            # exact invalid observation so the same request can recover on this run.
+            cache.invalidate(key, expected_response=cached)
+        else:
+            if quota is not None:
+                quota.record_cache_hit(batch_size=1)
+            return validated, record
 
     if quota is not None:
         quota.reserve_provider_call(
@@ -218,17 +215,17 @@ def call_structured(
     )
     response = responses.get(stage_name)
     if not isinstance(response, dict):
-        raise AuthoringModelError(
-            f"{stage_name} returned no structured response for request {stage_name!r}"
-        )
+        raise AuthoringModelError(f"{stage_name} returned no structured response for request {stage_name!r}")
     if quota is not None:
         quota.check_after_provider_call()
-    # Only a well-formed answer is cached. Caching an infrastructure failure would make a
-    # transient outage permanent for every later run.
+    try:
+        validated = output_format.model_validate(response).model_dump(mode="json")
+    except ValidationError as exc:
+        raise AuthoringModelError(f"{stage_name} returned a response outside the requested output schema") from exc
     cache.put(
         key,
-        response,
+        validated,
         model_canonical=model.canonical_id,
         input_hash=input_hash,
     )
-    return response, replace(record, served_from_cache=False)
+    return validated, replace(record, served_from_cache=False)

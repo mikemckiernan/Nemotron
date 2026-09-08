@@ -11,13 +11,14 @@ from typing import Any
 
 import pytest
 import yaml
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from nemotron.steps.byob.runtime.authoring_release.contracts import (
     AdapterReviewContribution,
     FreezeHookContext,
 )
 from nemotron.steps.byob.runtime.authoring_release.freeze import (
-    FREEZE_MANIFEST_VERSION_V2,
     AuthoringFreezeError,
     FreezeInputsV2,
     FrozenReleaseV2,
@@ -35,6 +36,9 @@ from nemotron.steps.byob.runtime.authoring_release.review import (
     build_review_packet,
     write_review_approval,
     write_review_packet,
+)
+from nemotron.steps.byob.runtime.authoring_release.versions import (
+    FREEZE_MANIFEST_VERSION_V3,
 )
 from nemotron.steps.byob.runtime.authoring_workflow.events import (
     EVENT_FILE_NAME,
@@ -63,11 +67,34 @@ from nemotron.steps.byob.runtime.pack_authoring.bundle import (
     BundleError,
     load_evidence_bundle,
 )
+from nemotron.steps.byob.runtime.release_seal import ReleaseSealAuthority
 from nemotron.steps.byob.scripts import bfcl_author
 from tests.steps.byob.test_bfcl_authoring_generalized_review import _candidate_pack
 from tests.steps.byob.test_bfcl_authoring_revisions import _committed_session
 from tests.steps.byob.test_bfcl_mcp_release_review import _validation
 from tests.steps.byob.test_bfcl_source_intake import _contract_case
+
+SEAL_AUTHORITY = ReleaseSealAuthority(
+    issuer="bfcl-release-authority",
+    key_id="release-key-1",
+    private_key=Ed25519PrivateKey.generate(),
+)
+SEAL_VERIFICATION = {
+    "trusted_seal_keys": {SEAL_AUTHORITY.key_id: SEAL_AUTHORITY.public_key},
+    "expected_seal_issuer": SEAL_AUTHORITY.issuer,
+}
+
+
+def _write_seal_public_key(root: Path) -> Path:
+    path = root / "release-seal-public-key.pem"
+    path.write_bytes(
+        SEAL_AUTHORITY.public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    )
+    return path
+
 
 _SHA = "sha256:" + "a" * 64
 
@@ -159,6 +186,7 @@ def _approved_release(
                 "certification_report": source_record,
                 "model_exposure_authorization": source_record,
             },
+            seal_authority=SEAL_AUTHORITY,
         ),
         root / "release",
         adapter=adapter,
@@ -240,7 +268,7 @@ def _install_frozen_session(
         },
         workspace / "authoring_head.json",
     )
-    loaded = load_frozen_release(frozen_root)
+    loaded = load_frozen_release(frozen_root, **SEAL_VERIFICATION)
     assert isinstance(loaded, FrozenReleaseV2)
     return workspace, loaded
 
@@ -248,23 +276,16 @@ def _install_frozen_session(
 def test_all_adapters_share_the_v2_release_envelope_through_freeze(
     tmp_path: Path,
 ) -> None:
-    releases = [
-        _approved_release(tmp_path, adapter)
-        for adapter in ("local_python", "http_package", "mcp_mode_a")
-    ]
+    releases = [_approved_release(tmp_path, adapter) for adapter in ("local_python", "http_package", "mcp_mode_a")]
 
-    assert {
-        release.manifest["schema_version"] for release, _, _ in releases
-    } == {FREEZE_MANIFEST_VERSION_V2}
+    assert {release.manifest["schema_version"] for release, _, _ in releases} == {FREEZE_MANIFEST_VERSION_V3}
     assert len({frozenset(release.manifest) for release, _, _ in releases}) == 1
-    assert len(
-        {
-            frozenset(release.manifest["source_records"])
-            for release, _, _ in releases
-        }
-    ) == 1
+    assert len({frozenset(release.manifest["source_records"]) for release, _, _ in releases}) == 1
     with pytest.raises(AuthoringHandoffError) as http_publication:
-        publication_adapter_for_release(releases[1][0].root)
+        publication_adapter_for_release(
+            releases[1][0].root,
+            **SEAL_VERIFICATION,
+        )
     assert http_publication.value.code == "publication_adapter_unsupported"
     for release, _, _ in releases:
         paths = resolve_declared_pack_paths(
@@ -309,9 +330,7 @@ def test_guided_publish_completes_stage_all_with_fresh_gold(
                 "random_seed": 7,
                 "config_status": "resolved",
                 "output_dir": str(output),
-                "oracle_pack": {
-                    "manifest_path": str(release.pack_root / "manifest.yaml")
-                },
+                "oracle_pack": {"manifest_path": str(release.pack_root / "manifest.yaml")},
                 "oracle_runtime": {
                     "clock": "2026-08-29T15:00:00+07:00",
                     "allowed_roots": [str(release.pack_root)],
@@ -353,9 +372,7 @@ def test_guided_publish_completes_stage_all_with_fresh_gold(
         calls.append("prepare")
         report = tmp_path / f"{adapter_kind}-validation.json"
         validation = _validation(ready=True)
-        validation["pack_fingerprint"] = release.pack_fingerprint.removeprefix(
-            "sha256:"
-        )
+        validation["pack_fingerprint"] = release.pack_fingerprint.removeprefix("sha256:")
         validation["stats"] = {
             "has_oracle": True,
             "n_templates": 1,
@@ -430,6 +447,12 @@ def test_guided_publish_completes_stage_all_with_fresh_gold(
             str(release.root),
             "--config",
             str(config),
+            "--seal-issuer",
+            SEAL_AUTHORITY.issuer,
+            "--seal-public-key",
+            str(_write_seal_public_key(tmp_path)),
+            "--seal-key-id",
+            SEAL_AUTHORITY.key_id,
         ],
     )
 
@@ -460,15 +483,11 @@ def test_real_local_guided_publication_runs_stage_all(
         packet_path,
         approval_path,
     )
-    config_document = yaml.safe_load(
-        (BYOB_ROOT / "bfcl" / "config" / "tiny.yaml").read_text(encoding="utf-8")
-    )
+    config_document = yaml.safe_load((BYOB_ROOT / "bfcl" / "config" / "tiny.yaml").read_text(encoding="utf-8"))
     output = workspace / "real-stage-all"
     config_document["expt_name"] = "local-authoring-real-e2e"
     config_document["output_dir"] = str(output)
-    config_document["oracle_pack"]["manifest_path"] = str(
-        release.pack_root / "manifest.yaml"
-    )
+    config_document["oracle_pack"]["manifest_path"] = str(release.pack_root / "manifest.yaml")
     config_document["oracle_runtime"]["allowed_roots"] = [str(release.pack_root)]
     config_document["lineage"]["policy"] = "strict_separation"
     config = workspace / "real-local-config.yaml"
@@ -490,6 +509,12 @@ def test_real_local_guided_publication_runs_stage_all(
             str(release.root),
             "--config",
             str(config),
+            "--seal-issuer",
+            SEAL_AUTHORITY.issuer,
+            "--seal-public-key",
+            str(_write_seal_public_key(tmp_path)),
+            "--seal-key-id",
+            SEAL_AUTHORITY.key_id,
         ],
     )
 
@@ -540,6 +565,7 @@ def test_below_a2_and_stale_approval_fail_before_publication(
             "certification_report": source,
             "model_exposure_authorization": source,
         },
+        seal_authority=SEAL_AUTHORITY,
     )
     with pytest.raises(AuthoringFreezeError) as under_certified:
         freeze_canonical_pack(inputs, root / "under-certified", adapter=a1_adapter)
@@ -557,6 +583,7 @@ def test_below_a2_and_stale_approval_fail_before_publication(
         review_packet_path=fresh_packet_path,
         review_approval_path=approval_path,
         source_records=inputs.source_records,
+        seal_authority=SEAL_AUTHORITY,
     )
     with pytest.raises(AuthoringFreezeError) as stale:
         freeze_canonical_pack(stale_inputs, root / "stale", adapter=a2_adapter)
@@ -647,5 +674,6 @@ def test_handoff_rejects_a_non_publishable_generated_manifest(
             release.root,
             tmp_path / "config.yaml",
             adapter=Adapter(),
+            **SEAL_VERIFICATION,
         )
     assert raised.value.code == "publication_not_gold_eligible"

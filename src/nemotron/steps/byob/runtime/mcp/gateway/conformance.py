@@ -33,6 +33,8 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.conformance import (
     ATTESTATION_KIND,
     MCP_PROFILE_VERSION,
@@ -46,6 +48,11 @@ from nemotron.steps.byob.runtime.mcp.discovery import DiscoveryReport
 from nemotron.steps.byob.runtime.mcp.gateway.identity import (
     GatewayArtifacts,
     GatewayIdentity,
+)
+from nemotron.steps.byob.runtime.release_seal import (
+    ReleaseSealAuthority,
+    sign_release_digest,
+    verify_release_digest,
 )
 
 # The issuer name identifies which suite produced the evidence, so a verifier configured to
@@ -91,6 +98,7 @@ class ConformanceEvidence:
     # exact gateway artifact it exercised, which is what stops a passing report from being
     # reused for a different build.
     suite: Mapping[str, Any] = field(default_factory=dict)
+    trusted_producer: bool = False
 
     @property
     def probe_report(self) -> dict[str, Any]:
@@ -165,6 +173,10 @@ def discovery_evidence(report: DiscoveryReport) -> ConformanceEvidence:
 def load_conformance_evidence(
     probe_report: Any,
     gateway_suite: Any,
+    *,
+    trusted_public_keys: Mapping[str, Ed25519PublicKey] | None = None,
+    expected_issuer: str | None = None,
+    gateway_artifact_digest: str | None = None,
 ) -> ConformanceEvidence:
     """Strictly load BFCL-produced evidence before a gateway may advertise it."""
     if not isinstance(probe_report, dict) or set(probe_report) != {"probes"}:
@@ -180,9 +192,7 @@ def load_conformance_evidence(
             "status",
             "reason",
         }:
-            raise ValueError(
-                f"probe report.probes[{index}] has an invalid field set"
-            )
+            raise ValueError(f"probe report.probes[{index}] has an invalid field set")
         identifier = raw["id"]
         requirement = raw["requirement"]
         status = raw["status"]
@@ -190,17 +200,11 @@ def load_conformance_evidence(
         if not isinstance(identifier, str) or not identifier:
             raise ValueError(f"probe report.probes[{index}].id must be non-empty")
         if requirement not in _PROBE_REQUIREMENTS:
-            raise ValueError(
-                f"probe report.probes[{index}].requirement is invalid"
-            )
+            raise ValueError(f"probe report.probes[{index}].requirement is invalid")
         if status not in _PROBE_STATUSES:
             raise ValueError(f"probe report.probes[{index}].status is invalid")
-        if reason is not None and (
-            not isinstance(reason, str) or not reason.strip()
-        ):
-            raise ValueError(
-                f"probe report.probes[{index}].reason must be null or non-empty"
-            )
+        if reason is not None and (not isinstance(reason, str) or not reason.strip()):
+            raise ValueError(f"probe report.probes[{index}].reason must be null or non-empty")
         probes.append(
             ProbeOutcome(
                 id=identifier,
@@ -214,10 +218,24 @@ def load_conformance_evidence(
     if identifiers != expected:
         raise ValueError("probe report must contain P1 through P11 in order")
 
-    if not isinstance(gateway_suite, dict) or set(gateway_suite) != {
-        "kind",
-        "profile_version",
-        "p9",
+    if not isinstance(gateway_suite, dict) or set(gateway_suite) not in {
+        frozenset(
+            {
+                "kind",
+                "profile_version",
+                "p9",
+            }
+        ),
+        frozenset(
+            {
+                "kind",
+                "profile_version",
+                "p9",
+                "producer",
+                "evidence_digest",
+                "signature",
+            }
+        ),
     }:
         raise ValueError("gateway suite has an invalid field set")
     p9 = gateway_suite.get("p9")
@@ -235,7 +253,36 @@ def load_conformance_evidence(
         or p9 != required_p9
     ):
         raise ValueError("gateway suite does not contain a passing P9 observation")
-    return ConformanceEvidence(probes=tuple(probes), suite=dict(gateway_suite))
+    trusted_producer = False
+    producer = gateway_suite.get("producer")
+    if producer is not None:
+        if (
+            not isinstance(producer, dict)
+            or set(producer) != {"issuer", "signing_key_id", "gateway_artifact_digest"}
+            or trusted_public_keys is None
+            or expected_issuer is None
+            or gateway_artifact_digest is None
+            or producer.get("gateway_artifact_digest") != gateway_artifact_digest
+        ):
+            raise ValueError("gateway suite producer binding is invalid or untrusted")
+        unsigned = {key: value for key, value in gateway_suite.items() if key not in {"evidence_digest", "signature"}}
+        digest = attestation_digest(unsigned)
+        if gateway_suite.get("evidence_digest") != digest:
+            raise ValueError("gateway suite evidence digest mismatch")
+        verify_release_digest(
+            issuer=str(producer["issuer"]),
+            expected_issuer=expected_issuer,
+            key_id=str(producer["signing_key_id"]),
+            digest=digest,
+            signature=str(gateway_suite.get("signature")),
+            trusted_public_keys=trusted_public_keys,
+        )
+        trusted_producer = True
+    return ConformanceEvidence(
+        probes=tuple(probes),
+        suite=dict(gateway_suite),
+        trusted_producer=trusted_producer,
+    )
 
 
 async def run_gateway_timeout_conformance(
@@ -247,6 +294,8 @@ async def run_gateway_timeout_conformance(
     business_call_attempts: Callable[[], int],
     transport_cleanup_completed: Callable[[], bool],
     fixtures: Mapping[str, Any] | None = None,
+    authority: ReleaseSealAuthority | None = None,
+    gateway_artifact_digest: str | None = None,
 ) -> dict[str, Any]:
     """Run P9 against a controlled hanging MCP fixture through the real gateway core."""
     timeout_observed = False
@@ -287,7 +336,7 @@ async def run_gateway_timeout_conformance(
 
     attempts = business_call_attempts()
     cleanup = transport_cleanup_completed()
-    return {
+    document: dict[str, Any] = {
         "kind": "gateway",
         "profile_version": GATEWAY_SUITE_VERSION,
         "p9": {
@@ -300,6 +349,20 @@ async def run_gateway_timeout_conformance(
             "unknown_commit_state_preserved": timeout_observed and episode_poisoned,
         },
     }
+    if (authority is None) != (gateway_artifact_digest is None):
+        raise ValueError("gateway conformance signing requires both authority and artifact digest")
+    if authority is not None and gateway_artifact_digest is not None:
+        document["producer"] = {
+            "issuer": authority.issuer,
+            "signing_key_id": authority.key_id,
+            "gateway_artifact_digest": gateway_artifact_digest,
+        }
+        document["evidence_digest"] = attestation_digest(document)
+        document["signature"] = sign_release_digest(
+            authority,
+            str(document["evidence_digest"]),
+        )
+    return document
 
 
 def _attained_level(probes: Sequence[ProbeOutcome], *, state_observability: str) -> str:
@@ -351,9 +414,7 @@ def read_only_boundary_for(
     """Name a mode-C boundary only after P6 verified that exact mechanism."""
     if config.mode != "C":
         return None
-    p6_passed = any(
-        probe.id == "P6" and probe.status == "pass" for probe in evidence.probes
-    )
+    p6_passed = any(probe.id == "P6" and probe.status == "pass" for probe in evidence.probes)
     boundary = evidence.suite.get("read_only_boundary")
     if p6_passed and boundary in {
         "upstream_authorization",
@@ -392,7 +453,7 @@ def build_attestation(
             effective_content_digest=identity.content_digest,
             tool_catalog_digest=report.tool_catalog_digest,
         ),
-        "gateway_evidence_kind": "locally_verified",
+        "gateway_evidence_kind": ("signed_release" if evidence.trusted_producer else "locally_verified"),
         "gateway_evidence_issuer": GATEWAY_EVIDENCE_ISSUER,
         "state_observability": observability,
         "read_only_boundary": read_only_boundary_for(config, evidence),
