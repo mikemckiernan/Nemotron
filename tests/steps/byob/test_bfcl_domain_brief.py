@@ -134,6 +134,25 @@ def test_invalid_or_unreviewable_briefs_fail_closed(
         load_domain_brief(path, language="en", **kwargs)
 
 
+def test_domain_brief_rejects_unfilled_skeleton_but_allows_ordinary_brackets(
+    tmp_path: Path,
+) -> None:
+    skeleton = (
+        Path(__file__).resolve().parents[3]
+        / "src/nemotron/steps/byob/references/bfcl-domain-brief.skeleton.txt"
+    )
+    with pytest.raises(DomainBriefError, match="still contains BFCL skeleton"):
+        load_domain_brief(skeleton, language="en")
+
+    path = tmp_path / "domain.md"
+    path.write_text(
+        "The assistant reports storage ranges such as [0, 100].",
+        encoding="utf-8",
+    )
+    brief, _ = load_domain_brief(path, language="en")
+    assert brief.untrusted_text.endswith("[0, 100].")
+
+
 def test_domain_brief_rejects_bad_language_and_redaction_policy(
     tmp_path: Path,
 ) -> None:
@@ -167,6 +186,7 @@ def test_persisted_brief_rejects_oversized_and_review_blocking_text() -> None:
     for text, message in (
         ("x" * (16 * 1024 + 1), "persisted limit"),
         ("review\u202ethis", "review-blocking"),
+        ("[BFCL-SKELETON: unfinished]", "still contains BFCL skeleton"),
     ):
         with pytest.raises(ValidationError, match=message):
             DomainBriefEvidence(
