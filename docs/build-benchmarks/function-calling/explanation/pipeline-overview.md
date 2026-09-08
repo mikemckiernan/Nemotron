@@ -330,6 +330,7 @@ Evaluation reads its own configuration, described in {doc}`evaluation`, and is d
 
 - {doc}`oracle-pack` for the pack contract the whole pipeline reads from.
 - {doc}`authoring-flows` for the three ways to obtain a pack before Stage 1.
+- {doc}`../how-to/translate` for localizing a completed generation run.
 - {doc}`evaluation` for what happens after a benchmark is published.
 - {doc}`../reference/generate-config` for every generation YAML key.
 - {doc}`../reference/output-files` for the exact artifact names and locations.

@@ -146,9 +146,11 @@ Operator guides on the documentation site, ordered from first run to release:
 | [Assisted authoring](../../../../../docs/build-benchmarks/function-calling/how-to/assisted-authoring.md) | Draft a pack from a Python package or HTTPS service with model assistance |
 | [Onboard an MCP server](../../../../../docs/build-benchmarks/function-calling/how-to/mcp-server.md) | Use a running MCP server as the oracle |
 | [Publish a release](../../../../../docs/build-benchmarks/function-calling/how-to/publish-a-release.md) | Choose a budget and challenge mix, then verify the artifacts |
+| [Translate a published benchmark](../../../../../docs/build-benchmarks/function-calling/how-to/translate.md) | Localize approved model-facing text without changing oracle truth |
 | [Evaluate a candidate model](../../../../../docs/build-benchmarks/function-calling/how-to/run-evaluation.md) | Score models and read the report |
 | [Oracle Pack inputs](../../../../../docs/build-benchmarks/function-calling/reference/oracle-pack-inputs.md) | Find the required files, manifest fields, fill order, and cross-file tool lineage |
 | [Domain brief](../../../../../docs/build-benchmarks/function-calling/reference/domain-brief.md) | Prepare the human-owned domain context required by assisted authoring |
+| [Probe plan](../../../../../docs/build-benchmarks/function-calling/reference/probe-plan.md) | Prepare the intake cases that earn certification tier A2 |
 | [Manifest fields](../../../../../docs/build-benchmarks/function-calling/reference/manifest.md) | Configure identity, paths, languages, shared text, and confirmation vocabulary |
 | [Tool catalog and fixtures](../../../../../docs/build-benchmarks/function-calling/reference/tools-and-fixtures.md) | Define public schemas and deterministic reset records |
 | [Python backend contract](../../../../../docs/build-benchmarks/function-calling/reference/python-backend.md) | Implement the four required local-oracle callables |

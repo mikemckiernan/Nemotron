@@ -97,12 +97,24 @@ python -m nemotron.steps.byob.scripts.bfcl_author \
   <remaining intake arguments>
 ```
 
+## Common Failures
+
+| Symptom | What it means |
+| --- | --- |
+| Still contains `BFCL-SKELETON` | Replace every bracketed block, including the instruction header, then retry intake. |
+| Exceeds the 16 KiB limit | Shorten the brief. Intake persists at most 16384 bytes. |
+| Not valid UTF-8 | Save the file as plain UTF-8 without a conflicting encoding. |
+| Empty or whitespace only | Write the seven required subjects; a blank file is refused. |
+| `cannot be reviewed safely` | The sanitizer found blocking text such as a credential, private hostname, or similar secret. Remove it; do not rely on redaction to hide operator-owned secrets after the fact. |
+| Cannot read the path | Point `--brief` at a file that exists and is readable by the intake process. |
+
 ## Related Information
 
 - {doc}`../how-to/start-from-domain-data` for preparing the source, catalog, brief,
   and probe plan in dependency order.
 - {doc}`../how-to/assisted-authoring` for the complete intake, drafting, review,
   freeze, and publication workflow.
+- {doc}`probe-plan` for the intake cases that accompany the brief.
 - {doc}`oracle-pack-inputs` for the distinction between authoring inputs and Oracle
   Pack files.
 - {doc}`tools-and-fixtures` for the public tool interface and deterministic source

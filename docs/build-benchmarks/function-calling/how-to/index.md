@@ -18,6 +18,7 @@ Author a Pack <author-a-pack>
 Assisted Authoring <assisted-authoring>
 Onboard an MCP Server <mcp-server>
 Publish a Release <publish-a-release>
+Translate a Release <translate>
 Run an Evaluation <run-evaluation>
 ```
 
@@ -69,7 +70,7 @@ Discover a server, expose it through the oracle gateway, and take its evidence i
 
 ::::
 
-## Publish and Evaluate
+## Publish, Translate, and Evaluate
 
 ::::{grid} 1 1 2 2
 :gutter: 1 1 1 2
@@ -80,6 +81,14 @@ Discover a server, expose it through the oracle gateway, and take its evidence i
 Choose a size target and the balancing mixes, generate at publication scale, then verify the manifest and exports.
 +++
 {bdg-secondary}`publication`
+:::
+
+:::{grid-item-card} {octicon}`globe;1.5em;sd-mr-1` Translate a published benchmark
+:link: translate
+:link-type: doc
+Localize approved model-facing text from a committed `run_manifest.json` without changing oracle truth.
++++
+{bdg-secondary}`stage=translate`
 :::
 
 :::{grid-item-card} {octicon}`graph;1.5em;sd-mr-1` Run an evaluation

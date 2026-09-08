@@ -186,4 +186,6 @@ python -m nemotron.steps.byob.scripts.archive_bfcl_release \
 
 ## Next Steps
 
-- Score a model against the release: {doc}`run-evaluation`. Look up any field you changed in {doc}`../reference/generate-config`, or any artifact it wrote in {doc}`../reference/output-files`.
+- Score a model against the release: {doc}`run-evaluation`.
+- Localize approved model-facing text: {doc}`translate`.
+- Look up any field you changed in {doc}`../reference/generate-config`, or any artifact it wrote in {doc}`../reference/output-files`.

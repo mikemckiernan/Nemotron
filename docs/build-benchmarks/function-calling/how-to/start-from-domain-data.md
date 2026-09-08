@@ -17,8 +17,9 @@ assets to one reviewed pack:
 
 Both paths finish with the same reviewed Oracle Pack and the same Gold gate. Generation,
 publication, and evaluation are later runs over that pack, not extra authoring stages.
-After the pack is Gold-eligible, continue with {doc}`publish-a-release` and
-{doc}`run-evaluation`. Model assistance never earns a weaker validation standard.
+After the pack is Gold-eligible, continue with {doc}`publish-a-release`, optionally
+{doc}`translate`, and {doc}`run-evaluation`. Model assistance never earns a weaker
+validation standard.
 
 ## Identify The Required Domain Inputs
 
@@ -38,8 +39,11 @@ each function does. Identify these four inputs before choosing an authoring path
 
 The compact walkthrough below uses the bundled English `tiny_oracle_pack` only to keep
 the snippets short. Language, geography, industry, and library behavior are not
-framework defaults. The Vietnamese `banking_vn_oracle_pack` and
+framework defaults. Warehouse command paths in {doc}`assisted-authoring`,
+{doc}`publish-a-release`, {doc}`translate`, and {doc}`run-evaluation` are a second
+worked example. The Vietnamese `banking_vn_oracle_pack` and
 {doc}`../explanation/pipeline-worked-example` demonstrate a larger localized pack.
+Do not mix fixture ids or tool names across those examples.
 
 ```text
 Tool interface:
@@ -400,7 +404,8 @@ the source has error codes, confirmation safety for mutations, reset isolation, 
 case the tool cannot finish inside its deadline. Without that timeout case,
 certification cannot reach A2. Copy the structure from
 `src/nemotron/steps/byob/references/bfcl-probe-plan.example.json`, then replace its
-banking tools, fixture ids, and cases. Check the plan without executing probes:
+banking tools, fixture ids, and cases. See {doc}`../reference/probe-plan` for the A2
+coverage contract, including the timeout case. Check the plan without executing probes:
 
 ```bash
 python -m nemotron.steps.byob.scripts.check_probe_plan \
@@ -558,7 +563,8 @@ reviewed-oracle-pack/
 ├── fixtures.json
 ├── task_templates.yaml
 ├── assertions.py
-└── validation_cases.yaml
+├── validation_cases.yaml
+└── held_out.yaml              # optional
 ```
 
 From that boundary onward, authoring history does not change the standard:
@@ -623,3 +629,7 @@ Then follow {doc}`run-evaluation` for candidate endpoint configuration, prefligh
 execution, and result inspection. Use {doc}`../reference/eval-config` for every
 configuration field and {doc}`../explanation/evaluation` for scoring modes, gates,
 artifacts, and metric semantics.
+
+To localize a completed, verified generation run without changing oracle truth, follow
+{doc}`translate`. Translation is a separate run and writes its own
+`translation_manifest.json`.

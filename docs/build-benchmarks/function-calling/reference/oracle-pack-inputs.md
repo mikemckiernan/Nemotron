@@ -15,7 +15,7 @@ that contract disagree, the normative contract is authoritative.
 
 ## Keep Three Input Layers Separate
 
-1. **Authoring inputs**, such as a {doc}`domain-brief`, probe plan, or reviewed
+1. **Authoring inputs**, such as a {doc}`domain-brief`, {doc}`probe-plan`, or reviewed
    supplement, help produce a pack. Generation does not read them.
 2. **Oracle Pack inputs** define executable domain truth. Stage 1 loads and fingerprints
    them.
