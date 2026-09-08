@@ -56,6 +56,10 @@ flowchart TB
 The diagram has two refusal points for a reason. A lower-tier source may be drafted and reviewed, so the tier is checked where it matters — at freeze — rather than being used to block exploration. The gold gate then re-derives eligibility from the frozen pack itself, which is why a pack that arrived through model assistance cannot enter generation on the strength of its authoring history alone.
 
 The `Stages 3 to 12` node is collapsed here because it is identical for all three flows. {doc}`pipeline-overview` draws the same run with every stage named, including which two are optional and how a disabled stage is bypassed.
+In practical terms, `Reviewed oracle pack` is the input to Stage 1: users stop editing
+authoring-workspace drafts at that boundary and generation reads only the reviewed pack
+and its generation configuration. {doc}`pipeline-worked-example` shows how one template
+inside that pack changes as it passes through Stages 1–12.
 
 ## Manual Authoring
 
@@ -115,14 +119,24 @@ Two decisions are demanded at the first command rather than deferred.
 A held-out decision must be stated before any evidence exists, because evidence that has already been collected cannot be retroactively declared clean.
 A source that is meant to reach `A1` or `A2` needs its probe plan at that point too, since those tiers are earned from observed outcomes and nothing later can supply them.
 
-## The Two Authorization Boundaries
+## Two Trust Boundaries, Not Two Reviewers
 
-The most important structural point in the assisted flows is that letting a model *read* evidence and letting a pack be *released* are two separate human decisions, taken at two separate times against two separate digest-bound subjects.
+The most important structural point in the assisted flows is that letting a model
+*read* evidence and letting a pack be *released* are two separate trust decisions,
+taken at different times against different digest-bound subjects. These are boundaries
+in the workflow, not a requirement for two different reviewers.
 
-Step 3 authorizes model exposure for one exact evidence subject: this is the decision that a sanitized domain brief and a redacted catalog may be sent to a model at all.
-Step 8 approves a release: this is the decision that a specific reviewed pack, with its fresh validation evidence, may be frozen and published.
+The pre-model side uses two records: exposure authorization, supplied by a named human
+or organizational policy digest, and evidence approval. The release side uses a third
+record approving a specific review packet with fresh validation evidence.
 Pre-model authorization cannot be replaced by final release approval, and approving a release does not retroactively legitimize a model request that was never authorized.
 Editing any upstream artifact invalidates the downstream packet and its approval, so an approval always refers to bytes that still exist unchanged.
+
+The implementation does not compare the identities on these records. One person may
+act at multiple gates, while an organization that requires separation of duties may
+assign a source owner, evidence reviewer, and release reviewer according to its own
+policy. The examples use different role names to make the decisions visible, not to
+impose a head-count requirement.
 
 ## What Assisted Authoring May And May Not Do
 
@@ -154,6 +168,8 @@ MCP Mode B and Mode C are not implemented.
 
 ## Related Information
 
+- {doc}`../how-to/start-from-domain-data` for the two developer paths from an executable
+  domain to that reviewed pack.
 - {doc}`../how-to/assisted-authoring` for the guided command walkthrough.
 - {doc}`../how-to/mcp-server` for onboarding an MCP server.
 - {doc}`../how-to/publish-a-release` for freezing and publishing.

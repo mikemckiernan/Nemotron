@@ -11,6 +11,9 @@ Field-level and artifact-level detail for `nemotron steps run byob/bfcl` with th
 :maxdepth: 1
 :hidden:
 
+Oracle Pack Inputs <oracle-pack-inputs>
+Python Backend <python-backend>
+Task Templates <task-templates>
 Generation Config <generate-config>
 Evaluation Config <eval-config>
 Output Files <output-files>
@@ -19,6 +22,30 @@ Troubleshooting <troubleshooting>
 
 ::::{grid} 1 1 2 2
 :gutter: 1 1 1 2
+
+:::{grid-item-card} {octicon}`package;1.5em;sd-mr-1` Oracle Pack inputs
+:link: oracle-pack-inputs
+:link-type: doc
+Required files, manifest fields, fill order, and how tool names connect the pack.
++++
+{bdg-secondary}`pack files`
+:::
+
+:::{grid-item-card} {octicon}`code;1.5em;sd-mr-1` Python backend
+:link: python-backend
+:link-type: doc
+The four required callables, deterministic reset, structured errors, and confirmation behavior.
++++
+{bdg-secondary}`backend.py`
+:::
+
+:::{grid-item-card} {octicon}`list-unordered;1.5em;sd-mr-1` Task templates
+:link: task-templates
+:link-type: doc
+Core fields, slot binding, milestones, turn policies, and complete conversation shapes.
++++
+{bdg-secondary}`task_templates.yaml`
+:::
 
 :::{grid-item-card} {octicon}`gear;1.5em;sd-mr-1` Generation config
 :link: generate-config
@@ -79,6 +106,7 @@ Those configurations drive generation, which starts only once a reviewed pack ex
 | File | Used by | Purpose |
 | --- | --- | --- |
 | `bfcl-domain-brief.example.txt` | `--brief` | The reviewed statement of what a source is for, sanitized and bound into the evidence. |
+| `bfcl-domain-brief.skeleton.txt` | copy, complete, then pass to `--brief` | The same thing with the domain taken out: an instruction header to delete, then seven bracketed blocks to replace, each naming what it feeds downstream. Intake rejects any remaining `BFCL-SKELETON` block, so do not pass this file itself. Start here rather than editing the example, which is a banking brief and reads like one. |
 | `bfcl-probe-plan.example.json` | `--probe-plan` | A complete plan for certification tier A2: a success per published tool, a state-changing case per mutating tool, structured errors naming their codes, and the required timeout case. Its `fixtures` block is abridged to the records its own cases reach. |
 | `bfcl-authoring-policy.example.yaml` | policy | Organizational defaults a guided session should not ask for twice. |
 | `bfcl-endpoint-config.example.yaml` | `endpoint_config.yaml` | A complete endpoint-backed pack declaration, with credentials referenced by environment-variable name only. |

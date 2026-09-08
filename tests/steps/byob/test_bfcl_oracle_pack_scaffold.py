@@ -48,6 +48,17 @@ def test_python_scaffold_contains_a_complete_runnable_pack(tmp_path: Path) -> No
         "REC-001",
         "REC-HELD-OUT-1",
     }
+    backend = (target / "backend.py").read_text(encoding="utf-8")
+    assert "Return public names that must match tools.json exactly." in backend
+    assert "Start one deterministic episode" in backend
+    assert "Return a copy of the complete state" in backend
+    assert "return expected business failures as data" in backend
+    readme = (target / "README.md").read_text(encoding="utf-8")
+    assert "## Fill order and contracts" in readme
+    assert "def list_tools() -> list[str]" in readme
+    assert "reference/oracle-pack-inputs.md" in readme
+    assert "reference/python-backend.md" in readme
+    assert "reference/task-templates.md" in readme
 
 
 def test_endpoint_scaffold_is_transport_specific_and_parseable(

@@ -85,7 +85,8 @@ What an Oracle Pack is, how the stages fit together, where the authorization bou
 :::{grid-item-card} {octicon}`list-unordered;1.5em;sd-mr-1` Reference
 :link: reference/index
 :link-type: doc
-Generation and evaluation YAML fields, the artifacts written under `output_dir`, and a symptom-to-fix index.
+Oracle Pack fields, backend and template contracts, run configuration, output
+artifacts, and the symptom-to-fix index.
 +++
 {bdg-secondary}`specification`
 :::
@@ -108,6 +109,7 @@ Generation and evaluation YAML fields, the artifacts written under `output_dir`,
 
 | Guide | What you will do |
 | --- | --- |
+| {doc}`how-to/start-from-domain-data` | Choose manual or model-assisted authoring and take your own executable domain to a reviewed pack |
 | {doc}`how-to/author-a-pack` | Scaffold, fill in, and validate an Oracle Pack of your own |
 | {doc}`how-to/assisted-authoring` | Draft a pack from a Python package or HTTP service with model assistance |
 | {doc}`how-to/mcp-server` | Onboard a running MCP server as the oracle |
@@ -120,7 +122,8 @@ Generation and evaluation YAML fields, the artifacts written under `output_dir`,
 
 | Guide | What you will learn |
 | --- | --- |
-| {doc}`explanation/pipeline-overview` | Stage order, checkpointing, and the fail-closed principle |
+| {doc}`explanation/pipeline-overview` | What each stage consumes, transforms, writes, and requires from the operator |
+| {doc}`explanation/pipeline-worked-example` | How one missing-slot task changes from an abstract template into a published row |
 | {doc}`explanation/oracle-pack` | Pack layout, certification tiers, and the Gold gate |
 | {doc}`explanation/authoring-flows` | The three authoring flows and the two authorization boundaries |
 | {doc}`explanation/evaluation` | Trace and executable scoring, and the gates that run before inference |
@@ -131,6 +134,9 @@ Generation and evaluation YAML fields, the artifacts written under `output_dir`,
 
 | Guide | What you will find |
 | --- | --- |
+| {doc}`reference/oracle-pack-inputs` | Required pack files, manifest fields, fill order, and cross-file tool lineage |
+| {doc}`reference/python-backend` | The four required backend callables and executable-oracle invariants |
+| {doc}`reference/task-templates` | Core template fields, slots, milestones, and turn-policy examples |
 | {doc}`reference/generate-config` | Generation YAML fields, block by block |
 | {doc}`reference/eval-config` | Evaluation YAML fields and the three envelopes |
 | {doc}`reference/output-files` | Every path written under `output_dir` / `expt_name` |
@@ -150,14 +156,24 @@ Generation and evaluation YAML fields, the artifacts written under `output_dir`,
 ## Quick Start
 
 1. Follow {doc}`getting-started` if you have not run the step yet.
-2. Read {doc}`explanation/oracle-pack` before you write a pack of your own; the layout and the tier rules are the parts that most often need a second pass.
-3. Pick an authoring flow from the table above and follow its how-to guide.
-4. Open {doc}`reference/generate-config` or {doc}`reference/eval-config` when you need field-level detail.
+2. Use {doc}`how-to/start-from-domain-data` to choose manual or model-assisted
+   authoring for your own tool interface, state, and business behavior.
+3. Open {doc}`reference/oracle-pack-inputs` for the required files, then use
+   {doc}`reference/python-backend` or {doc}`reference/task-templates` while filling
+   them.
+4. Read {doc}`explanation/oracle-pack` for the trust model and Gold tier, then follow
+   the selected authoring guide.
+5. Open {doc}`reference/generate-config` or {doc}`reference/eval-config` for run-level
+   YAML fields.
 
 ## Limitations and Considerations
 
 - **Executable replay costs time.** Every candidate task is reset and replayed against the oracle, twice, and its assertions are evaluated. A publication-scale run is bounded by your backend's speed, not by model latency.
-- **Publication is gated.** A run that is not Gold-eligible still produces a benchmark, but it is marked unpublishable rather than silently released. This is deliberate; see {doc}`explanation/oracle-pack`.
+- **Pack admission and publication are separate gates.** Generation refuses a pack
+  that is not Gold-eligible. A Gold pack may still run under
+  `lineage.policy: smoke_no_publication`; that run writes benchmark artifacts for
+  plumbing checks but records that its lineage is not eligible for release. See
+  {doc}`explanation/oracle-pack` and {doc}`how-to/publish-a-release`.
 - **Pack code executes.** The pipeline imports and runs your backend and assertions. It does so in a separate process with a sanitized environment and enforced timeouts, and Gold requires that isolation, but the pack is still code you are choosing to trust.
 - **Model roles are opt-in and pinned.** Enabling a model-authored surface role requires a pinned, unambiguous model identity, because a benchmark whose wording came from an unrecorded model cannot be reproduced.
 - **The MCP transport is experimental.** Only Mode A is implemented, and it is disabled unless you opt in. See {doc}`how-to/mcp-server`.

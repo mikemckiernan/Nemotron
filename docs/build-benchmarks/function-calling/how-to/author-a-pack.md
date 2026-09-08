@@ -7,6 +7,11 @@
 
 Use this guide to write an Oracle Pack yourself, validate it, and smoke-run it before you spend a publication budget on it. This is the manual authoring flow: you supply the tools, the executable oracle, the fixtures, the conversation templates, and the assertions, and no model participates in authoring. The two model-assisted alternatives are {doc}`assisted-authoring` and {doc}`mcp-server`.
 
+If you have domain records and behavior but have not chosen an authoring route yet,
+start with {doc}`start-from-domain-data`, which follows a compact example through the
+manual and model-assisted conventional-source paths and redirects MCP sources to their
+own onboarding guide.
+
 ## Before You Start
 
 - Install the BYOB dependencies with `uv sync --extra byob`.
@@ -45,6 +50,9 @@ Declaring both is refused. An endpoint pack stores only environment-variable *na
 ## Step 3: Fill In Each Pack File
 
 Work through the files in this order, because each one constrains the next.
+{doc}`../reference/oracle-pack-inputs` is the field-level file map;
+{doc}`../reference/python-backend` and {doc}`../reference/task-templates` expand the
+two contracts that usually need the most iteration.
 
 | File | What you write |
 | --- | --- |

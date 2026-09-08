@@ -94,7 +94,12 @@ Paths in a BFCL configuration resolve relative to the BYOB skill root, not your 
    "
    ```
 
-   The tier is awarded by validation, never by configuration. A pack that does not qualify for Gold can still generate a benchmark, but the run is recorded as not publication-eligible rather than published quietly. {doc}`explanation/oracle-pack` explains what each tier requires.
+   The tier is awarded by validation, never by configuration. Generation refuses a
+   pack that does not qualify for Gold. This bundled pack is Gold, but its configuration
+   deliberately uses `lineage.policy: smoke_no_publication`, so the run exercises the
+   complete pipeline while its manifest remains ineligible for release.
+   {doc}`explanation/oracle-pack` explains the pack tier, and
+   {doc}`how-to/publish-a-release` explains publication eligibility.
 
 1. Inspect the benchmark:
 
@@ -142,6 +147,9 @@ A task that appears in `expected_traces.parquet` but not in `replay_validated_ta
 ## Next Steps
 
 - Read {doc}`explanation/oracle-pack` before authoring a pack of your own. The file layout and the tier rules are the parts worth understanding first.
+- If you are starting with your own tool interface, records, and business behavior,
+  follow {doc}`how-to/start-from-domain-data` to choose between the manual and
+  model-assisted developer paths.
 - Follow {doc}`how-to/author-a-pack` to scaffold and validate your own pack, or {doc}`how-to/assisted-authoring` to draft one from an existing Python package or HTTP service.
 - Run a domain-sized generation by copying `src/nemotron/steps/byob/bfcl/config/smoke.example.yaml` and repointing `oracle_pack.manifest_path` at your pack.
 - When you have a benchmark you trust, evaluate a candidate model against it with {doc}`how-to/run-evaluation`.
