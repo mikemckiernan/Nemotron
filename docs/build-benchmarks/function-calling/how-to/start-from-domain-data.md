@@ -21,6 +21,23 @@ After the pack is Gold-eligible, continue with {doc}`publish-a-release`, optiona
 {doc}`translate`, and {doc}`run-evaluation`. Model assistance never earns a weaker
 validation standard.
 
+## Understand The End-To-End Process
+
+Use the three guides as separate phases with explicit handoffs:
+
+1. **Author and validate the domain:** follow this guide until you have a reviewed,
+   Gold-eligible Oracle Pack.
+2. **Generate and publish the benchmark:** follow {doc}`publish-a-release` until one
+   unchanged directory contains `benchmark.parquet`, `benchmark_raw.parquet`, and
+   the `run_manifest.json` commit marker. Enable the NeMo Evaluator bundle during
+   this phase if the Launcher backend will be used.
+3. **Import and evaluate:** follow {doc}`run-evaluation`. Point `eval.yaml` at
+   `run_manifest.json`, run either the direct or NeMo Evaluator Launcher backend,
+   then read and export the evaluation artifacts.
+
+Do not combine the phase outputs manually. In particular, do not edit generated
+Parquet files, synthesize a manifest, or add files to the NeMo Evaluator bundle.
+
 ## Identify The Required Domain Inputs
 
 Documents, schemas, and records can help author a pack, but they are not collectively
@@ -81,13 +98,16 @@ flowchart TB
   DRAFT["Model proposes bounded<br/>declarative drafts"]
   REVIEW["Human reviews semantics<br/>and release packet"]
   PACK["Reviewed Oracle Pack"]
-  GOLD["Same Gold validation and<br/>generation pipeline"]
-  OUT["benchmark.parquet<br/>run_manifest.json"]
+  GOLD["Gold validation"]
+  PUBLISH["Publication pipeline"]
+  OUT["benchmark.parquet + benchmark_raw.parquet<br/>run_manifest.json"]
+  EVAL["Separate evaluation run"]
+  RESULT["eval_report.json + eval_task_results.parquet<br/>eval_manifest.json"]
 
   START --> Q
   Q --> MANUAL --> PACK
   Q --> SOURCE --> INTAKE --> DRAFT --> REVIEW --> PACK
-  PACK --> GOLD --> OUT
+  PACK --> GOLD --> PUBLISH --> OUT --> EVAL --> RESULT
 ```
 
 Choose manual authoring when you want direct control over every conversation or no
@@ -148,7 +168,7 @@ participates.
 Choose a new target directory; the scaffolder never overwrites one:
 
 ```bash
-python -m nemotron.steps.byob.scripts.scaffold_oracle_pack \
+uv run python -m nemotron.steps.byob.scripts.scaffold_oracle_pack \
   --domain library_catalog \
   --target /srv/bfcl/packs/library_catalog \
   --transport python \
@@ -195,7 +215,7 @@ defaults.
 Run the standalone validator after each meaningful edit:
 
 ```bash
-python -m nemotron.steps.byob.scripts.validate_oracle_pack \
+uv run python -m nemotron.steps.byob.scripts.validate_oracle_pack \
   --config /srv/bfcl/packs/library_catalog/validate.yaml \
   --output-dir /tmp/bfcl-library-validation
 ```
@@ -336,7 +356,7 @@ If no independently implemented source exists, generate the mechanical backend a
 fixture skeleton from the reviewed catalog:
 
 ```bash
-python -m nemotron.steps.byob.scripts.scaffold_source_package \
+uv run python -m nemotron.steps.byob.scripts.scaffold_source_package \
   --tools /srv/sources/library/tools.json \
   --output /srv/sources/library \
   --collection books \
@@ -376,7 +396,7 @@ tasks. See {doc}`../reference/python-backend` for the full recommendation.
 ### 3. Check The Source Before Intake
 
 ```bash
-python -m nemotron.steps.byob.scripts.check_source_package \
+uv run python -m nemotron.steps.byob.scripts.check_source_package \
   --source /srv/sources/library
 ```
 
@@ -408,7 +428,7 @@ banking tools, fixture ids, and cases. See {doc}`../reference/probe-plan` for th
 coverage contract, including the timeout case. Check the plan without executing probes:
 
 ```bash
-python -m nemotron.steps.byob.scripts.check_probe_plan \
+uv run python -m nemotron.steps.byob.scripts.check_probe_plan \
   --source /srv/sources/library \
   --probe-plan /srv/sources/library-probe-plan.json
 ```
@@ -429,7 +449,7 @@ export BFCL_ENABLE_LOCAL_PYTHON=1
 Then trigger the guided flow:
 
 ```bash
-python -m nemotron.steps.byob.scripts.bfcl_author \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author \
   --ci author \
   --workspace /srv/bfcl/authoring/library \
   --source /srv/sources/library \
@@ -526,7 +546,7 @@ After drafting has produced the session-owned evidence and draft artifacts, asse
 the candidate with the two operator-owned paths that guided mode does not infer:
 
 ```bash
-python -m nemotron.steps.byob.scripts.bfcl_author \
+uv run python -m nemotron.steps.byob.scripts.bfcl_author \
   --ci assemble \
   --workspace /srv/bfcl/authoring/library \
   --supplement /srv/bfcl/authoring/library/reviewed-supplement.yaml \
@@ -624,6 +644,18 @@ Before scoring a candidate:
    `benchmark.parquet`, and `benchmark_raw.parquet`.
 3. For executable mode, keep the exact Oracle Pack whose fingerprint the publication
    recorded.
+
+Connect the publication to the evaluator through its manifest, not by importing the
+Parquet file directly:
+
+```yaml
+source_run_manifest: /srv/bfcl/runs/library-gold/run_manifest.json
+```
+
+The manifest locates and authenticates the adjacent `benchmark.parquet` and
+`benchmark_raw.parquet`. Direct evaluation needs no compatibility export. If you will
+submit through the NeMo Evaluator Launcher, enable
+`exports.nemo_evaluator_bundle: true` in the publication configuration first.
 
 Then follow {doc}`run-evaluation` for candidate endpoint configuration, preflight,
 execution, and result inspection. Use {doc}`../reference/eval-config` for every
