@@ -31,6 +31,8 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from typing import Any
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.conformance import (
     DEFAULT_CONFORMANCE_PROFILES,
     ConformanceProfile,
@@ -69,6 +71,8 @@ def run_endpoint_conformance_check(
     timeout_s: float = 30.0,
     probe_report: Mapping[str, Any] | None = None,
     gateway_conformance_report: Mapping[str, Any] | None = None,
+    trusted_evidence_keys: Mapping[str, Ed25519PublicKey] | None = None,
+    expected_evidence_issuer: str | None = None,
     profile: ConformanceProfile | None = None,
     profiles: Mapping[
         tuple[str, str], ConformanceProfile
@@ -133,6 +137,8 @@ def run_endpoint_conformance_check(
         },
         probe_report=probe_report,
         gateway_conformance_report=gateway_conformance_report,
+        trusted_evidence_keys=trusted_evidence_keys,
+        expected_evidence_issuer=expected_evidence_issuer,
         profile=profile,
         profiles=profiles,
     )

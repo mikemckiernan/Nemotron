@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 import yaml
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.conformance import (
     ATTESTATION_KIND,
@@ -30,10 +31,25 @@ from nemotron.steps.byob.runtime.mcp.gateway.conformance import (
     ProbeOutcome,
     _attained_level,
 )
+from nemotron.steps.byob.runtime.release_seal import (
+    ReleaseSealAuthority,
+    sign_release_digest,
+)
 
 DIGESTS = {name: f"sha256:{chr(97 + index) * 64}" for index, name in enumerate("abcdefgh")}
 EFFECTIVE = "sha256:" + "1" * 64
 METADATA_DIGEST = EFFECTIVE
+EVIDENCE_AUTHORITY = ReleaseSealAuthority(
+    issuer="bfcl-mcp-conformance-v1",
+    key_id="test-conformance-key",
+    private_key=Ed25519PrivateKey.generate(),
+)
+EVIDENCE_TRUST = {
+    "trusted_evidence_keys": {
+        EVIDENCE_AUTHORITY.key_id: EVIDENCE_AUTHORITY.public_key,
+    },
+    "expected_evidence_issuer": EVIDENCE_AUTHORITY.issuer,
+}
 
 
 def _attestation(**overrides: Any) -> dict[str, Any]:
@@ -79,23 +95,42 @@ def _probe_report(document: dict[str, Any]) -> dict[str, Any]:
     return {"probes": copy.deepcopy(document["checks"])}
 
 
-def _gateway_report(document: dict[str, Any]) -> dict[str, Any]:
+def _gateway_report(
+    document: dict[str, Any],
+    *,
+    suite_kind: str = "gateway",
+    suite_version: str = "bfcl-mcp-gateway-conformance-v1",
+    signed: bool = True,
+    authority: ReleaseSealAuthority = EVIDENCE_AUTHORITY,
+) -> dict[str, Any]:
+    suite: dict[str, Any] = {
+        "kind": suite_kind,
+        "profile_version": suite_version,
+        "p9": {
+            "timeout_observed": True,
+            "business_call_attempts": 1,
+            "episode_poisoned": True,
+            "transport_cleanup_completed": True,
+            "unknown_commit_state_preserved": True,
+        },
+    }
+    if signed:
+        suite["producer"] = {
+            "issuer": authority.issuer,
+            "signing_key_id": authority.key_id,
+            "gateway_artifact_digest": document["gateway_artifact_digest"],
+        }
+        suite["evidence_digest"] = attestation_digest(suite)
+        suite["signature"] = sign_release_digest(
+            authority,
+            suite["evidence_digest"],
+        )
     return {
         "issuer": document["gateway_evidence_issuer"],
         "gateway_artifact_digest": document["gateway_artifact_digest"],
         "effective_content_digest": document["effective_content_digest"],
         "tool_catalog_digest": document["tool_catalog_digest"],
-        "suite": {
-            "kind": "gateway",
-            "profile_version": "bfcl-mcp-gateway-conformance-v1",
-            "p9": {
-                "timeout_observed": True,
-                "business_call_attempts": 1,
-                "episode_poisoned": True,
-                "transport_cleanup_completed": True,
-                "unknown_commit_state_preserved": True,
-            },
-        },
+        "suite": suite,
     }
 
 
@@ -108,6 +143,7 @@ def _verify(document: dict[str, Any], **overrides: Any):
         kwargs["probe_report"] = _probe_report(document)
     if "gateway_artifact_digest" in document:
         kwargs["gateway_conformance_report"] = _gateway_report(document)
+    kwargs.update(EVIDENCE_TRUST)
     kwargs.update(overrides)
     return verify_conformance(document, **kwargs)
 
@@ -166,6 +202,11 @@ def test_unknown_and_explicitly_mismatched_profiles_have_stable_refusals() -> No
 
 
 def test_a_non_mcp_profile_uses_the_same_generic_verifier() -> None:
+    authority = ReleaseSealAuthority(
+        issuer="bfcl-http-conformance-test",
+        key_id="http-conformance-key",
+        private_key=Ed25519PrivateKey.generate(),
+    )
     profile = replace(
         MCP_CONFORMANCE_PROFILE,
         provider_kind="http",
@@ -179,17 +220,19 @@ def test_a_non_mcp_profile_uses_the_same_generic_verifier() -> None:
     document = _attestation(
         provider_kind=profile.provider_kind,
         profile_version=profile.profile_version,
+        gateway_evidence_issuer=authority.issuer,
         checks=[
             {"id": "H1", "requirement": "required", "status": "pass", "reason": None},
             {"id": "H2", "requirement": "required", "status": "pass", "reason": None},
         ],
     )
     probe_report = _probe_report(document)
-    gateway_report = _gateway_report(document)
-    gateway_report["suite"] = {
-        "kind": profile.report_suite_kind,
-        "profile_version": profile.report_suite_version,
-    }
+    gateway_report = _gateway_report(
+        document,
+        suite_kind=profile.report_suite_kind,
+        suite_version=profile.report_suite_version,
+        authority=authority,
+    )
     document["probe_report_digest"] = attestation_digest(probe_report)
     document["gateway_conformance_report_digest"] = attestation_digest(gateway_report)
 
@@ -199,6 +242,8 @@ def test_a_non_mcp_profile_uses_the_same_generic_verifier() -> None:
         metadata_content_digest=METADATA_DIGEST,
         probe_report=probe_report,
         gateway_conformance_report=gateway_report,
+        trusted_evidence_keys={authority.key_id: authority.public_key},
+        expected_evidence_issuer=authority.issuer,
         profiles={profile.key: profile},
     )
 
@@ -301,7 +346,41 @@ def test_a_signed_release_cannot_be_trusted_by_issuer_name_alone() -> None:
         probe_report=None,
         gateway_conformance_report=None,
     )
-    assert verdict.caps == ("signed_release_verification_unavailable",)
+    assert verdict.findings == (
+        "probe_report_missing",
+        "gateway_conformance_report_missing",
+    )
+    assert verdict.caps == ()
+    assert verdict.publishable is False
+
+
+def test_unsigned_gateway_evidence_fails_closed_deliberately() -> None:
+    document = _attestation()
+    unsigned_report = _gateway_report(document, signed=False)
+    document["gateway_conformance_report_digest"] = attestation_digest(unsigned_report)
+
+    verdict = _verify(document, gateway_conformance_report=unsigned_report)
+
+    assert "gateway_evidence_signature_missing" in verdict.findings
+    assert verdict.effective_level == "L0"
+    assert verdict.publishable is False
+
+
+def test_gateway_evidence_from_an_untrusted_key_fails_closed() -> None:
+    document = _attestation()
+    untrusted = ReleaseSealAuthority(
+        issuer=EVIDENCE_AUTHORITY.issuer,
+        key_id=EVIDENCE_AUTHORITY.key_id,
+        private_key=Ed25519PrivateKey.generate(),
+    )
+
+    verdict = _verify(
+        document,
+        trusted_evidence_keys={untrusted.key_id: untrusted.public_key},
+    )
+
+    assert "gateway_evidence_signature_invalid" in verdict.findings
+    assert verdict.effective_level == "L0"
     assert verdict.publishable is False
 
 
@@ -540,6 +619,7 @@ def test_an_endpoint_verified_by_bfcl_itself_passes_the_gate() -> None:
         fetch=lambda _config: document,
         probe_report=_probe_report(document),
         gateway_conformance_report=_gateway_report(document),
+        **EVIDENCE_TRUST,
     )
     assert entry is not None
     assert entry["status"] == "pass"
@@ -555,6 +635,7 @@ def test_mcp606_independently_verified_l2_crosses_the_existing_gold_gate() -> No
         fetch=lambda _config: document,
         probe_report=_probe_report(document),
         gateway_conformance_report=_gateway_report(document),
+        **EVIDENCE_TRUST,
     )
     assert entry is not None and entry["status"] == "pass"
     report = {
