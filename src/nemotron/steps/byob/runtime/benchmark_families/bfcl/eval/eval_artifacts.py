@@ -605,6 +605,13 @@ def _validate_cache_evidence(
                 )
             cached_episodes[identity] = episode.episode_hash
             for turn in episode.turns:
+                # Only semantic provider completions are replayable and therefore
+                # durable in CandidateIOCache.  Transport/provider failures carry no
+                # response hash by design; the tool-trace episode is their evidence and
+                # they must remain retryable rather than being hardened into the
+                # candidate response cache.
+                if turn.response_hash is None:
+                    continue
                 observation = (turn.call_status, turn.response_hash)
                 existing = expected_turns.get(turn.request_hash)
                 if existing is not None and existing != observation:

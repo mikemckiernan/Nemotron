@@ -96,7 +96,11 @@ RESUMABILITY_MATRIX: Mapping[AuthoringPhase, tuple[AuthoringCommand, ...]] = {
     # workspace stays legal — review binds the pack it is handed either way — so `review`
     # remains reachable directly rather than making one command the only way in.
     "draft_complete": ("assemble", "review"),
-    "pack_assembled": ("review",),
+    # Candidate validation is deliberately outside assembly and can expose reviewed
+    # supplement defects (for example, missing negative cases).  Keep the previous
+    # candidate immutable, but allow assembly to bind a new output as the next session
+    # revision before review.
+    "pack_assembled": ("assemble", "review"),
     "review_ready": ("approve_release",),
     "release_approved": ("freeze",),
     "frozen": ("publish",),

@@ -133,6 +133,12 @@ pack it writes back into the session, and leaves `review` as the next command. T
 standalone assembler remains available for a pack assembled outside a session, where the
 evidence, drafts, and probe plan are passed explicitly.
 
+Candidate validation may expose a defect in the reviewed supplement, such as incomplete
+positive/negative coverage. While the session is still at `pack_assembled`, correct the
+supplement and run `bfcl_author assemble` again with a new `--output` path. The previous
+candidate remains immutable in the session history and the new candidate becomes the one
+`review` binds. Re-run validation against that new pack before continuing.
+
 <!-- doc-smoke: guide-author-assemble-help -->
 ```shell
 python -m nemotron.steps.byob.scripts.bfcl_author assemble --help

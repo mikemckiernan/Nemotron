@@ -94,6 +94,21 @@ def _batch_config(tmp_path: Path, parallelism: int) -> Any:
     )
 
 
+def test_published_candidate_cache_exists_before_any_completion(tmp_path: Path) -> None:
+    config = SimpleNamespace(
+        outputs=SimpleNamespace(
+            output_dir=tmp_path / "eval-output",
+            cache_candidate_responses=True,
+        )
+    )
+
+    _cache, path, temporary = eval_runner._candidate_cache(config)
+
+    assert temporary is None
+    assert path.is_file()
+    assert path.read_bytes() == b""
+
+
 def test_batch_runner_bounds_tasks_preserves_order_and_isolates_oracles(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

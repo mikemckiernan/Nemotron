@@ -107,7 +107,7 @@ Both modes publish through one writer, and the file set is immutable.
 | `eval_report.json` | Run-level and per-candidate aggregates, each stamped with the scope it measured. |
 | `eval_task_results.parquet` | One row per scored task with its gate verdicts, terminal episode status, non-candidate-stop flag, and structured failure records. |
 | `eval_manifest.json` | Binds the source, configuration, and plan identities to the candidate aggregate hashes, the output byte hashes, and the byte hashes of the required caches. |
-| `candidate_io_cache.jsonl` | Append-only, hash-verified request records, every HTTP attempt, and one completion marker per request. |
+| `candidate_io_cache.jsonl` | Append-only, hash-verified request and completion records for replayable provider completions. It is validly empty when every call ended in a retryable provider or transport failure; executable episode evidence retains those failures. |
 | `tool_trace_cache.jsonl` | Append-only, hash-verified complete executable episodes, written by executable runs. |
 
 Two more files record the gates themselves. A pass writes `source_verification_report.json` and `contamination_report.json`; a refusal writes `source_verification_failure.json` or `contamination_failure.json` instead, under a different name so no reader can mistake a diagnosis for a pass by seeing which artifact is present.

@@ -2838,6 +2838,75 @@ def test_executable_artifacts_bind_aggregates_task_rows_and_both_caches(
         )
 
 
+def test_executable_artifacts_preserve_uncached_provider_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class RejectedClient:
+        async def complete(self, request: Any, *, deadline: float) -> CandidateCallOutcome:
+            del deadline
+            return CandidateCallOutcome(
+                request_hash=request.request_hash,
+                status="provider_rejected",
+                attempts=(
+                    CandidateAttempt(
+                        attempt_index=0,
+                        observed_at="2026-01-01T00:00:00+00:00",
+                        status="provider_rejected",
+                        retryable=False,
+                        http_status=400,
+                        latency_s=0.01,
+                    ),
+                ),
+            )
+
+    output_dir = tmp_path / "provider-rejected"
+    output_dir.mkdir()
+    candidate_cache = output_dir / "candidate_io_cache.jsonl"
+    candidate_cache.touch()
+    tool_cache = output_dir / "tool_trace_cache.jsonl"
+    oracle_source = _oracle()
+    task = _task(oracle_source)
+    episode = asyncio.run(
+        _drive_score_fixture(
+            tmp_path,
+            monkeypatch,
+            task=task,
+            oracle=_FakeOracle(oracle_source.verification_identity),
+            responses=[],
+            tool_trace_cache=ToolTraceCache(tool_cache),
+            client=RejectedClient(),  # type: ignore[arg-type]
+        )
+    )
+    task_score = score_executable_episode(
+        episode=episode,
+        task=task,
+        scoring=_scoring(),
+        plan=_plan(),
+    )
+    aggregate = aggregate_executable_scores(
+        scores=(task_score,),
+        plan=_plan(),
+        candidate_alias="candidate_a",
+    )
+
+    artifacts = write_executable_eval_artifacts(
+        eval_run_id="eval-run-provider-rejected",
+        config=_artifact_config(output_dir),  # type: ignore[arg-type]
+        plan=_plan(),
+        candidate_scores=(aggregate,),
+        task_scores=(task_score,),
+        candidate_io_cache_path=candidate_cache,
+        tool_trace_cache_path=tool_cache,
+    )
+
+    report = json.loads(artifacts.report_path.read_text(encoding="utf-8"))
+    published_episode = next(iter(ToolTraceCache(tool_cache).publication_evidence()))
+    assert published_episode.turns[0].call_status == "provider_rejected"
+    assert report["candidates"][0]["non_candidate_stops"] == 1
+    assert artifacts.manifest_path is not None
+
+
 def _published_fixture(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

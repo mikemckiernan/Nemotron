@@ -147,6 +147,12 @@ none of them, so one predicate over a result field or over oracle state leaves t
 with no assertions at all. Where you would reach for one, say the same thing about the
 calls the task must and must not make, in the order it must make them.
 
+Never use tool_called_after when the earlier tool and target tool are the same. The
+predicate compares distinct published tools; it cannot distinguish two occurrences of one
+tool. For a confirmation-gated tool that is called once for a pending result and again to
+commit, use tool_called and rely on the confirmation coverage cases rather than inventing
+a self-ordering relationship.
+
 Asserting an order rests on tool_dependencies. Record that in `blocked_on` only while the
 evidence still lists it under "unknown_fields", and leave `blocked_on` empty once probes
 have settled it.

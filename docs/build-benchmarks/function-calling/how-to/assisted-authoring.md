@@ -251,6 +251,11 @@ python -m nemotron.steps.byob.scripts.bfcl_author assemble \
 
 The assembler derives everything mechanical from evidence that is already trusted: pack identity and the manifest from the verified bundle, `tools.json` from the certified catalog, and `assertions.py` from drafts that compiled without a blocker. For a `local_python` source, `backend.py` and `fixtures.json` are copied byte for byte from the fingerprinted tree; for a session-based source there is nothing to copy, so the pack names the certified endpoint and takes its fixtures from the reviewed probe plan those sessions were opened with. What remains is what a model that has only read a catalog must not state: slot bindings to fixture columns, turn policies, per-language user turns, and the validation cases that decide the tier. Those arrive in one reviewed `bfcl-candidate-pack-supplement-v1` YAML file, and every tool and assertion it names is checked back against the evidence and the compiled assertions, so a supplement cannot introduce a tool the source never published or an assertion nobody compiled. For a pack assembled outside a guided session, `assemble_candidate_pack.py` takes the same inputs explicitly through `--evidence`, `--source`, `--drafts`, `--supplement`, `--output`, and `--probe-plan`.
 
+If candidate validation finds a supplement defect, correct the supplement and run
+`bfcl_author assemble` again with a new output path before review. The guided session
+retains the previous candidate as immutable history and binds the replacement candidate
+in a child revision.
+
 ## Step 6: Build the Review Packet
 
 ```text

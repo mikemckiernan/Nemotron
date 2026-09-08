@@ -502,7 +502,7 @@ def test_resume_command_matrix_is_closed_for_every_phase() -> None:
         "exposure_authorized": ("approve_evidence",),
         "evidence_approved": ("draft",),
         "draft_complete": ("assemble", "review"),
-        "pack_assembled": ("review",),
+        "pack_assembled": ("assemble", "review"),
         "review_ready": ("approve_release",),
         "release_approved": ("freeze",),
         "frozen": ("publish",),

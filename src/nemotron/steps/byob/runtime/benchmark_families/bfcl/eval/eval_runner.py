@@ -395,6 +395,12 @@ def _candidate_cache(
     """
     if config.outputs.cache_candidate_responses:
         path = config.outputs.output_dir / CANDIDATE_IO_CACHE_FILE
+        # Provider/transport failures deliberately remain uncached so a later run can
+        # retry them.  A run in which every call fails still needs an explicit empty
+        # cache artifact: its absence is otherwise mistaken for finalization damage and
+        # masks the provider failures recorded by the episode cache.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch(exist_ok=True)
         return CandidateIOCache(path), path, None
     temporary = tempfile.TemporaryDirectory(prefix="bfcl-candidate-cache-")
     path = Path(temporary.name) / CANDIDATE_IO_CACHE_FILE
