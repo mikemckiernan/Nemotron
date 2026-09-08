@@ -139,6 +139,35 @@ def quote_untrusted(text: str) -> str:
 _FENCE_CLOSE = "</untrusted-data>"
 
 
+# Wider than PROSE_KEYS above, and deliberately. That set drives hygiene reporting, which
+# addresses the keys a human wrote; this one drives fencing, which has to cover every key
+# whose value reaches a model as text to read, including the sample values a server puts in
+# `default` and `examples`.
+FENCED_SCHEMA_KEYS = frozenset({"$comment", "default", "description", "examples", "title"})
+
+
+def fence_nested_text(value: Any, *, all_strings: bool = False) -> Any:
+    """Fence the prose inside a schema while leaving its structure readable to a model.
+
+    Structural keywords are left alone because the drafting models are asked to reason about
+    types and enums, and a fenced enum member is no longer the value it names. Public because
+    every payload built from a server's own schemas needs this same rule, and a second
+    implementation of it is a second place for a key to be forgotten.
+    """
+    if isinstance(value, str):
+        if not all_strings:
+            return value
+        return quote_untrusted(value) if value else ""
+    if isinstance(value, Mapping):
+        return {
+            key: fence_nested_text(child, all_strings=all_strings or key in FENCED_SCHEMA_KEYS)
+            for key, child in value.items()
+        }
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes):
+        return [fence_nested_text(item, all_strings=all_strings) for item in value]
+    return value
+
+
 def walk_prose(value: Any, prefix: str) -> Iterator[tuple[str, str]]:
     """Yield every human-readable string in a JSON document, with its location."""
     if isinstance(value, Mapping):

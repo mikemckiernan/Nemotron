@@ -25,6 +25,32 @@ The dependency lock has exactly `schema_version` and `dependencies`. Dependencie
 sorted by `import_name`; each entry has `import_name`, `distribution`, `version`, and a
 lowercase SHA-256 `artifact_digest`.
 
+### Backend interface
+
+`backend.py` must define four module-level callables, because the episode runner reaches for
+them by name: `list_tools()` returning the published names, `reset(*, ctx, fixtures=None)`
+which is handed the fixtures on a worker's first call, `get_state()` whose result is digested
+for the mutation and isolation probes, and `call_tool(name, arguments, *, ctx)` which
+dispatches. There is no per-tool function convention: a source may dispatch however it likes,
+provided `list_tools()` matches `tools.json` exactly. The catalogue probe establishes both at
+A1, from a child process; `check_source_package.py` establishes the statically decidable part
+of the same thing first, which is the difference between a line number and a failed probe.
+
+### Generated sources
+
+`scaffold_source_package.py` writes `backend.py` and `fixtures.json` from a reviewed
+`tools.json`: the four calls above, one raising handler per published tool, and a fixture row
+per placeholder value a published call has to be given. With `--draft-with-model` a model
+additionally chooses the fixture data and, in a fixed declarative vocabulary, what each tool
+does to it; the command compiles that into the same generated shape. A model never emits the
+Python, because this file is executed inside the least-privilege boundary and a model that
+authored the oracle would be certifying its own output.
+
+Every generated file carries the literal `BFCL-TODO` on each decision no catalogue could have
+made. Intake refuses a source containing it — `source_package_invalid` for a file in the
+import closure, `fixture_metadata_invalid` for `fixtures.json` — so a scaffold cannot be
+certified, and removing the marks is the record that a person read them.
+
 BFCL parses Python source without importing or executing it. The identity closure
 contains `backend.py`, every statically resolved in-package module, and package
 `__init__.py` files that Python would execute. Standard-library imports are permitted.
