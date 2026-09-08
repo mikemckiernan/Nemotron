@@ -69,6 +69,27 @@ def test_all_bfcl_configs_pin_family() -> None:
         assert data["family"] == "bfcl", name
 
 
+@pytest.mark.parametrize(
+    ("historical_name", "maintained_name"),
+    (
+        ("banking_vn.gold.yaml", "publication.example.yaml"),
+        (
+            "banking_vn.gold.paraphrase.yaml",
+            "publication.paraphrase.example.yaml",
+        ),
+    ),
+)
+def test_frozen_banking_readme_links_resolve_to_explicit_config_pointers(
+    historical_name: str,
+    maintained_name: str,
+) -> None:
+    pointer = BFCL_CONFIG_DIR / historical_name
+    assert pointer.is_file()
+    text = pointer.read_text(encoding="utf-8")
+    assert maintained_name in text
+    assert "not a second runnable copy" in text
+
+
 @pytest.mark.parametrize("extension", ("x-mutates", "x-requires-confirmation"))
 def test_tool_extensions_require_literal_booleans(extension: str) -> None:
     tool = {
