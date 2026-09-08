@@ -41,12 +41,16 @@ At a high level, the step performs the following work.
 
 See {doc}`explanation/pipeline-overview` for the stage-by-stage account.
 
-## The Three Ways to Get a Pack
+## Choose A Way To Get A Pack
 
-The pack is the hard part, so there are three supported ways to produce one. All three converge on the same generation pipeline and the same Gold gate, which means the trust story does not depend on how the pack was written.
+The pack is the hard part. If you have a tool interface, records, and behavior but have
+not chosen a route yet, start at {doc}`how-to/start-from-domain-data`. The three flows
+below converge on the same generation pipeline and the same Gold gate, which means the
+trust story does not depend on how the pack was written.
 
 | Flow | You start from | Guide |
 | --- | --- | --- |
+| Choose a route | Domain assets, no pack yet | {doc}`how-to/start-from-domain-data` |
 | Manual | Your own knowledge of the domain and its tools | {doc}`how-to/author-a-pack` |
 | Assisted, conventional source | A Python package or a reviewed HTTP service | {doc}`how-to/assisted-authoring` |
 | Assisted, MCP source | A running MCP server | {doc}`how-to/mcp-server` |
@@ -114,6 +118,7 @@ artifacts, and the symptom-to-fix index.
 | {doc}`how-to/assisted-authoring` | Draft a pack from a Python package or HTTP service with model assistance |
 | {doc}`how-to/mcp-server` | Onboard a running MCP server as the oracle |
 | {doc}`how-to/publish-a-release` | Choose a publication budget and produce a released benchmark |
+| {doc}`how-to/translate` | Localize a published benchmark without changing oracle truth |
 | {doc}`how-to/run-evaluation` | Score candidate models and read the evaluation report |
 
 ```
@@ -136,6 +141,7 @@ artifacts, and the symptom-to-fix index.
 | --- | --- |
 | {doc}`reference/oracle-pack-inputs` | Required pack files, manifest fields, fill order, and cross-file tool lineage |
 | {doc}`reference/domain-brief` | Human-owned assisted-authoring context, content, and safety rules |
+| {doc}`reference/probe-plan` | Intake probe cases, A2 coverage, timeout cleanup, and `check_probe_plan` |
 | {doc}`reference/manifest` | Manifest paths, languages, shared text, confirmation vocabulary, and examples |
 | {doc}`reference/tools-and-fixtures` | Public tool schemas, deterministic records, and fixture-slot contracts |
 | {doc}`reference/python-backend` | The four required backend callables and executable-oracle invariants |

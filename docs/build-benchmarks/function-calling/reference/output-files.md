@@ -132,6 +132,23 @@ Each export is content-addressed as a tree hash over its complete file set, reco
 the manifest's `exports` section. The bundle is verified by exact file set, so one extra
 file in that directory fails the next verification. Never repair one file in place.
 
+## Translation Artifacts
+
+`stage=translate` is a later run over a completed, verified generation tree. It writes
+a new experiment directory and does not modify the source `run_manifest.json`. See
+{doc}`../how-to/translate`.
+
+| File | Description |
+| --- | --- |
+| `benchmark.<target-language>.parquet` | Localized published rows, for example `benchmark.vi.parquet`. The task set and order match the source, and oracle truth fields are unchanged. |
+| `translation_manifest.json` | Commit marker for the localized release: source binding, translator identity, contamination scope, and artifact hashes. |
+| `stage_cache/translation_units.parquet` | Forward-translation evidence. |
+| `stage_cache/backtranslation_units.parquet` | Backtranslation evidence. |
+| `stage_cache/quality_metrics.parquet` | Recomputed quality-metric evidence. |
+
+A localized Parquet file without the adjacent translation manifest is not a localized
+release.
+
 ## Evaluation Artifacts
 
 These land in `outputs.output_dir` from the eval config, which may not overlap the
