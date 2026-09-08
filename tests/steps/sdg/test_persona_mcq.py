@@ -6,7 +6,9 @@
 from __future__ import annotations
 
 import json
+import os
 import random
+import shutil
 import subprocess
 import sys
 from importlib.metadata import entry_points
@@ -31,7 +33,7 @@ from nemotron.steps.sdg.persona_mcq.runtime.answers import (
 from nemotron.steps.sdg.persona_mcq.runtime.io import write_jsonl
 from nemotron.steps.sdg.persona_mcq.runtime.languages import script_fraction
 from nemotron.steps.sdg.persona_mcq.runtime.lexical import deduplicate, strip_latin_gloss
-from nemotron.steps.sdg.persona_mcq.runtime.pipeline import PersonaMCQPipeline, validate_config
+from nemotron.steps.sdg.persona_mcq.runtime.pipeline import STAGES, PersonaMCQPipeline, validate_config
 from nemotron.steps.sdg.persona_mcq.runtime.semantic import deduplicate_embeddings, greedy_keep_indices
 from nemotron.steps.sdg.persona_mcq.runtime.sft import (
     build_sft_records,
@@ -527,6 +529,74 @@ def test_shipped_configs_validate() -> None:
         assert set(config["languages"]) == {"english", "hindi", "malayalam"}
 
 
+def test_personas_is_the_first_pipeline_stage() -> None:
+    assert STAGES[0] == "personas"
+
+
+def test_persona_stage_skips_cached_assets_without_ngc_key(monkeypatch, tmp_path) -> None:
+    config = _tiny_config()
+    config["pipeline"].update(output_root=str(tmp_path), experiment_name="cached-personas")
+    assets = tmp_path / "managed-assets"
+    datasets = assets / "datasets"
+    datasets.mkdir(parents=True)
+    for locale in ("en_IN", "hi_Deva_IN"):
+        (datasets / f"{locale}.parquet").write_bytes(b"parquet")
+    monkeypatch.setenv("DATA_DESIGNER_MANAGED_ASSETS_PATH", str(assets))
+    monkeypatch.delenv("NGC_API_KEY", raising=False)
+
+    pipeline = PersonaMCQPipeline(config)
+    pipeline._personas()
+
+    assert pipeline.summary["stages"]["personas"]["cached_locales"] == ["en_IN", "hi_Deva_IN"]
+    assert pipeline.summary["stages"]["personas"]["downloaded_locales"] == []
+
+
+def test_persona_stage_requests_ngc_key_for_missing_assets(monkeypatch, tmp_path) -> None:
+    config = _tiny_config()
+    config["pipeline"].update(output_root=str(tmp_path), experiment_name="missing-personas")
+    monkeypatch.setenv("DATA_DESIGNER_MANAGED_ASSETS_PATH", str(tmp_path / "managed-assets"))
+    monkeypatch.delenv("NGC_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="Export NGC_API_KEY"):
+        PersonaMCQPipeline(config)._personas()
+
+
+def test_persona_stage_downloads_only_missing_configured_locales(monkeypatch, tmp_path) -> None:
+    pytest.importorskip("data_designer")
+    from data_designer.cli.services.download_service import DownloadService
+
+    config = _tiny_config()
+    config["pipeline"].update(output_root=str(tmp_path), experiment_name="download-personas")
+    assets = tmp_path / "managed-assets"
+    datasets = assets / "datasets"
+    datasets.mkdir(parents=True)
+    (datasets / "en_IN.parquet").write_bytes(b"cached")
+    observed: dict[str, object] = {}
+
+    def fake_download(service, locale):
+        observed["locale"] = locale
+        observed["ngc_config"] = (Path(os.environ["HOME"]) / ".ngc" / "config").read_text(encoding="utf-8")
+        (service.managed_assets_dir / f"{locale}.parquet").write_bytes(b"downloaded")
+
+    monkeypatch.setenv("DATA_DESIGNER_HOME", str(tmp_path / "data-designer"))
+    monkeypatch.setenv("DATA_DESIGNER_MANAGED_ASSETS_PATH", str(assets))
+    monkeypatch.setenv("NGC_API_KEY", "secret-value")
+    monkeypatch.setattr(shutil, "which", lambda name: "/usr/local/bin/ngc" if name == "ngc" else None)
+    monkeypatch.setattr(DownloadService, "download_persona_dataset", fake_download)
+
+    original_home = os.environ.get("HOME")
+    pipeline = PersonaMCQPipeline(config)
+    pipeline._personas()
+
+    assert observed == {
+        "locale": "hi_Deva_IN",
+        "ngc_config": "[CURRENT]\nformat_type = ascii\norg = no-org\nteam = no-team\nace = no-ace\n",
+    }
+    assert os.environ.get("HOME") == original_home
+    assert pipeline.summary["stages"]["personas"]["downloaded_locales"] == ["hi_Deva_IN"]
+    assert not (tmp_path / "data-designer" / ".ngc" / "config").exists()
+
+
 def test_language_script_contract_is_config_driven() -> None:
     config = _tiny_config()
     config["languages"] = {
@@ -575,11 +645,14 @@ def test_environment_templates_wire_persona_mcq(target: str, profile: str) -> No
     assert "data-designer>=0.5.9,<0.6" in sections[profile]["startup_commands"][0]
     assert "sentence-transformers>=5.0.0,<6.0.0" in sections[profile]["startup_commands"][0]
     assert "torchvision>=0.25,<0.26" in sections[profile]["startup_commands"][1]
+    if target == "lepton":
+        assert any("ngccli_linux.zip" in command for command in sections[profile]["startup_commands"])
     assert set(sections[profile]["env_vars"]) >= {
         "NEMOTRON_RUN_DIR",
         "DATA_DESIGNER_HOME",
         "DATA_DESIGNER_MANAGED_ASSETS_PATH",
         "NVIDIA_API_KEY",
+        "NGC_API_KEY",
         "QWEN_API_BASE",
         "OSS_API_BASE",
         "GEMMA_API_BASE",

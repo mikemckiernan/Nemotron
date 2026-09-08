@@ -226,6 +226,7 @@ sections:
       DATA_DESIGNER_HOME: ${oc.env:DATA_DESIGNER_HOME,${oc.env:NEMOTRON_WORKSPACE,/workspace}/data-designer}
       DATA_DESIGNER_MANAGED_ASSETS_PATH: ${oc.env:DATA_DESIGNER_MANAGED_ASSETS_PATH,${oc.env:NEMOTRON_WORKSPACE,/workspace}/data-designer/managed-assets}
       NVIDIA_API_KEY: ${oc.env:NVIDIA_API_KEY,''}
+      NGC_API_KEY: ${oc.env:NGC_API_KEY,''}
       QWEN_API_BASE: ${oc.env:QWEN_API_BASE,''}
       OSS_API_BASE: ${oc.env:OSS_API_BASE,''}
       GEMMA_API_BASE: ${oc.env:GEMMA_API_BASE,''}

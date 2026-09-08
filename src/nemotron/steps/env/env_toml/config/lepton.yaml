@@ -242,11 +242,18 @@ sections:
       # Shadow it with the build paired with Torch 2.10 so transformers imports
       # the venv package rather than an ABI-incompatible system package.
       - "python -m pip install --quiet --break-system-packages 'torchvision>=0.25,<0.26'"
+      # The base NeMo image does not include NGC CLI. Install NVIDIA's official
+      # client in the ephemeral worker; NGC_API_KEY remains environment-only.
+      - "curl --fail --location --silent --show-error https://ngc.nvidia.com/downloads/ngccli_linux.zip --output /tmp/ngccli_linux.zip"
+      - "python -m zipfile -e /tmp/ngccli_linux.zip /opt/ngc-cli"
+      - "chmod 0755 /opt/ngc-cli/ngc-cli/ngc"
+      - "ln -sf /opt/ngc-cli/ngc-cli/ngc /usr/local/bin/ngc"
     env_vars:
       NEMOTRON_RUN_DIR: ${oc.env:NEMOTRON_RUN_DIR,${oc.env:NEMOTRON_WORKSPACE,/mnt/lustre-shared}/output/sdg}
       DATA_DESIGNER_HOME: ${oc.env:DATA_DESIGNER_HOME,${oc.env:NEMOTRON_WORKSPACE,/mnt/lustre-shared}/data-designer}
       DATA_DESIGNER_MANAGED_ASSETS_PATH: ${oc.env:DATA_DESIGNER_MANAGED_ASSETS_PATH,${oc.env:NEMOTRON_WORKSPACE,/mnt/lustre-shared}/data-designer/managed-assets}
       NVIDIA_API_KEY: ${oc.env:NVIDIA_API_KEY,''}
+      NGC_API_KEY: ${oc.env:NGC_API_KEY,''}
       QWEN_API_BASE: ${oc.env:QWEN_API_BASE,''}
       OSS_API_BASE: ${oc.env:OSS_API_BASE,''}
       GEMMA_API_BASE: ${oc.env:GEMMA_API_BASE,''}

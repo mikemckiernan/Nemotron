@@ -19,13 +19,27 @@ the resulting vote.
 
 ```bash
 uv sync --extra data-sdg
-uv run data-designer download personas --locale en_IN
-uv run data-designer download personas --locale hi_Deva_IN
+export NGC_API_KEY='<your-ngc-api-key>'
+uv run nemotron steps run sdg/persona_mcq -c tiny
 ```
 
-Persona downloads require the NGC CLI to be installed and authenticated for
-the managed persona artifact. This authentication is needed only while staging
-the assets; the pipeline reads the downloaded files from shared storage.
+Keep the [NGC CLI](https://org.ngc.nvidia.com/setup/installers/cli) on `PATH`
+for local, Slurm, and DGX Cloud/Run:ai execution. The shipped Lepton Persona
+MCQ profiles install the official CLI in each worker during startup. The first
+`personas` stage derives its locales from `languages`, downloads only missing
+managed assets using `NGC_API_KEY`, and caches them under
+`DATA_DESIGNER_MANAGED_ASSETS_PATH`. The key remains in the environment; it is
+not written into the pipeline config or an NGC config file. Cached runs do not
+require it.
+
+For Lepton, Slurm, or DGX Cloud/Run:ai, export the key in the submission shell.
+The Persona MCQ environment profiles forward it, so the download happens on the
+remote worker and the assets remain in its configured shared storage:
+
+```bash
+export NGC_API_KEY='<your-ngc-api-key>'
+uv run nemotron steps run sdg/persona_mcq -c tiny --batch lepton_sdg_persona_mcq_tiny
+```
 
 The shipped configs generate English, Hindi, and Malayalam. They use the
 `en_IN` and `hi_Deva_IN` persona assets; Malayalam currently uses `en_IN`
@@ -45,7 +59,7 @@ the sampled persona. Download another supported locale and override the
 corresponding value, for example:
 
 ```bash
-uv run data-designer download personas --locale en_US
+export NGC_API_KEY='<your-ngc-api-key>'
 uv run nemotron steps run sdg/persona_mcq -c tiny \
   languages.english.locale=en_US pipeline.experiment_name=us-smoke
 ```
@@ -98,11 +112,11 @@ uv run nemotron steps run sdg/persona_mcq -c default \
   --batch dgxcloud_sdg_persona_mcq
 ```
 
-Before submission, stage every configured persona locale under the profile's
-shared `DATA_DESIGNER_MANAGED_ASSETS_PATH` (which defaults beneath
-`DATA_DESIGNER_HOME`), and export the three endpoint variables plus
-`NVIDIA_API_KEY`. Export `HF_TOKEN` when Hub authentication is needed; every
-generated backend profile forwards it from the submitting environment.
+Before Slurm or DGX Cloud/Run:ai submission, keep the NGC CLI on the remote
+image's `PATH`; the Lepton profile installs it during worker startup. Export
+`NGC_API_KEY`, the three endpoint variables, and `NVIDIA_API_KEY`. Export
+`HF_TOKEN` when Hub authentication is needed; every generated backend profile
+forwards it from the submitting environment.
 `NEMOTRON_RUN_DIR` also points to shared storage so detached runs can resume and
 their outputs persist after the worker exits.
 
@@ -113,7 +127,7 @@ uv run nemotron steps run sdg/persona_mcq -c default \
   pipeline.experiment_name=my-run 'pipeline.stages=[answers,build_sft,sample]'
 ```
 
-Stages always follow this order: `questions`, `lexical_dedup`,
+Stages always follow this order: `personas`, `questions`, `lexical_dedup`,
 `semantic_dedup`, `answer_seed`, `answers`, `build_sft`, `sample`. Inputs for a
 selected stage must already exist. Reusing an experiment name with a different
 configuration is rejected unless `pipeline.overwrite=true` is explicit.

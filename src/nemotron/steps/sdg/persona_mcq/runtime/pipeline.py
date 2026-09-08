@@ -8,8 +8,10 @@ from __future__ import annotations
 import asyncio
 import inspect
 import json
+import os
 import shutil
 import subprocess
+import tempfile
 from collections.abc import Callable
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -30,6 +32,7 @@ from nemotron.steps.sdg.persona_mcq.runtime.semantic import deduplicate_embeddin
 from nemotron.steps.sdg.persona_mcq.runtime.sft import build_sft_records, prepare_answer_seed, sample_aligned_datasets
 
 STAGES = (
+    "personas",
     "questions",
     "lexical_dedup",
     "semantic_dedup",
@@ -239,6 +242,7 @@ class PersonaMCQPipeline:
         selected = list(STAGES) if stages == ["all"] else stages
         self._prepare_experiment()
         functions: dict[str, Callable[[], None]] = {
+            "personas": self._personas,
             "questions": self._questions,
             "lexical_dedup": self._lexical,
             "semantic_dedup": self._semantic,
@@ -292,6 +296,74 @@ class PersonaMCQPipeline:
         (self.root / "summary.json").write_text(
             json.dumps(self.summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
+
+    def _personas(self) -> None:
+        locales = list(dict.fromkeys(str(language["locale"]) for language in self.config["languages"].values()))
+        data_designer_home = Path(os.environ.get("DATA_DESIGNER_HOME", "~/.data-designer")).expanduser().resolve()
+        assets_root = (
+            Path(os.environ.get("DATA_DESIGNER_MANAGED_ASSETS_PATH", data_designer_home / "managed-assets"))
+            .expanduser()
+            .resolve()
+        )
+        datasets_dir = assets_root / "datasets"
+        cached = [locale for locale in locales if (datasets_dir / f"{locale}.parquet").is_file()]
+        missing = [locale for locale in locales if locale not in cached]
+
+        if missing:
+            if not os.environ.get("NGC_API_KEY"):
+                raise RuntimeError(
+                    "Missing persona assets for locales "
+                    f"{', '.join(missing)}. Export NGC_API_KEY and rerun the pipeline."
+                )
+            if shutil.which("ngc") is None:
+                raise RuntimeError(
+                    "NGC CLI is required to download missing persona assets. Install it and ensure 'ngc' is on PATH."
+                )
+
+            from data_designer.cli.repositories.persona_repository import PersonaRepository
+            from data_designer.cli.services.download_service import DownloadService
+
+            datasets_dir.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(prefix="persona-mcq-ngc-") as temporary_dir:
+                # NGC CLI authenticates from NGC_API_KEY, but authenticated
+                # public-catalog downloads also require an org context. Keep
+                # that non-secret context in an ephemeral HOME so no API key is
+                # ever written to disk.
+                ngc_home = Path(temporary_dir) / "home"
+                ngc_config = ngc_home / ".ngc" / "config"
+                ngc_config.parent.mkdir(parents=True)
+                ngc_config.write_text(
+                    "[CURRENT]\nformat_type = ascii\norg = no-org\nteam = no-team\nace = no-ace\n",
+                    encoding="utf-8",
+                )
+                ngc_config.chmod(0o600)
+                service_options = {}
+                if "ngc_config_path" in inspect.signature(DownloadService).parameters:
+                    service_options["ngc_config_path"] = ngc_config
+                service = DownloadService(data_designer_home, PersonaRepository(), **service_options)
+                service.managed_assets_dir = datasets_dir
+                previous_home = os.environ.get("HOME")
+                os.environ["HOME"] = str(ngc_home)
+                try:
+                    for locale in missing:
+                        print(f"[persona_mcq] downloading persona asset: {locale}", flush=True)
+                        service.download_persona_dataset(locale)
+                finally:
+                    if previous_home is None:
+                        os.environ.pop("HOME", None)
+                    else:
+                        os.environ["HOME"] = previous_home
+
+            incomplete = [locale for locale in missing if not (datasets_dir / f"{locale}.parquet").is_file()]
+            if incomplete:
+                raise RuntimeError("Persona downloads did not produce assets for: " + ", ".join(incomplete))
+
+        self.summary["stages"]["personas"] = {
+            "assets_path": str(assets_root),
+            "required_locales": locales,
+            "cached_locales": cached,
+            "downloaded_locales": missing,
+        }
 
     def _questions(self) -> None:
         cfg = self.config
