@@ -68,6 +68,7 @@ _STAGE_MUTABLE_OUTPUTS = {
     "executable_replay": {
         "stage_cache/replay_validated_tasks.parquet",
         "stage_cache/paraphrase_rejections.json",
+        "stage_cache/rendered_conversations.parquet",
     },
     "surface_quality": {
         "stage_cache/surface_validated_tasks.parquet",
@@ -90,11 +91,10 @@ APPEND_ONLY_CACHES = frozenset(
         "surface_judge_io_cache.jsonl",
     }
 )
+APPEND_ONLY_CACHE_LOCKS = frozenset(f".{name}.lock" for name in APPEND_ONLY_CACHES)
 _STAGE_STALE_CACHE_OUTPUTS = {
     stage: frozenset(
-        name
-        for name in (source.removeprefix("stage_cache/") for source in sources)
-        if name not in APPEND_ONLY_CACHES
+        name for name in (source.removeprefix("stage_cache/") for source in sources) if name not in APPEND_ONLY_CACHES
     )
     for stage, sources in _STAGE_MUTABLE_OUTPUTS.items()
 }
@@ -144,15 +144,10 @@ def enabled_stages(config: Any) -> tuple[str, ...]:
 
 def validate_resume_target(config: Any, target: str) -> tuple[str, ...]:
     if target not in CANONICAL_STAGES:
-        raise CheckpointError(
-            f"unknown BFCL resume stage {target!r}; choose one of: "
-            + ", ".join(CANONICAL_STAGES)
-        )
+        raise CheckpointError(f"unknown BFCL resume stage {target!r}; choose one of: " + ", ".join(CANONICAL_STAGES))
     stages = enabled_stages(config)
     if target not in stages:
-        raise CheckpointError(
-            f"BFCL resume stage {target!r} is disabled by the current configuration"
-        )
+        raise CheckpointError(f"BFCL resume stage {target!r} is disabled by the current configuration")
     return stages
 
 
@@ -304,13 +299,9 @@ def _artifact_metadata(path: Path, *, source: str) -> dict[str, Any]:
             raise CheckpointError(f"checkpoint Parquet artifact is invalid: {path}") from exc
         expected_schema = _expected_parquet_schema(source)
         if expected_schema is not None and not table.schema.equals(expected_schema):
-            raise CheckpointError(
-                f"checkpoint Parquet schema does not match its stage contract: {source}"
-            )
+            raise CheckpointError(f"checkpoint Parquet schema does not match its stage contract: {source}")
         metadata["row_count"] = table.num_rows
-        metadata["schema_fingerprint"] = _hash_bytes(
-            table.schema.serialize().to_pybytes()
-        )
+        metadata["schema_fingerprint"] = _hash_bytes(table.schema.serialize().to_pybytes())
         if "task_id" in table.column_names:
             ids = table.column("task_id").to_pylist()
             if any(not isinstance(item, str) or not item for item in ids):
@@ -326,17 +317,12 @@ def _validate_publication_declarations(
     artifact_dir: Path,
     artifacts: Mapping[str, dict[str, Any]],
 ) -> None:
-    by_source = {
-        str(metadata["source"]): (name, metadata)
-        for name, metadata in artifacts.items()
-    }
+    by_source = {str(metadata["source"]): (name, metadata) for name, metadata in artifacts.items()}
     manifest_entry = by_source.get("publication/run_manifest.json")
     if manifest_entry is None:
         raise CheckpointError("BFCL Stage 12 checkpoint has no run manifest")
     try:
-        run_manifest = json.loads(
-            (artifact_dir / manifest_entry[0]).read_text(encoding="utf-8")
-        )
+        run_manifest = json.loads((artifact_dir / manifest_entry[0]).read_text(encoding="utf-8"))
         exports = run_manifest["exports"]
         references = []
         validation_report = exports.get("validation_report")
@@ -354,9 +340,7 @@ def _validate_publication_declarations(
             else:
                 prefix = f"publication/{path.rstrip('/')}/"
                 members = {
-                    source.removeprefix("publication/"): (
-                        artifact_dir / name
-                    ).read_bytes()
+                    source.removeprefix("publication/"): (artifact_dir / name).read_bytes()
                     for source, (name, _metadata) in by_source.items()
                     if source.startswith(prefix)
                 }
@@ -369,23 +353,18 @@ def _validate_publication_declarations(
 
                     root_prefix = f"{path.rstrip('/')}/"
                     relative_members = {
-                        member.removeprefix(root_prefix): payload
-                        for member, payload in members.items()
+                        member.removeprefix(root_prefix): payload for member, payload in members.items()
                     }
                     actual_hashes = {
                         export_content_hash(members),
                         export_content_hash(relative_members),
                     }
             if declared_hash not in actual_hashes:
-                raise CheckpointError(
-                    f"BFCL Stage 12 checkpoint export is missing or changed: {path}"
-                )
+                raise CheckpointError(f"BFCL Stage 12 checkpoint export is missing or changed: {path}")
     except CheckpointError:
         raise
     except (KeyError, TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise CheckpointError(
-            "BFCL Stage 12 run manifest has an invalid export contract"
-        ) from exc
+        raise CheckpointError("BFCL Stage 12 run manifest has an invalid export contract") from exc
 
 
 def _identity(
@@ -402,25 +381,17 @@ def _identity(
     )
     endpoint_content_digest = None
     if endpoint_metadata is not None:
-        endpoint_content_digest = _hash_bytes(
-            canonical_json(endpoint_metadata).encode("utf-8")
-        )
+        endpoint_content_digest = _hash_bytes(canonical_json(endpoint_metadata).encode("utf-8"))
     runtime = runtime_metadata()
     source_hash = runtime.get("pipeline_source_hash")
     if not isinstance(source_hash, str) or not source_hash.startswith("sha256:"):
-        raise CheckpointError(
-            "BFCL checkpoint cannot establish the current pipeline source identity"
-        )
+        raise CheckpointError("BFCL checkpoint cannot establish the current pipeline source identity")
     if endpoint_config_path is not None and endpoint_metadata is None:
-        raise CheckpointError(
-            "BFCL endpoint checkpoint requires verified endpoint identity metadata"
-        )
+        raise CheckpointError("BFCL endpoint checkpoint requires verified endpoint identity metadata")
     return {
         "generation_config_hash": generation_config_hash(config),
         "pack_fingerprint": (
-            pack_fingerprint
-            if pack_fingerprint.startswith("sha256:")
-            else f"sha256:{pack_fingerprint}"
+            pack_fingerprint if pack_fingerprint.startswith("sha256:") else f"sha256:{pack_fingerprint}"
         ),
         "endpoint": {
             "identity": endpoint_metadata,
@@ -478,9 +449,7 @@ def _read_manifest(path: Path) -> dict[str, Any]:
         "checkpoint_id",
     }
     if set(value) != required:
-        raise CheckpointError(
-            f"BFCL checkpoint manifest fields do not match contract at {path}"
-        )
+        raise CheckpointError(f"BFCL checkpoint manifest fields do not match contract at {path}")
     body = {key: child for key, child in value.items() if key != "checkpoint_id"}
     if value["checkpoint_id"] != _hash_bytes(canonical_json(body).encode("utf-8")):
         raise CheckpointError(f"BFCL checkpoint manifest identity mismatch: {path}")
@@ -507,9 +476,7 @@ def write_checkpoint(
         )
     )
     if missing := sorted(required_state - set(state)):
-        raise CheckpointError(
-            f"BFCL checkpoint state for {stage!r} is incomplete: {', '.join(missing)}"
-        )
+        raise CheckpointError(f"BFCL checkpoint state for {stage!r} is incomplete: {', '.join(missing)}")
     expected_parent = predecessor(config, stage)
     root = checkpoints_dir(config)
     root.mkdir(parents=True, exist_ok=True)
@@ -534,21 +501,15 @@ def write_checkpoint(
         for name in sorted(set(artifact_names)):
             path = cache / name
             if not path.is_file() or path.is_symlink():
-                raise CheckpointError(
-                    f"BFCL checkpoint output artifact is missing or unsafe: {path}"
-                )
+                raise CheckpointError(f"BFCL checkpoint output artifact is missing or unsafe: {path}")
             artifact_paths.append((path, f"stage_cache/{path.name}"))
         for path in publication_paths:
             if not path.is_file() or path.is_symlink():
-                raise CheckpointError(
-                    f"BFCL checkpoint publication artifact is missing or unsafe: {path}"
-                )
+                raise CheckpointError(f"BFCL checkpoint publication artifact is missing or unsafe: {path}")
             try:
                 relative = path.relative_to(publication_root) if publication_root is not None else Path(path.name)
             except ValueError as exc:
-                raise CheckpointError(
-                    f"BFCL publication artifact is outside its staging root: {path}"
-                ) from exc
+                raise CheckpointError(f"BFCL publication artifact is outside its staging root: {path}") from exc
             artifact_paths.append((path, f"publication/{relative.as_posix()}"))
 
         artifacts: dict[str, Any] = {}
@@ -557,12 +518,8 @@ def write_checkpoint(
             snapshot_path = snapshots / snapshot_name
             shutil.copy2(source_path, snapshot_path)
             artifacts[snapshot_name] = _artifact_metadata(snapshot_path, source=source)
-        artifacts_by_source = {
-            str(metadata["source"]): metadata for metadata in artifacts.values()
-        }
-        inputs_by_source = {
-            str(metadata["source"]): metadata for metadata in input_artifacts.values()
-        }
+        artifacts_by_source = {str(metadata["source"]): metadata for metadata in artifacts.values()}
+        inputs_by_source = {str(metadata["source"]): metadata for metadata in input_artifacts.values()}
         changed_sources = {
             source
             for source in set(inputs_by_source) | set(artifacts_by_source)
@@ -572,21 +529,15 @@ def write_checkpoint(
         if stage == "reference_profile":
             allowed_changes = changed_sources
         elif stage == "final_output":
-            allowed_changes = {
-                source for source in artifacts_by_source if source.startswith("publication/")
-            }
+            allowed_changes = {source for source in artifacts_by_source if source.startswith("publication/")}
             if not _REQUIRED_PUBLICATION_SOURCES <= set(artifacts_by_source):
                 missing = sorted(_REQUIRED_PUBLICATION_SOURCES - set(artifacts_by_source))
                 raise CheckpointError(
-                    "BFCL Stage 12 checkpoint is missing publication artifacts: "
-                    + ", ".join(missing)
+                    "BFCL Stage 12 checkpoint is missing publication artifacts: " + ", ".join(missing)
                 )
             _validate_publication_declarations(snapshots, artifacts)
         if unexpected := sorted(changed_sources - allowed_changes):
-            raise CheckpointError(
-                f"BFCL stage {stage!r} changed inherited artifacts: "
-                + ", ".join(unexpected)
-            )
+            raise CheckpointError(f"BFCL stage {stage!r} changed inherited artifacts: " + ", ".join(unexpected))
 
         task_ids = _task_ids_from_state(state)
         state_payload = {
@@ -627,9 +578,7 @@ def write_checkpoint(
             encoding="utf-8",
         )
         if destination.exists():
-            raise CheckpointError(
-                f"BFCL checkpoint destination already exists: {destination}"
-            )
+            raise CheckpointError(f"BFCL checkpoint destination already exists: {destination}")
         temporary.replace(destination)
     finally:
         shutil.rmtree(temporary, ignore_errors=True)
@@ -671,9 +620,7 @@ def _validate_chain(
         if expected_parent_ref is not None or manifest["input_artifacts"]:
             raise CheckpointError("root BFCL checkpoint unexpectedly declares a parent")
     else:
-        parent_manifest = _validate_chain(
-            config, expected_parent, identity=identity, seen=seen
-        )
+        parent_manifest = _validate_chain(config, expected_parent, identity=identity, seen=seen)
         if expected_parent_ref != {
             "stage": expected_parent,
             "checkpoint_id": parent_manifest["checkpoint_id"],
@@ -681,14 +628,8 @@ def _validate_chain(
             raise CheckpointError(f"BFCL checkpoint parent identity mismatch: {manifest_path}")
         if manifest["input_artifacts"] != parent_manifest["output_artifacts"]:
             raise CheckpointError(f"BFCL checkpoint input lineage mismatch: {manifest_path}")
-    inputs_by_source = {
-        str(metadata["source"]): metadata
-        for metadata in manifest["input_artifacts"].values()
-    }
-    outputs_by_source = {
-        str(metadata["source"]): metadata
-        for metadata in manifest["output_artifacts"].values()
-    }
+    inputs_by_source = {str(metadata["source"]): metadata for metadata in manifest["input_artifacts"].values()}
+    outputs_by_source = {str(metadata["source"]): metadata for metadata in manifest["output_artifacts"].values()}
     changed_sources = {
         source
         for source in set(inputs_by_source) | set(outputs_by_source)
@@ -698,18 +639,11 @@ def _validate_chain(
     if stage == "reference_profile":
         allowed_changes = changed_sources
     elif stage == "final_output":
-        allowed_changes = {
-            source for source in outputs_by_source if source.startswith("publication/")
-        }
+        allowed_changes = {source for source in outputs_by_source if source.startswith("publication/")}
         if not _REQUIRED_PUBLICATION_SOURCES <= set(outputs_by_source):
             raise CheckpointError("BFCL Stage 12 checkpoint publication set is incomplete")
-    if (
-        manifest["produced_artifacts"] != sorted(changed_sources)
-        or changed_sources - allowed_changes
-    ):
-        raise CheckpointError(
-            f"BFCL checkpoint output lineage mismatch: {manifest_path}"
-        )
+    if manifest["produced_artifacts"] != sorted(changed_sources) or changed_sources - allowed_changes:
+        raise CheckpointError(f"BFCL checkpoint output lineage mismatch: {manifest_path}")
     directory = manifest_path.parent
     _validate_artifact(directory / "state.json", manifest["state"])
     artifact_dir = directory / "artifacts"
@@ -719,9 +653,7 @@ def _validate_chain(
     for name, expected in manifest["output_artifacts"].items():
         _validate_artifact(artifact_dir / name, expected)
     if stage == "final_output":
-        _validate_publication_declarations(
-            artifact_dir, manifest["output_artifacts"]
-        )
+        _validate_publication_declarations(artifact_dir, manifest["output_artifacts"])
     return manifest
 
 
@@ -765,9 +697,7 @@ def restore_predecessor(
         )
     )
     if missing := sorted(required_state - set(state_payload["payload"])):
-        raise CheckpointError(
-            f"BFCL checkpoint state for {required!r} is incomplete: {', '.join(missing)}"
-        )
+        raise CheckpointError(f"BFCL checkpoint state for {required!r} is incomplete: {', '.join(missing)}")
 
     cache = stage_cache_dir(config)
     cache.mkdir(parents=True, exist_ok=True)
@@ -780,9 +710,7 @@ def restore_predecessor(
     # would delete the append-only caches and evidence a resumed run still depends on.
     stages = enabled_stages(config)
     stale = {
-        name
-        for stage in stages[stages.index(target) :]
-        for name in _STAGE_STALE_CACHE_OUTPUTS.get(stage, frozenset())
+        name for stage in stages[stages.index(target) :] for name in _STAGE_STALE_CACHE_OUTPUTS.get(stage, frozenset())
     }
     for name in sorted(stale - set(restored)):
         (cache / name).unlink(missing_ok=True)

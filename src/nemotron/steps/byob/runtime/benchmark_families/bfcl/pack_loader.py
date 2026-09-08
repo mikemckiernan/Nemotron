@@ -217,6 +217,8 @@ def resolve_declared_pack_paths(
 
 
 IGNORED_PACK_DIRS = frozenset({"__pycache__", ".git", ".ipynb_checkpoints"})
+FORBIDDEN_PACK_BYTECODE_SUFFIXES = frozenset({".pyc", ".pyo"})
+PACK_FINGERPRINT_CONTRACT = "bfcl-pack-fingerprint-v2"
 
 # What a two-step confirmation looks like on the wire. The names are the pack's to
 # choose — a Vietnamese backend may prefer `xac_nhan` — while the shape is the
@@ -255,6 +257,11 @@ def pack_files(paths: ResolvedPackPaths) -> list[Path]:
     """
     collected: dict[Path, None] = {}
     for path in sorted(paths.pack_root.rglob("*")):
+        relative = path.relative_to(paths.pack_root)
+        if "__pycache__" in relative.parts or path.suffix.lower() in FORBIDDEN_PACK_BYTECODE_SUFFIXES:
+            raise PackTrustError(
+                f"oracle pack must not contain executable Python bytecode (__pycache__, .pyc, or .pyo): {path}"
+            )
         if path.is_symlink():
             # A digest of the target is not a freeze of the pack: the target can be
             # replaced independently and may sit outside the reviewed tree. Reject links
@@ -262,7 +269,7 @@ def pack_files(paths: ResolvedPackPaths) -> list[Path]:
             raise PackTrustError(f"oracle pack must not contain symbolic links: {path}")
         if not path.is_file():
             continue
-        if any(part in IGNORED_PACK_DIRS for part in path.relative_to(paths.pack_root).parts):
+        if any(part in IGNORED_PACK_DIRS for part in relative.parts):
             continue
         collected[path] = None
     for declared in (
@@ -279,6 +286,10 @@ def pack_files(paths: ResolvedPackPaths) -> list[Path]:
         paths.held_out_path,
     ):
         if declared is not None and declared.is_file():
+            if "__pycache__" in declared.parts or declared.suffix.lower() in FORBIDDEN_PACK_BYTECODE_SUFFIXES:
+                raise PackTrustError(
+                    f"oracle pack must not declare executable Python bytecode (__pycache__, .pyc, or .pyo): {declared}"
+                )
             collected[declared] = None
     return sorted(collected)
 
@@ -344,13 +355,14 @@ def declared_pack_inputs(paths: ResolvedPackPaths) -> frozenset[str]:
 
 
 def pack_fingerprint(paths: ResolvedPackPaths) -> str:
-    """Hash every pack input so cached stage reports can be detected as stale."""
+    """Hash logical names and fixed-width per-file hashes without framing ambiguity."""
     digest = hashlib.sha256()
+    digest.update(PACK_FINGERPRINT_CONTRACT.encode("ascii") + b"\0")
     for logical_name, path in sorted(pack_entries(paths).items()):
-        digest.update(logical_name.encode("utf-8"))
-        digest.update(b"\x00")
-        digest.update(path.read_bytes())
-        digest.update(b"\x00")
+        encoded_name = logical_name.encode("utf-8")
+        digest.update(len(encoded_name).to_bytes(8, "big"))
+        digest.update(encoded_name)
+        digest.update(hashlib.sha256(path.read_bytes()).digest())
     return digest.hexdigest()
 
 
@@ -772,6 +784,9 @@ def _validate_generation_targets(
 
 def load_pack(config: BfclConfig) -> LoadedPack:
     paths = resolve_pack_paths(config)
+    # Validate the complete executable tree before any caller can hand its backend
+    # to a worker. In particular, ignored bytecode must not override reviewed source.
+    pack_files(paths)
     manifest = yaml.safe_load(paths.manifest_path.read_text(encoding="utf-8")) or {}
     for field in ("pack_id", "version"):
         if not isinstance(manifest.get(field), (str, int, float)) or not str(manifest[field]).strip():

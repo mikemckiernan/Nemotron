@@ -125,10 +125,7 @@ def _semantic_singletons(config, projected, **_kwargs):  # type: ignore[no-untyp
         "embedded": True,
         "embedding_signature": "sha256:test-embeddings",
         "duplicate_ids": [],
-        "clusters": {
-            str(record["task_id"]): f"curator-{record['task_id']}"
-            for record in projected
-        },
+        "clusters": {str(record["task_id"]): f"curator-{record['task_id']}" for record in projected},
         "records": [
             {
                 "task_id": str(record["task_id"]),
@@ -486,16 +483,10 @@ def test_stage_eleven_is_generic_to_a_non_banking_oracle_pack(
     rows, output_dir = third_pack_run
     cache = output_dir / "stage_cache"
     balanced = pq.read_table(cache / "balanced_tasks.parquet").to_pylist()
-    report = json.loads(
-        (cache / "dedup_balancing_report.json").read_text(encoding="utf-8")
-    )
-    manifest = json.loads(
-        (output_dir / "run_manifest.json").read_text(encoding="utf-8")
-    )
+    report = json.loads((cache / "dedup_balancing_report.json").read_text(encoding="utf-8"))
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
 
-    assert [row["task_id"] for row in balanced] == [
-        row["task_id"] for row in rows
-    ]
+    assert [row["task_id"] for row in balanced] == [row["task_id"] for row in rows]
     assert balanced[0]["selected"] is True
     assert balanced[0]["category"] == "warehouse"
     assert balanced[0]["required_tools"] == '["inspect_asset"]'
@@ -698,9 +689,7 @@ def _assert_publication_only_selects_from_raw(output_dir: Path) -> dict[str, Any
         )
         assert row["held_out_hit"] in (None, False)
 
-    manifest = json.loads(
-        (output_dir / "run_manifest.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
     assert manifest["stage_counts"]["replay_passed"] == len(raw_rows)
     assert manifest["stage_counts"]["published"] == len(published_rows)
     section = manifest["publication"]
@@ -740,9 +729,7 @@ def test_stage_eleven_publishes_in_selection_rank_order(third_pack_run) -> None:
 
 def _assert_projection_is_bound_to_the_published_file(output_dir: Path) -> None:
     """Project the real parquet and check the projection cites what it read."""
-    manifest = json.loads(
-        (output_dir / "run_manifest.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
     published_hash = manifest["publication"]["published"]["content_hash"]
     benchmark_path = output_dir / "benchmark.parquet"
 
@@ -933,14 +920,11 @@ def test_enabling_both_exports_writes_both_trees_from_one_projection(tmp_path: P
     assert all(manifest["exports"]["formats"][name]["enabled"] for name in manifest["exports"]["formats"])
     assert not list(output_dir.glob(".stage12-*"))
 
-    first_hashes = {
-        name: details["content_hash"] for name, details in manifest["exports"]["formats"].items()
-    }
+    first_hashes = {name: details["content_hash"] for name, details in manifest["exports"]["formats"].items()}
     second_path = generate_bfcl(config_path)
     second_manifest = json.loads((second_path.parent / "run_manifest.json").read_text(encoding="utf-8"))
     assert {
-        name: details["content_hash"]
-        for name, details in second_manifest["exports"]["formats"].items()
+        name: details["content_hash"] for name, details in second_manifest["exports"]["formats"].items()
     } == first_hashes
 
 
@@ -1268,6 +1252,15 @@ def test_run_manifest_records_smoke_lineage_and_artifact_hashes(tiny_run) -> Non
     assert manifest["generation_config_hash"] != manifest["resolved_config_hash"]
     assert manifest["runtime"]["pipeline_source_hash"].startswith("sha256:")
     assert manifest["runtime"]["dependency_lock_hash"].startswith("sha256:")
+    checkpoint = json.loads(
+        (output_dir / "stage_cache" / "checkpoints" / "final_output" / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert checkpoint["identity"]["pipeline"] == {
+        "git_sha": manifest["runtime"]["pipeline_git_sha"],
+        "source_hash": manifest["runtime"]["pipeline_source_hash"],
+        "dependency_lock_hash": manifest["runtime"]["dependency_lock_hash"],
+        "worker_image_digest": manifest["runtime"]["worker_image_digest"],
+    }
     assert manifest["stage_counts"]["expanded"] >= manifest["stage_counts"]["replay_passed"]
     assert manifest["stage_counts"]["trace_dropped"] == 0
     assert manifest["paraphrase_rejections"]["requested_candidates"] == 0
@@ -1366,9 +1359,7 @@ def test_enabled_stage_eleven_filters_publication_and_is_in_manifest(
     )
 
     monkeypatch.setattr(dedup_balancing, "run_semantic_dedup", _semantic_singletons)
-    benchmark_path = generate_bfcl(
-        _write_tiny_dedup_config(tmp_path, enabled=True, name="tiny-dedup.yaml")
-    )
+    benchmark_path = generate_bfcl(_write_tiny_dedup_config(tmp_path, enabled=True, name="tiny-dedup.yaml"))
     output_dir = benchmark_path.parent
     cache = output_dir / "stage_cache"
     published = pq.read_table(benchmark_path).to_pylist()
@@ -1393,17 +1384,14 @@ def test_enabled_stage_eleven_filters_publication_and_is_in_manifest(
     assert manifest["artifacts"]["balanced_tasks"]["content_hash"].startswith("sha256:")
     assert manifest["artifacts"]["dedup_balancing_report"]["content_hash"].startswith("sha256:")
     assert manifest["artifacts"]["balanced_tasks"]["content_hash"] == (
-        "sha256:"
-        + hashlib.sha256((cache / "balanced_tasks.parquet").read_bytes()).hexdigest()
+        "sha256:" + hashlib.sha256((cache / "balanced_tasks.parquet").read_bytes()).hexdigest()
     )
     assert manifest["artifacts"]["dedup_balancing_report"]["content_hash"] == (
-        "sha256:"
-        + hashlib.sha256(
-            (cache / "dedup_balancing_report.json").read_bytes()
-        ).hexdigest()
+        "sha256:" + hashlib.sha256((cache / "dedup_balancing_report.json").read_bytes()).hexdigest()
     )
-    assert report["artifacts"]["balanced_tasks.parquet"]["content_hash"] == (
-        manifest["artifacts"]["balanced_tasks"]["content_hash"]
+    assert (
+        report["artifacts"]["balanced_tasks.parquet"]["content_hash"]
+        == (manifest["artifacts"]["balanced_tasks"]["content_hash"])
     )
 
 
@@ -1434,9 +1422,7 @@ def test_disabling_stage_eleven_does_not_republish_stale_artifacts(
             name="tiny-dedup-disabled.yaml",
         )
     )
-    manifest = json.loads(
-        (output_dir / "run_manifest.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
 
     assert manifest["semantic_deduplication"]["enabled"] is False
     assert manifest["semantic_deduplication"]["report"] is None
@@ -1464,25 +1450,15 @@ def test_stage_eleven_selected_ids_are_deterministic_across_reruns(
     )
     first_path = generate_bfcl(config_path)
     first_rows = pq.read_table(first_path).to_pylist()
-    first_balanced = pq.read_table(
-        first_path.parent / "stage_cache" / "balanced_tasks.parquet"
-    ).to_pylist()
+    first_balanced = pq.read_table(first_path.parent / "stage_cache" / "balanced_tasks.parquet").to_pylist()
 
     second_path = generate_bfcl(config_path)
     second_rows = pq.read_table(second_path).to_pylist()
-    second_balanced = pq.read_table(
-        second_path.parent / "stage_cache" / "balanced_tasks.parquet"
-    ).to_pylist()
+    second_balanced = pq.read_table(second_path.parent / "stage_cache" / "balanced_tasks.parquet").to_pylist()
 
-    assert [row["task_id"] for row in first_rows] == [
-        row["task_id"] for row in second_rows
-    ]
-    assert [
-        (row["task_id"], row["selected"], row["selection_rank"])
-        for row in first_balanced
-    ] == [
-        (row["task_id"], row["selected"], row["selection_rank"])
-        for row in second_balanced
+    assert [row["task_id"] for row in first_rows] == [row["task_id"] for row in second_rows]
+    assert [(row["task_id"], row["selected"], row["selection_rank"]) for row in first_balanced] == [
+        (row["task_id"], row["selected"], row["selection_rank"]) for row in second_balanced
     ]
 
 
@@ -1509,11 +1485,7 @@ def test_stage_eleven_aborts_on_unmet_targets_under_abort_policy(
         generate_bfcl(config_path)
 
     output_dir = tmp_path / "output" / "bfcl_tiny_library_validation"
-    report = json.loads(
-        (output_dir / "stage_cache" / "dedup_balancing_report.json").read_text(
-            encoding="utf-8"
-        )
-    )
+    report = json.loads((output_dir / "stage_cache" / "dedup_balancing_report.json").read_text(encoding="utf-8"))
     assert report["unmet_targets"]
     assert report["release_policy"] == {
         "gold_eligible": False,
@@ -1545,9 +1517,7 @@ def test_stage_eleven_may_publish_unmet_targets_only_as_non_gold(
         )
     )
     rows = pq.read_table(benchmark_path).to_pylist()
-    manifest = json.loads(
-        (benchmark_path.parent / "run_manifest.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((benchmark_path.parent / "run_manifest.json").read_text(encoding="utf-8"))
 
     assert rows
     assert all(row["gold_eligible"] is False for row in rows)
@@ -1712,12 +1682,7 @@ def test_a_stage_artifact_changed_after_completion_blocks_publication(
     real_final_output = final_output.run_final_output
 
     def mutate_then_publish(config, *args, **kwargs):  # type: ignore[no-untyped-def]
-        path = (
-            Path(config.output_dir)
-            / config.expt_name
-            / "stage_cache"
-            / "task_instances.parquet"
-        )
+        path = Path(config.output_dir) / config.expt_name / "stage_cache" / "task_instances.parquet"
         with path.open("ab") as handle:
             handle.write(b"changed-after-stage")
         return real_final_output(config, *args, **kwargs)

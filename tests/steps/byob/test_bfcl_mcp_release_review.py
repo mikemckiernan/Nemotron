@@ -593,9 +593,7 @@ def test_approval_refuses_partial_or_unnamed_review(
         "approved_by": "domain-reviewer",
         "reviewed_at": "2026-08-26T17:00:00+07:00",
         "checklist": _checklist(),
-        "acknowledged_risks": [
-            risk["id"] for risk in packet.document["metadata_risks"]
-        ],
+        "acknowledged_risks": [risk["id"] for risk in packet.document["metadata_risks"]],
     }
     arguments.update(change)
     with pytest.raises(ReviewError, match=match):
@@ -611,17 +609,13 @@ def test_approval_of_one_packet_cannot_be_reused_after_packet_changes(
         approved_by="domain-reviewer",
         reviewed_at="2026-08-26T17:00:00+07:00",
         checklist=_checklist(),
-        acknowledged_risks=[
-            risk["id"] for risk in packet.document["metadata_risks"]
-        ],
+        acknowledged_risks=[risk["id"] for risk in packet.document["metadata_risks"]],
     )
     approval_path = write_review_approval(approval, tmp_path / "approval.json")
 
     changed = copy.deepcopy(packet.document)
     changed["assumptions"].append("A newly introduced assumption.")
-    changed["packet_digest"] = sha256_json(
-        {key: value for key, value in changed.items() if key != "packet_digest"}
-    )
+    changed["packet_digest"] = sha256_json({key: value for key, value in changed.items() if key != "packet_digest"})
     changed_packet = ReviewPacket(document=changed)
     with pytest.raises(ReviewError, match="different review packet"):
         load_review_approval(approval_path, changed_packet)
@@ -634,9 +628,7 @@ def test_approval_digest_detects_a_reviewer_name_edit(tmp_path: Path) -> None:
         approved_by="domain-reviewer",
         reviewed_at="2026-08-26T17:00:00+07:00",
         checklist=_checklist(),
-        acknowledged_risks=[
-            risk["id"] for risk in packet.document["metadata_risks"]
-        ],
+        acknowledged_risks=[risk["id"] for risk in packet.document["metadata_risks"]],
     )
     changed = copy.deepcopy(approval.document)
     changed["approved_by"] = "different-reviewer"
@@ -662,9 +654,7 @@ def _approved_freeze_inputs(tmp_path: Path) -> FreezeInputs:
         approved_by="domain-reviewer",
         reviewed_at="2026-08-26T17:00:00+07:00",
         checklist=_checklist(),
-        acknowledged_risks=[
-            risk["id"] for risk in packet.document["metadata_risks"]
-        ],
+        acknowledged_risks=[risk["id"] for risk in packet.document["metadata_risks"]],
     )
     approval_path = write_review_approval(approval, tmp_path / "review_approval.json")
     return FreezeInputs(
@@ -689,18 +679,12 @@ def test_freeze_atomically_seals_the_canonical_pack_and_lineage(
 
     assert verified.manifest == release.manifest
     assert release.pack_fingerprint.startswith("sha256:")
-    assert (
-        release.manifest["source_pack_fingerprint"]
-        != release.manifest["frozen_pack_fingerprint"]
-    )
+    assert release.manifest["source_pack_fingerprint"] != release.manifest["frozen_pack_fingerprint"]
     assert (release.pack_root / "mcp_oracle.yaml").is_file()
     assert (release.pack_root / "provenance" / "mcp_lineage.json").is_file()
     assert (release.pack_root / "provenance" / "review_packet.json").is_file()
     assert stat.S_IMODE(release.pack_root.stat().st_mode) == 0o555
-    assert (
-        stat.S_IMODE((release.pack_root / "manifest.yaml").stat().st_mode)
-        == 0o444
-    )
+    assert stat.S_IMODE((release.pack_root / "manifest.yaml").stat().st_mode) == 0o444
     paths = resolve_declared_pack_paths(
         OraclePackRef(manifest_path=release.pack_root / "manifest.yaml"),
         (release.pack_root,),
@@ -733,9 +717,7 @@ def test_freeze_atomically_seals_the_canonical_pack_and_lineage(
     )
 
 
-def test_gold_freeze_requires_a2_source_certification(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_gold_freeze_requires_a2_source_certification(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     inputs = _approved_freeze_inputs(tmp_path)
 
     def checked_loader(*args: Any, **kwargs: Any) -> Any:
@@ -904,6 +886,18 @@ def test_freeze_refuses_symlinks_and_existing_destinations(tmp_path: Path) -> No
         freeze_canonical_pack(inputs, destination)
 
 
+def test_mcp_freeze_refuses_ignored_python_bytecode(tmp_path: Path) -> None:
+    from nemotron.steps.byob.runtime.mcp.release import freeze
+
+    source = tmp_path / "pack"
+    cache = source / "__pycache__"
+    cache.mkdir(parents=True)
+    (cache / "backend.cpython-312.pyc").write_bytes(b"unchecked")
+
+    with pytest.raises(FreezeError, match="executable Python bytecode"):
+        freeze._copy_pack_tree(source, tmp_path / "destination")
+
+
 def test_publication_handoff_requires_a_fresh_l2_gold_report(tmp_path: Path) -> None:
     release = freeze_canonical_pack(
         _approved_freeze_inputs(tmp_path),
@@ -1037,8 +1031,5 @@ def test_fresh_prepare_forces_validation_instead_of_reusing_process_cache(
         return report, report_path
 
     monkeypatch.setattr(pipeline, "_validate_pack", validate)
-    assert (
-        pipeline._prepare_bfcl_unlocked("config.yaml", force_validation=True)
-        == report_path
-    )
+    assert pipeline._prepare_bfcl_unlocked("config.yaml", force_validation=True) == report_path
     assert observed == [True]

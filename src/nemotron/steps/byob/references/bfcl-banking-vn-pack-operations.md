@@ -96,7 +96,7 @@ you produce from these files can be compared against it:
 | Identity | Value |
 | --- | --- |
 | `run_id` | `bfcl_banking_vn_gold_paraphrase_v1_1392-20260901T233211455629Z-277950452534-cb1472102ab04cadb74be58666e1160b` |
-| pack `content_hash` | `sha256:f1d6ab3ae97df6c1090cd46031484aa1c4e5c91e87d3f5ccde346e3e7d645718` |
+| pack `content_hash` | `sha256:c5bb5c39033c28dd4c6e5d7197e88db2801e85887458457088a16cccf7e740eb` |
 | `benchmark.parquet` | `sha256:d40ba8d3ec5fd7778a42a0f4359feacfec14e6be08cf4a26de14c3ef922e58f6` |
 | `benchmark_raw.parquet` | `sha256:e988c246dccbafbf5a2c3638f2204a8de1c10da97f85160bffb3ddbc01ae1d94` |
 | `generation_config_hash` | `sha256:9dec917235992be2b2d888016ca27ecf9daab7a1f141abf530b7522ad577be48` |

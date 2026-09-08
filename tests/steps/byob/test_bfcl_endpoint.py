@@ -12,8 +12,11 @@ import pytest
 import yaml
 
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.endpoint import (
+    ENDPOINT_CREDENTIAL_POLICY_ENV,
+    ENDPOINT_CREDENTIAL_POLICY_VERSION,
     PROTOCOL_VERSION,
     EndpointConfig,
+    EndpointCredentialPolicy,
     EndpointIdentity,
     EndpointOracleClient,
     load_endpoint_config,
@@ -78,6 +81,114 @@ def test_endpoint_config_requires_declared_secret_environment(tmp_path: Path) ->
 
     with pytest.raises(ValueError, match="BFCL_TEST_TOKEN"):
         resolve_endpoint_headers(config, {})
+
+
+def _credential_policy(
+    *,
+    base_url: str = "https://oracle.example",
+    references: list[str] | None = None,
+) -> EndpointCredentialPolicy:
+    return EndpointCredentialPolicy.from_mapping(
+        {
+            "schema_version": ENDPOINT_CREDENTIAL_POLICY_VERSION,
+            "grants": [
+                {
+                    "base_url": base_url,
+                    "credential_references": references or ["BFCL_TEST_TOKEN", "BFCL_TEST_TENANT"],
+                }
+            ],
+        },
+        source="test policy",
+    )
+
+
+def test_ambient_credentials_require_an_exact_operator_destination_policy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = load_endpoint_config(
+        _write_endpoint_config(tmp_path),
+        allowed_roots=(tmp_path,),
+    )
+    monkeypatch.setenv("BFCL_TEST_TOKEN", "secret")
+    monkeypatch.setenv("BFCL_TEST_TENANT", "tenant-a")
+    monkeypatch.delenv(ENDPOINT_CREDENTIAL_POLICY_ENV, raising=False)
+
+    with pytest.raises(ValueError, match="operator credential policy"):
+        resolve_endpoint_headers(config)
+    with pytest.raises(ValueError, match="does not authorize"):
+        resolve_endpoint_headers(
+            config,
+            credential_policy=_credential_policy(base_url="https://attacker.example"),
+        )
+    with pytest.raises(ValueError, match="does not authorize"):
+        resolve_endpoint_headers(
+            config,
+            credential_policy=_credential_policy(references=["NGC_API_KEY"]),
+        )
+
+    assert resolve_endpoint_headers(
+        config,
+        credential_policy=_credential_policy(),
+    ) == {"Authorization": "Bearer secret", "X-Tenant": "tenant-a"}
+
+
+def test_operator_policy_file_binds_ambient_reference_to_destination(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = load_endpoint_config(
+        _write_endpoint_config(tmp_path),
+        allowed_roots=(tmp_path,),
+    )
+    policy = tmp_path / "operator-policy.json"
+    policy.write_text(
+        json.dumps(
+            {
+                "schema_version": ENDPOINT_CREDENTIAL_POLICY_VERSION,
+                "grants": [
+                    {
+                        "base_url": config.base_url,
+                        "credential_references": [
+                            "BFCL_TEST_TOKEN",
+                            "BFCL_TEST_TENANT",
+                        ],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv(ENDPOINT_CREDENTIAL_POLICY_ENV, str(policy))
+    monkeypatch.setenv("BFCL_TEST_TOKEN", "secret")
+    monkeypatch.setenv("BFCL_TEST_TENANT", "tenant-a")
+
+    assert resolve_endpoint_headers(config)["Authorization"] == "Bearer secret"
+
+
+def test_pack_cannot_exfiltrate_an_ambient_operator_secret(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = _write_endpoint_config(
+        tmp_path,
+        base_url="https://attacker.example/collect",
+    )
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["auth"] = {"bearer_token_env": "NGC_API_KEY"}
+    path.write_text(yaml.safe_dump(document, sort_keys=True), encoding="utf-8")
+    config = load_endpoint_config(path, allowed_roots=(tmp_path,))
+    monkeypatch.setenv("NGC_API_KEY", "ambient-operator-secret")
+
+    approved_oracle_only = _credential_policy(
+        base_url="https://oracle.example",
+        references=["NGC_API_KEY"],
+    )
+    with pytest.raises(ValueError, match="does not authorize"):
+        resolve_endpoint_headers(
+            config,
+            credential_policy=approved_oracle_only,
+        )
 
 
 class _Response:

@@ -20,11 +20,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
-import platform
 import shutil
-import subprocess
-import sys
 import uuid
 from collections import Counter, deque
 from collections.abc import Callable
@@ -65,6 +61,7 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.origin_provenance impor
     load_origin_provenance,
 )
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.pack_loader import (
+    PACK_FINGERPRINT_CONTRACT,
     LoadedPack,
     pack_file_hashes,
     pack_fingerprint,
@@ -79,6 +76,9 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.row_schema import (
     benchmark_schema,
     canonical_json,
     encode_arguments,
+)
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.runtime_metadata import (
+    runtime_metadata,
 )
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.stage_tables import (
     BALANCED_TASKS,
@@ -105,9 +105,7 @@ def _write_bfcl_json_export(projection: CanonicalExportProjection, output_dir: P
     return write_bfcl_json(projection, output_dir)
 
 
-def _write_nemo_evaluator_export(
-    projection: CanonicalExportProjection, output_dir: Path
-) -> NemoEvaluatorArtifact:
+def _write_nemo_evaluator_export(projection: CanonicalExportProjection, output_dir: Path) -> NemoEvaluatorArtifact:
     return write_nemo_evaluator_bundle(projection, output_dir)
 
 
@@ -120,43 +118,6 @@ EXPORT_WRITERS: dict[str, Callable[[CanonicalExportProjection, Path], ExportArti
 }
 if set(EXPORT_WRITERS) - set(EXPORT_FORMATS):  # pragma: no cover - import-time contract
     raise RuntimeError("an export writer is registered for a format the export contract does not declare")
-
-
-def _pipeline_source_hash() -> str:
-    root = Path(__file__).resolve().parents[1]
-    digest = hashlib.sha256()
-    for path in sorted(root.rglob("*.py")):
-        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(path.read_bytes())
-        digest.update(b"\0")
-    return f"sha256:{digest.hexdigest()}"
-
-
-def _dependency_lock_hash() -> str | None:
-    for parent in Path(__file__).resolve().parents:
-        lock = parent / "uv.lock"
-        if lock.is_file():
-            return _file_hash(lock)
-    return None
-
-
-def _pipeline_git_sha() -> str | None:
-    for name in ("GIT_COMMIT", "CI_COMMIT_SHA"):
-        if value := os.environ.get(name):
-            return value.strip() or None
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=Path(__file__).resolve().parent,
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=2,
-        )
-    except (OSError, subprocess.SubprocessError):
-        return None
-    return result.stdout.strip() or None
 
 
 def _sha256(text: str) -> str:
@@ -663,30 +624,18 @@ def run_final_output(
         try:
             actual_hash = _file_hash(artifact_path)
         except FileNotFoundError as exc:
-            raise RuntimeError(
-                f"stage artifact {artifact_name} disappeared before publication"
-            ) from exc
+            raise RuntimeError(f"stage artifact {artifact_name} disappeared before publication") from exc
         if actual_hash != expected_hash:
-            raise RuntimeError(
-                f"stage artifact {artifact_name} changed after its producing stage completed"
-            )
+            raise RuntimeError(f"stage artifact {artifact_name} changed after its producing stage completed")
     if surface_quality_report is not None:
         try:
-            stored_surface_report = json.loads(
-                (cache / "surface_quality_rejections.json").read_text(encoding="utf-8")
-            )
+            stored_surface_report = json.loads((cache / "surface_quality_rejections.json").read_text(encoding="utf-8"))
         except FileNotFoundError as exc:
-            raise FileNotFoundError(
-                "Stage 10 requires surface_quality_rejections.json"
-            ) from exc
+            raise FileNotFoundError("Stage 10 requires surface_quality_rejections.json") from exc
         except json.JSONDecodeError as exc:
-            raise ValueError(
-                "Stage 10 surface_quality_rejections.json is not valid JSON"
-            ) from exc
+            raise ValueError("Stage 10 surface_quality_rejections.json is not valid JSON") from exc
         if stored_surface_report != surface_quality_report:
-            raise ValueError(
-                "surface_quality_rejections.json does not match the Stage 10 verdict"
-            )
+            raise ValueError("surface_quality_rejections.json does not match the Stage 10 verdict")
     # Hash the intermediates first: a missing stage artifact must stop the run before
     # a published parquet exists without the manifest that explains it.
     stage_artifacts = {
@@ -715,9 +664,7 @@ def run_final_output(
     )
     dedup_enabled = bool(config.semantic_deduplication_config.get("enabled"))
     if dedup_enabled != (dedup_balancing_decisions is not None):
-        raise ValueError(
-            "semantic_deduplication_config.enabled must match the presence of Stage 11 decisions"
-        )
+        raise ValueError("semantic_deduplication_config.enabled must match the presence of Stage 11 decisions")
     if (dedup_balancing_decisions is None) != (dedup_balancing_report is None):
         raise ValueError("Stage 11 decisions and report must be provided together")
     dedup_balancing_artifacts: dict[str, dict[str, str]] = {}
@@ -728,14 +675,10 @@ def run_final_output(
             raise ValueError("Stage 11 report does not match dedup_balancing_report.json")
         current_balanced_tasks_hash = _file_hash(cache / BALANCED_TASKS)
         reported_balanced_tasks_hash = (
-            (stored_report.get("artifacts") or {})
-            .get(BALANCED_TASKS, {})
-            .get("content_hash")
+            (stored_report.get("artifacts") or {}).get(BALANCED_TASKS, {}).get("content_hash")
         )
         if reported_balanced_tasks_hash != current_balanced_tasks_hash:
-            raise ValueError(
-                "balanced_tasks.parquet content hash does not match the Stage 11 report"
-            )
+            raise ValueError("balanced_tasks.parquet content hash does not match the Stage 11 report")
         dedup_balancing_artifacts = {
             "balanced_tasks": {"content_hash": current_balanced_tasks_hash},
             "dedup_balancing_report": {"content_hash": _file_hash(report_path)},
@@ -845,10 +788,7 @@ def run_final_output(
         if surface_quality_records is not None:
             if dedup_balancing_decisions is not None:
                 source = "Stage 11 deduplication and balancing policy"
-                recovery = (
-                    "inspect stage_cache/balanced_tasks.parquet and "
-                    "stage_cache/dedup_balancing_report.json"
-                )
+                recovery = "inspect stage_cache/balanced_tasks.parquet and stage_cache/dedup_balancing_report.json"
             else:
                 source = "Stage 10 surface-quality policy"
                 recovery = (
@@ -867,13 +807,9 @@ def run_final_output(
         try:
             stored_policy = json.loads(normalized_path.read_text(encoding="utf-8"))
         except (FileNotFoundError, json.JSONDecodeError) as exc:
-            raise ValueError(
-                "a held-out run requires a valid stage_cache/held_out_normalized.json"
-            ) from exc
+            raise ValueError("a held-out run requires a valid stage_cache/held_out_normalized.json") from exc
         if stored_policy != pack.held_out:
-            raise ValueError(
-                "held_out_normalized.json does not match the loaded held-out policy"
-            )
+            raise ValueError("held_out_normalized.json does not match the loaded held-out policy")
         binding_report = load_binding_report(
             config,
             held_out,
@@ -897,9 +833,7 @@ def run_final_output(
             binding_report=binding_report,
             rows_published=len(published),
         )
-        stored_scan_report = json.loads(
-            (cache / HELD_OUT_SCAN).read_text(encoding="utf-8")
-        )
+        stored_scan_report = json.loads((cache / HELD_OUT_SCAN).read_text(encoding="utf-8"))
         if stored_scan_report != held_out_scan_report:
             raise ValueError("held_out_scan.json does not match the Stage 12 scan")
         enforce_no_leak(config, held_out_scan_report)
@@ -963,9 +897,7 @@ def run_final_output(
     # happens to exist would let a deleted scan publish an unbacked leakage claim.
     held_out_artifacts = (
         {
-            "held_out_normalized": {
-                "content_hash": _file_hash(cache / "held_out_normalized.json")
-            },
+            "held_out_normalized": {"content_hash": _file_hash(cache / "held_out_normalized.json")},
             "held_out_bindings": {"content_hash": _file_hash(cache / HELD_OUT_BINDINGS)},
             "held_out_scan": {"content_hash": _file_hash(cache / HELD_OUT_SCAN)},
         }
@@ -1050,17 +982,11 @@ def run_final_output(
         "pipeline_version": "bfcl-runtime-0.1.0",
         "generation_config_hash": generation_config_hash(config),
         "resolved_config_hash": _sha256(canonical_json(_resolved_config(config))),
-        "runtime": {
-            "python": platform.python_version(),
-            "platform": sys.platform,
-            "pipeline_git_sha": _pipeline_git_sha(),
-            "pipeline_source_hash": _pipeline_source_hash(),
-            "dependency_lock_hash": _dependency_lock_hash(),
-            "worker_image_digest": os.environ.get("BFCL_WORKER_IMAGE_DIGEST"),
-        },
+        "runtime": runtime_metadata(),
         "pack": {
             "pack_id": pack.manifest.get("pack_id"),
             "version": pack.manifest.get("version"),
+            "fingerprint_contract": PACK_FINGERPRINT_CONTRACT,
             "content_hash": f"sha256:{current_pack_fingerprint}",
             # content_hash alone proves the pack changed but names no file, which
             # leaves a later eval telling an operator to restore a revision it
@@ -1072,13 +998,7 @@ def run_final_output(
             "kind": "endpoint" if pack.endpoint_config is not None else "python",
             "endpoint_metadata": validation_report.get("endpoint_metadata"),
             **(
-                {
-                    (
-                        "mcp"
-                        if provider_origin.get("provider_kind") == "mcp"
-                        else "origin"
-                    ): provider_origin
-                }
+                {("mcp" if provider_origin.get("provider_kind") == "mcp" else "origin"): provider_origin}
                 if provider_origin is not None
                 else {}
             ),
@@ -1087,9 +1007,7 @@ def run_final_output(
         "prompt_bundle_hash": prompt_bundle["prompt_bundle_hash"],
         "tier": tier,
         "gold_eligible": (
-            tier == "gold"
-            and config.lineage.policy != "smoke_no_publication"
-            and stage_eleven_gold_eligible
+            tier == "gold" and config.lineage.policy != "smoke_no_publication" and stage_eleven_gold_eligible
         ),
         "gold_ineligibility_reasons": gold_ineligibility_reasons,
         "lineage_policy": config.lineage.policy,
@@ -1110,9 +1028,7 @@ def run_final_output(
             "contract_version": config.semantic_deduplication_config.get("contract_version"),
             "enabled": dedup_enabled,
             "model_identifier": (
-                config.semantic_deduplication_config.get("model_identifier")
-                if dedup_enabled
-                else None
+                config.semantic_deduplication_config.get("model_identifier") if dedup_enabled else None
             ),
             "settings_hash": (
                 (dedup_balancing_report.get("lineage") or {}).get("settings_hash")

@@ -80,6 +80,12 @@ The consequence is worth planning for: publishing a benchmark freezes the pack d
 Keep operational notes about a pack outside the pack, and publish a new release rather than editing a pack that is still being scored.
 
 The aggregate fingerprint proves only that something moved; the per-file map is what lets a drift report name the file and say whether any declared oracle input was involved.
+Its versioned serialization length-prefixes each logical path and hashes a fixed-width
+SHA-256 digest for each file, so delimiters inside file bytes cannot create the same
+aggregate as a different file layout.
+Executable Python bytecode (`__pycache__`, `.pyc`, and `.pyo`) is rejected rather than
+ignored: unchecked-hash bytecode can override changed source and therefore cannot sit
+outside the reviewed fingerprint.
 Anything a pack imports from outside its own tree is invisible to the fingerprint, which is why a pack should keep its dependencies inside itself wherever it can.
 
 ## The Bundled Packs

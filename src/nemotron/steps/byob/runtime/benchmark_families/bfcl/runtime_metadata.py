@@ -74,10 +74,15 @@ def _in_pipeline_worktree() -> bool:
     if not toplevel:
         return False
     try:
-        _step_package_root().relative_to(Path(toplevel).resolve())
+        package_root = _step_package_root()
+        relative_root = package_root.relative_to(Path(toplevel).resolve())
     except ValueError:
         return False
-    return True
+    marker = (relative_root / "__init__.py").as_posix()
+    # A wheel installed in <unrelated-repo>/.venv is physically below that repo,
+    # but its bytes were not sourced from the repo's HEAD. Only tracked source may
+    # inherit the surrounding checkout's revision.
+    return _git("ls-files", "--error-unmatch", "--", marker) == marker
 
 
 def _dependency_lock_hash() -> str | None:
@@ -96,10 +101,10 @@ def _pipeline_source_hash() -> str | None:
     digest = hashlib.sha256()
     try:
         for path in sorted(root.rglob("*.py")):
-            digest.update(path.relative_to(root).as_posix().encode("utf-8"))
-            digest.update(b"\0")
-            digest.update(path.read_bytes())
-            digest.update(b"\0")
+            logical_name = path.relative_to(root).as_posix().encode("utf-8")
+            digest.update(len(logical_name).to_bytes(8, "big"))
+            digest.update(logical_name)
+            digest.update(hashlib.sha256(path.read_bytes()).digest())
     except OSError:
         return None
     return f"sha256:{digest.hexdigest()}"

@@ -94,7 +94,7 @@ than a bare table. These are the fields that give it that role:
 | `schema_version` | The benchmark row schema the tables were written with. A consumer selects its adapter by this value. |
 | `artifacts` | One content hash per stage artifact plus `benchmark_raw_parquet`, `benchmark_parquet`, and, when exports ran, `export_validation_report`. |
 | `publication` | Both row counts, both table content hashes, which surface gate decided, and which ordering applies. |
-| `pack` | `pack_id`, `version`, a `content_hash` fingerprint of the whole pack tree, and a per-file hash map, so a later run can name which file moved. |
+| `pack` | `pack_id`, `version`, `fingerprint_contract`, a `content_hash` fingerprint of the whole pack tree, and a per-file hash map, so a later run can name which file moved. Contract `bfcl-pack-fingerprint-v2` length-prefixes logical names and hashes one fixed-width SHA-256 digest per file. |
 | `oracle` | `kind` (`python` or `endpoint`) and, for an endpoint pack, the verified endpoint metadata. |
 | `oracle_clock`, `seeds` | The frozen clock and the seed derivation, which together make the bindings reproducible. |
 | `tier`, `gold_eligible`, `gold_ineligibility_reasons` | The publication verdict and, when it is negative, why. |

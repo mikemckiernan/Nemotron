@@ -1842,7 +1842,7 @@ def test_one_failing_paraphrase_request_does_not_discard_its_batch(
     assert report["events"][0]["detail"] == "RuntimeError"
 
 
-def test_pipeline_publishes_paraphrase_variants_with_the_base_trace(
+def test_pipeline_checkpoints_post_replay_paraphrase_rejections(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1897,7 +1897,7 @@ def test_pipeline_publishes_paraphrase_variants_with_the_base_trace(
                 "variants": [
                     {
                         "user_turns": [
-                            f"{turn} Please help."
+                            f"{turn} Please help. Algorithms."
                             for turn in json.loads(request["model_input"])["canonical_user_turns"]
                         ]
                     }
@@ -1909,21 +1909,20 @@ def test_pipeline_publishes_paraphrase_variants_with_the_base_trace(
     monkeypatch.setattr(model_runner, "run_structured_model", fake_model)
     benchmark_path = generate_bfcl(config_path)
     rows = pq.read_table(benchmark_path).to_pylist()
-    rows_by_id = {str(row["task_id"]): row for row in rows}
     variants = [row for row in rows if row["variant_index"] == 1]
 
-    assert variants
-    for variant in variants:
-        metadata = json.loads(variant["metadata"])
-        base = rows_by_id[metadata["base_task_id"]]
-        assert variant["expected_tool_calls"] == base["expected_tool_calls"]
-        assert variant["success_assertions"] == base["success_assertions"]
-        assert variant["paraphrase_model_canonical"] == ("source::paraphrase-model@revision")
+    assert variants == []
     manifest = json.loads((benchmark_path.parent / "run_manifest.json").read_text(encoding="utf-8"))
     assert manifest["generation_mode"] == "smoke_no_publication"
     assert manifest["stage_counts"]["paraphrase_accepted"] == len(variants)
+    assert manifest["paraphrase_rejections"]["by_reason"]["expected_result_leakage"] >= 1
     assert "paraphrase_io_cache" in manifest["artifacts"]
     assert "paraphrase_rejections" in manifest["artifacts"]
+    replay_checkpoint = benchmark_path.parent / "stage_cache" / "checkpoints" / "executable_replay" / "manifest.json"
+    checkpoint_document = json.loads(replay_checkpoint.read_text(encoding="utf-8"))
+    assert "stage_cache/rendered_conversations.parquet" in checkpoint_document["produced_artifacts"]
+    resumed = generate_bfcl(config_path, skip_until="final_output")
+    assert [row["task_id"] for row in pq.read_table(resumed).to_pylist()] == [row["task_id"] for row in rows]
 
 
 def test_post_replay_guard_rejects_expected_result_leakage(
@@ -2836,13 +2835,74 @@ def test_pack_fingerprint_covers_files_the_backend_reads(tmp_path: Path) -> None
     (pack / "policy.json").write_text('{"late_fee": 2}\n', encoding="utf-8")
     assert pack_fingerprint(paths) != with_helper
 
-    # Bytecode caches are not pack content, so importing the backend must not look
-    # like an edit to it.
-    edited = pack_fingerprint(paths)
+    # An unchecked-hash pyc can override edited source, so it must be rejected rather
+    # than ignored outside the fingerprint.
+    import py_compile
+    import subprocess
+    import sys
+
+    from nemotron.steps.byob.runtime.benchmark_families.bfcl.isolation import (
+        PackTrustError,
+    )
+
+    helper = pack / "shadow.py"
+    helper.write_text("VALUE = 'stale-bytecode'\n", encoding="utf-8")
     cache = pack / "__pycache__"
     cache.mkdir(exist_ok=True)
-    (cache / "backend.cpython-312.pyc").write_bytes(b"\x00\x01")
-    assert pack_fingerprint(paths) == edited
+    compiled = cache / f"shadow.{sys.implementation.cache_tag}.pyc"
+    py_compile.compile(
+        str(helper),
+        cfile=str(compiled),
+        doraise=True,
+        invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH,
+    )
+    helper.write_text("VALUE = 'reviewed-source'\n", encoding="utf-8")
+    observed = subprocess.run(
+        [sys.executable, "-c", "import shadow; print(shadow.VALUE)"],
+        cwd=pack,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert observed.stdout.strip() == "stale-bytecode"
+    with pytest.raises(PackTrustError, match="executable Python bytecode"):
+        pack_fingerprint(paths)
+    with pytest.raises(PackTrustError, match="executable Python bytecode"):
+        load_pack(config)
+
+
+def test_pack_fingerprint_framing_cannot_collide_on_embedded_nuls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from nemotron.steps.byob.runtime.benchmark_families.bfcl import pack_loader
+
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    combined = tmp_path / "combined"
+    first.write_bytes(b"b")
+    second.write_bytes(b"d")
+    combined.write_bytes(b"b\0c\0d")
+
+    def ambiguous_serialization(entries: dict[str, Path]) -> bytes:
+        return b"".join(name.encode() + b"\0" + path.read_bytes() + b"\0" for name, path in sorted(entries.items()))
+
+    split_entries = {"a": first, "c": second}
+    combined_entries = {"a": combined}
+    assert ambiguous_serialization(split_entries) == ambiguous_serialization(combined_entries)
+
+    monkeypatch.setattr(
+        pack_loader,
+        "pack_entries",
+        lambda _paths: split_entries,
+    )
+    split_digest = pack_loader.pack_fingerprint(None)  # type: ignore[arg-type]
+    monkeypatch.setattr(
+        pack_loader,
+        "pack_entries",
+        lambda _paths: combined_entries,
+    )
+    assert pack_loader.pack_fingerprint(None) != split_digest  # type: ignore[arg-type]
 
 
 def test_pack_file_hashes_cover_exactly_what_the_fingerprint_hashes(
@@ -2979,6 +3039,42 @@ def test_pack_fingerprint_uses_semantic_names_for_external_files(
         )
 
     assert pack_fingerprint(paths_for("host-a")) == pack_fingerprint(paths_for("host-b"))
+
+
+def test_pack_fingerprint_is_reproducible_across_python_hash_seeds(
+    tmp_path: Path,
+) -> None:
+    import os
+    import subprocess
+    import sys
+
+    pack = _copy_tiny_pack(tmp_path)
+    script = f"""
+from pathlib import Path
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.config import OraclePackRef
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.pack_loader import (
+    pack_fingerprint,
+    resolve_declared_pack_paths,
+)
+root = Path({str(pack)!r})
+paths = resolve_declared_pack_paths(
+    OraclePackRef(manifest_path=root / "manifest.yaml"),
+    (root,),
+)
+print(pack_fingerprint(paths))
+"""
+    observed = []
+    for seed in ("1", "8675309"):
+        environment = {**os.environ, "PYTHONHASHSEED": seed}
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        observed.append(result.stdout.strip())
+    assert observed[0] == observed[1]
 
 
 def test_gold_requires_every_template_to_state_what_success_means(

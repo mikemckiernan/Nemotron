@@ -103,9 +103,7 @@ def _output_lock(config: BfclConfig) -> Iterator[None]:
                 fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                 unlock = partial(fcntl.flock, handle.fileno(), fcntl.LOCK_UN)
         except OSError as exc:
-            raise RuntimeError(
-                f"another BFCL process is writing experiment {config.expt_name!r}"
-            ) from exc
+            raise RuntimeError(f"another BFCL process is writing experiment {config.expt_name!r}") from exc
         yield
     finally:
         try:
@@ -113,6 +111,7 @@ def _output_lock(config: BfclConfig) -> Iterator[None]:
                 unlock()
         finally:
             handle.close()
+
 
 # Reports written to the stage cache are editable, so a stored gold claim is never
 # trusted across runs. Validation results are instead remembered for the lifetime of
@@ -184,9 +183,7 @@ def _unsupported_requests(config: BfclConfig) -> list[str]:
             }
         )
     requested.extend(
-        f"task_generation.{name}"
-        for name in sorted(config.task_generation)
-        if name not in supported_task_generation
+        f"task_generation.{name}" for name in sorted(config.task_generation) if name not in supported_task_generation
     )
     # Asking for work a disabled stage would have done. Reading these is what keeps
     # "refuse, do not ignore" true for the whole config and not just the gate flags.
@@ -414,6 +411,7 @@ def _generate_bfcl_unlocked(
 
     config = BfclConfig.from_yaml(str(config_path))
     from nemotron.steps.byob.runtime.benchmark_families.bfcl.checkpoint import (
+        APPEND_ONLY_CACHE_LOCKS,
         APPEND_ONLY_CACHES,
         clear_checkpoints,
         clear_from_stage,
@@ -486,11 +484,7 @@ def _generate_bfcl_unlocked(
         endpoint_metadata=expected_endpoint_metadata,
         endpoint_config_path=pack.paths.endpoint_config_path,
     )
-    state = (
-        restore_predecessor(config, target, identity=identity)
-        if skip_until is not None
-        else {}
-    )
+    state = restore_predecessor(config, target, identity=identity) if skip_until is not None else {}
     if skip_until is not None:
         clear_from_stage(config, target)
         # Pin the restored cache before any resumed stage can consume it. Append-only
@@ -501,6 +495,7 @@ def _generate_bfcl_unlocked(
                 path.is_file()
                 and not path.name.endswith(".tmp")
                 and path.name not in APPEND_ONLY_CACHES
+                and path.name not in APPEND_ONLY_CACHE_LOCKS
             ):
                 expected_artifact_hashes[path.name] = _artifact_hash(path)
 
@@ -625,9 +620,7 @@ def _generate_bfcl_unlocked(
     pin_artifacts("expected_traces.parquet")
 
     if "schema_validation" in stages[stages.index(target) :]:
-        schema_failures = run_schema_validation(
-            config, pack, expanded_tasks, traces, skipped=drop_reasons
-        )
+        schema_failures = run_schema_validation(config, pack, expanded_tasks, traces, skipped=drop_reasons)
         state["schema_failures"] = schema_failures
         pin_artifacts("schema_validated_traces.parquet")
         write_checkpoint(
@@ -659,7 +652,11 @@ def _generate_bfcl_unlocked(
         )
         state["verdicts"] = verdicts
         state["paraphrase_report"] = paraphrase_report
-        pin_artifacts("replay_validated_tasks.parquet", "paraphrase_rejections.json")
+        pin_artifacts(
+            "replay_validated_tasks.parquet",
+            "paraphrase_rejections.json",
+            "rendered_conversations.parquet",
+        )
         write_checkpoint(
             config,
             "executable_replay",
@@ -670,7 +667,11 @@ def _generate_bfcl_unlocked(
     else:
         verdicts = state["verdicts"]
         paraphrase_report = state["paraphrase_report"]
-    pin_artifacts("replay_validated_tasks.parquet")
+    pin_artifacts(
+        "replay_validated_tasks.parquet",
+        "paraphrase_rejections.json",
+        "rendered_conversations.parquet",
+    )
     replay_tasks = [task for task in expanded_tasks if (verdicts.get(str(task["task_id"])) or {}).get("passed")]
     surface_quality_records: list[dict] | None = None
     surface_quality_report: dict | None = None
@@ -708,19 +709,11 @@ def _generate_bfcl_unlocked(
     if config.semantic_deduplication_config.get("enabled"):
         if surface_quality_records is None:
             raise RuntimeError("Stage 11 requires Stage 10 surface-quality records")
-        quality_by_task = {
-            str(record["task_id"]): record
-            for record in surface_quality_records
-        }
+        quality_by_task = {str(record["task_id"]): record for record in surface_quality_records}
         stage_eleven_tasks = [
-            task
-            for task in replay_tasks
-            if quality_by_task[str(task["task_id"])]["decision"] == "kept"
+            task for task in replay_tasks if quality_by_task[str(task["task_id"])]["decision"] == "kept"
         ]
-        stage_eleven_quality = [
-            quality_by_task[str(task["task_id"])]
-            for task in stage_eleven_tasks
-        ]
+        stage_eleven_quality = [quality_by_task[str(task["task_id"])] for task in stage_eleven_tasks]
         if "dedup_balancing" in stages[stages.index(target) :]:
             dedup_balancing_result = run_dedup_balancing_stage(
                 config,
@@ -796,9 +789,7 @@ def _generate_bfcl_unlocked(
     state["stage_counts"] = stage_counts
 
     def checkpoint_staged_publication(staging_dir: Path) -> None:
-        publication_paths = tuple(
-            path for path in sorted(staging_dir.rglob("*")) if path.is_file()
-        )
+        publication_paths = tuple(path for path in sorted(staging_dir.rglob("*")) if path.is_file())
         write_checkpoint(
             config,
             "final_output",
@@ -824,14 +815,10 @@ def _generate_bfcl_unlocked(
             surface_quality_records=surface_quality_records,
             surface_quality_report=surface_quality_report,
             dedup_balancing_decisions=(
-                dedup_balancing_result["decisions"]
-                if dedup_balancing_result is not None
-                else None
+                dedup_balancing_result["decisions"] if dedup_balancing_result is not None else None
             ),
             dedup_balancing_report=(
-                dedup_balancing_result["artifacts"]["report"]
-                if dedup_balancing_result is not None
-                else None
+                dedup_balancing_result["artifacts"]["report"] if dedup_balancing_result is not None else None
             ),
             expected_pack_fingerprint=current_fingerprint,
             expected_artifact_hashes=expected_artifact_hashes,

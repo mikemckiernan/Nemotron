@@ -8,58 +8,80 @@ tags = ["benchmark", "byob", "bfcl", "function-calling", "oracle-pack"]
 [[consumes]]
 type = "oracle_pack"
 description = "Allowlisted executable oracle pack using backend.py or a BFCL Oracle HTTP v1 endpoint, plus tools/fixtures/templates/assertions/validation_cases."
+required = false
+stages = ["prepare", "generate", "all"]
 
 [[produces]]
 type = "bfcl_benchmark_parquet"
 description = "Generated BFCL benchmark parquet with expected_tool_calls, messages, and provenance columns."
+required = false
+stages = ["generate", "all"]
 
 [[produces]]
 type = "bfcl_run_manifest"
 description = "run_manifest.json recording lineage, oracle clock, generation mode, publication hashes, and enabled/disabled compatibility export status."
+required = false
+stages = ["generate", "all"]
 
 [[produces]]
 type = "bfcl_stage_cache"
 description = "Task-indexed generation parquets under stage_cache/ plus content-addressed reference_samples, model I/O caches, and rejection reports."
+required = false
+stages = ["prepare", "generate", "all"]
 
 [[produces]]
 type = "bfcl_compatibility_exports"
 description = "Optional BFCL JSONL and NeMo Evaluator input bundles under exports/, both derived from the canonical published parquet projection."
+required = false
+stages = ["generate", "all"]
 
 [[produces]]
 type = "bfcl_export_validation_report"
 description = "exports/export_validation_report.json proving enabled export row counts, order, truth fields, and hashes equal benchmark.parquet."
+required = false
+stages = ["generate", "all"]
 
 [[produces]]
 type = "bfcl_localized_benchmark"
 description = "A target-language BFCL benchmark preserving source task identity, executable calls, assertions, schemas, fixture values, and Oracle lineage."
+required = false
+stages = ["translate"]
 
 [[produces]]
 type = "bfcl_translation_manifest"
 description = "Content-addressed translation_manifest.json binding the localized benchmark to its published source, stable field paths, protected tokens, quality artifacts, translator identity, and contamination scope."
+required = false
+stages = ["translate"]
 
 [[produces]]
 type = "bfcl_source_verification_report"
 description = "source_verification_report.json in the eval output tree proving the evaluated source is the committed publication: manifest hash, both table hashes, publication semantics, task index, and oracle pack fingerprint."
+required = false
+stages = ["eval"]
 
 [[produces]]
 type = "bfcl_contamination_report"
 description = "contamination_report.json in the eval output tree naming which models read which published rows, which candidates could not be separated from them, and the task set each candidate is authorized to answer."
+required = false
+stages = ["eval"]
 
 [[produces]]
 type = "bfcl_candidate_io_cache"
 description = "candidate_io_cache.jsonl in the eval output tree: append-only, hash-verified native function-calling requests, every HTTP attempt, and a completion marker used for network-free replay."
+required = false
+stages = ["eval"]
 
 [[produces]]
 type = "bfcl_tool_trace_cache"
 description = "tool_trace_cache.jsonl in the eval output tree: append-only, hash-verified complete executable episodes used for oracle-free replay."
+required = false
+stages = ["eval"]
 
 [[produces]]
 type = "bfcl_eval_artifacts"
 description = "eval_report.json, eval_task_results.parquet, and eval_manifest.json binding source, plan, candidate aggregates, result hashes, and both replay caches."
-
-[[produces]]
-type = "bfcl_bias_audit_reports"
-description = "Content-addressed bias_audit_report.json and deterministic bias_audit_report.md recomputing the versioned B1-B16 contract from frozen release and evaluation evidence."
+required = false
+stages = ["eval"]
 
 [[parameters]]
 name = "family"

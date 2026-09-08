@@ -91,6 +91,29 @@ and `Content-Length` cannot be configured as custom headers. A structured
 `bearer_token_ref` can select an environment or secret-manager resolver; do not declare
 it together with `bearer_token_env`.
 
+The pack does not authorize access to those credentials. Before ambient process
+credentials can be resolved, the operator must set `BFCL_ENDPOINT_CREDENTIAL_POLICY`
+to a JSON policy file that grants exact credential references to an exact HTTPS
+destination:
+
+```json
+{
+  "schema_version": "bfcl-endpoint-credential-policy-v1",
+  "grants": [
+    {
+      "base_url": "https://oracle.example/v1",
+      "credential_references": ["BFCL_ORACLE_TOKEN", "BFCL_ORACLE_TENANT"]
+    }
+  ]
+}
+```
+
+The policy is operator-owned and is never read from the pack. A missing policy,
+different destination, or unlisted reference fails before any secret is resolved.
+Code that passes an explicit credential mapping or resolver creates the equivalent
+one-call scope for that exact loaded endpoint; it should contain only credentials
+the caller intends to expose to that invocation.
+
 An optional CA bundle is pack-relative or absolute and must resolve under an allowed
 root:
 

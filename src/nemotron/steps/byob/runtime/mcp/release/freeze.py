@@ -37,12 +37,15 @@ import yaml  # type: ignore[import-untyped]
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.config import OraclePackRef
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.isolation import PackTrustError
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.origin_provenance import (
     MCP_LINEAGE_RELATIVE_PATH,
     MCP_LINEAGE_VERSION,
 )
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.pack_loader import (
+    FORBIDDEN_PACK_BYTECODE_SUFFIXES,
     IGNORED_PACK_DIRS,
+    PACK_FINGERPRINT_CONTRACT,
     ResolvedPackPaths,
     pack_fingerprint,
     resolve_declared_pack_paths,
@@ -140,7 +143,11 @@ def _require_canonical_endpoint_pack(pack_root: Path) -> tuple[ResolvedPackPaths
     paths = _resolved_paths(pack_root)
     if paths.endpoint_config_path is None or paths.backend_path is not None:
         raise FreezeError("an MCP frozen pack must use endpoint_config.yaml, not backend.py")
-    return paths, pack_fingerprint(paths)
+    try:
+        fingerprint = pack_fingerprint(paths)
+    except PackTrustError as exc:
+        raise FreezeError(str(exc)) from exc
+    return paths, fingerprint
 
 
 def _read_regular_no_follow(path: Path) -> bytes:
@@ -168,6 +175,10 @@ def _read_regular_no_follow(path: Path) -> bytes:
 def _copy_pack_tree(source: Path, destination: Path) -> None:
     for path in sorted(source.rglob("*")):
         relative = path.relative_to(source)
+        if "__pycache__" in relative.parts or path.suffix.lower() in FORBIDDEN_PACK_BYTECODE_SUFFIXES:
+            raise FreezeError(
+                f"canonical pack must not contain executable Python bytecode (__pycache__, .pyc, or .pyo): {path}"
+            )
         if any(part in IGNORED_PACK_DIRS for part in relative.parts):
             continue
         if path.is_symlink():
@@ -189,12 +200,13 @@ def _require_source_digest(
     expected = packet.document["source_digests"].get(name)
     if observed != expected:
         raise FreezeError(
-            f"{name} differs from the approved review packet: "
-            f"expected {expected!r}, observed {observed!r}"
+            f"{name} differs from the approved review packet: expected {expected!r}, observed {observed!r}"
         )
 
 
-def _load_and_verify_inputs(inputs: FreezeInputs) -> tuple[
+def _load_and_verify_inputs(
+    inputs: FreezeInputs,
+) -> tuple[
     ReviewPacket,
     dict[str, dict[str, Any]],
     str,
@@ -268,8 +280,7 @@ def _load_and_verify_inputs(inputs: FreezeInputs) -> tuple[
         _require_source_digest(
             packet,
             "domain_brief_source",
-            "sha256:"
-            + hashlib.sha256(inputs.domain_brief_source_path.read_bytes()).hexdigest(),
+            "sha256:" + hashlib.sha256(inputs.domain_brief_source_path.read_bytes()).hexdigest(),
         )
         _require_source_digest(
             packet,
@@ -306,16 +317,10 @@ def _load_and_verify_inputs(inputs: FreezeInputs) -> tuple[
         records.update(
             {
                 "source_evidence_bundle.json": evidence.source_document,
-                "adapter_certification.json": (
-                    evidence.certification_report.model_dump(mode="json")
-                ),
+                "adapter_certification.json": (evidence.certification_report.model_dump(mode="json")),
                 "evidence_migration.json": evidence.migration.model_dump(mode="json"),
-                "domain_brief_redaction.json": (
-                    evidence.domain_brief_report.model_dump(mode="json")
-                ),
-                "held_out_redaction.json": (
-                    evidence.held_out_redaction_report.model_dump(mode="json")
-                ),
+                "domain_brief_redaction.json": (evidence.domain_brief_report.model_dump(mode="json")),
+                "held_out_redaction.json": (evidence.held_out_redaction_report.model_dump(mode="json")),
             }
         )
     return packet, records, source_fingerprint, profile.raw_document
@@ -336,19 +341,11 @@ def _lineage_document(
         "pack": dict(packet.document["pack"]),
         "identity": {
             "source_pack_fingerprint": f"sha256:{source_fingerprint}",
-            "effective_content_digest": packet.document["identity"][
-                "effective_content_digest"
-            ],
+            "effective_content_digest": packet.document["identity"]["effective_content_digest"],
             "tool_catalog_digest": packet.document["identity"]["tool_catalog_digest"],
-            "server_content_digest": packet.document["identity"][
-                "server_content_digest"
-            ],
-            "gateway_artifact_digest": packet.document["identity"][
-                "gateway_artifact_digest"
-            ],
-            "shim_artifact_digest": packet.document["identity"][
-                "shim_artifact_digest"
-            ],
+            "server_content_digest": packet.document["identity"]["server_content_digest"],
+            "gateway_artifact_digest": packet.document["identity"]["gateway_artifact_digest"],
+            "shim_artifact_digest": packet.document["identity"]["shim_artifact_digest"],
             "snapshot_digest": packet.document["identity"]["snapshot_digest"],
             "conformance_digest": endpoint["attestation"]["expected_digest"],
         },
@@ -359,22 +356,12 @@ def _lineage_document(
             "reviewed_at": records["review_approval.json"]["reviewed_at"],
         },
         "provenance": {
-            "evidence_bundle_digest": packet.document["source_digests"][
-                "evidence_bundle"
-            ],
-            "intake_provenance_digest": packet.document["source_digests"][
-                "intake_provenance"
-            ],
-            "draft_provenance_digest": packet.document["source_digests"][
-                "draft_provenance"
-            ],
-            "validation_report_digest": packet.document["source_digests"][
-                "validation_report"
-            ],
+            "evidence_bundle_digest": packet.document["source_digests"]["evidence_bundle"],
+            "intake_provenance_digest": packet.document["source_digests"]["intake_provenance"],
+            "draft_provenance_digest": packet.document["source_digests"]["draft_provenance"],
+            "validation_report_digest": packet.document["source_digests"]["validation_report"],
             "mcp_config_digest": packet.document["source_digests"]["mcp_config"],
-            "gateway_attestation_digest": packet.document["source_digests"][
-                "gateway_attestation"
-            ],
+            "gateway_attestation_digest": packet.document["source_digests"]["gateway_attestation"],
         },
     }
     document["record_digest"] = sha256_json(document)
@@ -399,9 +386,7 @@ def freeze_canonical_pack(inputs: FreezeInputs, output_root: Path) -> FrozenRele
     for reserved in _RESERVED_PATHS:
         if (source / reserved).exists():
             raise FreezeError(f"canonical pack uses reserved release path {reserved!r}")
-    packet, records, source_fingerprint, profile_document = _load_and_verify_inputs(
-        inputs
-    )
+    packet, records, source_fingerprint, profile_document = _load_and_verify_inputs(inputs)
 
     destination = output_root.resolve()
     if destination.exists():
@@ -431,9 +416,7 @@ def freeze_canonical_pack(inputs: FreezeInputs, output_root: Path) -> FrozenRele
         lineage = _lineage_document(packet, records, source_fingerprint)
         write_canonical_json(lineage, pack_destination / LINEAGE_PATH)
 
-        frozen_paths, frozen_fingerprint = _require_canonical_endpoint_pack(
-            pack_destination
-        )
+        frozen_paths, frozen_fingerprint = _require_canonical_endpoint_pack(pack_destination)
         # Resolve once more after every sidecar exists; this also rejects links introduced
         # by a concurrent writer before the seal is committed.
         if pack_fingerprint(frozen_paths) != frozen_fingerprint:
@@ -442,18 +425,15 @@ def freeze_canonical_pack(inputs: FreezeInputs, output_root: Path) -> FrozenRele
             "schema_version": FREEZE_MANIFEST_VERSION,
             "pack_path": PACK_DIRECTORY_NAME,
             "pack": dict(packet.document["pack"]),
+            "pack_fingerprint_contract": PACK_FINGERPRINT_CONTRACT,
             "source_pack_fingerprint": f"sha256:{source_fingerprint}",
             "frozen_pack_fingerprint": f"sha256:{frozen_fingerprint}",
-            "effective_content_digest": packet.document["identity"][
-                "effective_content_digest"
-            ],
+            "effective_content_digest": packet.document["identity"]["effective_content_digest"],
             "conformance_digest": lineage["identity"]["conformance_digest"],
             "tool_catalog_digest": packet.document["identity"]["tool_catalog_digest"],
             "lineage_record_digest": lineage["record_digest"],
             "review_packet_digest": packet.digest,
-            "review_approval_digest": records["review_approval.json"][
-                "approval_digest"
-            ],
+            "review_approval_digest": records["review_approval.json"]["approval_digest"],
         }
         manifest["record_digest"] = sha256_json(manifest)
         write_canonical_json(manifest, staging / FREEZE_MANIFEST_NAME)
@@ -484,9 +464,7 @@ def load_frozen_release(root: Path) -> FrozenRelease:
         "freeze manifest",
     )
     if manifest.get("schema_version") != FREEZE_MANIFEST_VERSION:
-        raise FreezeError(
-            f"freeze manifest must use schema {FREEZE_MANIFEST_VERSION!r}"
-        )
+        raise FreezeError(f"freeze manifest must use schema {FREEZE_MANIFEST_VERSION!r}")
     claimed = manifest.get("record_digest")
     unsigned = {key: value for key, value in manifest.items() if key != "record_digest"}
     if claimed != sha256_json(unsigned):

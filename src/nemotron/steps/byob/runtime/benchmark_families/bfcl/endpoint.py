@@ -44,6 +44,8 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.isolation import (
 )
 
 PROTOCOL_VERSION = "bfcl-oracle-http-v1"
+ENDPOINT_CREDENTIAL_POLICY_VERSION = "bfcl-endpoint-credential-policy-v1"
+ENDPOINT_CREDENTIAL_POLICY_ENV = "BFCL_ENDPOINT_CREDENTIAL_POLICY"
 _ATTESTATION_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _CONFIG_KEYS = frozenset(
     {
@@ -128,13 +130,8 @@ class EndpointIdentity:
         }
         for name, optional_digest in optional_digests.items():
             if optional_digest is not None:
-                if (
-                    not isinstance(optional_digest, str)
-                    or _ATTESTATION_DIGEST.fullmatch(optional_digest) is None
-                ):
-                    raise ValueError(
-                        f"{source} {name} must be sha256:<64 lowercase hex characters>"
-                    )
+                if not isinstance(optional_digest, str) or _ATTESTATION_DIGEST.fullmatch(optional_digest) is None:
+                    raise ValueError(f"{source} {name} must be sha256:<64 lowercase hex characters>")
         return cls(
             protocol_version=fields["protocol_version"],
             oracle_id=fields["oracle_id"],
@@ -142,9 +139,7 @@ class EndpointIdentity:
             content_digest=fields["content_digest"],
             principal_digest=optional_digests["principal_digest"],
             permission_digest=optional_digests["permission_digest"],
-            authorization_context_digest=optional_digests[
-                "authorization_context_digest"
-            ],
+            authorization_context_digest=optional_digests["authorization_context_digest"],
         )
 
     def as_dict(self) -> dict[str, str]:
@@ -189,6 +184,81 @@ class EndpointConfig:
     max_response_bytes: int = 10 * 1024 * 1024
 
 
+@dataclass(frozen=True)
+class EndpointCredentialGrant:
+    """Operator-owned permission to send named credentials to one exact destination."""
+
+    base_url: str
+    credential_references: tuple[CredentialReference, ...]
+
+
+@dataclass(frozen=True)
+class EndpointCredentialPolicy:
+    """Credential grants loaded independently of the untrusted oracle pack."""
+
+    grants: tuple[EndpointCredentialGrant, ...]
+
+    def authorize(
+        self,
+        *,
+        base_url: str,
+        references: tuple[CredentialReference, ...],
+    ) -> None:
+        requested = {_reference_identity(reference) for reference in references}
+        authorized = {
+            _reference_identity(reference)
+            for grant in self.grants
+            if grant.base_url == base_url
+            for reference in grant.credential_references
+        }
+        if not requested <= authorized:
+            raise ValueError(
+                "endpoint credential policy does not authorize every configured "
+                f"credential reference for destination {base_url!r}"
+            )
+
+    @classmethod
+    def from_mapping(cls, value: Any, *, source: str) -> EndpointCredentialPolicy:
+        if not isinstance(value, dict):
+            raise ValueError(f"{source} must be a JSON object")
+        _reject_unknown(
+            value,
+            frozenset({"schema_version", "grants"}),
+            source,
+        )
+        if value.get("schema_version") != ENDPOINT_CREDENTIAL_POLICY_VERSION:
+            raise ValueError(f"{source} schema_version must be {ENDPOINT_CREDENTIAL_POLICY_VERSION!r}")
+        raw_grants = value.get("grants")
+        if not isinstance(raw_grants, list) or not raw_grants:
+            raise ValueError(f"{source} grants must be a non-empty list")
+        grants: list[EndpointCredentialGrant] = []
+        for index, raw_grant in enumerate(raw_grants):
+            label = f"{source} grants[{index}]"
+            if not isinstance(raw_grant, dict):
+                raise ValueError(f"{label} must be a mapping")
+            _reject_unknown(
+                raw_grant,
+                frozenset({"base_url", "credential_references"}),
+                label,
+            )
+            base_url = _validate_base_url(raw_grant.get("base_url"), f"{label}.base_url")
+            raw_references = raw_grant.get("credential_references")
+            if not isinstance(raw_references, list) or not raw_references:
+                raise ValueError(f"{label}.credential_references must be a non-empty list")
+            references = tuple(
+                _credential_reference(reference, f"{label}.credential_references") for reference in raw_references
+            )
+            if len({_reference_identity(reference) for reference in references}) != len(references):
+                raise ValueError(f"{label} repeats a credential reference")
+            grants.append(
+                EndpointCredentialGrant(
+                    base_url=base_url,
+                    credential_references=references,
+                )
+            )
+        return cls(grants=tuple(grants))
+
+
 def _reject_unknown(value: Mapping[str, Any], allowed: frozenset[str], source: str) -> None:
     unknown = sorted(set(value) - allowed)
     if unknown:
@@ -212,6 +282,42 @@ def _credential_reference(value: Any, source: str) -> CredentialReference:
         raise ValueError(f"{source} is invalid: {exc}") from exc
 
 
+def _reference_identity(reference: CredentialReference) -> str:
+    return json.dumps(
+        reference.model_dump(mode="json"),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _validate_base_url(value: Any, source: str) -> str:
+    base_url = _nonempty_string(value, source).rstrip("/")
+    parsed = urllib.parse.urlsplit(base_url)
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError(f"{source} must be an HTTPS origin/path without credentials, query, or fragment")
+    return base_url
+
+
+def load_endpoint_credential_policy(path: Path) -> EndpointCredentialPolicy:
+    """Load an operator policy from a JSON file outside pack-controlled configuration."""
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"endpoint credential policy is unreadable: {path}") from exc
+    return EndpointCredentialPolicy.from_mapping(
+        value,
+        source=f"endpoint credential policy {path}",
+    )
+
+
 def load_endpoint_config(
     path: Path,
     *,
@@ -227,17 +333,7 @@ def load_endpoint_config(
     if protocol != PROTOCOL_VERSION:
         raise ValueError(f"endpoint protocol_version must be {PROTOCOL_VERSION!r}, got {protocol!r}")
 
-    base_url = _nonempty_string(raw.get("base_url"), "endpoint base_url").rstrip("/")
-    parsed = urllib.parse.urlsplit(base_url)
-    if (
-        parsed.scheme != "https"
-        or not parsed.hostname
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.query
-        or parsed.fragment
-    ):
-        raise ValueError("endpoint base_url must be an HTTPS origin/path without credentials, query, or fragment")
+    base_url = _validate_base_url(raw.get("base_url"), "endpoint base_url")
 
     auth = raw.get("auth") or {}
     if not isinstance(auth, dict):
@@ -246,9 +342,7 @@ def load_endpoint_config(
     bearer = auth.get("bearer_token_env")
     bearer_ref_value = auth.get("bearer_token_ref")
     if bearer is not None and bearer_ref_value is not None:
-        raise ValueError(
-            "endpoint auth must not set both bearer_token_env and bearer_token_ref"
-        )
+        raise ValueError("endpoint auth must not set both bearer_token_env and bearer_token_ref")
     bearer_ref = None
     if bearer is not None:
         bearer = _nonempty_string(bearer, "endpoint auth.bearer_token_env")
@@ -330,23 +424,14 @@ def load_endpoint_config(
         if reference is not None
     )
     if credential_refs and expected_identity.authorization_context_digest is not None:
-        if (
-            expected_identity.principal_digest is None
-            or expected_identity.permission_digest is None
-        ):
-            raise ValueError(
-                "authorization_context_digest requires principal_digest and "
-                "permission_digest"
-            )
+        if expected_identity.principal_digest is None or expected_identity.permission_digest is None:
+            raise ValueError("authorization_context_digest requires principal_digest and permission_digest")
         context = build_authorization_context(
             credential_refs,
             principal_digest=expected_identity.principal_digest,
             permission_digest=expected_identity.permission_digest,
         )
-        if (
-            context.authorization_context_digest
-            != expected_identity.authorization_context_digest
-        ):
+        if context.authorization_context_digest != expected_identity.authorization_context_digest:
             raise ValueError(
                 "endpoint expected authorization_context_digest does not match "
                 "credential references, principal, and permissions"
@@ -371,11 +456,39 @@ def resolve_endpoint_headers(
     environ: Mapping[str, str] | None = None,
     *,
     credential_resolver: CredentialResolver | None = None,
+    credential_policy: EndpointCredentialPolicy | None = None,
 ) -> dict[str, str]:
-    """Resolve configured secret references without retaining their values in config."""
-    resolver = credential_resolver or CredentialResolver(
-        environ=os.environ if environ is None else environ
+    """Resolve secrets only after an operator-owned destination grant authorizes them.
+
+    Passing ``environ`` or ``credential_resolver`` explicitly is a one-call scoped
+    operator grant for exactly the references and destination in ``config``. Ambient
+    process credentials require a policy file named by
+    ``BFCL_ENDPOINT_CREDENTIAL_POLICY``; the untrusted pack cannot select that path.
+    """
+    references = tuple(
+        reference
+        for reference in (
+            config.bearer_token_ref,
+            *(reference for _, reference in config.header_refs),
+        )
+        if reference is not None
     )
+    if not references:
+        return {}
+    explicit_scope = environ is not None or credential_resolver is not None
+    if credential_policy is None and not explicit_scope:
+        policy_path = os.environ.get(ENDPOINT_CREDENTIAL_POLICY_ENV, "").strip()
+        if not policy_path:
+            raise ValueError(
+                f"authenticated endpoint requires an operator credential policy; set {ENDPOINT_CREDENTIAL_POLICY_ENV}"
+            )
+        credential_policy = load_endpoint_credential_policy(Path(policy_path))
+    if credential_policy is not None:
+        credential_policy.authorize(
+            base_url=config.base_url,
+            references=references,
+        )
+    resolver = credential_resolver or CredentialResolver(environ=os.environ if environ is None else environ)
     headers: dict[str, str] = {}
     if config.bearer_token_ref is not None:
         token = resolver.resolve(config.bearer_token_ref)

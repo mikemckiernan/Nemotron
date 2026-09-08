@@ -141,9 +141,7 @@ def test_config_identity_ignores_symlinks_in_the_spelling_of_a_root(tmp_path: Pa
 
     hashes = set()
     for name, root in (("direct", real), ("through-link", link)):
-        value = yaml.safe_load(
-            (BYOB_ROOT / "bfcl" / "config" / "tiny.yaml").read_text(encoding="utf-8")
-        )
+        value = yaml.safe_load((BYOB_ROOT / "bfcl" / "config" / "tiny.yaml").read_text(encoding="utf-8"))
         value["output_dir"] = str(root / "output")
         path = tmp_path / f"{name}.yaml"
         path.write_text(yaml.safe_dump(value), encoding="utf-8")
@@ -152,9 +150,7 @@ def test_config_identity_ignores_symlinks_in_the_spelling_of_a_root(tmp_path: Pa
     assert len(hashes) == 1
 
 
-def test_resume_rejects_pack_and_pipeline_identity_drift(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_resume_rejects_pack_and_pipeline_identity_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config, pack = _mutable_pack_config(tmp_path)
     generate_bfcl(config)
     prompt = pack / "README.md"
@@ -179,9 +175,40 @@ def test_resume_rejects_pack_and_pipeline_identity_drift(
         generate_bfcl(config, skip_until="final_output")
 
 
-def test_stage_all_resume_does_not_run_prepare(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_runtime_metadata_does_not_stamp_an_unrelated_repository(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from nemotron.steps.byob.runtime.benchmark_families.bfcl import runtime_metadata
+
+    unrelated_repo = tmp_path / "application"
+    installed_package = unrelated_repo / ".venv" / "site-packages" / "byob"
+    installed_package.mkdir(parents=True)
+    (installed_package / "__init__.py").write_text("", encoding="utf-8")
+    monkeypatch.setattr(
+        runtime_metadata,
+        "_step_package_root",
+        lambda: installed_package,
+    )
+
+    def unrelated_git(*arguments: str) -> str | None:
+        responses = {
+            ("rev-parse", "--is-inside-work-tree"): "true",
+            ("rev-parse", "--show-toplevel"): str(unrelated_repo),
+            ("rev-parse", "HEAD"): "unrelated-head",
+        }
+        return responses.get(arguments)
+
+    monkeypatch.setattr(runtime_metadata, "_git", unrelated_git)
+    monkeypatch.delenv("GIT_COMMIT", raising=False)
+    monkeypatch.delenv("CI_COMMIT_SHA", raising=False)
+
+    metadata = runtime_metadata.runtime_metadata()
+    assert metadata["pipeline_git_sha"] is None
+    assert metadata["pipeline_git_dirty"] is None
+
+
+def test_stage_all_resume_does_not_run_prepare(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = _config(tmp_path)
     generate_bfcl(config)
 
@@ -221,13 +248,7 @@ def test_stage_twelve_checkpoint_is_durable_before_publication_commit(
 
     def checked_commit(staging_dir: Path, output_dir: Path) -> Path:
         assert not (output_dir / "run_manifest.json").exists()
-        assert (
-            output_dir
-            / "stage_cache"
-            / "checkpoints"
-            / "final_output"
-            / "manifest.json"
-        ).is_file()
+        assert (output_dir / "stage_cache" / "checkpoints" / "final_output" / "manifest.json").is_file()
         return real_commit(staging_dir, output_dir)
 
     monkeypatch.setattr(final_output, "_commit_staged_publication", checked_commit)
@@ -248,10 +269,7 @@ def test_downstream_checkpoint_rejects_modified_inherited_artifact(
         result = real_write(config_value, stage, state, **kwargs)
         if stage == "render":
             artifact = (
-                Path(config_value.output_dir)
-                / config_value.expt_name
-                / "stage_cache"
-                / "paraphrase_rejections.json"
+                Path(config_value.output_dir) / config_value.expt_name / "stage_cache" / "paraphrase_rejections.json"
             )
             artifact.write_text(
                 artifact.read_text(encoding="utf-8") + " ",
@@ -275,11 +293,7 @@ def test_missing_staged_publication_cannot_receive_a_checkpoint(
     def remove_publication_file(config_value, stage, state, **kwargs):  # type: ignore[no-untyped-def]
         if stage == "final_output":
             publication_paths = kwargs["publication_paths"]
-            next(
-                path
-                for path in publication_paths
-                if path.name == "benchmark_raw.parquet"
-            ).unlink()
+            next(path for path in publication_paths if path.name == "benchmark_raw.parquet").unlink()
         return real_write(config_value, stage, state, **kwargs)
 
     monkeypatch.setattr(checkpoint, "write_checkpoint", remove_publication_file)

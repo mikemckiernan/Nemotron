@@ -25,20 +25,14 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.pack_loader import (
 )
 
 BANKING_PACK_ROOT = (
-    Path(__file__).resolve().parents[3]
-    / "src"
-    / "nemotron"
-    / "steps"
-    / "byob"
-    / "data"
-    / "banking_vn_oracle_pack"
+    Path(__file__).resolve().parents[3] / "src" / "nemotron" / "steps" / "byob" / "data" / "banking_vn_oracle_pack"
 )
 
 # What generation recorded in the release's run_manifest.json, under
 # `pack.content_hash`. Changing this constant to match an edited pack does not
 # make the edited pack scoreable: the hash lives in the published manifest too.
 PUBLISHED_RELEASE = "banking-vn-gold-v1-1392"
-PUBLISHED_PACK_FINGERPRINT = "sha256:f1d6ab3ae97df6c1090cd46031484aa1c4e5c91e87d3f5ccde346e3e7d645718"
+PUBLISHED_PACK_FINGERPRINT = "sha256:c5bb5c39033c28dd4c6e5d7197e88db2801e85887458457088a16cccf7e740eb"
 
 # The aggregate is one rolling digest and cannot say which file moved. That
 # release predates per-file recording, so the map is pinned here instead, which
