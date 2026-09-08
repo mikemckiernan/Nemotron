@@ -415,6 +415,13 @@ def test_bfcl_builds_and_rebinds_a_deterministic_a2_report() -> None:
     )
 
     assert report == rebuilt
+    # Pin the serialized contract independently of the production digest helper.
+    # Recomputing the expectation with sha256_json(report) would only prove that
+    # the implementation agrees with itself.
+    assert (
+        report.report_digest
+        == "sha256:385ec7d931a0ab6e53f7942e3d2ffd9a4775f4c14c6cdb9fbfee35324eb0f21d"
+    )
     assert report.attained_tier is AdapterTier.A2
     verify_certification_report(
         report,

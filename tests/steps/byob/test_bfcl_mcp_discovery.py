@@ -165,6 +165,23 @@ def _digest_config(config: McpOracleConfig) -> McpOracleConfig:
     )
 
 
+def test_catalog_identity_digest_matches_independent_golden_value() -> None:
+    config = McpOracleConfig.model_validate(_raw_config())
+    catalog = normalize_catalog(TOOLS, config)
+    document = catalog_identity_document(
+        config,
+        negotiated_mcp_version="2026-07-28",
+        server_name="catalog",
+        server_version="1.0.0",
+        catalog=catalog,
+    )
+
+    assert (
+        "sha256:" + hashlib.sha256(canonical_json(document).encode()).hexdigest()
+        == "sha256:a5522e4a95e8ad99d38e34074f6ff8d4f300e02799859c84d9ea6e5daec79e56"
+    )
+
+
 def _loaded(config: McpOracleConfig | None = None) -> LoadedMcpOracleConfig:
     value = (
         _digest_config(McpOracleConfig.model_validate(_raw_config()))
