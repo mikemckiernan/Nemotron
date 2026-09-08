@@ -109,7 +109,7 @@ artifacts, and the symptom-to-fix index.
 
 | Guide | What you will do |
 | --- | --- |
-| {doc}`how-to/start-from-domain-data` | Choose manual or model-assisted authoring and take your own executable domain to a reviewed pack |
+| {doc}`how-to/start-from-domain-data` | Choose manual or model-assisted authoring and turn reviewed domain assets into an executable pack |
 | {doc}`how-to/author-a-pack` | Scaffold, fill in, and validate an Oracle Pack of your own |
 | {doc}`how-to/assisted-authoring` | Draft a pack from a Python package or HTTP service with model assistance |
 | {doc}`how-to/mcp-server` | Onboard a running MCP server as the oracle |
@@ -135,8 +135,14 @@ artifacts, and the symptom-to-fix index.
 | Guide | What you will find |
 | --- | --- |
 | {doc}`reference/oracle-pack-inputs` | Required pack files, manifest fields, fill order, and cross-file tool lineage |
+| {doc}`reference/manifest` | Manifest paths, languages, shared text, confirmation vocabulary, and examples |
+| {doc}`reference/tools-and-fixtures` | Public tool schemas, deterministic records, and fixture-slot contracts |
 | {doc}`reference/python-backend` | The four required backend callables and executable-oracle invariants |
 | {doc}`reference/task-templates` | Core template fields, slots, milestones, and turn-policy examples |
+| {doc}`reference/assertions` | Assertion signatures, exports, capabilities, outcomes, and failures |
+| {doc}`reference/validation-cases` | Probe fields, result classes, coverage, chaining, and failures |
+| {doc}`reference/endpoint-config` | Endpoint identity, credentials, TLS, attestation, and HTTP routes |
+| {doc}`reference/held-out-policy` | Fixture and template reservations and leak enforcement |
 | {doc}`reference/generate-config` | Generation YAML fields, block by block |
 | {doc}`reference/eval-config` | Evaluation YAML fields and the three envelopes |
 | {doc}`reference/output-files` | Every path written under `output_dir` / `expt_name` |
@@ -158,9 +164,8 @@ artifacts, and the symptom-to-fix index.
 1. Follow {doc}`getting-started` if you have not run the step yet.
 2. Use {doc}`how-to/start-from-domain-data` to choose manual or model-assisted
    authoring for your own tool interface, state, and business behavior.
-3. Open {doc}`reference/oracle-pack-inputs` for the required files, then use
-   {doc}`reference/python-backend` or {doc}`reference/task-templates` while filling
-   them.
+3. Open {doc}`reference/oracle-pack-inputs` for the required files and its standardized
+   reference link for each artifact you are filling.
 4. Read {doc}`explanation/oracle-pack` for the trust model and Gold tier, then follow
    the selected authoring guide.
 5. Open {doc}`reference/generate-config` or {doc}`reference/eval-config` for run-level

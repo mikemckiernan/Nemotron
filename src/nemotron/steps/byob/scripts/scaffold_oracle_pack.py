@@ -30,6 +30,17 @@ import yaml  # type: ignore[import-untyped]
 
 _PACK_ID = re.compile(r"^[a-z][a-z0-9_]*$")
 _ZERO_DIGEST = "sha256:" + "0" * 64
+OPERATOR_REFERENCE_SLUGS = (
+    "oracle-pack-inputs",
+    "manifest",
+    "tools-and-fixtures",
+    "python-backend",
+    "task-templates",
+    "assertions",
+    "validation-cases",
+    "endpoint-config",
+    "held-out-policy",
+)
 
 
 def _pack_id(domain: str) -> str:
@@ -409,14 +420,19 @@ def _readme(
     endpoint_note = (
         ""
         if transport == "python"
-        else "\nBefore validation, replace the endpoint URL, identity digest, and "
-        "`BFCL_ORACLE_TOKEN` with values from `GET /v1/metadata`.\n"
+        else "\nBefore validation, replace the endpoint URL and identity pins with "
+        "reviewed values from `GET /v1/metadata`, configure the referenced credential "
+        "environment variables, and pin conformance evidence from `GET /v1/conformance`. "
+        "The placeholder endpoint cannot reach Gold.\n"
     )
     held_out_note = (
         "\n`held_out.yaml` reserves `REC-HELD-OUT-1` and removes it from runtime "
-        "state. Replace this example with reviewed private fixtures.\n"
+        "state. Replace this example with reviewed reservations.\n"
         if include_held_out
         else ""
+    )
+    reference_lines = "\n".join(
+        f"- `docs/build-benchmarks/function-calling/reference/{slug}.md`" for slug in OPERATOR_REFERENCE_SLUGS
     )
     return f"""# {pack_id} BFCL Oracle pack
 
@@ -452,11 +468,12 @@ JSON-serializable values; expected business errors use
 `{{"error": {{"code": "..."}}}}` rather than raising. Keep reset and state
 deterministic and return defensive copies.
 
-From a Nemotron checkout, the operator-facing references are:
+When working from a Nemotron source checkout, the operator-facing references are:
 
-- `docs/build-benchmarks/function-calling/reference/oracle-pack-inputs.md`
-- `docs/build-benchmarks/function-calling/reference/python-backend.md`
-- `docs/build-benchmarks/function-calling/reference/task-templates.md`
+{reference_lines}
+
+These source-relative paths are not bundled in the Python wheel. For an installed
+package, use the hosted documentation matching that package version.
 
 ## Validate and generate
 
@@ -473,7 +490,9 @@ python -m nemotron.steps.byob.scripts.run \\
   --config "$PACK/validate.yaml" --stage generate
 ```
 
-Inspect `validation-output/oracle_validation_report.json` before generation.
+Inspect
+`/tmp/bfcl-{pack_id}-validation/bfcl_{pack_id}_starter/stage_cache/oracle_validation_report.json`
+before generation.
 Do not publish until every TODO value and, for endpoints, every identity pin is
 replaced with reviewed domain evidence.
 """

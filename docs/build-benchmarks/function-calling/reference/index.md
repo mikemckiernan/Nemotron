@@ -12,8 +12,14 @@ Field-level and artifact-level detail for `nemotron steps run byob/bfcl` with th
 :hidden:
 
 Oracle Pack Inputs <oracle-pack-inputs>
+Manifest <manifest>
+Tool Catalog And Fixtures <tools-and-fixtures>
 Python Backend <python-backend>
 Task Templates <task-templates>
+Assertions <assertions>
+Validation Cases <validation-cases>
+Endpoint Configuration <endpoint-config>
+Held-Out Policy <held-out-policy>
 Generation Config <generate-config>
 Evaluation Config <eval-config>
 Output Files <output-files>
@@ -31,6 +37,22 @@ Required files, manifest fields, fill order, and how tool names connect the pack
 {bdg-secondary}`pack files`
 :::
 
+:::{grid-item-card} {octicon}`package;1.5em;sd-mr-1` Manifest
+:link: manifest
+:link-type: doc
+Identity, paths, languages, shared text, confirmation vocabulary, and field examples.
++++
+{bdg-secondary}`manifest.yaml`
+:::
+
+:::{grid-item-card} {octicon}`code;1.5em;sd-mr-1` Tool catalog and fixtures
+:link: tools-and-fixtures
+:link-type: doc
+Public function schemas, deterministic reset records, minimal examples, and validation.
++++
+{bdg-secondary}`JSON`
+:::
+
 :::{grid-item-card} {octicon}`code;1.5em;sd-mr-1` Python backend
 :link: python-backend
 :link-type: doc
@@ -45,6 +67,38 @@ The four required callables, deterministic reset, structured errors, and confirm
 Core fields, slot binding, milestones, turn policies, and complete conversation shapes.
 +++
 {bdg-secondary}`task_templates.yaml`
+:::
+
+:::{grid-item-card} {octicon}`beaker;1.5em;sd-mr-1` Assertions
+:link: assertions
+:link-type: doc
+Signatures, exports, capabilities, outcome semantics, examples, and failure reasons.
++++
+{bdg-secondary}`assertions.py`
+:::
+
+:::{grid-item-card} {octicon}`beaker;1.5em;sd-mr-1` Validation cases
+:link: validation-cases
+:link-type: doc
+Case fields, result classes, coverage, chaining, examples, and executable checks.
++++
+{bdg-secondary}`validation_cases.yaml`
+:::
+
+:::{grid-item-card} {octicon}`gear;1.5em;sd-mr-1` Endpoint configuration
+:link: endpoint-config
+:link-type: doc
+Pinned identity, credentials, TLS, attestation, HTTP routes, and validation failures.
++++
+{bdg-secondary}`endpoint_config.yaml`
+:::
+
+:::{grid-item-card} {octicon}`package;1.5em;sd-mr-1` Held-out policy
+:link: held-out-policy
+:link-type: doc
+Reserved fixture and template ids, backend-state policy, validation, and leak checks.
++++
+{bdg-secondary}`held_out.yaml`
 :::
 
 :::{grid-item-card} {octicon}`gear;1.5em;sd-mr-1` Generation config

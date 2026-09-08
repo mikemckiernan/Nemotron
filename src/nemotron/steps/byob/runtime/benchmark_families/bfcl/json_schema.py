@@ -303,6 +303,15 @@ def validate_tool_definition(tool: Any) -> list[dict[str, Any]]:
     failures: list[dict[str, Any]] = []
     if tool.get("type", "function") != "function":
         failures.append({"reason": "tool_type_not_function", "value": tool.get("type")})
+    for extension in ("x-mutates", "x-requires-confirmation"):
+        if extension in tool and not isinstance(tool[extension], bool):
+            failures.append(
+                {
+                    "reason": "tool_extension_not_boolean",
+                    "field": extension,
+                    "value": tool[extension],
+                }
+            )
     function = tool.get("function")
     if not isinstance(function, dict):
         return [*failures, {"reason": "tool_function_not_object"}]
@@ -341,9 +350,7 @@ def _check_value(
         resolved = _resolve_local_ref(reference, root)
         if resolved is None:
             return [{"reason": "unresolvable_schema_ref", "argument": path}]
-        failures.extend(
-            _check_value(resolved, value, path, root=root, ref_stack=(*ref_stack, reference))
-        )
+        failures.extend(_check_value(resolved, value, path, root=root, ref_stack=(*ref_stack, reference)))
         schema = {key: child for key, child in schema.items() if key != "$ref"}
     for branch in schema.get("allOf", ()):
         if isinstance(branch, Mapping):
@@ -401,9 +408,7 @@ def _check_value(
         item_schema = schema.get("items")
         if isinstance(item_schema, Mapping):
             for index, item in enumerate(value):
-                failures.extend(
-                    _check_value(item_schema, item, f"{path}[{index}]", root=root, ref_stack=ref_stack)
-                )
+                failures.extend(_check_value(item_schema, item, f"{path}[{index}]", root=root, ref_stack=ref_stack))
 
     if isinstance(value, dict):
         raw_properties = schema.get("properties")
@@ -424,9 +429,7 @@ def _check_value(
         for name, child in value.items():
             child_schema = properties.get(name)
             if isinstance(child_schema, Mapping):
-                failures.extend(
-                    _check_value(child_schema, child, f"{path}.{name}", root=root, ref_stack=ref_stack)
-                )
+                failures.extend(_check_value(child_schema, child, f"{path}.{name}", root=root, ref_stack=ref_stack))
     return failures
 
 
@@ -567,17 +570,12 @@ def _defaults_in_value(
             if key not in filled and default is not _NO_DEFAULT:
                 filled[key] = thaw_json(default)
             if key in filled:
-                filled[key] = _defaults_in_value(
-                    filled[key], child_schema, root=root, ref_stack=ref_stack
-                )
+                filled[key] = _defaults_in_value(filled[key], child_schema, root=root, ref_stack=ref_stack)
         return filled
 
     items = schema.get("items")
     if isinstance(value, list) and isinstance(items, Mapping):
-        return [
-            _defaults_in_value(item, items, root=root, ref_stack=ref_stack)
-            for item in value
-        ]
+        return [_defaults_in_value(item, items, root=root, ref_stack=ref_stack) for item in value]
     return thaw_json(value)
 
 

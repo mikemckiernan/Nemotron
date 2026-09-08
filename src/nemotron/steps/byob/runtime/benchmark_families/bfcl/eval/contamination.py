@@ -48,7 +48,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -92,9 +92,7 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.source_verificatio
 # Why a collision was recorded, in the report's own words. These are the only
 # two ways a candidate can fail to be separated from a model that read the rows.
 _MATCH_REASON = "the candidate and the exposed model resolve to the same weights"
-_UNKNOWN_REASON = (
-    "the candidate and the exposed model cannot be told apart from what either side pinned"
-)
+_UNKNOWN_REASON = "the candidate and the exposed model cannot be told apart from what either side pinned"
 
 
 def evaluate_contamination(config: BfclEvalConfig, source: VerifiedEvalSource) -> EligibleEvalPlan:
@@ -231,9 +229,7 @@ def _examine_candidate(
     once every candidate has been examined.
     """
     claim = candidate_identity_claim(candidate)
-    collisions = tuple(
-        collision for exposure in exposures if (collision := _collision(claim, exposure)) is not None
-    )
+    collisions = tuple(collision for exposure in exposures if (collision := _collision(claim, exposure)) is not None)
     definite = tuple(collision for collision in collisions if collision.verdict == "match")
     if config.contamination.enforce and definite and config.contamination.on_violation == "exclude_row":
         excluded = _ordered(
@@ -251,9 +247,7 @@ def _examine_candidate(
         claim=claim,
         collisions=collisions,
         excluded_task_ids=excluded,
-        eligible_task_ids=tuple(
-            task_id for task_id in source.task_index.task_ids if task_id not in excluded_set
-        ),
+        eligible_task_ids=tuple(task_id for task_id in source.task_index.task_ids if task_id not in excluded_set),
         published_task_count=source.task_index.task_count,
     )
 
@@ -417,7 +411,7 @@ def contamination_report(
     decided_at: datetime | None = None,
 ) -> ContaminationReport:
     """Wrap a plan into the artifact a score can cite."""
-    moment = decided_at or datetime.now(UTC)
+    moment = decided_at or datetime.now(timezone.utc)
     return ContaminationReport(decided_at=moment.isoformat(), plan=plan)
 
 
@@ -442,7 +436,7 @@ def write_contamination_failure(config: BfclEvalConfig, error: Exception) -> tup
     document: dict[str, Any] = {
         "schema_version": CONTAMINATION_CONTRACT_VERSION,
         "status": "failed",
-        "diagnosed_at": datetime.now(UTC).isoformat(),
+        "diagnosed_at": datetime.now(timezone.utc).isoformat(),
         "eval_config_hash": config.eval_config_hash,
         "source_run_id": config.source.run_id,
         "error": (

@@ -51,7 +51,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from nemotron.steps.byob.runtime.pack_authoring.untrusted_text import quote_untrusted
+from nemotron.steps.byob.runtime.pack_authoring.untrusted_text import (
+    fence_nested_text,
+    quote_untrusted,
+)
 from nemotron.steps.byob.runtime.source_adapters.probe_engine import (
     AdapterProbePlan,
     ReviewedProbeTool,
@@ -302,7 +305,9 @@ def tool_payload(tools: Sequence[Mapping[str, Any]]) -> str:
                 "declared_requires_confirmation": bool(entry.get("x-requires-confirmation")),
                 # Structure rather than prose: the draft needs the types and enums to know
                 # when a literal is pinned by the schema and when it must come from a row.
-                "parameters": parameters,
+                # So the fence goes on the keys inside the schema that are prose after all,
+                # which is where a server's longest untrusted text on this payload lives.
+                "parameters": fence_nested_text(parameters),
             }
         )
     return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)

@@ -156,6 +156,11 @@ def resolve_declared_pack_paths(
         if not held_out_path.is_file():
             raise FileNotFoundError(f"missing held-out policy file: {held_out_path}")
 
+    canonical_backend = pack_root / "backend.py"
+    canonical_endpoint = pack_root / "endpoint_config.yaml"
+    if canonical_backend.exists() and canonical_endpoint.exists():
+        raise ValueError("oracle pack cannot contain both canonical backend.py and endpoint_config.yaml")
+
     backend_path = None
     endpoint_config_path = None
     if ref.backend_path is not None:
@@ -172,12 +177,11 @@ def resolve_declared_pack_paths(
             _as_path(pack_root, paths_block["endpoint"]),  # type: ignore[arg-type]
             allowed_roots,
         )
-    elif (pack_root / "backend.py").exists():
-        backend_path = assert_pack_allowed(pack_root / "backend.py", allowed_roots)
-    elif (pack_root / "endpoint_config.yaml").exists():
-        endpoint_config_path = assert_pack_allowed(
-            pack_root / "endpoint_config.yaml", allowed_roots
-        )
+    else:
+        if canonical_backend.exists():
+            backend_path = assert_pack_allowed(canonical_backend, allowed_roots)
+        elif canonical_endpoint.exists():
+            endpoint_config_path = assert_pack_allowed(canonical_endpoint, allowed_roots)
 
     if (backend_path is None) == (endpoint_config_path is None):
         raise ValueError("oracle pack must declare exactly one of backend.py or endpoint_config.yaml")
@@ -255,9 +259,7 @@ def pack_files(paths: ResolvedPackPaths) -> list[Path]:
             # A digest of the target is not a freeze of the pack: the target can be
             # replaced independently and may sit outside the reviewed tree. Reject links
             # even when they currently resolve to an allowlisted regular file.
-            raise PackTrustError(
-                f"oracle pack must not contain symbolic links: {path}"
-            )
+            raise PackTrustError(f"oracle pack must not contain symbolic links: {path}")
         if not path.is_file():
             continue
         if any(part in IGNORED_PACK_DIRS for part in path.relative_to(paths.pack_root).parts):
@@ -409,26 +411,20 @@ def resolve_tool_exposure(
             if not isinstance(declared, list) or any(
                 not isinstance(name, str) or not name.strip() for name in declared
             ):
-                raise ValueError(
-                    f"template {template_id!r} tools_present must be a list of tool names"
-                )
+                raise ValueError(f"template {template_id!r} tools_present must be a list of tool names")
             normalized = [name.strip() for name in declared]
             if len(set(normalized)) != len(normalized):
                 raise ValueError(f"template {template_id!r} repeats a tool in tools_present")
             if unknown := sorted(set(normalized) - known):
                 raise ValueError(
-                    f"template {template_id!r} exposes tools missing from tools.json: "
-                    + ", ".join(unknown)
+                    f"template {template_id!r} exposes tools missing from tools.json: " + ", ".join(unknown)
                 )
             item["tools_present"] = normalized
         required = [str(name) for name in item.get("required_tools") or []]
         # A gold call to a tool the candidate never saw is rejected downstream, so an
         # exposure that omits a required tool describes an unsatisfiable task.
         if missing := sorted(set(required) - set(item["tools_present"])):
-            raise ValueError(
-                f"template {template_id!r} requires tools it does not expose: "
-                + ", ".join(missing)
-            )
+            raise ValueError(f"template {template_id!r} requires tools it does not expose: " + ", ".join(missing))
         resolved.append(item)
     return resolved
 
@@ -448,17 +444,13 @@ def normalize_templates(templates: list[dict[str, Any]]) -> list[dict[str, Any]]
             raise ValueError(f"template {template_id!r} paraphrase must be a mapping")
         paraphrase = item["paraphrase"]
         if "allowed" in paraphrase and not isinstance(paraphrase["allowed"], bool):
-            raise ValueError(
-                f"template {template_id!r} paraphrase.allowed must be a boolean"
-            )
+            raise ValueError(f"template {template_id!r} paraphrase.allowed must be a boolean")
         if "max_variants" in paraphrase and (
             not isinstance(paraphrase["max_variants"], int)
             or isinstance(paraphrase["max_variants"], bool)
             or paraphrase["max_variants"] < 0
         ):
-            raise ValueError(
-                f"template {template_id!r} paraphrase.max_variants must be a non-negative integer"
-            )
+            raise ValueError(f"template {template_id!r} paraphrase.max_variants must be a non-negative integer")
         item.setdefault("call_order", "strict")
         item.setdefault("success_assertions", [])
         if not isinstance(item["success_assertions"], list):
@@ -520,21 +512,13 @@ def normalize_templates(templates: list[dict[str, Any]]) -> list[dict[str, Any]]
                     f"template {template_id!r} slot {name!r} must declare visible_in_first_turn as a boolean"
                 )
         edge_signatures = item.get("edge_signatures") or []
-        if (
-            not isinstance(edge_signatures, list)
-            or any(
-                not isinstance(signature, str) or not signature.strip()
-                for signature in edge_signatures
-            )
+        if not isinstance(edge_signatures, list) or any(
+            not isinstance(signature, str) or not signature.strip() for signature in edge_signatures
         ):
-            raise ValueError(
-                f"template {template_id!r} edge_signatures must be a list of non-empty strings"
-            )
+            raise ValueError(f"template {template_id!r} edge_signatures must be a list of non-empty strings")
         normalized_edges = [signature.strip() for signature in edge_signatures]
         if len(set(normalized_edges)) != len(normalized_edges):
-            raise ValueError(
-                f"template {template_id!r} edge_signatures must be unique"
-            )
+            raise ValueError(f"template {template_id!r} edge_signatures must be unique")
         item["edge_signatures"] = sorted(normalized_edges)
         normalized.append(item)
     return normalized
@@ -603,8 +587,7 @@ def load_held_out_policy(
         if not isinstance(rows, list):
             raise ValueError(f"held_out.fixtures names unknown fixture collection {collection!r}")
         if not isinstance(identifiers, list) or any(
-            not isinstance(identifier, (str, int, float)) or isinstance(identifier, bool)
-            for identifier in identifiers
+            not isinstance(identifier, (str, int, float)) or isinstance(identifier, bool) for identifier in identifiers
         ):
             raise ValueError(f"held_out.fixtures.{collection} must be a list of scalar primary ids")
         if not identifiers:
@@ -690,9 +673,7 @@ def oracle_runtime_fixtures(
     for collection, identifiers in (held_out.get("fixtures") or {}).items():
         rows = fixtures.get(collection)
         if not isinstance(rows, list):
-            raise ValueError(
-                f"held_out.fixtures names unknown fixture collection {collection!r}"
-            )
+            raise ValueError(f"held_out.fixtures names unknown fixture collection {collection!r}")
         primary_key = _fixture_primary_key(manifest, str(collection), rows)
         reserved = {str(identifier) for identifier in identifiers}
         # A row the policy cannot identify stays: withholding it would remove state
@@ -700,9 +681,7 @@ def oracle_runtime_fixtures(
         projected[collection] = [
             row
             for row in rows
-            if not isinstance(row, dict)
-            or primary_key not in row
-            or str(row[primary_key]) not in reserved
+            if not isinstance(row, dict) or primary_key not in row or str(row[primary_key]) not in reserved
         ]
     return projected
 
@@ -742,83 +721,52 @@ def _validate_generation_targets(
     """Reject positive mix targets that the template inventory cannot supply."""
     targets = config.task_generation
     difficulty_inventory = {
-        str(template.get("difficulty"))
-        for template in templates
-        if template.get("difficulty") is not None
+        str(template.get("difficulty")) for template in templates if template.get("difficulty") is not None
     }
     difficulty_mix = targets.get("difficulty_mix") or {}
     unavailable = sorted(
-        name
-        for name, weight in difficulty_mix.items()
-        if float(weight) > 0 and name not in difficulty_inventory
+        name for name, weight in difficulty_mix.items() if float(weight) > 0 and name not in difficulty_inventory
     )
     if unavailable:
         raise ValueError(
-            "task_generation.difficulty_mix targets unavailable template difficulties: "
-            + ", ".join(unavailable)
+            "task_generation.difficulty_mix targets unavailable template difficulties: " + ", ".join(unavailable)
         )
 
-    user_turn_counts = [
-        1 + len(template.get("user_simulator_turns") or [])
-        for template in templates
-    ]
+    user_turn_counts = [1 + len(template.get("user_simulator_turns") or []) for template in templates]
     turn_inventory = set()
     if any(count == 1 for count in user_turn_counts):
         turn_inventory.add("single_turn")
     if any(count > 1 for count in user_turn_counts):
         turn_inventory.add("multi_turn")
     turn_mix = targets.get("turn_mix") or {}
-    unavailable = sorted(
-        name
-        for name, weight in turn_mix.items()
-        if float(weight) > 0 and name not in turn_inventory
-    )
+    unavailable = sorted(name for name, weight in turn_mix.items() if float(weight) > 0 and name not in turn_inventory)
     if unavailable:
-        raise ValueError(
-            "task_generation.turn_mix targets unavailable conversation shapes: "
-            + ", ".join(unavailable)
-        )
+        raise ValueError("task_generation.turn_mix targets unavailable conversation shapes: " + ", ".join(unavailable))
 
     call_counts = [
-        sum(
-            1
-            for milestone in template.get("assistant_milestones") or []
-            if milestone.get("type") == "tool_call"
-        )
+        sum(1 for milestone in template.get("assistant_milestones") or [] if milestone.get("type") == "tool_call")
         for template in templates
     ]
-    bucket_inventory = {
-        "1" if count == 1 else "2" if count == 2 else "3+"
-        for count in call_counts
-        if count > 0
-    }
+    bucket_inventory = {"1" if count == 1 else "2" if count == 2 else "3+" for count in call_counts if count > 0}
     call_mix = targets.get("tool_call_count_mix") or {}
     unavailable = sorted(
-        name
-        for name, weight in call_mix.items()
-        if float(weight) > 0 and name not in bucket_inventory
+        name for name, weight in call_mix.items() if float(weight) > 0 and name not in bucket_inventory
     )
     if unavailable:
         raise ValueError(
-            "task_generation.tool_call_count_mix targets unavailable call-count buckets: "
-            + ", ".join(unavailable)
+            "task_generation.tool_call_count_mix targets unavailable call-count buckets: " + ", ".join(unavailable)
         )
 
     policy_inventory = {
-        str(template.get("turn_policy"))
-        for template in templates
-        if template.get("turn_policy") is not None
+        str(template.get("turn_policy")) for template in templates if template.get("turn_policy") is not None
     }
     policy_mix = targets.get("policy_mix") or {}
     unavailable = sorted(
-        name
-        for name, weight in policy_mix.items()
-        if float(weight) > 0 and name not in policy_inventory
+        name for name, weight in policy_mix.items() if float(weight) > 0 and name not in policy_inventory
     )
     if unavailable:
         raise ValueError(
-            "task_generation.policy_mix targets unavailable conversation policies: "
-            + ", ".join(unavailable)
+            "task_generation.policy_mix targets unavailable conversation policies: " + ", ".join(unavailable)
         )
 
 
@@ -861,11 +809,7 @@ def load_pack(config: BfclConfig) -> LoadedPack:
     )
     held_out = load_held_out_policy(
         paths.held_out_path,
-        source=(
-            str(manifest.get("held_out")).replace("\\", "/")
-            if manifest.get("held_out") is not None
-            else None
-        ),
+        source=(str(manifest.get("held_out")).replace("\\", "/") if manifest.get("held_out") is not None else None),
         manifest=manifest,
         fixtures=fixtures,
         templates=templates,

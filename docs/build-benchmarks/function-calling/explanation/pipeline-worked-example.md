@@ -5,10 +5,12 @@
 
 # Follow One Task Through The Pipeline
 
-This example follows one real Banking VN template from an abstract conversation to a
-published benchmark row. It shows the information each stage adds, checks, or selects.
-The snippets abbreviate the actual Parquet rows so that the transformation is visible;
-they are not replacement schemas for the artifacts in
+This example follows one real template from the bundled localized
+`banking_vn_oracle_pack`, from an abstract conversation to a published benchmark row.
+It was selected because its missing-slot flow makes the stage boundaries visible, not
+because banking, Vietnamese, currency, or its tool names are framework defaults. The
+same transformations apply to any pack contract. The snippets abbreviate the actual
+Parquet rows; they are not replacement schemas for the artifacts in
 {doc}`../reference/output-files`.
 
 The source template is

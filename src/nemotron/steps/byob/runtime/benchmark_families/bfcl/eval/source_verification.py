@@ -58,7 +58,7 @@ import math
 import re
 import unicodedata
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Final, cast
 
@@ -330,11 +330,7 @@ def verify_eval_source(
                 name="release_revocation",
                 detail=(
                     "authenticated revocation policy applied"
-                    + (
-                        "; release_revoked warning accepted"
-                        if getattr(verdict, "revoked", False)
-                        else ""
-                    )
+                    + ("; release_revoked warning accepted" if getattr(verdict, "revoked", False) else "")
                 ),
             )
         )
@@ -989,8 +985,7 @@ def _pack_file_drift(paths: ResolvedPackPaths, recorded: Any) -> str:
 
     def named(names: Iterable[str]) -> str:
         return ", ".join(
-            name if name in declared else f"{name} [not a declared oracle input]"
-            for name in sorted(names)
+            name if name in declared else f"{name} [not a declared oracle input]" for name in sorted(names)
         )
 
     changed = [name for name, digest in current.items() if name in recorded and recorded[name] != digest]
@@ -1149,8 +1144,7 @@ def _verify_oracle(
     )
     origin_field = (
         "mcp"
-        if observed_provider_origin is not None
-        and observed_provider_origin.get("provider_kind") == "mcp"
+        if observed_provider_origin is not None and observed_provider_origin.get("provider_kind") == "mcp"
         else "origin"
     )
     if manifest_oracle.get(origin_field) != observed_provider_origin:
@@ -2617,7 +2611,7 @@ def source_verification_report(
     verified_at: datetime | None = None,
 ) -> SourceVerificationReport:
     """Wrap a verified source into the artifact a later stage can cite."""
-    moment = verified_at or datetime.now(UTC)
+    moment = verified_at or datetime.now(timezone.utc)
     return SourceVerificationReport(verified_at=moment.isoformat(), source=source)
 
 
@@ -2650,7 +2644,7 @@ def write_source_failure_diagnostic(
     document: dict[str, Any] = {
         "schema_version": SOURCE_VERIFICATION_CONTRACT_VERSION,
         "status": "failed",
-        "diagnosed_at": datetime.now(UTC).isoformat(),
+        "diagnosed_at": datetime.now(timezone.utc).isoformat(),
         "eval_config_hash": config.eval_config_hash,
         "source_run_id": config.source.run_id,
         "error": (

@@ -9,7 +9,7 @@ The `bfcl` benchmark family builds function-calling benchmark artifacts from an 
 Unlike the multiple-choice-question family, it does not ask a model to invent questions: the pack's templates define the conversation, and the pack's oracle and assertions establish what the correct tool behavior is.
 Generation is therefore closer to deterministic assembly than to synthesis, which is what makes a published row traceable back to the exact pack bytes it came from.
 
-## From Domain Data To A Published Benchmark
+## From Source Assets To A Published Benchmark
 
 There are three layers in the end-to-end workflow. Authoring produces the reviewed
 oracle pack that generation consumes. Generation turns that pack into a verified
@@ -18,7 +18,7 @@ they are not generation stages.
 
 ```mermaid
 flowchart LR
-  SOURCE["Domain data, backend,<br/>or service"]
+  SOURCE["Reviewed source assets<br/>or oracle implementation"]
   AUTHOR["Author and review<br/>an oracle pack"]
   PACK["Reviewed oracle pack<br/>plus generation config"]
   PREP["Prepare and<br/>Gold validation"]
