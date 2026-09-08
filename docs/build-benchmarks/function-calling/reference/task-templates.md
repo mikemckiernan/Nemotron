@@ -13,6 +13,10 @@ This page covers the fields a new pack normally fills. The complete normative co
 including correction, dependent calls, edge signatures, and surface-generation guards,
 is `src/nemotron/steps/byob/references/bfcl-oracle-pack.md`.
 
+Examples use either the bundled English library pack or the neutral `get_record`
+starter emitted by the scaffolder. Their names and business behavior illustrate the
+contract; they are not framework defaults.
+
 ## Create A Template Skeleton
 
 The manual pack scaffolder writes runnable `single_turn`, structured-error, and
@@ -233,35 +237,38 @@ before `ask_confirm` produces an unauthorized confirmed mutation.
 
 ### Missing Slot
 
-From `banking_vn_oracle_pack/task_templates.yaml`:
+This English example extends the neutral `get_record` scaffold with a withheld id:
 
 ```yaml
-- template_id: bn_transfer_fee_withheld_destination
-  intent: quote_transfer_fee
-  category: transfer
+- template_id: record_lookup_missing_id
+  intent: look_up_record
+  category: records
   difficulty: medium
   turn_policy: missing_slot
-  required_tools: [get_transfer_fee]
+  required_tools: [get_record]
   slots:
-    to_account_number:
-      source: "literal:['9876543210', '9988776655']"
+    record_id:
+      source: "fixture:records.record_id"
       visible_in_first_turn: false
-      label: {vi: "số tài khoản nhận"}
-  success_assertions: [assert_transfer_fee_reported]
+      label: {en: "record id"}
+  success_assertions: [assert_record_reported]
+  user_turn_templates:
+    en: "Show me a record."
   assistant_milestones:
-    - {type: ask_for_slot, slot: to_account_number}
-    - {type: tool_call, tool: get_transfer_fee}
+    - {type: ask_for_slot, slot: record_id}
+    - {type: tool_call, tool: get_record}
     - {type: final_answer}
   user_simulator_turns:
     - after: ask_for_slot
       content_template:
-        vi: "Số tài khoản nhận là {to_account_number}."
+        en: "The record id is {record_id}."
 ```
 
-This excerpt shows only the hidden slot. The complete template also declares the
-visible arguments required by `get_transfer_fee`. See
-{doc}`../explanation/pipeline-worked-example` for the complete template, English
-meaning, and stage-by-stage transformation.
+The opening user turn omits `record_id`. Stage 5 requires the assistant to ask for it
+and receive the simulator reply before the call. The required same-named tool parameter
+is then bound from the slot. The localized banking example in
+{doc}`../explanation/pipeline-worked-example` demonstrates the same policy through all
+generation stages.
 
 ### Irrelevant Request
 
@@ -285,7 +292,7 @@ From `tiny_oracle_pack/task_templates.yaml`:
 An irrelevant task calls no tool and still has a success assertion. Adding a tool-call
 milestone or ending with anything other than `decline` violates the policy shape.
 
-## Common First Failures
+## Common Failures
 
 | Failure | Field to correct |
 | --- | --- |
@@ -301,6 +308,10 @@ See {doc}`troubleshooting` for the complete failure taxonomy.
 ## Related Information
 
 - {doc}`oracle-pack-inputs` for the complete file map and manifest fields.
+- {doc}`manifest` for languages and shared assistant text.
+- {doc}`tools-and-fixtures` for tool schemas and slot-source records.
 - {doc}`python-backend` for the tool implementation contract.
+- {doc}`assertions` for `success_assertions`.
+- {doc}`validation-cases` for direct oracle probes.
 - {doc}`../explanation/pipeline-worked-example` for how one template becomes a row.
 - {doc}`../how-to/author-a-pack` for validation and smoke-run commands.

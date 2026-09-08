@@ -171,4 +171,5 @@ gates themselves are defined, see {doc}`../explanation/evaluation`.
 - Generation YAML fields: {doc}`generate-config`
 - Evaluation YAML fields: {doc}`eval-config`
 - Where each artifact is written: {doc}`output-files`
+- Pack-input field and validation references: {doc}`oracle-pack-inputs`
 - Pack structure and the Gold gate: {doc}`../explanation/oracle-pack`

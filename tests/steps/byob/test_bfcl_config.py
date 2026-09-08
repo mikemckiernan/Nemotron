@@ -13,6 +13,9 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.config import BfclConfi
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.export_contract import (
     EXPORT_FORMATS,
 )
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.json_schema import (
+    validate_tool_definition,
+)
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.pack_loader import load_pack
 from nemotron.steps.byob.runtime.benchmark_families.registry import list_families
 
@@ -64,6 +67,43 @@ def test_all_bfcl_configs_pin_family() -> None:
     ):
         data = yaml.safe_load((BFCL_CONFIG_DIR / name).read_text(encoding="utf-8"))
         assert data["family"] == "bfcl", name
+
+
+@pytest.mark.parametrize("extension", ("x-mutates", "x-requires-confirmation"))
+def test_tool_extensions_require_literal_booleans(extension: str) -> None:
+    tool = {
+        "type": "function",
+        extension: "false",
+        "function": {
+            "name": "get_record",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    }
+
+    assert {
+        "reason": "tool_extension_not_boolean",
+        "field": extension,
+        "value": "false",
+    } in validate_tool_definition(tool)
+
+
+def test_pack_rejects_canonical_backend_and_endpoint_files(tmp_path: Path) -> None:
+    pack = _copy_tiny_pack(tmp_path)
+    (pack / "endpoint_config.yaml").write_text("{}\n", encoding="utf-8")
+    config = BfclConfig.from_yaml(
+        _write_tiny_config(
+            tmp_path,
+            "dual-oracle.yaml",
+            oracle_pack={"manifest_path": str(pack / "manifest.yaml")},
+            oracle_runtime={"allowed_roots": [str(tmp_path)]},
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="cannot contain both canonical backend.py and endpoint_config.yaml",
+    ):
+        load_pack(config)
 
 
 def test_publication_example_can_bind_the_closest_uniform_bfcl_v1_scale() -> None:
@@ -2318,8 +2358,7 @@ def test_prepare_rejects_bad_plans_and_missing_fixture_primary_keys(
     )
     plan_report = json.loads(prepare_bfcl(plan_config).read_text(encoding="utf-8"))
     assert any(
-        failure.get("reason") == "invalid_conversation_plan"
-        for failure in plan_report["checks"][0]["failures"]
+        failure.get("reason") == "invalid_conversation_plan" for failure in plan_report["checks"][0]["failures"]
     )
 
     key_root = tmp_path / "missing-key"

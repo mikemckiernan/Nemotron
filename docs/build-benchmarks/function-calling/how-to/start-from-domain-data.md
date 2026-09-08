@@ -150,14 +150,16 @@ Run that starter once before replacing it, so an environment problem is not mist
 for a domain-modeling problem.
 
 If the oracle already runs as an HTTPS service, scaffold with `--transport endpoint`
-instead and follow the endpoint guidance in {doc}`author-a-pack`.
+instead and follow {doc}`../reference/endpoint-config`.
 
 ### 2. Map Domain Truth Into Pack Files
 
 Work in dependency order. {doc}`../reference/oracle-pack-inputs` explains the file
-inventory and manifest fields, {doc}`../reference/python-backend` defines the local
-oracle interface, and {doc}`../reference/task-templates` covers slots, milestones, and
-turn policies.
+inventory and links to one standardized reference per artifact:
+{doc}`../reference/manifest`, {doc}`../reference/tools-and-fixtures`,
+{doc}`../reference/python-backend`, {doc}`../reference/task-templates`,
+{doc}`../reference/assertions`, {doc}`../reference/validation-cases`,
+{doc}`../reference/endpoint-config`, and {doc}`../reference/held-out-policy`.
 
 | Your domain input | Pack destination | What to preserve |
 | --- | --- | --- |
@@ -291,6 +293,15 @@ It still compiles those declarations into Python rather than allowing the model 
 write the oracle directly. Review the result exactly as you would review a manually
 written backend.
 
+Do not prefer this optional lane over an existing domain-owned implementation or a
+backend authored from independently reviewed specifications. Model suggestions can
+carry the authoring model's assumptions into fixture distributions, error behavior,
+vocabulary, and state transitions, which can bias task coverage or favor familiar
+conventions. Gold validation catches inconsistency and nondeterminism, not semantic
+representativeness. Use independent records and tests to review every suggestion, and
+avoid using the same model as the sole author of both oracle behavior and benchmark
+tasks. See {doc}`../reference/python-backend` for the full recommendation.
+
 ### 4. Check The Source Before Intake
 
 ```bash
@@ -397,7 +408,7 @@ The shape is:
 ```yaml
 schema_version: bfcl-candidate-pack-supplement-v1
 languages: [en]
-clock: "2026-03-02T09:00:00+07:00"
+clock: "2026-03-02T02:00:00Z"
 absent_ids:
   books: [BK-ABSENT-1]
 primary_keys:
@@ -451,8 +462,9 @@ pack and sidecars. `publish` reruns fresh Gold validation and the ordinary
 Follow {doc}`assisted-authoring` for the command-level sequence and
 `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` for every required
 argument and refusal code. The normative user guide and assisted-authoring runbook are
-the sources of truth; `scripts/bfcl_assisted_authoring_demo.py` is the credential-free
-runnable demonstration.
+the sources of truth. Despite its `_demo.py` filename,
+`scripts/bfcl_assisted_authoring_demo.py` is presented here as a credential-free
+assisted-authoring walkthrough, not as a production launcher.
 
 ## Where Both Paths Meet
 
@@ -509,3 +521,17 @@ A publication run after freeze, or {doc}`publish-a-release`, is what can record
 If a run fails, use {doc}`../reference/output-files` to find the first adjacent stage
 artifact that lost the task, then use {doc}`../reference/troubleshooting` to map the
 reported refusal to its source fix.
+
+## Follow-Up: Evaluation And Next Steps
+
+Evaluation is a separate run over a published benchmark, with its own configuration
+and output directory. Before evaluating a candidate model, confirm that the generation
+output contains `run_manifest.json`, `benchmark.parquet`, and
+`benchmark_raw.parquet`. Executable evaluation additionally requires the exact Oracle
+Pack used during generation.
+
+Follow {doc}`run-evaluation` for the end-to-end evaluation procedure, including
+candidate endpoint configuration, preflight checks, execution, and result inspection.
+Use {doc}`../reference/eval-config` for every configuration field and
+{doc}`../explanation/evaluation` for scoring modes, gates, artifacts, and metric
+semantics.

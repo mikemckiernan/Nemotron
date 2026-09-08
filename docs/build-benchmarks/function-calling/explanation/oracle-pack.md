@@ -95,9 +95,13 @@ Read it as a worked example of the pack contract rather than as a default: its i
 
 - {doc}`../reference/oracle-pack-inputs` for the developer-facing file inventory,
   manifest fields, and fill order.
-- {doc}`../reference/python-backend` for the four local-oracle callables.
-- {doc}`../reference/task-templates` for core template fields and worked conversation
-  shapes.
+- {doc}`../reference/manifest` and {doc}`../reference/tools-and-fixtures` for the
+  foundational declarations and examples.
+- {doc}`../reference/python-backend`, {doc}`../reference/task-templates`,
+  {doc}`../reference/assertions`, and {doc}`../reference/validation-cases` for the
+  executable and conversation contracts.
+- {doc}`../reference/endpoint-config` and {doc}`../reference/held-out-policy` for
+  remote-oracle and reservation fields.
 - `src/nemotron/steps/byob/references/bfcl-oracle-pack.md` for the complete normative pack contract, including slot sources, turn policies, and every validation rule.
 - {doc}`../how-to/author-a-pack` for the hands-on authoring sequence.
 - {doc}`pipeline-overview` for how the pipeline consumes a validated pack.

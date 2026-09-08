@@ -10,26 +10,43 @@ Use this guide to produce a reviewed Oracle Pack from a conventional source pack
 A model in this flow may propose a tool coverage plan, validation cases, task-template plans, and declarative assertion specifications. It may not change the backend, the endpoint behavior, the tool schemas, or the fixtures, and it may not certify its own output, invent fixture bindings, approve anything, or bypass executable Gold validation. Everything it proposes passes through the same replay and Gold gate as a hand-written pack, which is why {doc}`author-a-pack` and this guide converge on one publication contract.
 
 If you are starting from domain records and behavior rather than an already prepared
-source package, begin with {doc}`start-from-domain-data`. It explains what BFCL
-considers domain data and shows the manual and model-assisted paths side by side.
+source package, begin with {doc}`start-from-domain-data`. It lists the interface,
+state, behavior, and conversation inputs to identify, then compares the manual and
+model-assisted paths.
+
+During supplement and candidate-pack review, use the artifact index in
+{doc}`../reference/oracle-pack-inputs`. Its dedicated references cover the manifest,
+tool catalog and fixtures, backend or endpoint, templates, assertions, validation
+cases, and held-out policy with the same create-contract-example-validate structure.
 
 This page is the walkthrough. `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` is the matching command-level reference: it lists every subcommand and refusal code, and its invocations are executed as smoke cases by the test suite, so consult it when you need exact arguments rather than the shape of the flow.
 
 :::{tip}
-To watch the whole flow run before you prepare a source of your own, use the bundled demo. It needs no credentials and no endpoint: the authoring model is scripted and the candidate is served on loopback, while intake probes a real package and validation derives its own tier unmocked. Run it from the repository root, because the script path is relative:
+To watch the whole flow run before you prepare a source of your own, use the
+credential-free assisted-authoring walkthrough. It needs no credentials and no
+endpoint: the authoring model is scripted and the candidate is served on loopback,
+while intake probes a real package and validation derives its own tier unmocked. Run
+it from the repository root, because the script path is relative:
 
 ```bash
 uv run python scripts/bfcl_assisted_authoring_demo.py --workdir /tmp/bfcl-demo
 ```
 
-It certifies a source, drafts and assembles a candidate pack, validates, reviews, freezes, publishes a benchmark, and scores it, printing at each human gate what a reviewer would have been deciding. Pass `--author-model live` to send the same prompts to a real endpoint instead.
+It certifies a source, drafts and assembles a candidate pack, validates, reviews,
+freezes, publishes a benchmark, and scores it, printing at each human gate what a
+reviewer would have been deciding. The `_demo.py` suffix correctly marks it as a
+non-normative walkthrough rather than a production launcher. Pass
+`--author-model live` to send the same prompts to a real endpoint instead.
 :::
 
 ## Before You Start
 
 - Install the BYOB dependencies with `uv sync --extra byob`, and prepare a source package in one of the two supported layouts below.
 - Prepare a domain brief, a reviewed statement of what the source is for, which is sanitized and bound into the evidence. Copy `src/nemotron/steps/byob/references/bfcl-domain-brief.skeleton.txt` and replace every bracketed `BFCL-SKELETON` block; intake rejects the copy while even one remains. `bfcl-domain-brief.example.txt` is the same form filled in, being the brief a published release was authored from. Prefer the skeleton for a new source, since copying the example tends to carry its banking framing across with it.
-- Prepare a probe plan, which you need for certification tier A1 or A2 and therefore for a Gold release. `src/nemotron/steps/byob/references/bfcl-probe-plan.example.json` is a complete A2-shaped plan to copy the structure from.
+- Prepare a probe plan, which you need for certification tier A1 or A2 and therefore
+  for a Gold release. `src/nemotron/steps/byob/references/bfcl-probe-plan.example.json`
+  is a complete A2-shaped banking example: copy its structure, then replace its tools,
+  fixture ids, cases, and domain assumptions.
 - Have a certification key pair and its allowlisted key identifier available.
 - Organizational defaults that should not be retyped per session belong in a reviewed policy file; see `src/nemotron/steps/byob/references/bfcl-authoring-policy.example.yaml`.
 
@@ -76,9 +93,10 @@ The check reports static coverage gaps that would block A2. Intake remains
 authoritative because only it executes the probes and observes reset, isolation,
 confirmation, timeout cleanup, and result behavior.
 
-### Generate the parts the catalogue already decides
+### Optionally Scaffold A Local Source
 
-`backend.py` has to define four calls the episode runner reaches for by name, and `list_tools()` has to match `tools.json` exactly. None of that is a judgement, so none of it is worth typing:
+If no independently implemented local source exists, generate the mechanical
+four-function interface and fill its domain decisions manually:
 
 ```bash
 python -m nemotron.steps.byob.scripts.scaffold_source_package \
@@ -88,7 +106,25 @@ python -m nemotron.steps.byob.scripts.scaffold_source_package \
   --dependency-lock
 ```
 
-That writes the interface, one raising handler per published tool, and a fixture row per value a published call has to be given. Add `--draft-with-model` together with `--domain-brief` and the model flags to have a model choose the fixture data and, in a fixed declarative vocabulary, what each tool does to it; the command compiles that into the same shape rather than letting a model write Python, because the probes execute this file and a model-authored oracle would be scoring its own work. Either way the output is a starting point: every generated file carries `BFCL-TODO` on each decision the catalogue could not make, and intake refuses the source while one remains.
+That writes the interface, one raising handler per published tool, and a fixture row
+per value a published call has to be given. Every generated file carries `BFCL-TODO`
+on each decision the catalogue could not make, and intake refuses the source while one
+remains.
+
+`--draft-with-model`, together with `--domain-brief` and pinned model identity flags,
+is an optional fallback. It lets a model propose fixture data and behavior in a fixed
+declarative vocabulary, which the command compiles rather than accepting model-written
+Python.
+
+:::{caution}
+Do not prefer model-assisted source drafting over an existing domain-owned
+implementation or independently authored backend. Authoring-model priors can shape
+fixtures, errors, transitions, and vocabulary, biasing the resulting task distribution
+or favoring familiar conventions. Gold validation proves deterministic consistency,
+not semantic neutrality. Review proposals against independent specifications, records,
+and tests; do not let one model be the sole source of both oracle behavior and task
+semantics.
+:::
 
 Check the result against its own catalogue before spending an intake run on it:
 
@@ -162,7 +198,7 @@ record to a path you choose.
 python -m nemotron.steps.byob.scripts.bfcl_author authorize \
   --workspace /srv/bfcl/authoring/warehouse \
   --subject <MODEL_EXPOSURE_SUBJECT_JSON> \
-  --authorized-by owner@example.test
+  --authorized-by reviewer@example.test
 
 python -m nemotron.steps.byob.scripts.bfcl_author approve \
   --workspace /srv/bfcl/authoring/warehouse \
@@ -174,9 +210,10 @@ python -m nemotron.steps.byob.scripts.bfcl_author approve \
 Evidence approval and release approval are different decisions, and the first cannot be replaced by the second. Evidence approval says a reviewer inspected this exact source and normalized evidence and considers it fit to draft from. Release approval, later, says a reviewer inspected the finished pack and its fresh validation and considers it fit to publish. Approving the release does not retroactively authorize the model exposure that already happened, so the command sequence requires both in order.
 
 The workflow enforces separate decision records and digests, not separate identities.
-The same person may fill more than one role unless your organization requires
-separation of duties. The `owner@example.test` and `reviewer@example.test` values below
-illustrate one policy; they are not a requirement for two reviewers.
+The example deliberately uses `reviewer@example.test` at both pre-model gates because
+the implementation does not require two people. An organization may instead assign
+different source owners, evidence reviewers, and release reviewers when its own
+separation-of-duties policy requires that.
 :::
 
 Both approvals are digest-bound, so if the source, brief, redaction, observations, certification, or resolved authoring configuration changes afterwards, the approval goes stale and must be redone against the new digest.

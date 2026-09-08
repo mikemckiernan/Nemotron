@@ -27,6 +27,19 @@ should use absolute `manifest_path` / `allowed_roots` values. Paths declared ins
 | `validation_cases.yaml` | yes | Declared probes proving tool behavior. |
 | `assertions.py` | yes | Success assertions referenced by templates. |
 
+For operator-facing creation paths, field examples, validation commands, and common
+failures, start with the
+[Oracle Pack input map](../../../../../docs/build-benchmarks/function-calling/reference/oracle-pack-inputs.md).
+Its standardized artifact references cover the
+[manifest](../../../../../docs/build-benchmarks/function-calling/reference/manifest.md),
+[tool catalog and fixtures](../../../../../docs/build-benchmarks/function-calling/reference/tools-and-fixtures.md),
+[Python backend](../../../../../docs/build-benchmarks/function-calling/reference/python-backend.md),
+[task templates](../../../../../docs/build-benchmarks/function-calling/reference/task-templates.md),
+[assertions](../../../../../docs/build-benchmarks/function-calling/reference/assertions.md),
+[validation cases](../../../../../docs/build-benchmarks/function-calling/reference/validation-cases.md),
+[endpoint configuration](../../../../../docs/build-benchmarks/function-calling/reference/endpoint-config.md),
+and [held-out policy](../../../../../docs/build-benchmarks/function-calling/reference/held-out-policy.md).
+
 `backend.py` and `assertions.py` may import helper modules from the pack: the worker
 puts the module's own directory and the pack root on `sys.path` before importing, and
 the fingerprint already covers every file in the pack tree. Those two directories take
@@ -101,9 +114,10 @@ HTTP v1. `endpoint_config.yaml` declares:
 - an HTTPS `base_url`
 - expected `oracle_id`, `oracle_version`, and `sha256:` `content_digest`
 - optional bearer-token and custom-header environment-variable names
+- an optional pinned `bfcl-endpoint-conformance-v1` attestation, required for Gold
 - an optional allowlisted CA bundle plus request- and response-size limits
 
-The fixed routes are `GET /v1/metadata`, `GET /v1/tools`,
+The fixed routes are `GET /v1/metadata`, `GET /v1/tools`, `GET /v1/conformance`,
 `POST /v1/sessions`, `POST /v1/sessions/{id}/calls`,
 `GET /v1/sessions/{id}/state`, and `DELETE /v1/sessions/{id}`.
 Creating a session is the reset operation: the request carries the frozen

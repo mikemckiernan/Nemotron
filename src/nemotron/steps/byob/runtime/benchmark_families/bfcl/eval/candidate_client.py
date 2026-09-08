@@ -23,7 +23,7 @@ import json
 import os
 import time
 from collections.abc import Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any
 
@@ -139,11 +139,7 @@ def build_candidate_request(
         "body": body,
     }
     return CandidateRequest(
-        **{
-            key: value
-            for key, value in identity.items()
-            if key not in {"schema_version", "body"}
-        },
+        **{key: value for key, value in identity.items() if key not in {"schema_version", "body"}},
         body=body,
         request_body_hash=_sha256_json(body),
         request_hash=_sha256_json(identity),
@@ -192,9 +188,7 @@ def _validate_model_facing_tools(
                 expected="type=function and a function mapping",
                 recovery="send the decoded model-facing tools from the verified source",
             )
-        if not isinstance(function.get("name"), str) or not isinstance(
-            function.get("parameters"), Mapping
-        ):
+        if not isinstance(function.get("name"), str) or not isinstance(function.get("parameters"), Mapping):
             raise CandidateRequestError(
                 f"candidates[{candidate.alias}].tools[{index}].function",
                 "does not name a function with a JSON Schema parameter mapping",
@@ -245,9 +239,7 @@ def parse_candidate_response(
     try:
         document = json.loads(
             raw_response,
-            parse_constant=lambda token: (_ for _ in ()).throw(
-                ValueError(f"non-standard JSON constant {token}")
-            ),
+            parse_constant=lambda token: (_ for _ in ()).throw(ValueError(f"non-standard JSON constant {token}")),
         )
         validate_json_value(document, label="candidate response")
     except (json.JSONDecodeError, ValueError) as exc:
@@ -479,9 +471,7 @@ class NativeFunctionCallingClient:
             delay = min(requested_delay, logical_deadline - time.monotonic())
             if delay > 0:
                 await asyncio.sleep(delay)
-        status: CallStatus = (
-            "retry_exhausted" if attempts[-1].retryable else attempts[-1].status
-        )
+        status: CallStatus = "retry_exhausted" if attempts[-1].retryable else attempts[-1].status
         outcome = CandidateCallOutcome(
             request_hash=request.request_hash,
             status=status,
@@ -690,15 +680,15 @@ def _retry_after(headers: httpx.Headers) -> float | None:
         try:
             moment = parsedate_to_datetime(value)
             if moment.tzinfo is None:
-                moment = moment.replace(tzinfo=UTC)
-            seconds = (moment - datetime.now(UTC)).total_seconds()
+                moment = moment.replace(tzinfo=timezone.utc)
+            seconds = (moment - datetime.now(timezone.utc)).total_seconds()
         except (TypeError, ValueError, OverflowError):
             return None
     return max(0.0, seconds)
 
 
 def _observed_at() -> str:
-    return datetime.now(UTC).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 __all__ = [

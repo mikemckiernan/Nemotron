@@ -26,7 +26,15 @@ The pipeline imports this module in a separate process worker. Gold validation r
 process isolation so a timed-out call can be terminated and the environment can be
 sanitized.
 
+Library names in the short snippets come from the bundled English reference pack.
+They illustrate dispatch and state handling only; the four-function interface is
+domain- and language-independent.
+
 ## Create A Backend Skeleton
+
+Prefer an existing domain-owned implementation, or a backend written from independently
+reviewed specifications and records. That keeps benchmark truth anchored in the domain
+rather than in an authoring model's learned conventions.
 
 For a manual Oracle Pack, scaffold the complete pack rather than creating
 `backend.py` in isolation:
@@ -64,7 +72,38 @@ declarative schema. The pipeline compiles that declaration into Python; it does 
 accept arbitrary Python written by the model. The mode requires a human-authored domain
 brief and pinned model identity arguments, never overwrites an existing backend or
 fixtures file, and still requires static checks and executable certification probes.
-See {doc}`../how-to/assisted-authoring` for the complete model configuration.
+Its command shape is:
+
+```text
+python -m nemotron.steps.byob.scripts.scaffold_source_package \
+  --tools /srv/sources/my-domain/tools.json \
+  --output /srv/sources/my-domain \
+  --draft-with-model \
+  --domain-brief /srv/sources/my-domain-brief.txt \
+  --model-alias <ROUTE_ALIAS> \
+  --model-provider <PROVIDER> \
+  --model <MODEL_NAME> \
+  --model-canonical-id <IMMUTABLE_MODEL_ID> \
+  --dependency-lock
+```
+
+The model chooses only values representable by the fixed declarative vocabulary.
+Review the compiled source, remove no marker without implementing its decision, then
+run the same static and executable checks below. See
+{doc}`../how-to/assisted-authoring` for provider setup and certification.
+
+:::{caution}
+Model-assisted backend drafting is optional and is not the preferred source of oracle
+semantics. Use it only when no suitable independently implemented source exists, and
+review every proposed behavior against specifications, domain records, and tests that
+were not produced by the same model.
+
+An authoring model can import its own priors into fixture values, wording, error shapes,
+and state transitions. That can skew task coverage and may favor conventions familiar
+to the authoring model or its model family. Static checks, executable replay, and Gold
+validation prove determinism and cross-file consistency; they do not prove domain
+fidelity, representativeness, or absence of benchmark-construction bias.
+:::
 
 ## Validate A Backend
 
@@ -222,6 +261,22 @@ environment, or unseeded randomness makes two replays diverge and prevents Gold.
 Later, `executable_replay` resets and runs each generated task twice, compares results,
 state, and assertion outcomes, then refuses any divergence.
 
+## Common Failures
+
+- **Missing required callable:** preserve all four public functions even for read-only
+  domains.
+- **Backend/schema mismatch:** make `list_tools()` match `tools.json` exactly.
+- **Non-object or non-serializable result:** return a JSON object from every tool call.
+- **Expected rejection raised as an exception:** return
+  `{"error": {"code": "..."}}`; reserve exceptions for infrastructure failures.
+- **Reset divergence:** deep-copy fixtures and use `ctx.clock` and `ctx.seed`.
+- **Confirmation mutation:** leave state unchanged until the configured confirmation
+  argument is true.
+- **Timeout or environment finding:** remove ambient I/O and secrets; keep calls
+  bounded by the supplied context.
+- **Unresolved `BFCL-TODO`:** implement and independently review every generated
+  behavior before intake.
+
 ## Complete Example
 
 Read
@@ -251,6 +306,10 @@ interface.
 ## Related Information
 
 - {doc}`oracle-pack-inputs` for the complete pack file map and cross-file lineage.
+- {doc}`manifest` for paths and confirmation vocabulary.
+- {doc}`tools-and-fixtures` for the public schema and reset records.
 - {doc}`task-templates` for how a conversation names backend tools.
+- {doc}`assertions` for predicates that inspect final state and trace.
+- {doc}`validation-cases` for direct executable probes.
 - {doc}`../how-to/author-a-pack` for validation and smoke-run commands.
 - {doc}`troubleshooting` for backend/schema, confirmation, and replay failures.

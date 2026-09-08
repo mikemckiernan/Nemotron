@@ -12,6 +12,7 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.endpoint import (
     load_endpoint_config,
 )
 from nemotron.steps.byob.scripts.scaffold_oracle_pack import (
+    OPERATOR_REFERENCE_SLUGS,
     scaffold_oracle_pack,
 )
 
@@ -56,9 +57,13 @@ def test_python_scaffold_contains_a_complete_runnable_pack(tmp_path: Path) -> No
     readme = (target / "README.md").read_text(encoding="utf-8")
     assert "## Fill order and contracts" in readme
     assert "def list_tools() -> list[str]" in readme
-    assert "reference/oracle-pack-inputs.md" in readme
-    assert "reference/python-backend.md" in readme
-    assert "reference/task-templates.md" in readme
+    for reference in OPERATOR_REFERENCE_SLUGS:
+        assert f"reference/{reference}.md" in readme
+    assert (
+        "/tmp/bfcl-inventory_service-validation/"
+        "bfcl_inventory_service_starter/stage_cache/oracle_validation_report.json" in readme
+    )
+    assert "not bundled in the Python wheel" in readme
 
 
 def test_endpoint_scaffold_is_transport_specific_and_parseable(
@@ -80,6 +85,10 @@ def test_endpoint_scaffold_is_transport_specific_and_parseable(
     )
     assert endpoint.expected.oracle_id == "claims"
     assert endpoint.base_url == "https://oracle.example.invalid"
+    readme = (target / "README.md").read_text(encoding="utf-8")
+    assert "GET /v1/metadata" in readme
+    assert "GET /v1/conformance" in readme
+    assert "placeholder endpoint cannot reach Gold" in readme
 
 
 def test_scaffold_command_creates_the_requested_pack(tmp_path: Path) -> None:
