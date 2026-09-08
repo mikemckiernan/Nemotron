@@ -28,12 +28,19 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval import (
     resolved_eval_config_document,
     write_resolved_eval_config,
 )
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.cli_orchestration import (
+    load_bfcl_eval_cli_config,
+)
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.config import describe_eval_config_error
 
 BYOB_DIR = Path(__file__).resolve().parents[3] / "src" / "nemotron" / "steps" / "byob"
 BFCL_CONFIG_DIR = BYOB_DIR / "bfcl" / "config"
 SHIPPED_EVAL_CONFIG = BFCL_CONFIG_DIR / "eval.default.yaml"
 SHIPPED_SCORING_CONTRACT = BYOB_DIR / "references" / "bfcl-eval-scoring-contract.md"
+RUN_EVALUATION_GUIDE = (
+    Path(__file__).resolve().parents[3]
+    / "docs/build-benchmarks/function-calling/how-to/run-evaluation.md"
+)
 
 IMMUTABLE_REVISION = "9f2c1b7d4e6a8c0b2d4f6a8c0e2b4d6f8a0c2e4b"
 OTHER_REVISION = "1a3c5e7b9d0f2a4c6e8b0d2f4a6c8e0b2d4f6a8c"
@@ -41,6 +48,56 @@ OTHER_REVISION = "1a3c5e7b9d0f2a4c6e8b0d2f4a6c8e0b2d4f6a8c"
 
 def _hash(payload: bytes) -> str:
     return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+
+def test_run_evaluation_copy_flow_resolves_repository_relative_paths(
+    tmp_path: Path,
+) -> None:
+    destination = tmp_path / "candidate-a"
+    destination.mkdir()
+    eval_path = destination / "eval.yaml"
+    cli_path = destination / "eval.cli.yaml"
+    launcher_path = destination / "eval.launcher.yaml"
+    shutil.copyfile(SHIPPED_EVAL_CONFIG, eval_path)
+    shutil.copyfile(BFCL_CONFIG_DIR / "eval.cli.yaml", cli_path)
+    shutil.copyfile(BFCL_CONFIG_DIR / "eval.launcher.yaml", launcher_path)
+
+    evaluation = yaml.safe_load(eval_path.read_text(encoding="utf-8"))
+    evaluation["scoring"]["contract"] = str(SHIPPED_SCORING_CONTRACT.resolve())
+    eval_path.write_text(
+        yaml.safe_dump(evaluation, sort_keys=False),
+        encoding="utf-8",
+    )
+    direct = yaml.safe_load(cli_path.read_text(encoding="utf-8"))
+    direct["eval_config_path"] = str(eval_path.resolve())
+    cli_path.write_text(yaml.safe_dump(direct, sort_keys=False), encoding="utf-8")
+    launcher = yaml.safe_load(launcher_path.read_text(encoding="utf-8"))
+    launcher["eval_config_path"] = str(eval_path.resolve())
+    launcher["launcher"]["launcher_base_config_path"] = str(
+        (
+            Path(__file__).resolve().parents[3]
+            / "src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml"
+        ).resolve()
+    )
+    launcher_path.write_text(
+        yaml.safe_dump(launcher, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    copied = yaml.safe_load(eval_path.read_text(encoding="utf-8"))
+    loaded_cli = load_bfcl_eval_cli_config(cli_path)
+    copied_launcher = yaml.safe_load(launcher_path.read_text(encoding="utf-8"))
+    guide = RUN_EVALUATION_GUIDE.read_text(encoding="utf-8")
+
+    assert Path(copied["scoring"]["contract"]).is_file()
+    assert loaded_cli.eval_config_path == eval_path.resolve()
+    assert Path(copied_launcher["eval_config_path"]).is_absolute()
+    assert Path(
+        copied_launcher["launcher"]["launcher_base_config_path"]
+    ).is_file()
+    assert 'REPO_ROOT="$(pwd)"' in guide
+    assert "document[\"scoring\"][\"contract\"]" in guide
+    assert "Resolve every path in the copied Launcher envelope" in guide
 
 
 def _published_run(

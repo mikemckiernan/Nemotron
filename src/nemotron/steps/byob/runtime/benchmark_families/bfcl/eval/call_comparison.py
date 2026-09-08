@@ -289,27 +289,18 @@ def compare_arguments(
     gold = thaw_json(gold_arguments)
     if scoring.argument_matching == "schema_then_canonical" and scoring.insert_declared_defaults:
         schema = parameter_schema(tools, function_name)
-        # A declared default settles an omission: whichever side left the argument
-        # out meant the value the tool would have used, so spelling it out is
-        # neither an advantage nor a penalty.
-        #
-        # An argument the gold call never states is a different case. The recorded
-        # conversation put no requirement on it, so filling it from the schema
-        # would promote the tool's default to a constraint nobody wrote down, and
-        # any other value the candidate chose would read as the wrong arguments.
-        # Such an argument is left out of the comparison instead; what the choice
-        # should have been, where it matters, is what the pack's own success
-        # assertions decide.
-        unconstrained = set(apply_declared_defaults({}, schema)) - set(gold)
+        # Defaults may settle only a candidate omission for a value the gold call
+        # actually states. A candidate-supplied argument absent from gold remains
+        # unexpected: dropping it here can launder an unearned ``confirm=true``
+        # into a match before the executable confirmation gate sees it.
+        defaulted_predicted = apply_declared_defaults(predicted, schema)
         predicted = {
-            name: value
-            for name, value in apply_declared_defaults(predicted, schema).items()
-            if name not in unconstrained
-        }
-        gold = {
-            name: value
-            for name, value in apply_declared_defaults(gold, schema).items()
-            if name not in unconstrained
+            **predicted,
+            **{
+                name: defaulted_predicted[name]
+                for name in set(gold) - set(predicted)
+                if name in defaulted_predicted
+            },
         }
     if json_equal(predicted, gold):
         return ArgumentDiff()

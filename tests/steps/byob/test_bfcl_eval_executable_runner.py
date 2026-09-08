@@ -3019,6 +3019,7 @@ def test_batch_pipeline_replays_end_to_end_from_both_valid_caches(
     ]
     candidate_calls = 0
     oracle_resets = 0
+    oracle_closes = 0
 
     class CachingClient(_FakeClient):
         def __init__(
@@ -3047,6 +3048,11 @@ def test_batch_pipeline_replays_end_to_end_from_both_valid_caches(
             nonlocal oracle_resets
             oracle_resets += 1
             await super().reset()
+
+        async def close(self) -> None:
+            nonlocal oracle_closes
+            oracle_closes += 1
+            await super().close()
 
     config = SimpleNamespace(
         settings=SimpleNamespace(executable=True, held_out_eval=False),
@@ -3124,6 +3130,7 @@ def test_batch_pipeline_replays_end_to_end_from_both_valid_caches(
     first_parquet_hash = first.artifacts.task_results_hash
     assert candidate_calls == 2
     assert oracle_resets == 1
+    assert oracle_closes == 1
 
     second = asyncio.run(
         batch_runner.run_bfcl_eval(
@@ -3137,6 +3144,7 @@ def test_batch_pipeline_replays_end_to_end_from_both_valid_caches(
     assert second.eval_run_id == first.eval_run_id
     assert candidate_calls == 2
     assert oracle_resets == 1
+    assert oracle_closes == 2
 
 
 def test_business_rejection_is_execution_success_and_assertions_decide_correctness(

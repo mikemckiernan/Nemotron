@@ -312,9 +312,10 @@ strict JSON. Invalid JSON, non-object JSON, missing arguments, wrong types,
 unknown function names, and duplicate calls are candidate observations, not
 transport failures: they are not retried, coerced, or repaired by another LLM.
 Only transient endpoint failures may be retried, under the pinned retry budget
-and deadline, and every attempt remains in the hash-verified candidate I/O cache.
-Replay uses a committed completion without contacting the endpoint; an
-interrupted cache sequence is not silently completed with a new sample. A
+and deadline. Attempts are buffered and enter the hash-verified candidate I/O
+cache only with a semantically completed response. Replay uses such a committed
+completion without contacting the endpoint; transport, provider, authentication,
+malformed-envelope, deadline, and cancellation outcomes remain uncached. A
 cancelled call is an interruption of the run, never an observation of the model,
 so it is never scored as one.
 
@@ -332,10 +333,9 @@ no credential value enters a request hash, a diagnostic, or an artifact.
 
 Each cache record is verified once, when it first appears, and a completion cites
 its attempts by hash, so one response body is stored once however many records
-refer to it. Cancelling a run records the abandoned attempt but never a
-completion, so a resumed run cannot read an interruption as the model's answer,
-and a credential the endpoint rejected leaves no completion either, so a rerun
-with a working key contacts the endpoint instead of replaying the refusal.
+refer to it. No failure-only request or attempt is persisted, so a resumed run
+contacts the endpoint instead of reading infrastructure failure as the model's
+immutable answer.
 
 ## How the conversation advances
 
@@ -429,27 +429,20 @@ metric. Cancellation propagates without producing an episode at all.
    still missing when the candidate omits it. A schema-invalid call neither
    matches the trace nor earns a recorded result.
 2. **Default-equivalence step.** After schema validation passes, when
-   `insert_declared_defaults: true`, a parameter the schema declares a default for
-   is filled with that default on whichever side omitted it, so a model that
-   spells out a default is neither rewarded nor punished for it. Filling only the
-   omitting side is what makes this do anything: filling both sides, or neither,
-   would leave the two spellings unequal. Insertion recurses through nested
+   `insert_declared_defaults: true`, a default fills a candidate omission only
+   when the gold call explicitly states that argument. A candidate-supplied
+   argument absent from gold remains unexpected, even when its value equals the
+   declared default. This asymmetry is intentional: otherwise a defaulted
+   `confirm: true` could be erased from comparison before the confirmation gate
+   establishes whether the candidate earned it. Insertion recurses through nested
    objects and arrays and follows validated local `$ref` and `allOf` schemas.
    Pack validation rejects external, missing, or cyclic references and rejects a
    declared default that does not satisfy the schema it would be inserted under.
 
-   A defaulted parameter the *gold* call never states is the one case this step
-   does not settle, because there is no omission to settle: the recorded
-   conversation put no requirement on that argument at all. Filling it would
-   promote the tool's default to an answer key nobody wrote down, so that a
-   candidate asked for "the most recent transaction" and calling with `limit: 1`
-   would be scored as passing the wrong arguments against a gold call that
-   mentions no limit. Such an argument is left out of the comparison instead.
-   This narrows only arguments the schema itself declares and defaults: an
-   argument the schema does not declare is still a mismatch, and a required one
-   is still missing. Where the value does matter, it is the pack's success
-   assertions that say so — the transaction whose status was checked must be one
-   the listing actually returned.
+   A defaulted parameter the *gold* call never states is not inserted into gold
+   and is not removed from the candidate. Supplying it is therefore a mismatch,
+   just like any other extra argument. A required argument is still missing when
+   the candidate omits it; defaults never run before schema validation.
 3. **Canonical step.** Both sides are then compared as canonical JSON, by type as
    well as by value. `1`, `1.0`, `"1"`, and `true` are four distinct values: a
    scorer that treated them as equal would accept a limit of `"1"` where the gold
@@ -672,7 +665,10 @@ in the ephemeral private process and never alters the pack or the publication.
 Held-out mode may publish only aggregate diagnostics. `outputs.write_task_results`,
 `outputs.cache_candidate_responses`, and `outputs.cache_tool_results` must all be
 false, and the loader refuses any configuration that could persist private tasks,
-prompts, tool traces, or candidate responses. The aggregate report carries the seen
+prompts, tool traces, or candidate responses. The private slice always uses its
+own cache under the ephemeral private directory; it never reuses a seen or
+durable cache, even if an internal caller bypasses config validation. The
+aggregate report carries the seen
 and private success rates, 95% Wilson intervals for each, matched
 applicable-tool and turn-policy strata, and
 `held_out_generalization_gap = seen_success_rate - held_out_success_rate` with a
@@ -719,8 +715,9 @@ population variance, standard deviation, and standard error. A zero-denominator
 metric cannot be represented by NeMo's required floating score value, so it is
 omitted from that score map and recorded by metric name and stable N/A reason in
 `nemo_native_adapter_manifest.json`. The manifest also binds the adapter config,
-bundle, package versions, candidate, run id, scope, aggregate hash, native result,
-and BFCL report. Existing output is accepted only when byte-identical.
+bundle, package versions, candidate, served model id and URL, canonical model
+identity, run id, scope, aggregate hash, native result, and BFCL report. Existing
+output is accepted only when byte-identical.
 
 `native_framework_definition(...)` and `install_native_framework(...)` build an
 immutable NeMo namespace package without mutating global site-packages;
@@ -769,8 +766,11 @@ absolute paths; the bundle's dataset mount remains separate. A base config that
 deploys its own endpoint keeps its `deployment` block and receives no pinned
 candidate URL or model id, as Launcher 0.2.6 rejects both for a managed
 deployment. The adapter's `launcher` target binding revalidates the URL and
-served model id Launcher supplies into the runtime route while preserving weight
-identity.
+requires the served model id Launcher supplies to equal the candidate's declared
+served model. A differing id is refused before authorization rather than scored
+under the pinned weight and contamination identity. The runtime URL may move to
+the managed endpoint, and the native manifest records both effective route fields
+alongside the canonical model identity.
 
 CLI failures retain registered BFCL taxonomy codes, and every code in the error
 taxonomy is assigned one published process exit status: `2` for a declaration the

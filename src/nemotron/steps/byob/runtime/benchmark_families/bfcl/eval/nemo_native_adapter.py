@@ -36,7 +36,6 @@ import re
 import subprocess
 import sys
 import tempfile
-from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final, Literal
@@ -524,11 +523,7 @@ def _validate_eval_boundary(
             "one native Launcher task requires exactly its configured candidate"
         )
     candidate = eval_config.candidate(adapter.candidate_alias)
-    if (
-        adapter.target_binding == "exact"
-        and target_model_id is not None
-        and target_model_id != candidate.model
-    ):
+    if target_model_id is not None and target_model_id != candidate.model:
         raise NemoNativeAdapterError("Launcher model id differs from the eval config")
     if (
         adapter.target_binding == "exact"
@@ -550,24 +545,6 @@ def _validate_eval_boundary(
         )
 
 
-def _identity_is_the_route(identity: Mapping[str, Any], served_model: str) -> bool:
-    """Whether this identity is a restatement of the route, not a claim about bytes.
-
-    A candidate that pins neither a revision nor a digest has only the route to
-    identify it, and the config contract holds it to naming that route. So
-    re-pointing the route moves the identity with it, and leaving it behind would
-    fail validation on a config that was correct before Launcher chose an
-    endpoint. A pinned identity is the opposite case: it names weights that the
-    serving name has no bearing on, and rewriting it would turn an orchestration
-    detail into a claim about which weights answered.
-    """
-    return (
-        identity.get("revision") is None
-        and identity.get("weights_digest") is None
-        and identity.get("model") == served_model
-    )
-
-
 def _runtime_eval_config(
     adapter: NemoNativeAdapterConfig,
     config: BfclEvalConfig,
@@ -585,14 +562,16 @@ def _runtime_eval_config(
         for candidate in payload["candidates"]
         if candidate["alias"] == adapter.candidate_alias
     )
+    if (
+        target_model_id is not None
+        and target_model_id != candidate_payload["model"]
+    ):
+        raise NemoNativeAdapterError(
+            "Launcher model id differs from the eval config; refusing to score "
+            "a served target under another candidate identity"
+        )
     if target_url is not None:
         candidate_payload["api"]["base_url"] = target_url.rstrip("/")
-    if target_model_id is not None:
-        served_model = candidate_payload["model"]
-        candidate_payload["model"] = target_model_id
-        identity = candidate_payload.get("model_identity")
-        if isinstance(identity, Mapping) and _identity_is_the_route(identity, served_model):
-            candidate_payload["model_identity"] = {**identity, "model": target_model_id}
     try:
         return BfclEvalConfig.model_validate(payload)
     except Exception as exc:
@@ -724,6 +703,16 @@ def _run_nemo_native_adapter(
         "task_name": bundle.descriptor.task_name,
         "launcher_task_name": _launcher_task_name(bundle.descriptor.task_name),
         "candidate_alias": adapter.candidate_alias,
+        "served_identity": {
+            "model": target_model_id
+            or runtime_config.candidate(adapter.candidate_alias).model,
+            "base_url": (
+                target_url.rstrip("/")
+                if target_url is not None
+                else runtime_config.candidate(adapter.candidate_alias).api.base_url
+            ),
+            "canonical_model_identity": aggregate.canonical_model_identity,
+        },
         "eval_run_id": result.eval_run_id,
         "eval_scope": aggregate.scope,
         "aggregate_hash": aggregate.aggregate_hash,

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval import eval_runner
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.held_out_eval import (
     HeldOutEvalConfig,
     HeldOutEvalError,
@@ -152,6 +154,18 @@ def test_private_runtime_intentionally_opens_isolated_fixture_state() -> None:
     assert runtime is not pack
     assert runtime.held_out["policy"]["fixtures_in_backend_state"] is True
     assert pack.held_out["policy"]["fixtures_in_backend_state"] is False
+
+
+def test_private_candidate_cache_is_scoped_to_the_ephemeral_slice(
+    tmp_path: Path,
+) -> None:
+    private_root = tmp_path / "ephemeral-private"
+    private_root.mkdir()
+
+    private_cache = eval_runner._private_candidate_cache(private_root)
+
+    assert private_cache.path.parent == private_root
+    assert private_cache.path != tmp_path / "candidate_io_cache.jsonl"
 
 
 def test_report_is_paired_stratified_and_contains_no_private_rows() -> None:

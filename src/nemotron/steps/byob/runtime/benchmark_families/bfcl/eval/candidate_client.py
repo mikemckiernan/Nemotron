@@ -396,13 +396,6 @@ class NativeFunctionCallingClient:
                 expected=f"environment variable {self.candidate.api.api_key_env} to be set",
                 recovery="export the endpoint credential in the runner environment; never put it in YAML",
             )
-        if not self.cache.put_request(request):
-            # Another process claimed this request after our initial cache read.
-            # It may have completed already; otherwise the cache reports the
-            # in-flight/abandoned sequence instead of paying for a second sample.
-            cached = self.cache.get(request.request_hash)
-            if cached is not None:
-                return cached
         started = time.monotonic()
         logical_deadline = started + self.limits.candidate_timeout_s
         if deadline is not None:
@@ -420,7 +413,6 @@ class NativeFunctionCallingClient:
                     diagnostic="logical candidate deadline expired before the attempt",
                 )
                 attempts.append(attempt)
-                self.cache.put_attempt(request.request_hash, attempt)
                 break
             attempt, response = await self._attempt(
                 request,
@@ -429,20 +421,16 @@ class NativeFunctionCallingClient:
                 timeout_s=remaining,
             )
             attempts.append(attempt)
-            self.cache.put_attempt(request.request_hash, attempt)
             if attempt.status == "cancelled":
-                # The attempt is durable evidence, but no completion is written:
-                # a resumed run must never read this interruption as the model's
-                # answer for the task.
+                # No cache record is written: an interruption is not a model
+                # answer and the logical request must remain retryable.
                 raise asyncio.CancelledError
             if attempt.status == "authentication_failed":
                 # Every task in the run presents the same credential, so a
                 # rejection is a property of the configuration rather than
                 # evidence about this task, and no later task can do better.
-                # As with a cancellation the attempt stays and no completion is
-                # written: a completion would harden a rejected credential into
-                # this task's immutable answer, and a rerun would then replay
-                # the rejection instead of contacting the endpoint.
+                # As with a cancellation no cache record is written: persisting
+                # this would harden a rejected credential into the task's answer.
                 raise CandidateAuthenticationError(
                     f"candidates[{self.candidate.alias}].api",
                     "rejected the credential the runner supplied",
@@ -460,7 +448,7 @@ class NativeFunctionCallingClient:
                     attempts=tuple(attempts),
                     response=response,
                 )
-                self.cache.put_completion(outcome)
+                self._cache_completed(request, outcome)
                 return outcome
             if not attempt.retryable or attempt_index == self.limits.max_retries:
                 break
@@ -477,8 +465,23 @@ class NativeFunctionCallingClient:
             status=status,
             attempts=tuple(attempts),
         )
-        self.cache.put_completion(outcome)
         return outcome
+
+    def _cache_completed(
+        self,
+        request: CandidateRequest,
+        outcome: CandidateCallOutcome,
+    ) -> None:
+        """Commit only a semantic model response as replayable evidence.
+
+        Attempts are buffered until a valid provider completion exists. Transport,
+        provider, authentication, and malformed-envelope failures therefore remain
+        retryable and cannot become a task's immutable answer.
+        """
+        self.cache.put_request(request)
+        for attempt in outcome.attempts:
+            self.cache.put_attempt(request.request_hash, attempt)
+        self.cache.put_completion(outcome)
 
     async def _attempt(
         self,

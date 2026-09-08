@@ -622,6 +622,9 @@ def test_native_run_maps_the_bfcl_result_and_publishes_provenance(
     manifest = _read_json(result.manifest_path)
 
     score = native["tasks"]["pack"]["metrics"]["pass@1"]["scores"]["tool_selection"]
+    assert manifest["served_identity"]["model"] == "model"
+    assert manifest["served_identity"]["base_url"] == "https://candidate.example/v1"
+    assert manifest["served_identity"]["canonical_model_identity"]
     assert score["value"] == 1.0
     assert manifest["aggregate_hash"] == aggregate.aggregate_hash
     assert manifest["omitted_not_applicable_metrics"] == {
@@ -641,7 +644,7 @@ def test_native_run_refuses_a_runtime_probe_override(tmp_path: Path) -> None:
         run_nemo_native_adapter(adapter, probe_oracle=False)
 
 
-def test_launcher_binding_rewrites_the_runtime_route_not_weight_identity(
+def test_launcher_binding_refuses_a_different_served_model_identity(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -658,40 +661,26 @@ def test_launcher_binding_rewrites_the_runtime_route_not_weight_identity(
         ]
     }
     config = SimpleNamespace(model_dump=lambda mode: payload)
-    captured: list[dict[str, Any]] = []
-
     class RuntimeConfig:
         @classmethod
         def model_validate(cls, value: dict[str, Any]) -> dict[str, Any]:
-            captured.append(value)
             return value
 
     monkeypatch.setattr(nemo_native_adapter, "BfclEvalConfig", RuntimeConfig)
 
-    result = nemo_native_adapter._runtime_eval_config(
-        adapter,
-        config,  # type: ignore[arg-type]
-        target_url="http://managed-endpoint/v1",
-        target_model_id="launcher-served-name",
-    )
-
-    candidate = result["candidates"][0]
-    assert candidate["api"]["base_url"] == "http://managed-endpoint/v1"
-    assert candidate["model"] == "launcher-served-name"
-    assert candidate["model_identity"] == {"canonical_id": "weights"}
-    assert captured == [result]
+    with pytest.raises(NemoNativeAdapterError, match="served target"):
+        nemo_native_adapter._runtime_eval_config(
+            adapter,
+            config,  # type: ignore[arg-type]
+            target_url="http://managed-endpoint/v1",
+            target_model_id="launcher-served-name",
+        )
 
 
-def test_launcher_binding_carries_an_unpinned_identity_to_the_route_it_chose(
+def test_launcher_binding_may_rebind_url_for_the_same_served_model(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A candidate with no pin *is* its route, so Launcher re-pointing the route moves it.
-
-    The eval contract holds an unpinned identity to naming its own provider and
-    model. Leaving the identity on the pre-Launcher name would fail that check on
-    a config that was valid before a managed deployment chose an endpoint.
-    """
     artifact = write_nemo_evaluator_bundle(_projection(), tmp_path)
     adapter = _native_adapter(tmp_path, artifact)
     payload = {
@@ -723,16 +712,16 @@ def test_launcher_binding_carries_an_unpinned_identity_to_the_route_it_chose(
         adapter,
         config,  # type: ignore[arg-type]
         target_url="http://managed-endpoint/v1",
-        target_model_id="launcher-served-name",
+        target_model_id="original-route",
     )
 
-    identity = result["candidates"][0]["model_identity"]
-    assert identity["model"] == "launcher-served-name"
-    assert identity["source"] == "nvidia"
-    assert identity["revision"] is None and identity["weights_digest"] is None
+    candidate = result["candidates"][0]
+    assert candidate["model"] == "original-route"
+    assert candidate["api"]["base_url"] == "http://managed-endpoint/v1"
+    assert candidate["model_identity"]["model"] == "original-route"
 
 
-def test_launcher_binding_leaves_a_pinned_identity_alone_even_on_the_same_name(
+def test_launcher_binding_does_not_use_a_pin_to_excuse_served_model_rebinding(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -765,14 +754,13 @@ def test_launcher_binding_leaves_a_pinned_identity_alone_even_on_the_same_name(
 
     monkeypatch.setattr(nemo_native_adapter, "BfclEvalConfig", RuntimeConfig)
 
-    result = nemo_native_adapter._runtime_eval_config(
-        adapter,
-        config,  # type: ignore[arg-type]
-        target_url="http://managed-endpoint/v1",
-        target_model_id="launcher-served-name",
-    )
-
-    assert result["candidates"][0]["model_identity"] == pinned
+    with pytest.raises(NemoNativeAdapterError, match="served target"):
+        nemo_native_adapter._runtime_eval_config(
+            adapter,
+            config,  # type: ignore[arg-type]
+            target_url="http://managed-endpoint/v1",
+            target_model_id="launcher-served-name",
+        )
 
 
 def test_the_descriptor_names_every_other_file_and_pins_the_dataset(tmp_path: Path) -> None:

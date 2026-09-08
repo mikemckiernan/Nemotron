@@ -423,11 +423,11 @@ def test_a_rejected_credential_stops_the_run_rather_than_scoring_the_task(
     assert calls == 1
     assert raised.value.code == "eval_candidate_authentication_failed"
     assert "CANDIDATE_API_KEY" in raised.value.recovery
-    recorded = cache.path.read_text(encoding="utf-8")
+    recorded = (
+        cache.path.read_text(encoding="utf-8") if cache.path.exists() else ""
+    )
     documents = [json.loads(line) for line in recorded.splitlines()]
-    # The attempt survives as evidence of what the endpoint said; no completion
-    # follows it, which is what leaves the call open for a later run.
-    assert [document["record_type"] for document in documents] == ["request", "attempt"]
+    assert documents == []
     assert "invalid token secret" not in recorded
 
 
@@ -454,6 +454,7 @@ def test_malformed_http_200_is_preserved_and_not_retried(
     assert calls == 1
     assert outcome.status == "malformed_response"
     assert outcome.attempts[0].raw_response == '{"choices":[]}'
+    assert not (tmp_path / "candidate_io_cache.jsonl").exists()
 
 
 def test_a_response_over_the_bound_is_stopped_and_not_cached_as_model_output(
@@ -508,11 +509,12 @@ def test_timeouts_exhaust_the_pinned_retry_budget(
         raise httpx.ReadTimeout("timed out", request=request)
 
     monkeypatch.setenv("CANDIDATE_API_KEY", "secret")
+    cache_path = tmp_path / "candidate_io_cache.jsonl"
     outcome = _run(
         NativeFunctionCallingClient(
             _candidate(),
             _limits(retries=2),
-            CandidateIOCache(tmp_path / "candidate_io_cache.jsonl"),
+            CandidateIOCache(cache_path),
             transport=httpx.MockTransport(handler),
             backoff_base_s=0,
         )
@@ -521,6 +523,20 @@ def test_timeouts_exhaust_the_pinned_retry_budget(
     assert calls == 3
     assert outcome.status == "retry_exhausted"
     assert [attempt.status for attempt in outcome.attempts] == ["timeout"] * 3
+    assert not cache_path.exists()
+
+    retried = _run(
+        NativeFunctionCallingClient(
+            _candidate(),
+            _limits(retries=0),
+            CandidateIOCache(cache_path),
+            transport=httpx.MockTransport(handler),
+            backoff_base_s=0,
+        )
+    )
+    assert retried.status == "retry_exhausted"
+    assert calls == 4
+    assert not cache_path.exists()
 
 
 def test_an_interrupted_cache_is_evidence_not_a_cache_hit(tmp_path: Path) -> None:
@@ -559,12 +575,8 @@ def test_cancellation_is_recorded_then_propagated(
             await client.aclose()
 
     asyncio.run(cancel_call())
-    documents = [json.loads(line) for line in cache.path.read_text(encoding="utf-8").splitlines()]
-
-    assert [document["record_type"] for document in documents] == ["request", "attempt"]
-    assert documents[1]["payload"]["attempt"]["status"] == "cancelled"
-    with pytest.raises(CandidateCacheError, match="unfinished request"):
-        CandidateIOCache(cache.path).get(_request().request_hash)
+    assert not cache.path.exists()
+    assert CandidateIOCache(cache.path).get(_request().request_hash) is None
 
 
 def test_duplicate_concurrent_calls_pay_for_one_sample(
@@ -618,7 +630,7 @@ def test_one_response_body_is_stored_once_however_many_records_cite_it(
     assert cache.path.read_text(encoding="utf-8").count("chat.completion") == 1
 
 
-def test_a_completion_may_not_cite_an_attempt_the_cache_never_recorded(tmp_path: Path) -> None:
+def test_a_transient_outcome_cannot_be_committed_as_a_completion(tmp_path: Path) -> None:
     cache = CandidateIOCache(tmp_path / "candidate_io_cache.jsonl")
     request = _request()
     cache.put_request(request)
@@ -631,7 +643,7 @@ def test_a_completion_may_not_cite_an_attempt_the_cache_never_recorded(tmp_path:
     )
     cache.put_attempt(request.request_hash, recorded)
 
-    with pytest.raises(CandidateCacheError, match="cites attempts"):
+    with pytest.raises(CandidateCacheError, match="semantically completed"):
         cache.put_completion(
             CandidateCallOutcome(
                 request_hash=request.request_hash,

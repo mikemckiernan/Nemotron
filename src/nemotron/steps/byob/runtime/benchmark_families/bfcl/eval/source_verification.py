@@ -1326,24 +1326,34 @@ def _probe_backend_interface(
     try:
         fixtures = None
         fixture_source_path = None
-        if paths.held_out_path is not None and paths.fixtures_path is not None:
-            pack_manifest = yaml.safe_load(paths.manifest_path.read_text(encoding="utf-8")) or {}
-            templates = yaml.safe_load(paths.templates_path.read_text(encoding="utf-8")) or []
+        if paths.fixtures_path is not None:
             fixtures = json.loads(paths.fixtures_path.read_text(encoding="utf-8"))
-            held_out = load_held_out_policy(
-                paths.held_out_path,
-                source=str(pack_manifest.get("held_out")),
-                manifest=pack_manifest,
-                fixtures=fixtures,
-                templates=templates,
-            )
-            fixtures = oracle_runtime_fixtures(
-                manifest=pack_manifest,
-                fixtures=fixtures,
-                held_out=held_out,
-            )
-            if (held_out.get("policy") or {}).get("fixtures_in_backend_state", True) is False:
-                fixture_source_path = paths.fixtures_path
+            if paths.held_out_path is not None:
+                pack_manifest = (
+                    yaml.safe_load(paths.manifest_path.read_text(encoding="utf-8")) or {}
+                )
+                templates = (
+                    yaml.safe_load(paths.templates_path.read_text(encoding="utf-8")) or []
+                )
+                held_out = load_held_out_policy(
+                    paths.held_out_path,
+                    source=str(pack_manifest.get("held_out")),
+                    manifest=pack_manifest,
+                    fixtures=fixtures,
+                    templates=templates,
+                )
+                fixtures = oracle_runtime_fixtures(
+                    manifest=pack_manifest,
+                    fixtures=fixtures,
+                    held_out=held_out,
+                )
+                if (
+                    (held_out.get("policy") or {}).get(
+                        "fixtures_in_backend_state", True
+                    )
+                    is False
+                ):
+                    fixture_source_path = paths.fixtures_path
         outputs = worker.run_episode(
             backend_path=backend_path,
             fixtures=fixtures,

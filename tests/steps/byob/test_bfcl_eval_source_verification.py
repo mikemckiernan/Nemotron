@@ -947,6 +947,48 @@ def test_a_backend_without_the_runner_interface_is_refused(tmp_path: Path) -> No
         verify_eval_source(config)
 
 
+def test_executable_probe_loads_fixtures_without_a_held_out_policy(
+    tmp_path: Path,
+) -> None:
+    publication = _publish(tmp_path)
+    fixtures = {"accounts": [{"account_id": "1", "balance": 10}]}
+    (publication.pack_dir / "fixtures.json").write_text(
+        json.dumps(fixtures),
+        encoding="utf-8",
+    )
+    manifest = yaml.safe_load(
+        (publication.pack_dir / "manifest.yaml").read_text(encoding="utf-8")
+    )
+    manifest["paths"]["fixtures"] = "fixtures.json"
+    (publication.pack_dir / "manifest.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False),
+        encoding="utf-8",
+    )
+    publication.resource.write_text(
+        BACKEND_SOURCE.replace(
+            'STATE["calls"] = 0\n    return None',
+            'assert fixtures == {"accounts": [{"account_id": "1", "balance": 10}]}\n'
+            '    STATE["calls"] = 0\n'
+            '    return None',
+        ),
+        encoding="utf-8",
+    )
+    _restate_pack(publication)
+    config = _load(
+        tmp_path,
+        _config_data(
+            publication,
+            tmp_path / "eval_out",
+            modes=["trace", "executable"],
+        ),
+    )
+
+    source = verify_eval_source(config)
+
+    assert source.oracle is not None
+    assert source.oracle.interface_probed is True
+
+
 def test_a_backend_that_cannot_be_imported_is_refused(tmp_path: Path) -> None:
     publication = _publish(tmp_path)
     publication.resource.write_text("import a_module_that_does_not_exist\n", encoding="utf-8")

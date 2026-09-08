@@ -129,6 +129,14 @@ class CandidateIOCache:
         )
 
     def put_completion(self, outcome: CandidateCallOutcome) -> None:
+        if outcome.status != "completed" or outcome.response is None:
+            raise CandidateCacheError(
+                f"candidate_io_cache[{outcome.request_hash}]",
+                "cannot cache an outcome without a semantically completed response",
+                actual=outcome.status,
+                expected="status=completed with a parsed candidate response",
+                recovery="leave transient/provider failures uncached so a later run can retry",
+            )
         self._append(
             "completion",
             outcome.request_hash,
@@ -389,6 +397,11 @@ class CandidateIOCache:
             raise self._invalid(number, "has a payload that violates its record contract") from exc
         if outcome.request_hash != request_hash:
             raise self._invalid(number, "carries a completion that belongs to another request hash")
+        if outcome.status != "completed" or outcome.response is None:
+            raise self._invalid(
+                number,
+                "caches an outcome without a semantically completed response",
+            )
         if request_hash not in self._requests:
             raise CandidateCacheError(
                 f"{self.path.name}:{number}",

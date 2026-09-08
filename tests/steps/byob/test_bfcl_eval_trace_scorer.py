@@ -45,6 +45,9 @@ from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval import (
     trace_failure_records,
     trace_task_result,
 )
+from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.call_comparison import (
+    compare_arguments,
+)
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.candidate_cache import CandidateIOCache
 from nemotron.steps.byob.runtime.benchmark_families.bfcl.eval.candidate_client import (
     NativeFunctionCallingClient,
@@ -738,7 +741,7 @@ def test_a_score_reports_every_gate_the_contract_defines_in_contract_order(
     assert all(gate.reason_code.startswith(f"{gate.gate}.") for gate in score.gates)
 
 
-def test_a_declared_default_spelled_out_is_neither_rewarded_nor_punished(
+def test_a_candidate_supplied_default_absent_from_gold_is_unexpected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     score, _ = _score(
@@ -751,17 +754,40 @@ def test_a_declared_default_spelled_out_is_neither_rewarded_nor_punished(
         monkeypatch=monkeypatch,
     )
 
-    assert score.task_success
-    assert score.gate("arguments").outcome == "passed"
+    assert not score.task_success
+    assert score.gate("arguments").outcome == "failed"
+    assert score.turns[0].calls[0].diff is not None
+    assert score.turns[0].calls[0].diff.unexpected == ("currency",)
 
 
-def test_an_argument_the_gold_call_leaves_open_is_not_a_constraint(
+def test_defaults_fill_candidate_omissions_but_never_erase_candidate_claims() -> None:
+    scoring = _scoring()
+
+    omitted = compare_arguments(
+        {"account_id": "1", "currency": "VND"},
+        {"account_id": "1"},
+        function_name="get_balance",
+        tools=TOOLS,
+        scoring=scoring,
+    )
+    unearned_confirmation = compare_arguments(
+        {"account_id": "1"},
+        {"account_id": "1", "confirm": True},
+        function_name="close_account",
+        tools=TOOLS,
+        scoring=scoring,
+    )
+
+    assert omitted.empty
+    assert unearned_confirmation.unexpected == ("confirm",)
+
+
+def test_a_nondefault_argument_the_gold_call_omits_is_unexpected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # The gold call states only account_id, so the trace put no requirement on
-    # currency. Filling it from the schema would make the tool's own default the
-    # answer key and score any other choice as the wrong arguments, which is a
-    # constraint the recorded conversation never expressed.
+    # Candidate-supplied fields are claims made by the candidate. Ignoring one
+    # merely because the schema declares a default can hide consequential values
+    # such as an unearned confirmation flag.
     score, _ = _score(
         _single_turn_row(),
         [
@@ -772,8 +798,8 @@ def test_an_argument_the_gold_call_leaves_open_is_not_a_constraint(
         monkeypatch=monkeypatch,
     )
 
-    assert score.gate("arguments").outcome == "passed"
-    assert score.task_success
+    assert score.gate("arguments").outcome == "failed"
+    assert not score.task_success
 
 
 def test_a_multi_turn_trace_scores_the_text_turn_that_earned_the_next_request(

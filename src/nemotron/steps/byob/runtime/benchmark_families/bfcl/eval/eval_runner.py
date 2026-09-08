@@ -401,6 +401,11 @@ def _candidate_cache(
     return CandidateIOCache(path), path, temporary
 
 
+def _private_candidate_cache(private_root: Path) -> CandidateIOCache:
+    """Create the held-out cache only inside its ephemeral slice directory."""
+    return CandidateIOCache(private_root / "private-candidate-io-cache.jsonl")
+
+
 async def _run_candidate_tasks(
     *,
     config: BfclEvalConfig,
@@ -429,29 +434,21 @@ async def _run_candidate_tasks(
                     plan=plan,
                 )
                 oracle = oracle_factory(source, task, config.limits)
-                try:
-                    episode = await run_executable_episode(
-                        candidate=candidate,
-                        limits=config.limits,
-                        client=client,  # type: ignore[arg-type]
-                        task=task,
-                        source=source,
-                        plan=plan,
-                        oracle=oracle,
-                        gate=gate,
-                        tool_trace_cache=tool_trace_cache,
-                    )
-                except BaseException as primary:
-                    try:
-                        await oracle.close()
-                    except Exception as cleanup:
-                        _add_exception_note(
-                            primary,
-                            f"oracle cleanup also failed as {type(cleanup).__name__}"
-                        )
-                    raise
-                else:
-                    await oracle.close()
+                # The executable driver owns the session from authorization
+                # through cleanup and converts cleanup infrastructure failures
+                # into episode evidence. Closing it again here can turn a
+                # completed episode into a batch exception and cancel siblings.
+                episode = await run_executable_episode(
+                    candidate=candidate,
+                    limits=config.limits,
+                    client=client,  # type: ignore[arg-type]
+                    task=task,
+                    source=source,
+                    plan=plan,
+                    oracle=oracle,
+                    gate=gate,
+                    tool_trace_cache=tool_trace_cache,
+                )
                 return score_executable_episode(
                     episode=episode,
                     task=task,
@@ -764,13 +761,18 @@ async def run_bfcl_held_out_eval(
             }
         )
 
-        candidate_cache, _cache_path, temporary_cache = _candidate_cache(config)
+        seen_cache, _cache_path, temporary_cache = _candidate_cache(config)
+        # Private prompts and responses must never share a durable cache with the
+        # seen slice. Keeping this cache under the already-ephemeral private root
+        # makes the report's privacy claim true even if an invalid caller bypasses
+        # the config rule that disables published caches for held-out evaluation.
+        private_cache = _private_candidate_cache(Path(private_root))
         try:
             seen_scores: list[ExecutableTaskScore] = []
             private_scores: list[ExecutableTaskScore] = []
             for alias in authorized.plan.candidate_aliases:
                 candidate = config.candidate(alias)
-                client = client_factory(candidate, config.limits, candidate_cache)
+                seen_client = client_factory(candidate, config.limits, seen_cache)
                 try:
                     seen_scores.extend(
                         await _run_candidate_tasks(
@@ -779,11 +781,19 @@ async def run_bfcl_held_out_eval(
                             plan=authorized.plan,
                             projection=authorized.projection,
                             candidate=candidate,
-                            client=client,
+                            client=seen_client,
                             tool_trace_cache=None,
                             oracle_factory=oracle_factory,
                         )
                     )
+                finally:
+                    await seen_client.aclose()
+                private_client = client_factory(
+                    candidate,
+                    config.limits,
+                    private_cache,
+                )
+                try:
                     private_scores.extend(
                         await _run_candidate_tasks(
                             config=config,
@@ -791,13 +801,13 @@ async def run_bfcl_held_out_eval(
                             plan=private_plan,
                             projection=private_projection,
                             candidate=candidate,
-                            client=client,
+                            client=private_client,
                             tool_trace_cache=None,
                             oracle_factory=oracle_factory,
                         )
                     )
                 finally:
-                    await client.aclose()
+                    await private_client.aclose()
             policy = HeldOutPolicy.from_normalized(pack.held_out)
             report = held_out_generalization_report(
                 seen_results=[

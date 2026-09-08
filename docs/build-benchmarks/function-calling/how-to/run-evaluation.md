@@ -99,9 +99,30 @@ export enabled; do not create or edit bundle files manually.
 Copy the template and fill it in. Every `REPLACE_ME_*` value must be resolved and `config_status` must become `resolved`.
 
 ```bash
+REPO_ROOT="$(pwd)"
 mkdir -p /srv/bfcl/eval/candidate-a && \
   cp src/nemotron/steps/byob/bfcl/config/eval.default.yaml \
     /srv/bfcl/eval/candidate-a/eval.yaml
+```
+
+The template's scoring contract is repository-relative. Because the copy no
+longer has the repository's directory layout, replace it with the absolute
+contract path before editing any other values:
+
+```bash
+REPO_ROOT="$(cd "$REPO_ROOT" && pwd)"
+python - "$REPO_ROOT" /srv/bfcl/eval/candidate-a/eval.yaml <<'PY'
+from pathlib import Path
+import sys
+import yaml
+
+repo, destination = map(Path, sys.argv[1:])
+document = yaml.safe_load(destination.read_text())
+document["scoring"]["contract"] = str(
+    (repo / "src/nemotron/steps/byob/references/bfcl-eval-scoring-contract.md").resolve()
+)
+destination.write_text(yaml.safe_dump(document, sort_keys=False))
+PY
 ```
 
 :::{important}
@@ -201,7 +222,8 @@ cp src/nemotron/steps/byob/bfcl/config/eval.cli.yaml \
   /srv/bfcl/eval/candidate-a/eval.cli.yaml
 ```
 
-Point `eval_config_path` at `./eval.yaml`. The alternative,
+Point `eval_config_path` at the absolute
+`/srv/bfcl/eval/candidate-a/eval.yaml`. The alternative,
 `eval.launcher.yaml`, sets `execution_backend: nemo_launcher` and submits the
 published `nemo_evaluator_bundle` as a native NeMo Evaluator task for exactly one
 candidate.
@@ -210,7 +232,7 @@ candidate.
 schema_version: "1.0"
 family: bfcl
 stage: eval
-eval_config_path: ./eval.yaml
+eval_config_path: /srv/bfcl/eval/candidate-a/eval.yaml
 execution_backend: direct
 output_format: human
 probe_oracle: true
@@ -226,15 +248,21 @@ cp src/nemotron/steps/byob/bfcl/config/eval.launcher.yaml \
   /srv/bfcl/eval/candidate-a/eval.launcher.yaml
 ```
 
+Resolve every path in the copied Launcher envelope to an absolute path. In
+particular, its shipped `launcher_base_config_path` is repository-relative and
+must become `$REPO_ROOT/src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml`;
+do not leave that relative path in a file copied under `/srv`.
+
 ```yaml
 execution_backend: nemo_launcher
-eval_config_path: ./eval.yaml
+eval_config_path: /srv/bfcl/eval/candidate-a/eval.yaml
 launcher:
   bundle_root: /srv/bfcl/benchmarks/warehouse-gold/exports/nemo_evaluator_bundle
   native_output_dir: /srv/bfcl/eval/candidate-a/native-output
   adapter_config_path: /srv/bfcl/eval/candidate-a/adapter.yaml
   framework_build_dir: /srv/bfcl/eval/candidate-a/framework
   task_config_path: /srv/bfcl/eval/candidate-a/task.yaml
+  launcher_base_config_path: /absolute/path/to/Nemotron/src/nemotron/steps/eval/model_eval/config/tiny_chat.yaml
   launcher_config_path: /srv/bfcl/eval/candidate-a/launcher.yaml
   launcher_output_dir: /srv/bfcl/eval/candidate-a/launcher-output
   submit: false
