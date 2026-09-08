@@ -36,6 +36,8 @@ preamble: |
   #   uv run nemotron steps run byob/mcq -c tiny --batch slurm_byob_cpu stage=all
   #   uv run nemotron steps run byob/mcq -c tiny --batch slurm_byob_full stage=all
   #   uv run nemotron steps run sdg/data_designer -c tiny --batch slurm_sdg_data_designer_tiny
+  #   uv run nemotron steps run sdg/persona_mcq -c tiny --batch slurm_sdg_persona_mcq_tiny
+  #   uv run nemotron steps run sdg/persona_mcq -c default --batch slurm_sdg_persona_mcq
   #   uv run nemotron steps run translate/nemo_curator -c default --batch slurm_translate
   #   uv run nemotron steps run curate/nemo_curator -c tiny --batch slurm_curate
 
@@ -72,6 +74,8 @@ checks:
     - slurm_sdg_data_designer_default
     - slurm_sdg_data_designer_customer_support_tools
     - slurm_sdg_data_designer_rl_pref
+    - slurm_sdg_persona_mcq
+    - slurm_sdg_persona_mcq_tiny
     - slurm_translate
     - slurm_curate
 
@@ -229,6 +233,42 @@ sections:
     extends: slurm_sdg_data_designer
     env_vars:
       SDG_OUTPUT_DIR: ${oc.env:NEMOTRON_WORKSPACE,/lustre/${oc.env:USER}}/output/sdg/rl/rl_pref
+
+  # sdg/persona_mcq: remote endpoints author and answer questions; the GPU is
+  # reserved for multilingual semantic deduplication. Shared paths make runs resumable.
+  slurm_sdg_persona_mcq:
+    extends: slurm_sdg_data_designer
+    partition: ${oc.env:SLURM_GPU_PARTITION,${oc.env:SLURM_PARTITION,batch}}
+    build_partition: ${oc.env:SLURM_GPU_PARTITION,${oc.env:SLURM_PARTITION,batch}}
+    build_include_gpus: true
+    build_gpus_per_node: 1
+    ntasks_per_node: 1
+    cpus_per_task: 8
+    gpus_per_node: 1
+    time: "04:00:00"
+    startup_commands:
+      - "uv pip install --python /opt/venv/bin/python --quiet 'data-designer>=0.5.9,<0.6' 'sentence-transformers>=5.0.0,<6.0.0' 'torch>=2.10,<2.11'"
+      # Shadow a torchvision build tied to the image's original Torch.
+      - "uv pip install --python /opt/venv/bin/python --quiet 'torchvision>=0.25,<0.26'"
+    env_vars:
+      NEMOTRON_RUN_DIR: ${oc.env:NEMOTRON_RUN_DIR,${oc.env:NEMOTRON_WORKSPACE,/lustre/${oc.env:USER}}/output/sdg}
+      DATA_DESIGNER_HOME: ${oc.env:DATA_DESIGNER_HOME,${oc.env:NEMOTRON_WORKSPACE,/lustre/${oc.env:USER}}/data-designer}
+      DATA_DESIGNER_MANAGED_ASSETS_PATH: ${oc.env:DATA_DESIGNER_MANAGED_ASSETS_PATH,${oc.env:NEMOTRON_WORKSPACE,/lustre/${oc.env:USER}}/data-designer/managed-assets}
+      NVIDIA_API_KEY: ${oc.env:NVIDIA_API_KEY,''}
+      NGC_API_KEY: ${oc.env:NGC_API_KEY,''}
+      QWEN_API_BASE: ${oc.env:QWEN_API_BASE,''}
+      OSS_API_BASE: ${oc.env:OSS_API_BASE,''}
+      GEMMA_API_BASE: ${oc.env:GEMMA_API_BASE,''}
+
+  slurm_sdg_persona_mcq_tiny:
+    extends: slurm_sdg_persona_mcq
+    partition: ${oc.env:SLURM_CPU_PARTITION,cpu}
+    build_partition: ${oc.env:SLURM_CPU_PARTITION,cpu}
+    build_include_gpus: false
+    build_gpus_per_node: 0
+    cpus_per_task: 4
+    gpus_per_node: 0
+    time: "01:00:00"
 
   # translate/nemo_curator: uses the translate Curator runtime profile.
   slurm_translate:

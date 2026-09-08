@@ -30,6 +30,10 @@ env.bak/
 venv.bak/
 .venv/
 
+# This is a source package, not a virtual environment.
+!src/nemotron/steps/env/
+!src/nemotron/steps/env/**
+
 # UV lock files in recipe stages are tracked for reproducible builds
 
 # IDEs

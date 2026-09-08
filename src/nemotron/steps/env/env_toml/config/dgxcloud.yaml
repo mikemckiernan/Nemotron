@@ -36,6 +36,8 @@ preamble: |
   #   uv run nemotron steps run byob/mcq -c tiny --batch dgxcloud_byob_cpu stage=all
   #   uv run nemotron steps run byob/mcq -c tiny --batch dgxcloud_byob_full stage=all
   #   uv run nemotron steps run sdg/data_designer -c tiny --batch dgxcloud_sdg_data_designer_tiny
+  #   uv run nemotron steps run sdg/persona_mcq -c tiny --batch dgxcloud_sdg_persona_mcq_tiny
+  #   uv run nemotron steps run sdg/persona_mcq -c default --batch dgxcloud_sdg_persona_mcq
   #   uv run nemotron steps run translate/nemo_curator -c default --batch dgxcloud_translate
   #   uv run nemotron steps run curate/nemo_curator -c tiny --batch dgxcloud_curate
 
@@ -72,6 +74,8 @@ checks:
     - dgxcloud_sdg_data_designer_default
     - dgxcloud_sdg_data_designer_customer_support_tools
     - dgxcloud_sdg_data_designer_rl_pref
+    - dgxcloud_sdg_persona_mcq
+    - dgxcloud_sdg_persona_mcq_tiny
     - dgxcloud_translate
     - dgxcloud_curate
   recommended_min_nodes:
@@ -210,6 +214,30 @@ sections:
     extends: dgxcloud_sdg_data_designer
     env_vars:
       SDG_OUTPUT_DIR: ${oc.env:NEMOTRON_WORKSPACE,/workspace}/output/sdg/rl/rl_pref
+
+  # sdg/persona_mcq on DGX Cloud (Run:ai). Endpoint inference is remote; one
+  # local GPU is used for multilingual semantic deduplication.
+  dgxcloud_sdg_persona_mcq:
+    extends: dgxcloud_sdg_data_designer
+    gpus_per_node: 1
+    nprocs_per_node: 1
+    startup_commands:
+      - "python -m pip install --quiet --break-system-packages 'data-designer>=0.5.9,<0.6' 'sentence-transformers>=5.0.0,<6.0.0' 'torch>=2.10,<2.11'"
+      # Shadow a torchvision build tied to the image's original Torch.
+      - "python -m pip install --quiet --break-system-packages 'torchvision>=0.25,<0.26'"
+    env_vars:
+      NEMOTRON_RUN_DIR: ${oc.env:NEMOTRON_RUN_DIR,${oc.env:NEMOTRON_WORKSPACE,/workspace}/output/sdg}
+      DATA_DESIGNER_HOME: ${oc.env:DATA_DESIGNER_HOME,${oc.env:NEMOTRON_WORKSPACE,/workspace}/data-designer}
+      DATA_DESIGNER_MANAGED_ASSETS_PATH: ${oc.env:DATA_DESIGNER_MANAGED_ASSETS_PATH,${oc.env:NEMOTRON_WORKSPACE,/workspace}/data-designer/managed-assets}
+      NVIDIA_API_KEY: ${oc.env:NVIDIA_API_KEY,''}
+      NGC_API_KEY: ${oc.env:NGC_API_KEY,''}
+      QWEN_API_BASE: ${oc.env:QWEN_API_BASE,''}
+      OSS_API_BASE: ${oc.env:OSS_API_BASE,''}
+      GEMMA_API_BASE: ${oc.env:GEMMA_API_BASE,''}
+
+  dgxcloud_sdg_persona_mcq_tiny:
+    extends: dgxcloud_sdg_persona_mcq
+    gpus_per_node: 0
 
   # translate/nemo_curator: uses the translate Curator runtime profile.
   dgxcloud_translate:
