@@ -8,25 +8,17 @@
 Use this guide when you have some combination of a tool interface, representative
 records, an existing implementation, or documented business behavior but do not yet
 have an Oracle Pack. It shows the two conventional authoring paths from those starting
-assets:
+assets to one reviewed pack:
 
 - **Manual authoring:** write and review every pack file yourself.
 - **Model-assisted authoring:** expose a reviewed, executable source to an authoring
   model, let it propose only the permitted declarative artifacts, and review those
   proposals before release.
 
-Both paths finish with the same reviewed Oracle Pack. They then pass through the same
-Gold gate, executable replay, and publication pipeline. Model assistance never earns a
-weaker validation standard.
-
-:::{important}
-This is model-assisted authoring, not model-generated oracle truth. A model may propose
-coverage, task plans, validation cases, and declarative assertion specifications. After
-a source is certified, it may not change that source's backend, tool schemas, or
-fixtures, and it may not certify, approve, or bypass Gold validation. An optional
-pre-intake scaffold lane can suggest fixture data, but those suggestions become source
-bytes a human must review before certification.
-:::
+Both paths finish with the same reviewed Oracle Pack and the same Gold gate. Generation,
+publication, and evaluation are later runs over that pack, not extra authoring stages.
+After the pack is Gold-eligible, continue with {doc}`publish-a-release` and
+{doc}`run-evaluation`. Model assistance never earns a weaker validation standard.
 
 ## Identify The Required Domain Inputs
 
@@ -55,8 +47,9 @@ Tool interface:
   checkout_book(book_id, patron_id, confirm=false)
 
 Domain state:
-  BK-1 is available
+  BK-100 is available
   BK-ABSENT-1 is not held
+  P-1 is a known patron
 
 Business behavior:
   An unknown id returns a structured not-found error
@@ -127,6 +120,20 @@ That run shows the destination both paths are trying to produce. The reference p
 contains `manifest.yaml`, `tools.json`, `backend.py`, `fixtures.json`,
 `task_templates.yaml`, `assertions.py`, and `validation_cases.yaml`.
 
+To inspect the assisted path once without preparing your own source, run the
+credential-free walkthrough from the repository root:
+
+```bash
+uv run python scripts/bfcl_assisted_authoring_demo.py \
+  --workdir /tmp/bfcl-demo
+```
+
+The walkthrough creates its own library source, `tools.json`, domain brief, and probe
+plan, then uses a scripted authoring model, real intake probes, independent validation,
+human-gate simulations, publication, and evaluation. It demonstrates the boundaries; it
+does not prepare or validate your domain inputs. Use `--author-model live` only after
+the scripted path works and a configured model endpoint is available.
+
 ## Path A: Author The Pack Manually
 
 In this path, the files you review are the files generation reads. No authoring model
@@ -191,24 +198,50 @@ python -m nemotron.steps.byob.scripts.validate_oracle_pack \
 
 Exit code `0` means Gold-eligible, `2` means validation reached a non-Gold verdict,
 and `1` means no verdict could be produced. Read the failed checks rather than editing
-the generated report.
+the generated report. The same report is what `stage=prepare` writes if you prefer to
+stay on the pipeline CLI. See {doc}`author-a-pack` for how to read the named checks.
 
 ### 4. Generate A Smoke Benchmark
 
-Once preparation is Gold-eligible, use the scaffolded configuration as the starting
-point for a smoke run and override the selected run stage:
+Once preparation is Gold-eligible, copy the smoke configuration rather than using the
+scaffolded `validate.yaml` as a generation run. Relative paths in a BFCL configuration
+resolve from `src/nemotron/steps/byob/`, not from the shell working directory; use
+absolute paths for an external pack and keep `output_dir` outside the pack root.
+
+```bash
+mkdir -p /srv/bfcl/runs && \
+  cp src/nemotron/steps/byob/bfcl/config/smoke.example.yaml \
+    /srv/bfcl/runs/library-smoke.yaml
+```
+
+Point the copy at the pack, keep `lineage.policy: smoke_no_publication`, and set
+`tasks_per_category` to at least the template count of the widest category:
+
+```yaml
+expt_name: bfcl_library_smoke
+output_dir: /srv/bfcl/runs/library-smoke-output
+oracle_pack:
+  manifest_path: /srv/bfcl/packs/library_catalog/manifest.yaml
+oracle_runtime:
+  allowed_roots:
+    - /srv/bfcl/packs/library_catalog
+task_generation:
+  tasks_per_category: 10
+```
 
 ```bash
 uv run nemotron steps run byob/bfcl \
-  -c /srv/bfcl/packs/library_catalog/validate.yaml \
+  -c /srv/bfcl/runs/library-smoke.yaml \
   stage=all \
   family=bfcl
 ```
 
-Keep `lineage.policy: smoke_no_publication` while iterating. Verify
-`benchmark_raw.parquet`, `benchmark.parquet`, `run_manifest.json`, and the adjacent
-`stage_cache/` tables. Then follow {doc}`publish-a-release` to choose a reviewed
-publication budget and release policy.
+Verify `benchmark_raw.parquet`, `benchmark.parquet`, `run_manifest.json`, and the
+adjacent `stage_cache/` tables. A smoke run still writes those files, but records
+`gold_eligible: false` in the manifest even when the pack itself is Gold. That proves
+plumbing; it is not a publication-eligible evaluation source. Follow
+{doc}`publish-a-release` to choose a reviewed publication budget, then
+{doc}`run-evaluation` to score a candidate.
 
 For every manual pack field and validation rule, continue with
 {doc}`author-a-pack`.
@@ -224,22 +257,50 @@ generic REST endpoint for driving this guided workflow. This does not restrict o
 transport: source behavior may still come from local Python, a reviewed HTTP package,
 or an MCP gateway, subject to the support limitations above.
 
-### 1. Run The Credential-Free Assisted-Authoring Walkthrough
+:::{important}
+This is model-assisted authoring, not model-generated oracle truth. A model may propose
+coverage, task plans, validation cases, and declarative assertion specifications. After
+a source is certified, it may not change that source's backend, tool schemas, or
+fixtures, and it may not certify, approve, or bypass Gold validation. An optional
+pre-intake scaffold lane can suggest fixture data, but those suggestions become source
+bytes a human must review before certification.
+:::
 
-Run the full lifecycle once before substituting your own source:
+The credential-free walkthrough above creates its own source and authoring inputs.
+The steps below prepare yours.
+
+### Required Inputs
+
+Prepare these operator-owned inputs before starting intake:
+
+| Input | Purpose |
+| --- | --- |
+| Reviewed `tools.json` | Defines the exact public functions and JSON parameter schemas a candidate may see. |
+| Executable source | For `local_python`: `backend.py`, `dependency-lock.json`, and optional `fixtures.json`. For HTTP: `endpoint_config.yaml`. Prefer an existing domain-owned implementation over scaffolding. |
+| Domain brief | Describes the domain, supported reads and mutations, confirmation and refusal behavior, identifier shapes, and language. It supplies drafting context, not oracle truth. See {doc}`../reference/domain-brief`. |
+| Probe plan | Names the calls intake may execute to measure coverage, errors, reset, isolation, confirmation safety, and timeout cleanup. A Gold release requires A2, including a timeout case. |
+| Held-out decision | Supplies either a reviewed held-out policy or a reason held-out data does not apply. |
+| Certification key | An Ed25519 private key that signs the measured source evidence under a chosen key id. |
+
+The domain brief is required independently of `tools.json`: the catalog defines the
+call interface, while the brief explains which capabilities and business behaviors
+matter together. Command-level intake, drafting, and freeze details are in
+{doc}`assisted-authoring`.
+
+Create a certification key before intake:
 
 ```bash
-uv run python scripts/bfcl_assisted_authoring_demo.py \
-  --workdir /tmp/bfcl-demo
+mkdir -p /srv/bfcl/keys
+openssl genpkey -algorithm Ed25519 \
+  -out /srv/bfcl/keys/certification-private.pem
+openssl pkey -in /srv/bfcl/keys/certification-private.pem \
+  -pubout -out /srv/bfcl/keys/certification-public.pem
 ```
 
-This non-normative walkthrough uses a compact English library source, a scripted authoring model, real intake
-probes, independent validation, human-gate simulations, publication, and evaluation.
-It prints what a human is deciding at each authorization boundary. Use
-`--author-model live` only after the scripted path works and a configured model
-endpoint is available.
+`--certification-key-id` is the identifier you pass with that private key, such as
+`library-authoring`. Keep the private key outside the source tree.
 
-### 2. Prepare A Reviewed Tool Catalog
+### 1. Prepare A Reviewed Tool Catalog
 
 Start from the public interface you want a candidate model to see. Each entry in
 `tools.json` needs a stable name, description, and JSON parameter schema. Mark
@@ -248,7 +309,7 @@ mutating and confirmation-gated tools with the pack-local annotations shown in
 
 Put that reviewed catalog *inside* the source directory before scaffolding or checking.
 Neither `scaffold_source_package` nor intake copies `tools.json` for you; both read it
-as a file that already belongs to the source:
+as a file that already belongs to the source. When following this library example:
 
 ```bash
 mkdir -p /srv/sources/library
@@ -256,12 +317,19 @@ cp src/nemotron/steps/byob/data/tiny_oracle_pack/tools.json \
   /srv/sources/library/tools.json
 ```
 
-The catalog cannot decide what a call returns or how state changes. You supply that
-truth in the next step.
+For your own domain, write `tools.json` from the real interface instead of copying the
+library catalog. The catalog cannot decide what a call returns or how state changes.
+You supply that truth in the next step.
 
-### 3. Scaffold The Source Package
+### 2. Provide Or Scaffold The Source Package
 
-Generate the mechanical backend and fixture skeleton from the reviewed catalog:
+If a reviewed `backend.py`, `fixtures.json`, and `dependency-lock.json` already exist,
+place the catalog beside them and continue at the static check. Do not scaffold over a
+domain-owned implementation; the scaffolder never overwrites `backend.py` or
+`fixtures.json`, but it also will not replace their semantics.
+
+If no independently implemented source exists, generate the mechanical backend and
+fixture skeleton from the reviewed catalog:
 
 ```bash
 python -m nemotron.steps.byob.scripts.scaffold_source_package \
@@ -271,9 +339,8 @@ python -m nemotron.steps.byob.scripts.scaffold_source_package \
   --dependency-lock
 ```
 
-The command writes `backend.py`, `fixtures.json`, and `dependency-lock.json`. It never
-overwrites an existing `backend.py` or `fixtures.json`, and it does not write
-`tools.json`. After a successful scaffold the source looks like:
+The command writes `backend.py`, `fixtures.json`, and `dependency-lock.json`. It does
+not write `tools.json`. After a successful scaffold the source looks like:
 
 ```text
 library/
@@ -302,7 +369,7 @@ representativeness. Use independent records and tests to review every suggestion
 avoid using the same model as the sole author of both oracle behavior and benchmark
 tasks. See {doc}`../reference/python-backend` for the full recommendation.
 
-### 4. Check The Source Before Intake
+### 3. Check The Source Before Intake
 
 ```bash
 python -m nemotron.steps.byob.scripts.check_source_package \
@@ -313,7 +380,7 @@ Proceed only when the command exits `0`. A passing static check means the source
 with its catalog and contains no review marker; it does not certify that the behavior
 is correct.
 
-### 5. Supply The Human-Owned Authoring Inputs
+### 4. Supply The Human-Owned Authoring Inputs
 
 Copy and complete the domain brief:
 
@@ -324,15 +391,29 @@ cp src/nemotron/steps/byob/references/bfcl-domain-brief.skeleton.txt \
 
 Remove every bracketed `BFCL-SKELETON` block. State what the assistant reads and
 changes, confirmation behavior, well-formed requests that are refused, identifier
-shape, and language. The brief is context for drafting, not behavioral proof.
+shape, and language. The brief is context for drafting, not behavioral proof. See
+{doc}`../reference/domain-brief` for the complete content, safety, and validation
+contract.
 
-Prepare a probe plan covering every published tool, structured error behavior, reset
-and isolation, confirmation safety for mutations, and timeout cleanup. The exact
-transport-neutral schema and an A2-shaped example are in
-`src/nemotron/steps/byob/references/bfcl-probe-plan.example.json`; replace its banking
-tools, fixture ids, and cases rather than copying its domain semantics.
+Prepare a probe plan covering every published tool, at least one structured error if
+the source has error codes, confirmation safety for mutations, reset isolation, and a
+case the tool cannot finish inside its deadline. Without that timeout case,
+certification cannot reach A2. Copy the structure from
+`src/nemotron/steps/byob/references/bfcl-probe-plan.example.json`, then replace its
+banking tools, fixture ids, and cases. Check the plan without executing probes:
 
-### 6. Start Intake And Certification
+```bash
+python -m nemotron.steps.byob.scripts.check_probe_plan \
+  --source /srv/sources/library \
+  --probe-plan /srv/sources/library-probe-plan.json
+```
+
+The check reports static coverage gaps that would block A2. Intake remains
+authoritative because only it executes the probes. An optional model-drafted plan is
+documented in {doc}`assisted-authoring`; review that draft the same way you would
+review a handwritten plan.
+
+### 5. Start Intake And Certification
 
 Enable live inspection of a local Python source:
 
@@ -363,7 +444,7 @@ Intake writes fingerprinted, transport-neutral evidence and derives A0, A1, or A
 from observations. A Gold release needs A2. Neither a reviewer nor a model can promote
 an under-certified source.
 
-### 7. Cross The Two Human Boundaries
+### 6. Cross The Two Human Boundaries
 
 Continue with the commands that `bfcl_author` reports for the current session:
 
@@ -391,7 +472,7 @@ people. The same named person may act at multiple gates unless organizational po
 requires separation of duties; exposure may also be authorized by an organizational
 policy digest. Editing an upstream artifact invalidates downstream approvals.
 
-### 8. Review The Semantic Supplement And Assemble
+### 7. Review The Semantic Supplement And Assemble
 
 The authoring model cannot infer fixture-column bindings, final turn policies,
 per-language user turns, or certification validation cases merely from a tool
@@ -451,7 +532,7 @@ The CLI binds the session's evidence, drafts, and source automatically. Assembly
 refuses any supplement tool or assertion that cannot be traced back to certified
 evidence and compiled drafts.
 
-### 9. Review, Freeze, And Publish
+### 8. Review, Freeze, And Publish
 
 The remaining guided commands build a deterministic review packet from independently
 verified certification, fresh validation, answered questions, and the complete
@@ -459,12 +540,11 @@ candidate pack. A reviewer approves the packet digest, then `freeze` seals the e
 pack and sidecars. `publish` reruns fresh Gold validation and the ordinary
 `stage=all` generation pipeline rather than trusting an earlier verdict.
 
-Follow {doc}`assisted-authoring` for the command-level sequence and
+Follow {doc}`assisted-authoring` for the remaining command-level sequence and
 `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` for every required
-argument and refusal code. The normative user guide and assisted-authoring runbook are
-the sources of truth. Despite its `_demo.py` filename,
-`scripts/bfcl_assisted_authoring_demo.py` is presented here as a credential-free
-assisted-authoring walkthrough, not as a production launcher.
+argument and refusal code. Those pages are the sources of truth for authorize, draft,
+review, freeze, and publish. The `_demo.py` walkthrough above is not a production
+launcher.
 
 ## Where Both Paths Meet
 
@@ -524,14 +604,22 @@ reported refusal to its source fix.
 
 ## Follow-Up: Evaluation And Next Steps
 
-Evaluation is a separate run over a published benchmark, with its own configuration
-and output directory. Before evaluating a candidate model, confirm that the generation
-output contains `run_manifest.json`, `benchmark.parquet`, and
-`benchmark_raw.parquet`. Executable evaluation additionally requires the exact Oracle
-Pack used during generation.
+Evaluation is a separate run over a **published** benchmark, with its own configuration
+and output directory. A smoke run with `lineage.policy: smoke_no_publication` can write
+`run_manifest.json`, `benchmark.parquet`, and `benchmark_raw.parquet` while still
+recording `gold_eligible: false`. That output is not a publication-eligible evaluation
+source.
 
-Follow {doc}`run-evaluation` for the end-to-end evaluation procedure, including
-candidate endpoint configuration, preflight checks, execution, and result inspection.
-Use {doc}`../reference/eval-config` for every configuration field and
-{doc}`../explanation/evaluation` for scoring modes, gates, artifacts, and metric
-semantics.
+Before scoring a candidate:
+
+1. Produce a publication run with {doc}`publish-a-release`, or Path B `publish` after
+   freeze, so the manifest can record `gold_eligible: true`.
+2. Confirm the publication tree still contains `run_manifest.json`,
+   `benchmark.parquet`, and `benchmark_raw.parquet`.
+3. For executable mode, keep the exact Oracle Pack whose fingerprint the publication
+   recorded.
+
+Then follow {doc}`run-evaluation` for candidate endpoint configuration, preflight,
+execution, and result inspection. Use {doc}`../reference/eval-config` for every
+configuration field and {doc}`../explanation/evaluation` for scoring modes, gates,
+artifacts, and metric semantics.

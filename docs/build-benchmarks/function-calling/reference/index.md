@@ -12,6 +12,7 @@ Field-level and artifact-level detail for `nemotron steps run byob/bfcl` with th
 :hidden:
 
 Oracle Pack Inputs <oracle-pack-inputs>
+Domain Brief <domain-brief>
 Manifest <manifest>
 Tool Catalog And Fixtures <tools-and-fixtures>
 Python Backend <python-backend>
@@ -35,6 +36,14 @@ Troubleshooting <troubleshooting>
 Required files, manifest fields, fill order, and how tool names connect the pack.
 +++
 {bdg-secondary}`pack files`
+:::
+
+:::{grid-item-card} {octicon}`note;1.5em;sd-mr-1` Domain brief
+:link: domain-brief
+:link-type: doc
+Required assisted-authoring context, content boundaries, safety rules, and a complete example.
++++
+{bdg-secondary}`authoring input`
 :::
 
 :::{grid-item-card} {octicon}`package;1.5em;sd-mr-1` Manifest
@@ -159,8 +168,8 @@ Those configurations drive generation, which starts only once a reviewed pack ex
 
 | File | Used by | Purpose |
 | --- | --- | --- |
-| `bfcl-domain-brief.example.txt` | `--brief` | The reviewed statement of what a source is for, sanitized and bound into the evidence. |
-| `bfcl-domain-brief.skeleton.txt` | copy, complete, then pass to `--brief` | The same thing with the domain taken out: an instruction header to delete, then seven bracketed blocks to replace, each naming what it feeds downstream. Intake rejects any remaining `BFCL-SKELETON` block, so do not pass this file itself. Start here rather than editing the example, which is a banking brief and reads like one. |
+| `bfcl-domain-brief.example.txt` | `--brief` | The reviewed statement of what a source is for, sanitized and bound into the evidence. See {doc}`domain-brief`. |
+| `bfcl-domain-brief.skeleton.txt` | copy, complete, then pass to `--brief` | The same thing with the domain taken out: an instruction header to delete, then seven bracketed blocks to replace, each naming what it feeds downstream. Intake rejects any remaining `BFCL-SKELETON` block, so do not pass this file itself. Start with {doc}`domain-brief` rather than editing the banking example. |
 | `bfcl-probe-plan.example.json` | `--probe-plan` | A complete plan for certification tier A2: a success per published tool, a state-changing case per mutating tool, structured errors naming their codes, and the required timeout case. Its `fixtures` block is abridged to the records its own cases reach. |
 | `bfcl-authoring-policy.example.yaml` | policy | Organizational defaults a guided session should not ask for twice. |
 | `bfcl-endpoint-config.example.yaml` | `endpoint_config.yaml` | A complete endpoint-backed pack declaration, with credentials referenced by environment-variable name only. |
