@@ -5,7 +5,19 @@
 
 # Publish a Benchmark Release
 
-Use this guide to take a Gold-eligible Oracle Pack to a publication-scale benchmark: choose the size target, declare the challenge mix you want the release to exercise, run the full pipeline, and verify the artifacts and exports that come out of it.
+Use this guide to take a Gold-eligible Oracle Pack to a publication-scale benchmark:
+choose the size target, declare the challenge mix, run the full pipeline, and produce
+the immutable publication consumed by evaluation.
+
+The handoff between generation and evaluation is:
+
+```text
+Gold-eligible Oracle Pack
+  → publication configuration
+  → benchmark.parquet + benchmark_raw.parquet + run_manifest.json
+  → run-evaluation.md
+  → eval_report.json + eval_task_results.parquet + eval_manifest.json
+```
 
 ## Before You Start
 
@@ -117,10 +129,46 @@ For a paraphrase profile, the surface stage assigns each binding one structural 
 
 Both export flags, `exports.bfcl_json` and `exports.nemo_evaluator_bundle`, default to `false`. Enabling either makes export read-back validation part of the publication transaction, so the flag is never silently ignored: the writer output is read back from disk and checked for tree hash, row count, task order, canonical truth fields, and format envelopes against the single published projection, and any mismatch aborts publication.
 
+Direct BFCL evaluation does not need a compatibility export: it reads the published
+tables through `run_manifest.json`. If the release will be submitted through the NeMo
+Evaluator Launcher native adapter, enable its bundle before publication:
+
+```yaml
+exports:
+  bfcl_json: false
+  nemo_evaluator_bundle: true
+```
+
+A successful publication then contains:
+
+```text
+<publication>/
+├── benchmark.parquet
+├── benchmark_raw.parquet
+├── run_manifest.json
+└── exports/
+    ├── export_validation_report.json
+    └── nemo_evaluator_bundle/
+        ├── bundle.json
+        ├── dataset.jsonl
+        ├── dataset.schema.json
+        ├── evaluator.yaml
+        ├── metadata.json
+        └── system_prompts.json
+```
+
+The commit marker is `run_manifest.json`; BFCL does not produce a
+`manifest.parquet`. Evaluation imports the publication through that JSON manifest,
+not by loading `benchmark.parquet` as an unverified standalone table.
+
+The bundle is verified adapter input, not a standalone Launcher configuration. Keep
+it beside the publication it came from and follow {doc}`run-evaluation` to create the
+Launcher envelope. Do not add files inside the bundle: its exact file set is hashed.
+
 ## Step 6: Run the Full Pipeline
 
 ```bash
-nemotron steps run byob/bfcl \
+uv run nemotron steps run byob/bfcl \
   -c /srv/bfcl/runs/warehouse-gold.yaml \
   stage=all \
   family=bfcl
@@ -147,12 +195,26 @@ Then read these fields from the manifest: `tier` and `gold_eligible` to confirm 
 
 When exports are enabled, `exports/bfcl_json/` holds the question and answer JSONL pair, and `exports/nemo_evaluator_bundle/` holds the six-file native adapter input bundle. The bundle is adapter input, not a standalone NeMo Evaluator Launcher run configuration; it declares that an adapter must supply a registered environment, a candidate endpoint, and a tool resource service.
 
+This verified publication directory is the evaluation input. Keep it unchanged and
+set the following field in the separate evaluation configuration:
+
+```yaml
+source_run_manifest: /srv/bfcl/runs/warehouse-gold-output/bfcl_warehouse_gold/run_manifest.json
+```
+
+For direct trace evaluation, the three top-level publication files are the complete
+benchmark handoff. Executable mode additionally requires the exact Oracle Pack. For
+NeMo Evaluator Launcher, the publication must also contain the
+`exports/nemo_evaluator_bundle/` tree shown in Step 5. Continue with
+{doc}`run-evaluation` for import checks, candidate configuration, execution, result
+inspection, and result export.
+
 ## Step 8: Audit the Release
 
 The bias audit is a read-only post-release check. It recomputes one primary metric per audit dimension from frozen evidence, fails closed on missing applicable evidence or hash drift, and writes a content-addressed JSON report plus a deterministic Markdown rendering, without modifying any source artifact.
 
 ```bash
-python -m nemotron.steps.byob.scripts.audit_bfcl_bias \
+uv run python -m nemotron.steps.byob.scripts.audit_bfcl_bias \
   --run-manifest "$PUB/run_manifest.json" \
   --output-dir /srv/bfcl/audits/warehouse-gold \
   --raw "$PUB/benchmark_raw.parquet" \
@@ -167,7 +229,7 @@ python -m nemotron.steps.byob.scripts.audit_bfcl_bias \
 To hand the release to someone else, or to keep it as evidence, bundle it rather than copying directories. The bundle is deterministic and content-addressed, so the recipient can verify they have the same bytes you produced.
 
 ```bash
-python -m nemotron.steps.byob.scripts.archive_bfcl_release \
+uv run python -m nemotron.steps.byob.scripts.archive_bfcl_release \
   --release-dir "$PUB" \
   --output-dir /srv/bfcl/bundles \
   --bundle-name warehouse-gold-v1
