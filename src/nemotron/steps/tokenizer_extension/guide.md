@@ -8,7 +8,7 @@ resized HF checkpoint ready for continued pretraining.
 
 | Step | Compute | Consumes → Produces |
 |------|---------|---------------------|
-| `extend` | CPU | `checkpoint_hf` (tokenizer) + corpus → `tokenizer` (add/ and/or replace/) |
+| `extend` | CPU | `checkpoint_hf` (tokenizer) + corpus → `tokenizer` (one arm per job: add/, replace/ or expand/) |
 | `init_embeddings` | GPU | `tokenizer` + base `checkpoint_hf` → resized `checkpoint_hf` |
 | `evaluate` | CPU | `tokenizer` → `eval_results` (fertility) |
 | `eval_init` | GPU | resized `checkpoint_hf` → `eval_results` (BPB / perplexity) |
@@ -54,18 +54,36 @@ install command rather than produce a quietly different tokenizer.
 ## Quickstart — extend a tokenizer for your language
 
 Four commands. Each step writes what the next one reads, so run them in order.
-Swap `lepton_` for `slurm_` or `dgxcloud_` to match your backend.
+
+**First, set up a run profile.** `-b <profile>` names a profile in a
+repository-root env file, which is site configuration and is not checked in.
+Create or verify it before any remote run: the default lookup is `env.toml`,
+and a generated example such as `env.lepton.toml` must be selected explicitly.
+
+```bash
+export NEMOTRON_ENV_FILE=$PWD/env.lepton.toml   # only if not using env.toml
+```
+
+The profile names below (`lepton_tokenizer_*`) are placeholders — substitute the
+profiles your env file actually defines. Each of these steps needs
+`indic-nlp-library` (and `fasttext-wheel` for `method: focus`) in that profile's
+`pip_extras`, as shown above. Omit `-b` to run locally instead.
+
+Placeholders below are quoted so they are safe to paste; replace the quoted text
+before running.
 
 ```bash
 L=vietnamese                                  # your target; see LANGUAGES.md
 OUT=./output/tokenizer_extension              # extend's output_dir
+DATASET="your-org/your-dataset"               # HF dataset id for BPE training
+SPLIT="train"                                 # its split
 
 # 1. Build the extended tokenizer (CPU). Pick ONE arm per job.
 uv run nemotron steps run tokenizer_extension/extend \
   -b lepton_tokenizer_extend -c default \
   language=$L method=add extension_size=30000 \
-  corpus.hf_dataset=<hf-dataset> corpus.hf_split=<split>
-#    -> $OUT/add/   (tokenizer + summary.json)
+  corpus.hf_dataset="$DATASET" corpus.hf_split="$SPLIT"
+#    -> $OUT/add/   (tokenizer + summary.json; check tokens_spliced == extension_size)
 
 # 2. Initialise the new embedding rows -> resized HF checkpoint (GPU).
 uv run nemotron steps run tokenizer_extension/init_embeddings \

@@ -145,9 +145,11 @@ See `../guide.md`.
 
 ## Run
 ```bash
+L=vietnamese          # must match the language used by extend
 uv run nemotron steps run tokenizer_extension/init_embeddings \
   -b lepton_tokenizer_init_embeddings -c default \
-  language=<your-language> arm=add extended_tokenizer=./output/tokenizer_extension/add
+  language="$L" arm=add extended_tokenizer=./output/tokenizer_extension/add
 ```
+`-b` names a profile in your repository-root env file; see `../guide.md`.
 Output: `output_dir/` = resized HF checkpoint (weights + tokenizer) → set as
 `pretrain/megatron_bridge` `hf_model_path`.

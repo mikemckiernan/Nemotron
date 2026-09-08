@@ -1,11 +1,11 @@
 # tokenizer_extension/extend
 
-Train one BPE on a corpus and splice it into the base tokenizer as **Add** and/or
-**Replace**. CPU-only.
+Train one BPE on a corpus and splice it into the base tokenizer as **Add**,
+**Replace**, or **Expand** — one arm per job. CPU-only.
 
 ## Files
 - `step.py` — executor (thin; loads YAML, calls `extension.run_extension`)
-- `extension.py` — corpus reader (HF / local parquet / jsonl) + the one-BPE→both-arms orchestration
+- `extension.py` — corpus reader (HF / local parquet / jsonl) + the arm builder selected by `method`
 - `continued_bpe.py` — shared core: streaming, merge-diff, **constructive splice**, rank-dead check
 - `replace_bpe.py` — prune + dense re-index + NFKC-preserving wrap (Replace path)
 
@@ -30,7 +30,10 @@ corpus:
 - **replace** prunes them (script chosen by `language:`, or `remove_script:`) and
   refills with corpus-optimal tokens spliced into the merge table.
 - **expand** adds the decoded surfaces atomically via `add_tokens()` with **no
-  merge rules** — the naive baseline. Cheaper to build, worse fertility.
+  merge rules** — the naive baseline. Cheaper to build. Usually worse fertility
+  than `add`, but not always: where the base vocabulary barely covers the target
+  script there is little for merge training to add, and `expand` has measured
+  *better* (Malayalam). Compare on your own language rather than assuming.
 
 Set `language:` (hindi, vietnamese, malayalam, ...) to pick the normalizer and the
 Replace prune script; see `../LANGUAGES.md`. See also the category `guide.md`.
@@ -52,7 +55,11 @@ normalization, which trains a different tokenizer. See `../guide.md`.
 
 ## Run
 ```bash
+L=vietnamese          # your target language; see ../LANGUAGES.md
 uv run nemotron steps run tokenizer_extension/extend \
-  -b lepton_tokenizer_extend -c default language=<your-language> method=add
+  -b lepton_tokenizer_extend -c default language="$L" method=add
 ```
-Output: `output_dir/{add,replace}/` (tokenizers) + `summary.json`.
+`-b` names a profile in your repository-root env file; see `../guide.md`.
+Output: `output_dir/<method>/` — `add/`, `replace/` or `expand/` — containing the
+tokenizer and `summary.json`. Check `tokens_spliced` in `summary.json` matches
+`extension_size`; fertility is only comparable between arms at a matched budget.

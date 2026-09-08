@@ -6,7 +6,7 @@ description = """\
 Attach an extended (append-style) tokenizer to the base model and initialize the
 new embedding (and LM-head) rows, producing a resized HF checkpoint ready for
 continued pretraining. embeddings.py dispatches to one of three init engines
-selected by `method`: baseline (hf_default/mean_all/mean_hindi), subword
+selected by `method`: baseline (hf_default/mean_all/mean_target), subword
 (uniform/char/max_char/bert/gemma weighted subword averaging), or focus
 (FOCUS + fastText + sparsemax)."""
 tags = ["tokenizer", "embeddings", "initialization", "cpt"]
@@ -73,7 +73,7 @@ choices = ["target", "all", "hindi"]
 
 [[parameters]]
 name = "focus.fasttext_model"
-description = "focus: path to a fastText Hindi binary (cc.hi.300.bin). Required for method=focus."
+description = "focus: path to a fastText binary for the target language, e.g. cc.<code>.300.bin (cc.hi.300.bin for Hindi, cc.vi.300.bin for Vietnamese). Required for method=focus."
 
 [[parameters]]
 name = "extended_tokenizer"
@@ -85,7 +85,7 @@ description = "Where the resized HF checkpoint is written; use as pretrain hf_mo
 
 [[strategies]]
 when = "choosing an init method"
-then = "subword/uniform (mean-of-constituents) is the strong default; baseline/mean_hindi is the cheap floor; focus needs a fastText .bin but gives the sharpest new-token init"
+then = "subword/uniform (mean-of-constituents) is the default: dependency-free and the strongest in the current final-horizon measurement. baseline/mean_target is the cheap floor. focus needs a fastText .bin and an encoder that covers the language; its ranking is not stable across languages, so validate it against subword/uniform rather than adopting it by default"
 
 [[strategies]]
 when = "the tokenizer is a replace arm (has id_remap.json)"

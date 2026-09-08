@@ -4,10 +4,12 @@ name = "Tokenizer Extension (Add / Replace)"
 category = "tokenizer_extension"
 description = """\
 Extend a base tokenizer with target-language subwords. Trains one BPE on a
-corpus (HF dataset or local parquet/jsonl) and splices it in two ways: Add
-(keep the base's residual script tokens and append new ones) and/or Replace
-(prune the target script's residual tokens, then splice fresh corpus-optimal
-ones into the pruned base). CPU-only; the splice is rank-dead-safe."""
+corpus (HF dataset or local parquet/jsonl) and splices it in using the arm
+chosen by `method` — one arm per job. Add keeps the base's residual script
+tokens and appends new ones; Replace prunes the target script's residual tokens
+and splices fresh corpus-optimal ones into the pruned base; Expand appends
+decoded surfaces with no merge rules (the naive baseline). CPU-only; the splice
+is rank-dead-safe."""
 tags = ["tokenizer", "bpe", "extension", "cpu", "multilingual"]
 
 [[consumes]]
@@ -17,7 +19,7 @@ required = true
 
 [[produces]]
 type = "tokenizer"
-description = "Extended tokenizer directory (add/ and/or replace/)"
+description = "Extended tokenizer directory: output_dir/<method>/ (add/, replace/ or expand/)"
 
 [[models]]
 name = "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16"
