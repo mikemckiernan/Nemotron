@@ -289,19 +289,12 @@ def compare_arguments(
     gold = thaw_json(gold_arguments)
     if scoring.argument_matching == "schema_then_canonical" and scoring.insert_declared_defaults:
         schema = parameter_schema(tools, function_name)
-        # Defaults may settle only a candidate omission for a value the gold call
-        # actually states. A candidate-supplied argument absent from gold remains
-        # unexpected: dropping it here can launder an unearned ``confirm=true``
-        # into a match before the executable confirmation gate sees it.
-        defaulted_predicted = apply_declared_defaults(predicted, schema)
-        predicted = {
-            **predicted,
-            **{
-                name: defaulted_predicted[name]
-                for name in set(gold) - set(predicted)
-                if name in defaulted_predicted
-            },
-        }
+        # Fill both sides. An explicit candidate value absent from gold matches
+        # only when it equals the declared default; any other value remains a
+        # difference. In particular, ``confirm=true`` cannot disappear when the
+        # schema default the gold omitted is ``false``.
+        predicted = apply_declared_defaults(predicted, schema)
+        gold = apply_declared_defaults(gold, schema)
     if json_equal(predicted, gold):
         return ArgumentDiff()
     return ArgumentDiff(

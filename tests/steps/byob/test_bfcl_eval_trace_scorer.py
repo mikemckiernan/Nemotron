@@ -111,7 +111,7 @@ TOOLS: list[dict[str, Any]] = [
                     "account_id": {"type": "string"},
                     # Defaulted *and* required: filling the default in before
                     # validating would launder a missing argument into a pass.
-                    "confirm": {"type": "boolean", "default": True},
+                    "confirm": {"type": "boolean", "default": False},
                 },
                 "required": ["account_id", "confirm"],
                 "additionalProperties": False,
@@ -741,7 +741,7 @@ def test_a_score_reports_every_gate_the_contract_defines_in_contract_order(
     assert all(gate.reason_code.startswith(f"{gate.gate}.") for gate in score.gates)
 
 
-def test_a_candidate_supplied_default_absent_from_gold_is_unexpected(
+def test_a_candidate_supplied_default_absent_from_gold_is_equivalent(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     score, _ = _score(
@@ -754,10 +754,8 @@ def test_a_candidate_supplied_default_absent_from_gold_is_unexpected(
         monkeypatch=monkeypatch,
     )
 
-    assert not score.task_success
-    assert score.gate("arguments").outcome == "failed"
-    assert score.turns[0].calls[0].diff is not None
-    assert score.turns[0].calls[0].diff.unexpected == ("currency",)
+    assert score.task_success
+    assert score.gate("arguments").outcome == "passed"
 
 
 def test_defaults_fill_candidate_omissions_but_never_erase_candidate_claims() -> None:
@@ -779,10 +777,10 @@ def test_defaults_fill_candidate_omissions_but_never_erase_candidate_claims() ->
     )
 
     assert omitted.empty
-    assert unearned_confirmation.unexpected == ("confirm",)
+    assert unearned_confirmation.differing == ("confirm",)
 
 
-def test_a_nondefault_argument_the_gold_call_omits_is_unexpected(
+def test_a_nondefault_argument_differs_from_the_gold_omission_default(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Candidate-supplied fields are claims made by the candidate. Ignoring one

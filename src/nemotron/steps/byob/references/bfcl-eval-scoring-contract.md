@@ -429,20 +429,18 @@ metric. Cancellation propagates without producing an episode at all.
    still missing when the candidate omits it. A schema-invalid call neither
    matches the trace nor earns a recorded result.
 2. **Default-equivalence step.** After schema validation passes, when
-   `insert_declared_defaults: true`, a default fills a candidate omission only
-   when the gold call explicitly states that argument. A candidate-supplied
-   argument absent from gold remains unexpected, even when its value equals the
-   declared default. This asymmetry is intentional: otherwise a defaulted
-   `confirm: true` could be erased from comparison before the confirmation gate
-   establishes whether the candidate earned it. Insertion recurses through nested
-   objects and arrays and follows validated local `$ref` and `allOf` schemas.
+   `insert_declared_defaults: true`, defaults are inserted recursively on both
+   sides before canonical comparison. A candidate may therefore omit a default
+   stated by gold, or explicitly supply the exact declared default that gold
+   omits. A different candidate-supplied value remains a mismatch; for example,
+   `confirm: true` differs when the omitted gold value defaults to `false`.
+   Insertion recurses through nested objects and arrays and follows validated
+   local `$ref` and `allOf` schemas.
    Pack validation rejects external, missing, or cyclic references and rejects a
    declared default that does not satisfy the schema it would be inserted under.
 
-   A defaulted parameter the *gold* call never states is not inserted into gold
-   and is not removed from the candidate. Supplying it is therefore a mismatch,
-   just like any other extra argument. A required argument is still missing when
-   the candidate omits it; defaults never run before schema validation.
+   A required argument is still missing when the candidate omits it; defaults
+   never run before schema validation.
 3. **Canonical step.** Both sides are then compared as canonical JSON, by type as
    well as by value. `1`, `1.0`, `"1"`, and `true` are four distinct values: a
    scorer that treated them as equal would accept a limit of `"1"` where the gold

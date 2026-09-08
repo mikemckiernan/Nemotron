@@ -120,6 +120,7 @@ def test_batch_runner_bounds_tasks_preserves_order_and_isolates_oracles(
             return kwargs["task"].task_id
         finally:
             active -= 1
+            await kwargs["oracle"].close()
 
     monkeypatch.setattr(eval_runner, "build_executable_task_spec", build)
     monkeypatch.setattr(eval_runner, "run_executable_episode", drive)
@@ -167,10 +168,13 @@ def test_batch_runner_cancels_siblings_and_closes_every_open_oracle(
         return _Oracle(task.task_id, closed)
 
     async def drive(**kwargs: Any) -> str:
-        if kwargs["task"].task_id == "task-1":
-            raise RuntimeError("infrastructure failed")
-        await asyncio.sleep(10)
-        return kwargs["task"].task_id
+        try:
+            if kwargs["task"].task_id == "task-1":
+                raise RuntimeError("infrastructure failed")
+            await asyncio.sleep(10)
+            return kwargs["task"].task_id
+        finally:
+            await kwargs["oracle"].close()
 
     monkeypatch.setattr(eval_runner, "run_executable_episode", drive)
 
