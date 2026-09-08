@@ -55,6 +55,7 @@ DEFAULT_MAX_BYTES = 16 * 1024
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _LABEL = re.compile(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$")
 _LANGUAGE = re.compile(r"^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$")
+_SKELETON_MARKER = "[BFCL-SKELETON:"
 
 
 class DomainBriefError(ValueError):
@@ -180,6 +181,11 @@ class DomainBriefEvidence(_StrictModel):
         encoded = self.untrusted_text.encode("utf-8")
         if not self.untrusted_text.strip():
             raise ValueError("domain brief must contain non-whitespace text")
+        if _SKELETON_MARKER in self.untrusted_text:
+            raise ValueError(
+                "domain brief still contains BFCL skeleton placeholders; replace every "
+                "BFCL-SKELETON block before intake"
+            )
         if len(encoded) > DEFAULT_MAX_BYTES:
             raise ValueError(
                 f"domain brief exceeds the {DEFAULT_MAX_BYTES}-byte persisted limit"
@@ -279,6 +285,11 @@ def load_domain_brief(
         raise DomainBriefError(f"domain brief {source} is not valid UTF-8") from exc
     if not text.strip():
         raise DomainBriefError("domain brief must contain non-whitespace text")
+    if _SKELETON_MARKER in text:
+        raise DomainBriefError(
+            "domain brief still contains BFCL skeleton placeholders; replace every "
+            "BFCL-SKELETON block before intake"
+        )
 
     declared = _validate_redactions(redactions or {})
     sanitized, summaries = _redact_once(text, declared)
