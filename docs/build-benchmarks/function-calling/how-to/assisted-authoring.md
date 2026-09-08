@@ -9,6 +9,10 @@ Use this guide to produce a reviewed Oracle Pack from a conventional source pack
 
 A model in this flow may propose a tool coverage plan, validation cases, task-template plans, and declarative assertion specifications. It may not change the backend, the endpoint behavior, the tool schemas, or the fixtures, and it may not certify its own output, invent fixture bindings, approve anything, or bypass executable Gold validation. Everything it proposes passes through the same replay and Gold gate as a hand-written pack, which is why {doc}`author-a-pack` and this guide converge on one publication contract.
 
+If you are starting from domain records and behavior rather than an already prepared
+source package, begin with {doc}`start-from-domain-data`. It explains what BFCL
+considers domain data and shows the manual and model-assisted paths side by side.
+
 This page is the walkthrough. `src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` is the matching command-level reference: it lists every subcommand and refusal code, and its invocations are executed as smoke cases by the test suite, so consult it when you need exact arguments rather than the shape of the flow.
 
 :::{tip}
@@ -24,7 +28,7 @@ It certifies a source, drafts and assembles a candidate pack, validates, reviews
 ## Before You Start
 
 - Install the BYOB dependencies with `uv sync --extra byob`, and prepare a source package in one of the two supported layouts below.
-- Prepare a domain brief, a reviewed statement of what the source is for, which is sanitized and bound into the evidence. `src/nemotron/steps/byob/references/bfcl-domain-brief.example.txt` is the brief a published release was authored from.
+- Prepare a domain brief, a reviewed statement of what the source is for, which is sanitized and bound into the evidence. Copy `src/nemotron/steps/byob/references/bfcl-domain-brief.skeleton.txt` and replace every bracketed `BFCL-SKELETON` block; intake rejects the copy while even one remains. `bfcl-domain-brief.example.txt` is the same form filled in, being the brief a published release was authored from. Prefer the skeleton for a new source, since copying the example tends to carry its banking framing across with it.
 - Prepare a probe plan, which you need for certification tier A1 or A2 and therefore for a Gold release. `src/nemotron/steps/byob/references/bfcl-probe-plan.example.json` is a complete A2-shaped plan to copy the structure from.
 - Have a certification key pair and its allowlisted key identifier available.
 - Organizational defaults that should not be retyped per session belong in a reviewed policy file; see `src/nemotron/steps/byob/references/bfcl-authoring-policy.example.yaml`.
@@ -32,6 +36,68 @@ It certifies a source, drafts and assembles a candidate pack, validates, reviews
 ### Source layouts
 
 A `local_python` source requires `backend.py` as its only import-closure root, a reviewed `tools.json`, and a canonical `dependency-lock.json`, and may add `fixtures.json`. An `http_package` source requires a strict, secret-free `endpoint_config.yaml` and its companion `tools.json`. `src/nemotron/steps/byob/references/bfcl-conventional-source-packages.md` is the normative description of both, including the dependency-lock format and the static-inspection rules.
+
+### Create and pre-check authoring inputs
+
+The domain brief is human-owned. Copy the skeleton, remove every bracketed marker, and
+write only reviewed, non-secret domain context:
+
+```bash
+cp src/nemotron/steps/byob/references/bfcl-domain-brief.skeleton.txt \
+  /srv/sources/domain-brief.txt
+```
+
+There is no standalone brief validator. Intake checks size, encoding, skeleton markers,
+and sanitization before binding the brief into evidence.
+
+A probe plan may be written from the reviewed source contract or drafted by a model
+for human review:
+
+```text
+python -m nemotron.steps.byob.scripts.draft_probe_plan \
+  --source /srv/sources/warehouse-package \
+  --domain-brief /srv/sources/domain-brief.txt \
+  --output /srv/sources/probe-plan.json \
+  --clock <FROZEN_ISO_8601_TIME> \
+  <pinned model identity and provider arguments>
+```
+
+The model returns a structured draft; the script validates its shape before writing.
+It does not certify the plan or its source. Check the reviewed plan without executing
+probes:
+
+```bash
+python -m nemotron.steps.byob.scripts.check_probe_plan \
+  --source /srv/sources/warehouse-package \
+  --probe-plan /srv/sources/probe-plan.json
+```
+
+The check reports static coverage gaps that would block A2. Intake remains
+authoritative because only it executes the probes and observes reset, isolation,
+confirmation, timeout cleanup, and result behavior.
+
+### Generate the parts the catalogue already decides
+
+`backend.py` has to define four calls the episode runner reaches for by name, and `list_tools()` has to match `tools.json` exactly. None of that is a judgement, so none of it is worth typing:
+
+```bash
+python -m nemotron.steps.byob.scripts.scaffold_source_package \
+  --tools /srv/sources/warehouse-package/tools.json \
+  --output /srv/sources/warehouse-package \
+  --collection assets \
+  --dependency-lock
+```
+
+That writes the interface, one raising handler per published tool, and a fixture row per value a published call has to be given. Add `--draft-with-model` together with `--domain-brief` and the model flags to have a model choose the fixture data and, in a fixed declarative vocabulary, what each tool does to it; the command compiles that into the same shape rather than letting a model write Python, because the probes execute this file and a model-authored oracle would be scoring its own work. Either way the output is a starting point: every generated file carries `BFCL-TODO` on each decision the catalogue could not make, and intake refuses the source while one remains.
+
+Check the result against its own catalogue before spending an intake run on it:
+
+```bash
+python -m nemotron.steps.byob.scripts.check_source_package \
+  --source /srv/sources/warehouse-package
+```
+
+It exits `0` when the source agrees with `tools.json`, and `2` with a finding per disagreement — a missing `get_state`, a name `list_tools` publishes that the catalogue does not, a placeholder still in place. It cannot tell you the behaviour is right; only the probes do that.
 
 ### Enable the adapter
 
@@ -86,7 +152,11 @@ python -m nemotron.steps.byob.scripts.bfcl_author answer \
 
 ## Step 3: Authorize Exposure, Then Approve the Evidence
 
-The source owner first authorizes the exact redacted evidence subject for exposure to a model. This is the pre-model boundary, and it is the reason the evidence bundle is sanitized before anything is sent anywhere. Supply either `--authorized-by` or `--organizational-policy-digest`, not both; `--output` writes the record to a path you choose.
+A named human or organizational policy first authorizes the exact redacted evidence
+subject for exposure to a model. This is the pre-model boundary, and it is the reason
+the evidence bundle is sanitized before anything is sent anywhere. Supply either
+`--authorized-by` or `--organizational-policy-digest`, not both; `--output` writes the
+record to a path you choose.
 
 ```bash
 python -m nemotron.steps.byob.scripts.bfcl_author authorize \
@@ -102,15 +172,31 @@ python -m nemotron.steps.byob.scripts.bfcl_author approve \
 
 :::{important}
 Evidence approval and release approval are different decisions, and the first cannot be replaced by the second. Evidence approval says a reviewer inspected this exact source and normalized evidence and considers it fit to draft from. Release approval, later, says a reviewer inspected the finished pack and its fresh validation and considers it fit to publish. Approving the release does not retroactively authorize the model exposure that already happened, so the command sequence requires both in order.
+
+The workflow enforces separate decision records and digests, not separate identities.
+The same person may fill more than one role unless your organization requires
+separation of duties. The `owner@example.test` and `reviewer@example.test` values below
+illustrate one policy; they are not a requirement for two reviewers.
 :::
 
 Both approvals are digest-bound, so if the source, brief, redaction, observations, certification, or resolved authoring configuration changes afterwards, the approval goes stale and must be redone against the new digest.
 
+:::{note}
+From drafting onward, the short command blocks below show the guided subcommand and
+operator-owned arguments, not a standalone invocation to copy without session output.
+The current session supplies some paths while the delegated command still requires
+artifact, model, key, digest, or output arguments printed by the previous gate. Use
+`src/nemotron/steps/byob/references/bfcl-authoring-user-guide.md` for the exact argument
+contract, or run `scripts/bfcl_assisted_authoring_demo.py` for a complete executable
+sequence.
+:::
+
 ## Step 4: Draft
 
-```bash
+```text
 python -m nemotron.steps.byob.scripts.bfcl_author draft \
-  --workspace /srv/bfcl/authoring/warehouse
+  --workspace /srv/bfcl/authoring/warehouse \
+  <artifact, certification, approval, key, output, and model arguments>
 ```
 
 Drafting issues bounded, cached, structured model requests and stops at proposals: it writes them beside a pack rather than into one. Unknown tools, unsupported assertions, ungrounded arguments, malformed output, and cache conflicts all fail closed.
@@ -119,41 +205,47 @@ Drafting issues bounded, cached, structured model requests and stops at proposal
 
 ```bash
 python -m nemotron.steps.byob.scripts.bfcl_author assemble \
-  --workspace /srv/bfcl/authoring/warehouse
+  --workspace /srv/bfcl/authoring/warehouse \
+  --supplement /srv/bfcl/authoring/warehouse/reviewed-supplement.yaml \
+  --output /srv/bfcl/authoring/warehouse/candidate-pack
 ```
 
 The assembler derives everything mechanical from evidence that is already trusted: pack identity and the manifest from the verified bundle, `tools.json` from the certified catalog, and `assertions.py` from drafts that compiled without a blocker. For a `local_python` source, `backend.py` and `fixtures.json` are copied byte for byte from the fingerprinted tree; for a session-based source there is nothing to copy, so the pack names the certified endpoint and takes its fixtures from the reviewed probe plan those sessions were opened with. What remains is what a model that has only read a catalog must not state: slot bindings to fixture columns, turn policies, per-language user turns, and the validation cases that decide the tier. Those arrive in one reviewed `bfcl-candidate-pack-supplement-v1` YAML file, and every tool and assertion it names is checked back against the evidence and the compiled assertions, so a supplement cannot introduce a tool the source never published or an assertion nobody compiled. For a pack assembled outside a guided session, `assemble_candidate_pack.py` takes the same inputs explicitly through `--evidence`, `--source`, `--drafts`, `--supplement`, `--output`, and `--probe-plan`.
 
 ## Step 6: Build the Review Packet
 
-```bash
+```text
 python -m nemotron.steps.byob.scripts.bfcl_author review \
   --workspace /srv/bfcl/authoring/warehouse \
-  --adapter-kind local_python
+  --adapter-kind local_python \
+  <review-packet input and output arguments>
 ```
 
 Review assembles independently verified certification, fresh validation, the answered questions, and the complete candidate pack into one deterministic packet. `--adapter-kind` defaults to `mcp_mode_a`, so name your own adapter explicitly.
 
 ## Step 7: Approve the Release, Then Freeze
 
-```bash
+```text
 python -m nemotron.steps.byob.scripts.bfcl_author approve \
   --workspace /srv/bfcl/authoring/warehouse \
   --boundary release \
-  --approved-by reviewer@example.test
+  --approved-by reviewer@example.test \
+  <review packet, checklist, and output arguments>
 
 python -m nemotron.steps.byob.scripts.bfcl_author freeze \
-  --workspace /srv/bfcl/authoring/warehouse
+  --workspace /srv/bfcl/authoring/warehouse \
+  <freeze inputs, approval, and output arguments>
 ```
 
 Release approval binds the exact review packet, so a rebuilt packet needs its new digest approved. `--acknowledge-warning` and `--acknowledge-finding` may each be repeated to record an acknowledged item. Freeze then seals the pack and all reviewed sidecars as immutable bytes; never edit frozen bytes.
 
 ## Step 8: Publish
 
-```bash
+```text
 python -m nemotron.steps.byob.scripts.bfcl_author publish \
   --workspace /srv/bfcl/authoring/warehouse \
-  --adapter-kind local_python
+  --adapter-kind local_python \
+  <frozen release, generation config, and output arguments>
 ```
 
 Publication reruns fresh Gold validation against the frozen pack and then runs the ordinary generation pipeline as `stage=all`; it does not trust the validation evidence recorded during review. Choose the release budget and the mixes with {doc}`publish-a-release`.

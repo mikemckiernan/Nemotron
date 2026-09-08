@@ -66,6 +66,11 @@ from nemotron.steps.byob.runtime.source_adapters.reviewed_catalog import (
 )
 
 LOCAL_PYTHON_LOCK_VERSION: Literal["bfcl-python-dependency-lock-v1"] = "bfcl-python-dependency-lock-v1"
+# The mark `scaffold_source_package.py` leaves on everything it could not decide. Declared
+# here rather than beside the scaffolder because this is the side that enforces it, and an
+# adapter in the trust spine should not have to import an authoring helper to know what it
+# refuses.
+SCAFFOLD_REVIEW_MARKER = "BFCL-TODO"
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _IMPORT_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 
@@ -272,6 +277,25 @@ def _resolve_local_module(root: Path, module: str) -> tuple[Path, ...]:
     return tuple([*parents, _checked_python_path(root, target)])
 
 
+def _refuse_review_marker(text: str, *, where: str, code: str) -> None:
+    """Refuse a file the scaffolder is still waiting to be finished.
+
+    `scaffold_source_package.py` writes handlers that raise and fixture rows that hold
+    placeholders, and it marks each one. Every mark is a decision no catalogue could have
+    made, so a source carrying one has not been authored yet, whatever else is true of it.
+
+    The gate is the absence of the marker rather than the presence of an approval, which is
+    the only version of this check that cannot be skipped by forgetting a step: a scaffold
+    is refused until someone deletes the marks, and deleting them is reading them.
+    """
+    if SCAFFOLD_REVIEW_MARKER in text:
+        raise LocalPythonError(
+            code,
+            f"{where} still contains {SCAFFOLD_REVIEW_MARKER}; a generated source is not a "
+            "reviewed one, so remove each mark as you settle what it stands for",
+        )
+
+
 def _source_tree(path: Path, *, root: Path) -> tuple[ast.AST, str]:
     try:
         raw = path.read_bytes()
@@ -289,6 +313,7 @@ def _source_tree(path: Path, *, root: Path) -> tuple[ast.AST, str]:
             "source_syntax_invalid",
             f"cannot parse {path.relative_to(root)} at line {exc.lineno}",
         ) from exc
+    _refuse_review_marker(text, where=path.relative_to(root).as_posix(), code="source_package_invalid")
     return tree, f"sha256:{hashlib.sha256(raw).hexdigest()}"
 
 
@@ -548,6 +573,14 @@ def inspect_local_python_package(
                 "fixtures.json must be an object",
             )
         _validate_fixture_shape(fixtures)
+        # Read off the parsed document rather than the file's bytes, so a marker inside a
+        # nested value is caught as surely as one in a top-level string, and a marker that
+        # only ever appeared in a JSON comment-shaped key is caught the same way.
+        _refuse_review_marker(
+            json.dumps(fixtures, ensure_ascii=False, sort_keys=True),
+            where="fixtures.json",
+            code="fixture_metadata_invalid",
+        )
         fixtures_digest = sha256_json(fixtures)
 
     runtime = _runtime_identity()

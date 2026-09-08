@@ -31,7 +31,10 @@ import hashlib
 import json
 
 from nemotron.steps.byob.runtime.pack_authoring.bundle import EvidenceView
-from nemotron.steps.byob.runtime.pack_authoring.untrusted_text import quote_untrusted
+from nemotron.steps.byob.runtime.pack_authoring.untrusted_text import (
+    fence_nested_text,
+    quote_untrusted,
+)
 
 # Bumped when the placeholders below became Jinja references. The wording did not change,
 # but what reached the model did: every prior response was drafted against a prompt whose
@@ -169,30 +172,6 @@ def _fenced(text: str) -> str:
     return quote_untrusted(text) if text else ""
 
 
-_SCHEMA_PROSE_KEYS = frozenset(
-    {"$comment", "default", "description", "examples", "title"}
-)
-
-
-def _fence_nested_text(value: object, *, all_strings: bool = False) -> object:
-    if isinstance(value, str):
-        return _fenced(value) if all_strings else value
-    if isinstance(value, list):
-        return [
-            _fence_nested_text(item, all_strings=all_strings)
-            for item in value
-        ]
-    if isinstance(value, dict):
-        return {
-            key: _fence_nested_text(
-                child,
-                all_strings=all_strings or key in _SCHEMA_PROSE_KEYS,
-            )
-            for key, child in value.items()
-        }
-    return value
-
-
 def _model_semantic_answers(evidence: EvidenceView) -> list[dict[str, object]]:
     if not evidence.is_v2:
         return []
@@ -218,12 +197,12 @@ def build_evidence_payload(evidence: EvidenceView) -> str:
                     "required": list(tool.required_parameters),
                     # The schema is structure, not prose, and the generators need its
                     # enums and types to decide whether a literal can be grounded.
-                    "schema": _fence_nested_text(tool.parameters),
+                    "schema": fence_nested_text(tool.parameters),
                 },
-                "output_schema": _fence_nested_text(tool.output_schema),
+                "output_schema": fence_nested_text(tool.output_schema),
                 # Annotation shapes are provider-defined, so every nested string
                 # is prose rather than a trusted structural keyword.
-                "server_annotations": _fence_nested_text(
+                "server_annotations": fence_nested_text(
                     tool.annotations,
                     all_strings=True,
                 ),
