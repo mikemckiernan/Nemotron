@@ -46,6 +46,8 @@ import shutil
 import subprocess
 import sys
 import urllib.parse
+from collections.abc import Iterator
+from dataclasses import dataclass
 from pathlib import Path
 
 from omegaconf import DictConfig, OmegaConf
@@ -76,6 +78,21 @@ _STEP_ONLY_KEYS = {
 }
 
 
+class ModelEvalDependencyError(RuntimeError):
+    """The launcher this step delegates to is not importable.
+
+    Raised instead of exiting the process, so a caller that embeds this launch
+    boundary can map the failure into its own error contract; `run_model_eval`
+    turns it back into a process exit for direct CLI use.
+    """
+
+
+@dataclass(frozen=True)
+class ModelEvalLaunchResult:
+    launcher_config_path: Path
+    invocation_id: str | None
+
+
 def run_model_eval(*, default_config: Path) -> None:
     config_path, cfg, overrides = _load_config(default_config)
     passthrough = _passthrough_args(overrides)
@@ -85,23 +102,64 @@ def run_model_eval(*, default_config: Path) -> None:
         run_direct(cfg, task_filters=parse_task_flags(passthrough))
         return
 
+    task_filters = parse_task_flags(passthrough) or None
+    try:
+        result = launch_model_eval_config(
+            config_path=config_path,
+            cfg=cfg,
+            task_filters=task_filters,
+        )
+    except ModelEvalDependencyError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        print("Install with: uv sync --extra evaluator", file=sys.stderr)
+        raise SystemExit(1) from exc
+    print(f"launcher_config: {result.launcher_config_path}")
+    if result.invocation_id:
+        # Launcher mode submits and returns. Both the zero exit and the
+        # launcher's own "SUCCESS" describe the submission, not the evaluation.
+        print(f"launcher_invocation_id: {result.invocation_id}")
+        print("nemotron_step_status: SUBMITTED")
+        print(
+            "NOTE: submitted, not finished. This exit code reports whether the job "
+            "was accepted, not whether the evaluation passed. Do not gate on it -- "
+            "poll the status command below until it reaches a terminal state and "
+            "check the artifacts."
+        )
+        print(f"status_command: nemo-evaluator-launcher status {result.invocation_id}")
+        print(f"logs_command: nemo-evaluator-launcher logs {result.invocation_id}")
+
+
+def launch_model_eval_config(
+    *,
+    config_path: Path,
+    cfg: DictConfig,
+    task_filters: list[str] | None = None,
+) -> ModelEvalLaunchResult:
+    """Submit a prepared model-eval config without reparsing process arguments."""
+    # Resolve the launcher before writing anything, so a missing dependency does
+    # not leave a materialized config behind that was never submitted.
+    try:
+        from nemo_evaluator_launcher.api.functional import (  # type: ignore[import-untyped]
+            run_eval,
+        )
+    except ImportError as exc:
+        raise ModelEvalDependencyError(
+            "nemo-evaluator-launcher is required for evaluation"
+        ) from exc
+
     launcher_cfg, dry_run, configured_tasks = _build_launcher_config(cfg)
-    task_filters = parse_task_flags(passthrough) or configured_tasks
+    selected_tasks = task_filters if task_filters is not None else configured_tasks
     eval_path = _save_launcher_config(config_path, cfg, launcher_cfg)
 
-    try:
-        from nemo_evaluator_launcher.api.functional import run_eval
-    except ImportError:
-        print("Error: nemo-evaluator-launcher is required for evaluation", file=sys.stderr)
-        print("Install with: uv sync --extra evaluator", file=sys.stderr)
-        raise SystemExit(1)
-
-    invocation_id = run_eval(launcher_cfg, dry_run=dry_run, tasks=task_filters)
-    print(f"launcher_config: {eval_path}")
-    if invocation_id:
-        print(f"launcher_invocation_id: {invocation_id}")
-        print(f"status_command: nemo-evaluator-launcher status {invocation_id}")
-        print(f"logs_command: nemo-evaluator-launcher logs {invocation_id}")
+    invocation_id = run_eval(
+        launcher_cfg,
+        dry_run=dry_run,
+        tasks=selected_tasks,
+    )
+    return ModelEvalLaunchResult(
+        launcher_config_path=eval_path,
+        invocation_id=str(invocation_id) if invocation_id else None,
+    )
 
 
 def _load_config(default_config: Path) -> tuple[Path, DictConfig, list[str]]:
@@ -122,8 +180,12 @@ def _build_launcher_config(cfg: DictConfig) -> tuple[DictConfig, bool, list[str]
 
     clear_artifact_cache()
     register_resolvers_from_config(cfg, artifacts_key="run", mode="pre_init")
-    launcher_dict = dict(OmegaConf.to_container(cfg, resolve=True))
+    resolved = OmegaConf.to_container(cfg, resolve=True)
+    if not isinstance(resolved, dict):
+        raise ValueError("model evaluation config must resolve to one object")
+    launcher_dict = dict(resolved)
     launcher_dict.pop("run", None)
+    _ensure_visible_chat_content(launcher_dict)
     for key in _STEP_ONLY_KEYS:
         launcher_dict.pop(key, None)
 
@@ -250,6 +312,7 @@ def run_direct(cfg: DictConfig, *, task_filters: list[str] | None = None) -> Non
     model_type = str(endpoint.get("type", "completions"))
     if model_type not in {"chat", "completions"}:
         raise SystemExit(f"target.api_endpoint.type must be 'chat' or 'completions', got {model_type!r}")
+    _ensure_visible_chat_content(plain)
     api_key_name = endpoint.get("api_key_name") if _is_set(endpoint.get("api_key_name")) else None
 
     # Keep the whole task entry, not just its name: a task may carry its own
@@ -724,7 +787,7 @@ def _run_manifest(
     image = image or None
     return {
         "schema_version": _MANIFEST_SCHEMA_VERSION,
-        "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         "mode": "direct",
         "dry_run": dry_run,
         "model": {
@@ -779,7 +842,7 @@ def _describe_claim(lock: Path) -> str:
     try:
         held = json.loads(raw)
         started = _dt.datetime.fromisoformat(str(held["started_at"]))
-        age = _dt.datetime.now(_dt.timezone.utc) - started
+        age = _dt.datetime.now(_dt.UTC) - started
         hours = age.total_seconds() / 3600
         note = " -- likely stale, no eval runs this long" if hours >= 24 else ""
         return f"pid {held.get('pid')} on {held.get('host')}, started {started.isoformat()} ({hours:.1f}h ago){note}"
@@ -807,7 +870,7 @@ def _claim_output_dir(out_root: Path, *, dry_run: bool, overwrite: bool) -> Path
         {
             "pid": os.getpid(),
             "host": os.uname().nodename,
-            "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+            "started_at": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         }
     )
     try:
@@ -902,6 +965,23 @@ def _merged_adapter(global_adapter: dict, task_entry: dict | None) -> dict:
     return merged
 
 
+def _ensure_visible_chat_content(config: dict) -> None:
+    """Disable reasoning by default so task stop strings cannot hide chat content."""
+    endpoint = (config.get("target") or {}).get("api_endpoint") or {}
+    if str(endpoint.get("type", "completions")) != "chat":
+        return
+    adapter = (
+        config.setdefault("evaluation", {})
+        .setdefault("nemo_evaluator_config", {})
+        .setdefault("target", {})
+        .setdefault("api_endpoint", {})
+        .setdefault("adapter_config", {})
+    )
+    adapter.setdefault("params_to_add", {}).setdefault("chat_template_kwargs", {}).setdefault(
+        "enable_thinking", False
+    )
+
+
 def _merged_params(global_params: dict, task_entry: dict | None) -> dict:
     """Global params with the task's own nemo_evaluator_config layered on top.
 
@@ -983,10 +1063,20 @@ def _direct_overrides(params: dict, adapter: dict | None = None) -> str:
     # Not allowlisted: the adapter's interceptor set is open-ended and version
     # dependent, and an unknown key here is inert rather than silently changing
     # how the model is scored.
-    for key, val in (adapter or {}).items():
+    for dotted, val in _flatten_mapping("target.api_endpoint.adapter_config", adapter or {}):
         if _is_set(val):
-            pairs.append(f"target.api_endpoint.adapter_config.{key}={_override_value(val)}")
+            pairs.append(f"{dotted}={_override_value(val)}")
     return ",".join(pairs)
+
+
+def _flatten_mapping(prefix: str, values: dict) -> Iterator[tuple[str, object]]:
+    """Yield leaf values as dotted OmegaConf override paths."""
+    for key, value in values.items():
+        dotted = f"{prefix}.{key}"
+        if isinstance(value, dict):
+            yield from _flatten_mapping(dotted, value)
+        else:
+            yield dotted, value
 
 
 def _override_value(val: object) -> str:

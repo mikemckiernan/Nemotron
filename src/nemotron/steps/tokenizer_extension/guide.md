@@ -35,25 +35,35 @@ The splice is *constructive* (rank-dead-safe): every added token is emittable by
 
 ## Dependencies
 
-Two packages are **not** in the base install and are declared as an extra
-(`pyproject.toml` → `[project.optional-dependencies] tokenizer-extension`):
+These packages are **not** in the base install and are declared as extras
+(`pyproject.toml` → `[project.optional-dependencies]`):
 
 | Package | Needed by | If missing |
 |---|---|---|
 | `indic-nlp-library` | `extend` with `script_normalizer: devanagari` (i.e. `language:` hindi/marathi/nepali/sanskrit) | **hard error** — it used to fall back to NFKC-only, which silently trained a *different* tokenizer |
 | `fasttext-wheel` | `init_embeddings` with `method: focus` | **hard error** at the point of use (import is lazy, so other methods are unaffected) |
+| `mamba-ssm`, `causal-conv1d` (extra `tokenizer-extension-gpu`) | the **default** `base_model`, which is a Mamba-hybrid | **hard error** while loading the model |
 
 Local install:
 ```bash
-uv pip install -e '.[tokenizer-extension]'
+uv sync --extra tokenizer-extension --extra tokenizer-extension-gpu
 ```
+`tokenizer-extension-gpu` is only needed for the default `base_model`, which is
+a Mamba-hybrid. Its two packages ship as sdists that import torch in `setup.py`
+without declaring it, so they are built with `extra-build-dependencies` (see
+`[tool.uv]`); installing them outside uv needs `--no-build-isolation`.
+
 For a remote runner the container is built from the profile, so add them there —
 in your `env.toml`, on the profile used for these steps:
 ```toml
-pip_extras = ["typer", "rich", "pydantic-settings", "indic-nlp-library", "fasttext-wheel"]
+pip_extras = [
+    "typer", "rich", "pydantic-settings",
+    "indic-nlp-library", "fasttext-wheel",
+    "mamba-ssm", "causal-conv1d",   # default base_model only
+]
 ```
-Neither is installed by the default profile; a run will fail with the exact
-install command rather than produce a quietly different tokenizer.
+None of these is installed by the default profile; a run will fail with the
+exact install command rather than produce a quietly different tokenizer.
 
 ## Quickstart — extend a tokenizer for your language
 
